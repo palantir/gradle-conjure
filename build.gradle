@@ -72,7 +72,6 @@ subprojects {
     apply plugin: 'com.palantir.baseline-error-prone'
     apply plugin: 'com.palantir.baseline-idea'
     apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
     apply plugin: 'org.inferred.processors'
 
     sourceCompatibility = 1.8
