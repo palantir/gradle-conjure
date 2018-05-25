@@ -16,6 +16,7 @@
 
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
+apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
     compile 'com.palantir.conjure:conjure-core'
