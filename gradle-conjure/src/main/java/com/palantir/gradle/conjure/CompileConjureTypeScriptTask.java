@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.palantir.conjure.gradle;
+package com.palantir.gradle.conjure;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.Set;
-import java.util.function.Supplier;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.GFileUtils;
 
-public class CompileConjureJavaTask extends SourceTask {
+public class CompileConjureTypeScriptTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
-    private Supplier<Set<String>> featureFlagSupplier;
-    private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -50,34 +46,19 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setFeatureFlagSupplier(Supplier<Set<String>> featureFlagSupplier) {
-        this.featureFlagSupplier = featureFlagSupplier;
-    }
-
-    public final void setGenerateTask(String generateTask) {
-        this.generateTask = generateTask;
-    }
-
     @TaskAction
     public final void compileFiles() {
+        GFileUtils.cleanDirectory(outputDirectory);
         getSource().getFiles().stream().forEach(file -> {
-            Set<String> featureFlags = featureFlagSupplier.get();
             getProject().exec(execSpec -> {
-                ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-                commandArgsBuilder.add(
+                execSpec.commandLine("node",
                         executablePath.getAbsolutePath(),
-                        "generate",
+                        "local",
                         file.getAbsolutePath(),
-                        outputDirectory.getAbsolutePath(),
-                        generateTask);
-
-                if (!featureFlags.isEmpty()) {
-                    commandArgsBuilder.add("--features");
-                    commandArgsBuilder.addAll(featureFlags);
-                }
-                execSpec.commandLine(commandArgsBuilder.build().toArray());
+                        getProject().getName(),
+                        getProject().getVersion(),
+                        getOutputDirectory().getAbsolutePath());
             });
         });
     }
-
 }

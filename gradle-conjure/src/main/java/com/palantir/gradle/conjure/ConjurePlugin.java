@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.palantir.conjure.gradle;
+package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;

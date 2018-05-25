@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.palantir.conjure.gradle;
+package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

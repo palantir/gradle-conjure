@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.palantir.conjure.gradle;
+package com.palantir.gradle.conjure;
 
 import java.io.File;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.GFileUtils;
 
-public class CompileConjureTypeScriptTask extends SourceTask {
+public class CompileConjurePythonTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
@@ -48,17 +47,12 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     @TaskAction
     public final void compileFiles() {
-        GFileUtils.cleanDirectory(outputDirectory);
         getSource().getFiles().stream().forEach(file -> {
             getProject().exec(execSpec -> {
-                execSpec.commandLine("node",
-                        executablePath.getAbsolutePath(),
-                        "local",
-                        file.getAbsolutePath(),
-                        getProject().getName(),
-                        getProject().getVersion(),
-                        getOutputDirectory().getAbsolutePath());
+                execSpec.commandLine(
+                        executablePath.getAbsolutePath(), "generate", file.getAbsolutePath(), getOutputDirectory());
             });
         });
     }
+
 }

@@ -14,44 +14,39 @@
  * limitations under the License.
  */
 
-package com.palantir.conjure.gradle;
+package com.palantir.gradle.conjure;
 
+import com.palantir.conjure.defs.Conjure;
+import com.palantir.conjure.spec.ConjureDefinition;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.Input;
+import java.util.Set;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
-public class WriteGitignoreTask extends DefaultTask {
-    private Path outputFile;
-    private String contents;
+public class CompileIrTask extends SourceTask {
 
-    public final void setOutputDirectory(File outputDirectory) {
-        this.outputFile = outputDirectory.toPath().resolve(".gitignore");
-    }
+    private File outputFile;
 
-    public final void setContents(String contents) {
-        this.contents = contents;
-    }
-
-    @Input
-    public final String getContents() {
-        return contents;
+    public final void setOutputFile(File outputFile) {
+        this.outputFile = outputFile;
     }
 
     @OutputFile
     public final File getOutputFile() {
-        return outputFile.toFile();
+        return outputFile;
     }
 
     @TaskAction
-    public final void compileFiles() throws IOException {
-        Files.createDirectories(outputFile.getParent());
+    public final void generate() throws IOException {
+        writeToIr(getSource(), outputFile);
+    }
 
-        Files.write(outputFile, contents.getBytes(StandardCharsets.UTF_8));
+    protected static void writeToIr(FileTree source, File destination) throws IOException {
+        Set<File> ymlFiles = source.getFiles();
+        ConjureDefinition definition = Conjure.parse(ymlFiles);
+        ConjureDefinitions.OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValue(destination, definition);
     }
 }
