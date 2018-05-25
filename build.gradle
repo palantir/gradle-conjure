@@ -43,7 +43,7 @@ apply plugin: 'com.palantir.git-version'
 
 allprojects {
     version gitVersion()
-    group 'com.palantir.conjure.gradle'
+    group 'com.palantir.gradle.conjure'
 
     repositories {
         mavenCentral()
