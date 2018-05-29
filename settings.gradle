@@ -1,1 +1,3 @@
-include 'conjure-gradle-plugin'
+rootProject.name = 'gradle-conjure'
+
+include 'gradle-conjure'
