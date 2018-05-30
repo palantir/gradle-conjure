@@ -128,16 +128,21 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         // npm publish makes two requests to the registry
         server.enqueue(new MockResponse())
         server.enqueue(new MockResponse())
-        String npmrcContents = readResource('.npmrc')
-        file('api/build.gradle').text = '''
+        file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
-        publishTypeScript.doLast {
-            file('api-typescript/src/.npmrc') << '${npmrcContents}'
+        publishTypeScript.doFirst {
+            file('api-typescript/src/.npmrc') << '''
+            registry=http://localhost:8888
+            //localhost:8888/:_password=password
+            //localhost:8888/:username=test-publish
+            //localhost:8888/:email=test@palantir.com
+            //localhost:8888/:always-auth=true
+            '''.stripIndent()
         }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksWithFailure('publishTypeScript')
+        ExecutionResult result = runTasksSuccessfully('api:publishTypeScript')
 
         then:
         file('api/api-typescript/src/.npmrc').exists()
