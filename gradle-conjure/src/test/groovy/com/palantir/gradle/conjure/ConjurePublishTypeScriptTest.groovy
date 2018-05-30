@@ -74,7 +74,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         createFile('versions.props') << '''
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.2.2
+        com.palantir.conjure.typescript:conjure-typescript = 0.3.0
         '''.stripIndent()
 
         createFile('api/src/main/conjure/api.yml') << '''
@@ -129,7 +129,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
-        file('api/api-typescript/src') << 'registry=https://localhost:8888'
+        file('api/api-typescript/src/.npmrc') << 'registry=https://localhost:8888'
 
         then:
         result.wasExecuted(':api:compileTypeScript')
