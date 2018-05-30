@@ -321,6 +321,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 });
                 project.getTasks().create("publishTypeScript", Exec.class, task -> {
                     task.commandLine("npm", "publish");
+                    task.workingDir(srcDirectory);
                     task.dependsOn(compileConjureTypeScript);
                     task.dependsOn(compileTypeScript);
                 });

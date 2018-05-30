@@ -16,6 +16,8 @@
 
 package com.palantir.gradle.conjure
 
+import com.google.common.io.Resources
+import java.nio.charset.Charset
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import okhttp3.mockwebserver.MockResponse
@@ -121,20 +123,31 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
     def 'publishes generated code'() {
         given:
-        MockWebServer server = new MockWebServer();
-        server.start(8888);
+        MockWebServer server = new MockWebServer()
+        server.start(8888)
         // npm publish makes two requests to the registry
         server.enqueue(new MockResponse())
         server.enqueue(new MockResponse())
+        String npmrcContents = readResource('.npmrc')
+        file('api/build.gradle').text = '''
+        apply plugin: 'com.palantir.conjure'
+        publishTypeScript.doLast {
+            file('api-typescript/src/.npmrc') << '${npmrcContents}'
+        }
+        '''.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
-        file('api/api-typescript/src/.npmrc') << 'registry=https://localhost:8888'
+        ExecutionResult result = runTasksWithFailure('publishTypeScript')
 
         then:
-        result.wasExecuted(':api:compileTypeScript')
+        file('api/api-typescript/src/.npmrc').exists()
+        result.wasExecuted("api:compileTypeScript")
 
         cleanup:
         server.shutdown()
+    }
+
+    def readResource(String name) {
+        return Resources.asCharSource(Resources.getResource(name), Charset.defaultCharset()).read()
     }
 }
