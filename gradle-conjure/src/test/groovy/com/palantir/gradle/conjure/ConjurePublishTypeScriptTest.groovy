@@ -118,7 +118,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         then:
         result.wasExecuted('api:installTypeScriptDependencies')
         result.wasExecuted('api:compileConjureTypeScript')
-        file('api/api-typescript/src/index.js').exists()
+        file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
     }
 
     def 'publishes generated code'() {
