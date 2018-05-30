@@ -36,6 +36,7 @@ import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.Exec;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.util.GFileUtils;
@@ -278,6 +279,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.project(typescriptProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, conjureTask);
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
+                File srcDirectory = subproj.file("src");
                 project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
 
                 Task extractConjureTypeScriptTask = project.getTasks().create(
@@ -292,12 +294,12 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     project.getResources().gzip(Iterables.getOnlyElement(conjureTypeScriptFiles))));
                         });
 
-                project.getTasks().create("compileConjureTypeScript",
+                Task compileConjureTypeScript = project.getTasks().create("compileConjureTypeScript",
                         CompileConjureTypeScriptTask.class, (task) -> {
                             task.setSource(compileIrTask);
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "dist/bundle/conjure-typescript.bundle.js"));
-                            task.setOutputDirectory(subproj.file("src"));
+                            task.setOutputDirectory(srcDirectory);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(
@@ -305,6 +307,24 @@ public final class ConjurePlugin implements Plugin<Project> {
                                             "*.js\n*.ts\npackage.json\ntsconfig.json\n"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
+
+                Task installTypeScriptDependencies = project.getTasks().create("installTypeScriptDependencies",
+                        Exec.class, task -> {
+                            task.commandLine("npm", "install", "--no-package-lock");
+                            task.workingDir(srcDirectory);
+                            task.dependsOn(compileConjureTypeScript);
+                        });
+                Task compileTypeScript = project.getTasks().create("compileTypeScript", Exec.class, task -> {
+                    task.commandLine("npm", "build");
+                    task.workingDir(srcDirectory);
+                    task.dependsOn(installTypeScriptDependencies);
+                });
+                project.getTasks().create("publishTypeScript", Exec.class, task -> {
+                    task.commandLine("npm", "publish");
+                    task.workingDir(srcDirectory);
+                    task.dependsOn(compileConjureTypeScript);
+                    task.dependsOn(compileTypeScript);
+                });
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureTypeScript"));
             });
