@@ -139,6 +139,16 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
     }
 
+    def 'compileConjureTypeScript is up-to-date when run for the second time'() {
+        when:
+        ExecutionResult first = runTasksSuccessfully('compileConjureTypeScript')
+        first.wasExecuted(':api:compileConjureTypeScript')
+        ExecutionResult second = runTasksSuccessfully('compileConjureTypeScript')
+
+        then:
+        second.wasUpToDate(':api:compileConjureTypeScript')
+    }
+
     def 'publishes generated code'() {
         given:
         MockWebServer server = new MockWebServer()

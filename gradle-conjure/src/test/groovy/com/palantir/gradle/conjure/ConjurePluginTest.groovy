@@ -140,16 +140,6 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/build/conjure-ir/api.json').text.contains('TestServiceFoo')
     }
 
-    def 'compileConjureTypeScript is up-to-date when run for the second time'() {
-        when:
-        ExecutionResult first = runTasksSuccessfully('compileConjureTypeScript')
-        first.wasExecuted(':api:compileConjureTypeScript')
-        ExecutionResult second = runTasksSuccessfully('compileConjureTypeScript')
-
-        then:
-        second.wasUpToDate(':api:compileConjureTypeScript')
-    }
-
     def 'check code compiles'() {
         when:
         ExecutionResult result = runTasksSuccessfully('check')
