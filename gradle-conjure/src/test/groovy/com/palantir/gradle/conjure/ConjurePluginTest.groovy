@@ -150,24 +150,6 @@ class ConjurePluginTest extends IntegrationSpec {
         second.wasUpToDate(':api:compileConjureTypeScript')
     }
 
-    def 'installTypeScriptDependencies is up-to-date when run for the second time'() {
-        when:
-        !file('api/api-typescript/src/node_modules').exists()
-        ExecutionResult first = runTasksSuccessfully('installTypeScriptDependencies')
-
-        then:
-        first.wasExecuted(':api:compileConjureTypeScript') // necessary to get the package.json
-        first.wasExecuted(':api:installTypeScriptDependencies')
-        file('api/api-typescript/src/node_modules').isDirectory()
-
-        when:
-        ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
-
-        then:
-        second.wasExecuted(':api:compileConjureTypeScript') // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
-        second.wasUpToDate(':api:installTypeScriptDependencies')
-    }
-
     def 'check code compiles'() {
         when:
         ExecutionResult result = runTasksSuccessfully('check')
