@@ -170,11 +170,12 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('api:publishTypeScript')
+        ExecutionResult result = runTasksSuccessfully('publish')
 
         then:
-        file('api/api-typescript/src/.npmrc').exists()
-        result.wasExecuted("api:compileTypeScript")
+        file('api/api-typescript/src/.npmrc').text.contains('registry=')
+        result.wasExecuted('api:publishTypeScript')
+        result.wasExecuted('api:compileTypeScript')
 
         cleanup:
         server.shutdown()
