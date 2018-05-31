@@ -304,7 +304,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(
                                     createWriteGitignoreTask(
                                             subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(),
-                                            "*.js\n*.ts\npackage.json\ntsconfig.json\n"));
+                                            "*.js\n*.ts\npackage.json\ntsconfig.json\nnode_modules\n"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
 
