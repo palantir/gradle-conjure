@@ -133,6 +133,7 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-typescript/.gitignore').text.contains('*.ts')
         file('api/api-typescript/.gitignore').text.contains('package.json')
         file('api/api-typescript/.gitignore').text.contains('tsconfig.json')
+        file('api/api-typescript/.gitignore').text.contains('node_modules')
 
         // irFile
         fileExists('api/build/conjure-ir/api.json')

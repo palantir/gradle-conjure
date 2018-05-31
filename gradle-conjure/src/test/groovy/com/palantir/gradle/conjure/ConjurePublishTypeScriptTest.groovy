@@ -111,6 +111,24 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         directory('api/api-typescript/src/node_modules').exists()
     }
 
+    def 'installTypeScriptDependencies is up-to-date when run for the second time'() {
+        when:
+        !directory('api/api-typescript/src/node_modules').exists()
+        ExecutionResult first = runTasksSuccessfully('installTypeScriptDependencies')
+
+        then:
+        first.wasExecuted(':api:compileConjureTypeScript') // necessary to get the package.json
+        first.wasExecuted(':api:installTypeScriptDependencies')
+        directory('api/api-typescript/src/node_modules').exists()
+
+        when:
+        ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
+
+        then:
+        second.wasExecuted(':api:compileConjureTypeScript') // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
+        second.wasUpToDate(':api:installTypeScriptDependencies')
+    }
+
     def 'compiles TypeScript'() {
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
@@ -119,6 +137,16 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         result.wasExecuted('api:installTypeScriptDependencies')
         result.wasExecuted('api:compileConjureTypeScript')
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
+    }
+
+    def 'compileConjureTypeScript is up-to-date when run for the second time'() {
+        when:
+        ExecutionResult first = runTasksSuccessfully('compileConjureTypeScript')
+        first.wasExecuted(':api:compileConjureTypeScript')
+        ExecutionResult second = runTasksSuccessfully('compileConjureTypeScript')
+
+        then:
+        second.wasUpToDate(':api:compileConjureTypeScript')
     }
 
     def 'publishes generated code'() {
