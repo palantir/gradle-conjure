@@ -149,6 +149,29 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         second.wasUpToDate(':api:compileConjureTypeScript')
     }
+
+    def 'installTypeScriptDependencies is up-to-date when run for the second time'() {
+        when:
+        !file('api/api-typescript/src/node_modules').exists()
+        ExecutionResult first = runTasksSuccessfully('installTypeScriptDependencies')
+
+        then:
+        first.wasExecuted(':api:compileConjureTypeScript')
+        first.wasExecuted(':api:installTypeScriptDependencies')
+        file('api/api-typescript/src/node_modules').isDirectory()
+
+        when:
+        long a = file('api/api-typescript/src/package.json').lastModified()
+        ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
+        long b = file('api/api-typescript/src/package.json').lastModified()
+
+        then:
+        println second.standardOutput
+        a == b
+        second.wasUpToDate(':api:compileConjureTypeScript')
+        second.wasUpToDate(':api:installTypeScriptDependencies')
+    }
+
     def 'check code compiles'() {
         when:
         ExecutionResult result = runTasksSuccessfully('check')

@@ -313,6 +313,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.commandLine("npm", "install", "--no-package-lock");
                             task.workingDir(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
+                            task.getInputs().file(new File(srcDirectory, "package.json"));
+                            task.getOutputs().dir(new File(srcDirectory, "node_modules"));
                         });
                 Task compileTypeScript = project.getTasks().create("compileTypeScript", Exec.class, task -> {
                     task.commandLine("npm", "run-script", "build");
