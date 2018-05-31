@@ -7,6 +7,7 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk-node-browsers
+    resource_class: xlarge
 
     steps:
       - checkout
