@@ -156,6 +156,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult first = runTasksSuccessfully('installTypeScriptDependencies')
 
         then:
+        first.wasExecuted(':api:compileConjureTypeScript') // necessary to get the package.json
         first.wasExecuted(':api:installTypeScriptDependencies')
         file('api/api-typescript/src/node_modules').isDirectory()
 
@@ -163,6 +164,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
 
         then:
+        second.wasExecuted(':api:compileConjureTypeScript') // unnecessary, but acceptably quick
         second.wasUpToDate(':api:installTypeScriptDependencies')
     }
 
