@@ -164,7 +164,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
 
         then:
-        second.wasExecuted(':api:compileConjureTypeScript') // unnecessary, but acceptably quick
+        second.wasExecuted(':api:compileConjureTypeScript') // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
         second.wasUpToDate(':api:installTypeScriptDependencies')
     }
 
