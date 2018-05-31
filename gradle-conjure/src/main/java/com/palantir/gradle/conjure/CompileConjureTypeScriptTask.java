@@ -17,11 +17,11 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.GFileUtils;
 
 public class CompileConjureTypeScriptTask extends SourceTask {
 
@@ -48,7 +48,10 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     @TaskAction
     public final void compileFiles() {
-        GFileUtils.cleanDirectory(outputDirectory);
+        ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
+        fileTree.exclude("node_modules/**/*");
+        fileTree.forEach(File::delete);
+
         getSource().getFiles().stream().forEach(file -> {
             getProject().exec(execSpec -> {
                 execSpec.commandLine("node",
