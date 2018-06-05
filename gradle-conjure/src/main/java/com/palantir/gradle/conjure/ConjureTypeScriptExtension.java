@@ -16,19 +16,20 @@
 
 package com.palantir.gradle.conjure;
 
+import java.io.Serializable;
 import java.util.Optional;
 
-public class ConjureTypeScriptExtension {
-    private Optional<String> packageName = Optional.empty();
-    private Optional<String> version = Optional.empty();
+public class ConjureTypeScriptExtension implements Serializable {
+    private String packageName;
+    private String version;
     private String moduleType = "es2015";
 
     public final void packageName(String newPackageName) {
-        this.packageName = Optional.of(newPackageName);
+        this.packageName = newPackageName;
     }
 
     public final void version(String specifiedVersion) {
-        this.version = Optional.of(specifiedVersion);
+        this.version = specifiedVersion;
     }
 
     public final void moduleType(String specifiedModuleType) {
@@ -36,11 +37,11 @@ public class ConjureTypeScriptExtension {
     }
 
     public final Optional<String> getPackageName() {
-        return packageName;
+        return Optional.ofNullable(packageName);
     }
 
     public final Optional<String> getVersion() {
-        return version;
+        return Optional.ofNullable(version);
     }
 
     public final String getModuleType() {

@@ -30,9 +30,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
-    private Supplier<Optional<String>> packageNameSupplier;
-    private Supplier<Optional<String>> versionSupplier;
-    private Supplier<String> moduleTypeSupplier;
+    private Supplier<ConjureTypeScriptExtension> extension;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -52,31 +50,13 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         return executablePath;
     }
 
-    @Input
-    public final String getPackageName() {
-        return packageNameSupplier.get().orElse(getProject().getName());
-    }
-
-    public final void setPackageNameSupplier(Supplier<Optional<String>> packageNameSupplier) {
-        this.packageNameSupplier = packageNameSupplier;
+    public final void setExtension(Supplier<ConjureTypeScriptExtension> extension) {
+        this.extension = extension;
     }
 
     @Input
-    public final String getVersion() {
-        return versionSupplier.get().orElse((String) getProject().getVersion());
-    }
-
-    public final void setVersionSupplier(Supplier<Optional<String>> versionSupplier) {
-        this.versionSupplier = versionSupplier;
-    }
-
-    @Input
-    public final String getModuleType() {
-        return moduleTypeSupplier.get();
-    }
-
-    public final void setModuleTypeSupplier(Supplier<String> moduleTypeSupplier) {
-        this.moduleTypeSupplier = moduleTypeSupplier;
+    public final ConjureTypeScriptExtension getExtension() {
+        return extension.get();
     }
 
     @TaskAction
@@ -90,11 +70,11 @@ public class CompileConjureTypeScriptTask extends SourceTask {
                     executablePath.getAbsolutePath(),
                     "generate",
                     file.getAbsolutePath(),
-                    getPackageName(),
-                    getVersion(),
+                    getExtension().getPackageName().orElse(getProject().getName()),
+                    getExtension().getVersion().orElse(getProject().getVersion().toString()),
                     getOutputDirectory().getAbsolutePath(),
                     "--moduleType",
-                    getModuleType()));
+                    getExtension().getModuleType()));
         });
     }
 }
