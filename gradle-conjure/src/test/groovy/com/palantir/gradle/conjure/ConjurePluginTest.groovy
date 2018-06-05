@@ -436,8 +436,10 @@ class ConjurePluginTest extends IntegrationSpec {
     def 'typeScriptPackageName and version can be used'() {
          file('api/build.gradle') << '''
         conjure {
-            typeScriptPackageName "foo"
-            typeScriptVersion "0.0.0"
+            typescript {
+                packageName "foo"
+                version "0.0.0"
+            }
         }
         '''.stripIndent()
 

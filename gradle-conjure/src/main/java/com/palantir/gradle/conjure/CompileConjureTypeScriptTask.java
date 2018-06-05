@@ -32,6 +32,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
     private File executablePath;
     private Supplier<Optional<String>> packageNameSupplier;
     private Supplier<Optional<String>> versionSupplier;
+    private Supplier<String> moduleTypeSupplier;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -69,6 +70,15 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         this.versionSupplier = versionSupplier;
     }
 
+    @Input
+    public final String getModuleType() {
+        return moduleTypeSupplier.get();
+    }
+
+    public final void setModuleTypeSupplier(Supplier<String> moduleTypeSupplier) {
+        this.moduleTypeSupplier = moduleTypeSupplier;
+    }
+
     @TaskAction
     public final void compileFiles() {
         ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
@@ -76,15 +86,15 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         fileTree.forEach(File::delete);
 
         getSource().getFiles().stream().forEach(file -> {
-            getProject().exec(execSpec -> {
-                execSpec.commandLine("node",
-                        executablePath.getAbsolutePath(),
-                        "local",
-                        file.getAbsolutePath(),
-                        getPackageName(),
-                        getVersion(),
-                        getOutputDirectory().getAbsolutePath());
-            });
+            getProject().exec(execSpec -> execSpec.commandLine("node",
+                    executablePath.getAbsolutePath(),
+                    "local",
+                    file.getAbsolutePath(),
+                    getPackageName(),
+                    getVersion(),
+                    getOutputDirectory().getAbsolutePath(),
+                    "--moduleType",
+                    getModuleType()));
         });
     }
 }

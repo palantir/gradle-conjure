@@ -22,7 +22,6 @@ import com.google.common.collect.Iterables;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.inject.Inject;
@@ -87,12 +86,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         setupConjureJavaProject(project, extension::getJavaFeatureFlags, conjureTask, compileIrTask);
         setupConjurePythonProject(project, conjureTask, compileIrTask);
-        setupConjureTypescriptProject(
-                project,
-                extension::getTypeScriptPackageName,
-                extension::getTypeScriptVersion,
-                conjureTask,
-                compileIrTask);
+        setupConjureTypescriptProject(project, extension.getTypeScriptExtension(), conjureTask, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
@@ -274,8 +268,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
-            Supplier<Optional<String>> packageNameSupplier,
-            Supplier<Optional<String>> versionSupplier,
+            ConjureTypeScriptExtension typeScriptExtension,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -308,8 +301,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "dist/bundle/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
-                            task.setPackageNameSupplier(packageNameSupplier);
-                            task.setVersionSupplier(versionSupplier);
+                            task.setPackageNameSupplier(typeScriptExtension::getPackageName);
+                            task.setVersionSupplier(typeScriptExtension::getVersion);
+                            task.setModuleTypeSupplier(typeScriptExtension::getModuleType);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(
