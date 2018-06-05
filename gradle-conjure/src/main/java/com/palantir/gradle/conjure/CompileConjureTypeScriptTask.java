@@ -17,7 +17,6 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
@@ -64,14 +63,18 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
         fileTree.exclude("node_modules/**/*");
         fileTree.forEach(File::delete);
+        String packageName = getExtension().getPackageName() == null
+                ? getProject().getName() : getExtension().getPackageName();
+        String verison = getExtension().getVersion() == null
+                ? getProject().getVersion().toString() : getExtension().getVersion();
 
         getSource().getFiles().stream().forEach(file -> {
             getProject().exec(execSpec -> execSpec.commandLine("node",
                     executablePath.getAbsolutePath(),
                     "generate",
                     file.getAbsolutePath(),
-                    getExtension().getPackageName().orElse(getProject().getName()),
-                    getExtension().getVersion().orElse(getProject().getVersion().toString()),
+                    packageName,
+                    verison,
                     getOutputDirectory().getAbsolutePath(),
                     "--moduleType",
                     getExtension().getModuleType()));

@@ -16,9 +16,13 @@
 
 package com.palantir.gradle.conjure;
 
+import groovy.transform.EqualsAndHashCode;
+import groovy.transform.ToString;
 import java.io.Serializable;
-import java.util.Optional;
+import javax.annotation.CheckForNull;
 
+@ToString
+@EqualsAndHashCode
 public class ConjureTypeScriptExtension implements Serializable {
     private String packageName;
     private String version;
@@ -36,12 +40,14 @@ public class ConjureTypeScriptExtension implements Serializable {
         this.moduleType = specifiedModuleType;
     }
 
-    public final Optional<String> getPackageName() {
-        return Optional.ofNullable(packageName);
+    @CheckForNull
+    public final String getPackageName() {
+        return packageName;
     }
 
-    public final Optional<String> getVersion() {
-        return Optional.ofNullable(version);
+    @CheckForNull
+    public final String getVersion() {
+        return version;
     }
 
     public final String getModuleType() {
