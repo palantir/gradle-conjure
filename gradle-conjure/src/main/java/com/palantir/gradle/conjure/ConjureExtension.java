@@ -17,13 +17,32 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.Sets;
+import java.util.Optional;
 import java.util.Set;
 
 public class ConjureExtension {
     private final Set<String> javaFeatureFlags = Sets.newHashSet();
+    private Optional<String> typeScriptPackageName = Optional.empty();
+    private Optional<String> typeScriptVersion = Optional.empty();
 
     public final void javaFeatureFlag(String feature) {
         javaFeatureFlags.add(feature);
+    }
+
+    public final void typeScriptPackageName(String packageName) {
+        this.typeScriptPackageName = Optional.of(packageName);
+    }
+
+    public final void typeScriptVersion(String packageName) {
+        this.typeScriptVersion = Optional.of(packageName);
+    }
+
+    public final Optional<String> getTypeScriptPackageName() {
+        return typeScriptPackageName;
+    }
+
+    public final Optional<String> getTypeScriptVersion() {
+        return typeScriptVersion;
     }
 
     public final Set<String> getJavaFeatureFlags() {

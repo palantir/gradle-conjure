@@ -433,6 +433,22 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
+    def 'typeScriptPackageName and version can be used'() {
+         file('api/build.gradle') << '''
+        conjure {
+            typeScriptPackageName "foo"
+            typeScriptVersion "0.0.0"
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureTypeScript')
+
+        then:
+        file('api/api-typescript/src/package.json').text.contains('"name": "foo"')
+        file('api/api-typescript/src/package.json').text.contains('"version": "0.0.0"')
+    }
+
     def 'works with afterEvaluate'() {
         file('build.gradle') << '''
             allprojects {

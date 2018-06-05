@@ -17,7 +17,10 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
@@ -27,6 +30,8 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
+    private Supplier<Optional<String>> packageNameSupplier;
+    private Supplier<Optional<String>> versionSupplier;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -46,6 +51,24 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         return executablePath;
     }
 
+    @Input
+    public final String getPackageName() {
+        return packageNameSupplier.get().orElse(getProject().getName());
+    }
+
+    public final void setPackageNameSupplier(Supplier<Optional<String>> packageNameSupplier) {
+        this.packageNameSupplier = packageNameSupplier;
+    }
+
+    @Input
+    public final String getVersion() {
+        return versionSupplier.get().orElse((String) getProject().getVersion());
+    }
+
+    public final void setVersionSupplier(Supplier<Optional<String>> versionSupplier) {
+        this.versionSupplier = versionSupplier;
+    }
+
     @TaskAction
     public final void compileFiles() {
         ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
@@ -58,8 +81,8 @@ public class CompileConjureTypeScriptTask extends SourceTask {
                         executablePath.getAbsolutePath(),
                         "local",
                         file.getAbsolutePath(),
-                        getProject().getName(),
-                        getProject().getVersion(),
+                        getPackageName(),
+                        getVersion(),
                         getOutputDirectory().getAbsolutePath());
             });
         });
