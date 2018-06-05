@@ -299,7 +299,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureTypeScriptTask.class, (task) -> {
                             task.setSource(compileIrTask);
                             task.setExecutablePath(
-                                    new File(conjureTypescriptDir, "dist/bundle/conjure-typescript.bundle.js"));
+                                    new File(conjureTypescriptDir, "dist/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
                             task.setPackageNameSupplier(typeScriptExtension::getPackageName);
                             task.setVersionSupplier(typeScriptExtension::getVersion);

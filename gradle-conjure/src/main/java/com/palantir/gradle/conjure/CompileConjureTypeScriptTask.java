@@ -88,7 +88,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         getSource().getFiles().stream().forEach(file -> {
             getProject().exec(execSpec -> execSpec.commandLine("node",
                     executablePath.getAbsolutePath(),
-                    "local",
+                    "generate",
                     file.getAbsolutePath(),
                     getPackageName(),
                     getVersion(),

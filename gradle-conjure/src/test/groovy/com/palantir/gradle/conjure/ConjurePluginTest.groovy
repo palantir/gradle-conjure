@@ -77,7 +77,7 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.3.0
+        com.palantir.conjure.typescript:conjure-typescript = 0.4.2
         com.palantir.conjure.java:* = 0.2.1
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
@@ -433,12 +433,13 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
-    def 'typeScriptPackageName and version can be used'() {
+    def 'typescript extension is respected'() {
          file('api/build.gradle') << '''
         conjure {
             typescript {
                 packageName "foo"
                 version "0.0.0"
+                moduleType "commonjs"
             }
         }
         '''.stripIndent()
@@ -449,6 +450,7 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         file('api/api-typescript/src/package.json').text.contains('"name": "foo"')
         file('api/api-typescript/src/package.json').text.contains('"version": "0.0.0"')
+        file('api/api-typescript/src/tsconfig.json').text.contains('"module": "commonjs"')
     }
 
     def 'works with afterEvaluate'() {
