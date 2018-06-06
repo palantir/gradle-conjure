@@ -140,13 +140,20 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
     }
 
     def 'compiles Typescript with additional option'() {
-        File('api/build.gradle') << '''
+        file('api/build.gradle') << '''
         conjure {
             typescript {
                 moduleType = "commonjs"
             }
         }
         '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
+
+        then:
+        result.wasExecuted('api:installTypeScriptDependencies')
+        result.wasExecuted('api:compileConjureTypeScript')
 
         file('api/api-typescript/src/index.js').text.contains('Object.defineProperty(exports, "__esModule", { value: true });\n__export(require("./api"));')
     }
