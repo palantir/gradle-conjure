@@ -19,22 +19,26 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.Sets;
 import groovy.lang.Closure;
 import java.util.Set;
+import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 
 public class ConjureExtension {
+
+    public static final String EXTENSION_NAME = "conjure";
+
     private final Set<String> javaFeatureFlags = Sets.newHashSet();
-    private final ConjureTypeScriptExtension typeScriptExtension = new ConjureTypeScriptExtension();
+    private final DefaultExtraPropertiesExtension typescriptExtension = new DefaultExtraPropertiesExtension();
 
     public final void javaFeatureFlag(String feature) {
         javaFeatureFlags.add(feature);
     }
 
     public final void typescript(Closure closure) {
-        closure.setDelegate(typeScriptExtension);
+        closure.setDelegate(typescriptExtension);
         closure.call();
     }
 
-    public final ConjureTypeScriptExtension getTypeScriptExtension() {
-        return typeScriptExtension;
+    public final DefaultExtraPropertiesExtension getTypeScriptExtension() {
+        return typescriptExtension;
     }
 
     public final Set<String> getJavaFeatureFlags() {

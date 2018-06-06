@@ -437,9 +437,9 @@ class ConjurePluginTest extends IntegrationSpec {
          file('api/build.gradle') << '''
         conjure {
             typescript {
-                packageName "foo"
-                version "0.0.0"
-                moduleType "commonjs"
+                packageName = "foo"
+                version = "0.0.0"
+                moduleType = "commonjs"
             }
         }
         '''.stripIndent()

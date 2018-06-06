@@ -75,7 +75,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
-        ConjureExtension extension = project.getExtensions().create("conjure", ConjureExtension.class);
+        ConjureExtension extension = project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         // Set up conjure compile task
         Task conjureTask = project.getTasks().create(TASK_COMPILE_CONJURE, DefaultTask.class);
@@ -86,7 +86,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         setupConjureJavaProject(project, extension::getJavaFeatureFlags, conjureTask, compileIrTask);
         setupConjurePythonProject(project, conjureTask, compileIrTask);
-        setupConjureTypescriptProject(project, extension::getTypeScriptExtension, conjureTask, compileIrTask);
+        setupConjureTypescriptProject(project, conjureTask, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
@@ -268,7 +268,6 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
-            Supplier<ConjureTypeScriptExtension> typeScriptExtension,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -301,7 +300,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "dist/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
-                            task.setExtension(typeScriptExtension);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(

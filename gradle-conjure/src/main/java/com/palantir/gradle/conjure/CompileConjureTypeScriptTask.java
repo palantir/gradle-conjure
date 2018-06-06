@@ -16,10 +16,13 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.function.Supplier;
+import java.util.ArrayList;
+import java.util.List;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.tasks.Input;
+import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
@@ -27,9 +30,11 @@ import org.gradle.api.tasks.TaskAction;
 
 public class CompileConjureTypeScriptTask extends SourceTask {
 
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String VERSION = "version";
+
     private File outputDirectory;
     private File executablePath;
-    private Supplier<ConjureTypeScriptExtension> extension;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -49,35 +54,50 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setExtension(Supplier<ConjureTypeScriptExtension> extension) {
-        this.extension = extension;
-    }
-
-    @Input
-    public final ConjureTypeScriptExtension getExtension() {
-        return extension.get();
-    }
 
     @TaskAction
     public final void compileFiles() {
         ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
         fileTree.exclude("node_modules/**/*");
         fileTree.forEach(File::delete);
-        String packageName = getExtension().getPackageName() == null
-                ? getProject().getName() : getExtension().getPackageName();
-        String verison = getExtension().getVersion() == null
-                ? getProject().getVersion().toString() : getExtension().getVersion();
+
+        ConjureExtension conjureExtension = (ConjureExtension) getProject().getExtensions()
+                .getByName(ConjureExtension.EXTENSION_NAME);
+
+        if (conjureExtension == null) {
+            throw new GradleException("Unable to retrieve conjure extension");
+        }
+
+        DefaultExtraPropertiesExtension typescript = conjureExtension.getTypeScriptExtension();
+        List<String> additionalArgs = new ArrayList<>();
+        typescript.getProperties().entrySet().stream()
+                .filter(entry -> !entry.getKey().equals(PACKAGE_NAME) && !entry.getKey().equals(VERSION))
+                .filter(entry -> entry.getValue() != null)
+                .forEach(entry -> {
+                    additionalArgs.add("--" + entry.getKey());
+                    additionalArgs.add(entry.getValue().toString());
+                });
 
         getSource().getFiles().stream().forEach(file -> {
-            getProject().exec(execSpec -> execSpec.commandLine("node",
-                    executablePath.getAbsolutePath(),
-                    "generate",
-                    file.getAbsolutePath(),
-                    packageName,
-                    verison,
-                    getOutputDirectory().getAbsolutePath(),
-                    "--moduleType",
-                    getExtension().getModuleType()));
+            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            builder.add("node")
+                    .add(executablePath.getAbsolutePath())
+                    .add("generate")
+                    .add(file.getAbsolutePath())
+                    .add(getValueWithDefault(typescript, PACKAGE_NAME, getProject().getName()))
+                    .add(getValueWithDefault(typescript, VERSION, (String) getProject().getVersion()))
+                    .add(getOutputDirectory().getAbsolutePath())
+                    .addAll(additionalArgs);
+            getProject().exec(execSpec -> execSpec.commandLine(builder.build()));
         });
+    }
+
+    private static String getValueWithDefault(
+            DefaultExtraPropertiesExtension extension, String key, String defaultValue) {
+        if (extension.has(key) && (extension.getProperty(key) instanceof String)) {
+            return (String) extension.getProperty(key);
+        }
+
+        return defaultValue;
     }
 }

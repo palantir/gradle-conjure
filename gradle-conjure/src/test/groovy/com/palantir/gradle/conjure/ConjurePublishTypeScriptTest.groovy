@@ -76,7 +76,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         createFile('versions.props') << '''
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.3.0
+        com.palantir.conjure.typescript:conjure-typescript = 0.4.2
         '''.stripIndent()
 
         createFile('api/src/main/conjure/api.yml') << '''
@@ -137,6 +137,18 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         result.wasExecuted('api:installTypeScriptDependencies')
         result.wasExecuted('api:compileConjureTypeScript')
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
+    }
+
+    def 'compiles Typescript with additional option'() {
+        File('api/build.gradle') << '''
+        conjure {
+            typescript {
+                moduleType = "commonjs"
+            }
+        }
+        '''.stripIndent()
+
+        file('api/api-typescript/src/index.js').text.contains('Object.defineProperty(exports, "__esModule", { value: true });\n__export(require("./api"));')
     }
 
     def 'compileConjureTypeScript is up-to-date when run for the second time'() {
