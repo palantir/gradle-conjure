@@ -153,7 +153,6 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         then:
         result.wasExecuted('api:installTypeScriptDependencies')
-        result.wasExecuted('api:compileConjureTypeScript')
 
         file('api/api-typescript/src/index.js').text.contains('Object.defineProperty(exports, "__esModule", { value: true });\n__export(require("./api"));')
     }
