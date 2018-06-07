@@ -453,6 +453,23 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-typescript/src/tsconfig.json').text.contains('"module": "commonjs"')
     }
 
+    def 'passes additional option when running compile task'() {
+        file('api/build.gradle') << '''
+        conjure {
+            typescript {
+                moduleType = "testmodule"
+                unknownOps = "Unknown"
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasks(':api:compileConjureTypeScript')
+
+        then:
+        result.standardOutput.contains("--moduleType testmodule --unknownOps Unknown");
+    }
+
     def 'works with afterEvaluate'() {
         file('build.gradle') << '''
             allprojects {
