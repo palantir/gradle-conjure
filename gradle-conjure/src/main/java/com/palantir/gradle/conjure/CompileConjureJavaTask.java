@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
@@ -54,6 +55,11 @@ public class CompileConjureJavaTask extends SourceTask {
         this.featureFlagSupplier = featureFlagSupplier;
     }
 
+    @Input
+    public final Set<String> getFeatureFlagSupplier() {
+        return this.featureFlagSupplier.get();
+    }
+
     public final void setGenerateTask(String generateTask) {
         this.generateTask = generateTask;
     }
@@ -61,7 +67,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            Set<String> featureFlags = featureFlagSupplier.get();
+            Set<String> featureFlags = getFeatureFlagSupplier();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(

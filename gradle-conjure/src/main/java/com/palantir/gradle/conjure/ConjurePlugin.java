@@ -32,6 +32,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -87,7 +88,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         setupConjureJavaProject(project, extension::getJavaFeatureFlags, conjureTask, compileIrTask);
         setupConjurePythonProject(project, conjureTask, compileIrTask);
-        setupConjureTypescriptProject(project, conjureTask, compileIrTask);
+        setupConjureTypescriptProject(project, extension::getTypeScriptExtension, conjureTask, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
@@ -269,6 +270,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
+            Supplier<DefaultExtraPropertiesExtension> conjureTypeScriptExtension,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -301,6 +303,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "dist/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
+                            task.setTypeScriptExtension(conjureTypeScriptExtension);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(
