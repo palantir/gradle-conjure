@@ -32,6 +32,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.file.SourceDirectorySetFactory;
+import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -75,7 +76,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
-        ConjureExtension extension = project.getExtensions().create("conjure", ConjureExtension.class);
+        ConjureExtension extension = project.getExtensions()
+                .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         // Set up conjure compile task
         Task conjureTask = project.getTasks().create(TASK_COMPILE_CONJURE, DefaultTask.class);
@@ -85,8 +87,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
         setupConjureJavaProject(project, extension::getJavaFeatureFlags, conjureTask, compileIrTask);
-        setupConjureTypescriptProject(project, conjureTask, compileIrTask);
         setupConjurePythonProject(project, conjureTask, compileIrTask);
+        setupConjureTypescriptProject(project, extension::getTypeScriptExtension, conjureTask, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
@@ -268,6 +270,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
+            Supplier<DefaultExtraPropertiesExtension> conjureTypeScriptExtension,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -298,8 +301,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureTypeScriptTask.class, (task) -> {
                             task.setSource(compileIrTask);
                             task.setExecutablePath(
-                                    new File(conjureTypescriptDir, "dist/bundle/conjure-typescript.bundle.js"));
+                                    new File(conjureTypescriptDir, "dist/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
+                            task.setTypeScriptExtension(conjureTypeScriptExtension);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(

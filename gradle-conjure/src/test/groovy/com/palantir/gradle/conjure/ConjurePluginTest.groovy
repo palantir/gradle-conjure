@@ -77,7 +77,7 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.3.0
+        com.palantir.conjure.typescript:conjure-typescript = 0.4.2
         com.palantir.conjure.java:* = 0.2.1
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
@@ -431,6 +431,43 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
+    }
+
+    def 'typescript extension is respected'() {
+         file('api/build.gradle') << '''
+        conjure {
+            typescript {
+                packageName = "foo"
+                version = "0.0.0"
+                moduleType = "commonjs"
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureTypeScript')
+
+        then:
+        file('api/api-typescript/src/package.json').text.contains('"name": "foo"')
+        file('api/api-typescript/src/package.json').text.contains('"version": "0.0.0"')
+        file('api/api-typescript/src/tsconfig.json').text.contains('"module": "commonjs"')
+    }
+
+    def 'passes additional option when running compile task'() {
+        file('api/build.gradle') << '''
+        conjure {
+            typescript {
+                moduleType = "testmodule"
+                unknownOps = "Unknown"
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasks(':api:compileConjureTypeScript')
+
+        then:
+        result.standardOutput.contains("--moduleType testmodule --unknownOps Unknown");
     }
 
     def 'works with afterEvaluate'() {
