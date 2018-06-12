@@ -75,8 +75,7 @@ public class CompileConjureJavaTask extends SourceTask {
                         outputDirectory.getAbsolutePath(),
                         generateTask);
 
-                getLogger().info("Running generator with args: {}",
-                        RenderGeneratorOptions.toArgs(generatorOptions));
+                getLogger().info("Running generator with args: {}", RenderGeneratorOptions.toArgs(generatorOptions));
                 commandArgsBuilder.addAll(RenderGeneratorOptions.toArgs(generatorOptions));
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
