@@ -22,8 +22,8 @@ public class ConjureExtension {
 
     public static final String EXTENSION_NAME = "conjure";
 
-    private final ConjureGeneratorParameters typescriptConfiguration = new ConjureGeneratorParameters();
-    private final ConjureGeneratorParameters javaConfiguration = new ConjureGeneratorParameters();
+    private final GeneratorOptions typescriptConfiguration = new GeneratorOptions();
+    private final GeneratorOptions javaConfiguration = new GeneratorOptions();
 
     /**
      * @deprecated use the {@link #java(Closure)} method to configure feature flags by setting {@code feature = true}.
@@ -43,11 +43,11 @@ public class ConjureExtension {
         closure.call();
     }
 
-    public final ConjureGeneratorParameters getTypeScriptExtension() {
+    public final GeneratorOptions getTypeScriptExtension() {
         return typescriptConfiguration;
     }
 
-    public final ConjureGeneratorParameters getJavaExtension() {
+    public final GeneratorOptions getJavaExtension() {
         return javaConfiguration;
     }
 }

@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Renders a {@link ConjureGeneratorParameters} to command-line arguments.
- */
-public final class ConjureGeneratorParametersRenderer {
-    private ConjureGeneratorParametersRenderer() { }
+public final class RenderGeneratorOptions {
+    private RenderGeneratorOptions() { }
 
-    public static List<String> toArgs(ConjureGeneratorParameters parameters) {
+    /**
+     * Renders a {@link GeneratorOptions} to command-line arguments.
+     */
+    public static List<String> toArgs(GeneratorOptions parameters) {
         return parameters.getProperties().entrySet().stream().map(entry -> {
             Object value = entry.getValue();
             if (value == Boolean.TRUE) {

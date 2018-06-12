@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public final class ConjureGeneratorParameters implements Serializable {
+public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
     /** Keys must be defined in camelCase. */
     private static Predicate<String> expectedKeyPattern = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();

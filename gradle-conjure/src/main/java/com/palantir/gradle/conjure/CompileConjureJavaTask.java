@@ -29,7 +29,7 @@ import org.gradle.api.tasks.TaskAction;
 public class CompileConjureJavaTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
-    private Supplier<ConjureGeneratorParameters> generatorParametersSupplier;
+    private Supplier<GeneratorOptions> generatorOptionsSupplier;
     private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
@@ -50,13 +50,13 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setGeneratorParametersSupplier(Supplier<ConjureGeneratorParameters> generatorParametersSupplier) {
-        this.generatorParametersSupplier = generatorParametersSupplier;
+    public final void setGeneratorOptionsSupplier(Supplier<GeneratorOptions> generatorOptionsSupplier) {
+        this.generatorOptionsSupplier = generatorOptionsSupplier;
     }
 
     @Input
-    public final ConjureGeneratorParameters getGeneratorParametersSupplier() {
-        return this.generatorParametersSupplier.get();
+    public final GeneratorOptions getGeneratorOptionsSupplier() {
+        return this.generatorOptionsSupplier.get();
     }
 
     public final void setGenerateTask(String generateTask) {
@@ -66,7 +66,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            ConjureGeneratorParameters parameters = getGeneratorParametersSupplier();
+            GeneratorOptions options = getGeneratorOptionsSupplier();
             getProject().exec(execSpec -> {
                 getLogging().captureStandardOutput(LogLevel.LIFECYCLE);
                 getLogging().captureStandardError(LogLevel.ERROR);
@@ -79,8 +79,8 @@ public class CompileConjureJavaTask extends SourceTask {
                         generateTask);
 
                 getLogger().info("Running generator with args: {}",
-                        ConjureGeneratorParametersRenderer.toArgs(parameters));
-                commandArgsBuilder.addAll(ConjureGeneratorParametersRenderer.toArgs(parameters));
+                        RenderGeneratorOptions.toArgs(options));
+                commandArgsBuilder.addAll(RenderGeneratorOptions.toArgs(options));
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
         });

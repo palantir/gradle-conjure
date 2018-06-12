@@ -92,7 +92,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureJavaProject(
             Project project,
-            Supplier<ConjureGeneratorParameters> parametersSupplier,
+            Supplier<GeneratorOptions> optionsSupplier,
             Task conjureTask,
             Task compileIrTask) {
 
@@ -119,18 +119,18 @@ public final class ConjurePlugin implements Plugin<Project> {
                             Iterables.getOnlyElement(conjureJavaFiles).getName().replaceAll(".tgz", "")));
 
             setupConjureObjectsProject(
-                    project, javaExecutablePath, parametersSupplier, conjureTask, compileIrTask, extractJavaTask);
+                    project, javaExecutablePath, optionsSupplier, conjureTask, compileIrTask, extractJavaTask);
             setupConjureRetrofitProject(
-                    project, javaExecutablePath, parametersSupplier, conjureTask, compileIrTask, extractJavaTask);
+                    project, javaExecutablePath, optionsSupplier, conjureTask, compileIrTask, extractJavaTask);
             setupConjureJerseyProject(
-                    project, javaExecutablePath, parametersSupplier, conjureTask, compileIrTask, extractJavaTask);
+                    project, javaExecutablePath, optionsSupplier, conjureTask, compileIrTask, extractJavaTask);
         }
     }
 
     private static void setupConjureObjectsProject(
             Project project,
             File executablePath,
-            Supplier<ConjureGeneratorParameters> parametersSupplier,
+            Supplier<GeneratorOptions> optionsSupplier,
             Task conjureTask,
             Task compileIrTask,
             Task extractJavaTask) {
@@ -145,7 +145,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorParametersSupplier(parametersSupplier);
+                            task.setGeneratorOptionsSupplier(optionsSupplier);
                             task.setGenerateTask("--objects");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -172,7 +172,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureRetrofitProject(
             Project project,
             File executablePath,
-            Supplier<ConjureGeneratorParameters> parametersSupplier,
+            Supplier<GeneratorOptions> optionsSupplier,
             Task conjureTask,
             Task compileIrTask,
             Task extractJavaTask) {
@@ -193,7 +193,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorParametersSupplier(parametersSupplier);
+                            task.setGeneratorOptionsSupplier(optionsSupplier);
                             task.setGenerateTask("--retrofit");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -221,7 +221,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureJerseyProject(
             Project project,
             File executablePath,
-            Supplier<ConjureGeneratorParameters> parametersSupplier,
+            Supplier<GeneratorOptions> optionsSupplier,
             Task conjureTask,
             Task compileIrTask,
             Task extractJavaTask) {
@@ -242,7 +242,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorParametersSupplier(parametersSupplier);
+                            task.setGeneratorOptionsSupplier(optionsSupplier);
                             task.setGenerateTask("--jersey");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -269,7 +269,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
-            Supplier<ConjureGeneratorParameters> conjureTypeScriptParametersSupplier,
+            Supplier<GeneratorOptions> conjureTypeScriptParametersSupplier,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -302,7 +302,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "dist/conjure-typescript.bundle.js"));
                             task.setOutputDirectory(srcDirectory);
-                            task.setTypeScriptParameters(conjureTypeScriptParametersSupplier);
+                            task.setOptions(conjureTypeScriptParametersSupplier);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(

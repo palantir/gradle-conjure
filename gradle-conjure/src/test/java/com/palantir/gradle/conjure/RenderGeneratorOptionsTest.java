@@ -21,40 +21,40 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import org.junit.Test;
 
-public class ConjureGeneratorParametersRendererTest {
-    private final ConjureGeneratorParameters parameters = new ConjureGeneratorParameters();
+public class RenderGeneratorOptionsTest {
+    private final GeneratorOptions generatorOptions = new GeneratorOptions();
 
     @Test
     public void testBoolean() {
-        parameters.setProperty("foo", true);
-        parameters.setProperty("bar", false);
-        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo", "--bar=false");
+        generatorOptions.setProperty("foo", true);
+        generatorOptions.setProperty("bar", false);
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions)).containsExactly("--foo", "--bar=false");
     }
 
     @Test
     public void testObjects() {
-        parameters.setProperty("foo", new Object() {
+        generatorOptions.setProperty("foo", new Object() {
             @Override
             public String toString() {
                 return "hel lo";
             }
         });
-        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo=hel lo");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions)).containsExactly("--foo=hel lo");
     }
 
     @Test
     public void testCannotSetNull() {
-        assertThatNullPointerException().isThrownBy(() -> parameters.setProperty("foo", null));
+        assertThatNullPointerException().isThrownBy(() -> generatorOptions.setProperty("foo", null));
     }
 
     @Test
     public void testNullToString() {
-        parameters.setProperty("foo", new Object() {
+        generatorOptions.setProperty("foo", new Object() {
             @Override
             public String toString() {
                 return null;
             }
         });
-        assertThatNullPointerException().isThrownBy(() -> ConjureGeneratorParametersRenderer.toArgs(parameters));
+        assertThatNullPointerException().isThrownBy(() -> RenderGeneratorOptions.toArgs(generatorOptions));
     }
 }
