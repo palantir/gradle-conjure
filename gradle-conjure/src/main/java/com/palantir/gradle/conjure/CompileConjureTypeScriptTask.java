@@ -79,7 +79,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         requiredFields.forEach((field, defaultSupplier) -> {
             if (!generatorOptions.has(field)) {
                 String defaultValue = defaultSupplier.get();
-                getLogger().info("Field '%s' was not defined in options, falling back to default: %s",
+                getLogger().info("Field '{}' was not defined in options, falling back to default: {}",
                         field,
                         defaultValue);
                 generatorOptions.setProperty(field, defaultValue);
