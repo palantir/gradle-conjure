@@ -78,7 +78,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
         com.palantir.conjure.typescript:conjure-typescript = 0.4.2
-        com.palantir.conjure.java:* = 0.2.1
+        com.palantir.conjure.java:* = 0.2.4
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
         '''.stripIndent()
