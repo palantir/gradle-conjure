@@ -29,7 +29,7 @@ import org.gradle.api.tasks.TaskAction;
 public class CompileConjureJavaTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
-    private Supplier<GeneratorOptions> generatorOptionsSupplier;
+    private Supplier<GeneratorOptions> options;
     private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
@@ -50,13 +50,13 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setGeneratorOptionsSupplier(Supplier<GeneratorOptions> generatorOptionsSupplier) {
-        this.generatorOptionsSupplier = generatorOptionsSupplier;
+    public final void setOptions(Supplier<GeneratorOptions> options) {
+        this.options = options;
     }
 
     @Input
-    public final GeneratorOptions getGeneratorOptionsSupplier() {
-        return this.generatorOptionsSupplier.get();
+    public final GeneratorOptions getOptions() {
+        return this.options.get();
     }
 
     public final void setGenerateTask(String generateTask) {
@@ -66,7 +66,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            GeneratorOptions options = getGeneratorOptionsSupplier();
+            GeneratorOptions generatorOptions = getOptions();
             getProject().exec(execSpec -> {
                 getLogging().captureStandardOutput(LogLevel.LIFECYCLE);
                 getLogging().captureStandardError(LogLevel.ERROR);
@@ -79,8 +79,8 @@ public class CompileConjureJavaTask extends SourceTask {
                         generateTask);
 
                 getLogger().info("Running generator with args: {}",
-                        RenderGeneratorOptions.toArgs(options));
-                commandArgsBuilder.addAll(RenderGeneratorOptions.toArgs(options));
+                        RenderGeneratorOptions.toArgs(generatorOptions));
+                commandArgsBuilder.addAll(RenderGeneratorOptions.toArgs(generatorOptions));
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
         });

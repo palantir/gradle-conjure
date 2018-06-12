@@ -145,7 +145,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorOptionsSupplier(optionsSupplier);
+                            task.setOptions(optionsSupplier);
                             task.setGenerateTask("--objects");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -193,7 +193,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorOptionsSupplier(optionsSupplier);
+                            task.setOptions(optionsSupplier);
                             task.setGenerateTask("--retrofit");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -242,7 +242,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         CompileConjureJavaTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setGeneratorOptionsSupplier(optionsSupplier);
+                            task.setOptions(optionsSupplier);
                             task.setGenerateTask("--jersey");
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
