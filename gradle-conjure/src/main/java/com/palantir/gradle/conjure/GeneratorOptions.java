@@ -16,7 +16,15 @@ public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
     /** Keys must be defined in camelCase. */
     private static Predicate<String> expectedKeyPattern = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
-    private final Map<String, Object> storage = new LinkedHashMap<>();
+    private final Map<String, Object> storage;
+
+    public GeneratorOptions() {
+        storage = new LinkedHashMap<>();
+    }
+
+    public GeneratorOptions(GeneratorOptions options) {
+        this.storage = options.storage;
+    }
 
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {
