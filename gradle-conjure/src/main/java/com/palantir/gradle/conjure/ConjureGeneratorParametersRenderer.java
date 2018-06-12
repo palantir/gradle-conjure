@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Renders a {@link ConjureGeneratorParameters} to command-line arguments.
@@ -29,10 +28,10 @@ public final class ConjureGeneratorParametersRenderer {
     private ConjureGeneratorParametersRenderer() { }
 
     public static List<String> toArgs(ConjureGeneratorParameters parameters) {
-        return parameters.getProperties().entrySet().stream().flatMap(entry -> {
+        return parameters.getProperties().entrySet().stream().map(entry -> {
             Object value = entry.getValue();
-            if (value instanceof Boolean) {
-                return value == Boolean.TRUE ? Stream.of("--" + entry.getKey()) : Stream.empty();
+            if (value == Boolean.TRUE) {
+                return "--" + entry.getKey();
             }
             Preconditions.checkArgument(
                     !entry.getKey().contains("="),
@@ -40,7 +39,7 @@ public final class ConjureGeneratorParametersRenderer {
                     entry.getKey());
             String stringValue = Objects.toString(value);
             Preconditions.checkNotNull(stringValue, "Value cannot be null");
-            return Stream.of("--" + entry.getKey() + "=" + stringValue);
+            return "--" + entry.getKey() + "=" + stringValue;
         }).collect(Collectors.toList());
     }
 }

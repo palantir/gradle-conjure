@@ -28,7 +28,7 @@ public class ConjureGeneratorParametersRendererTest {
     public void testBoolean() {
         parameters.setProperty("foo", true);
         parameters.setProperty("bar", false);
-        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo");
+        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo", "--bar=false");
     }
 
     @Test
