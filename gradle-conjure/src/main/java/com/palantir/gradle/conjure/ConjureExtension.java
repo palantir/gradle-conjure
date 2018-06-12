@@ -16,33 +16,38 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.collect.Sets;
 import groovy.lang.Closure;
-import java.util.Set;
-import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 
 public class ConjureExtension {
 
     public static final String EXTENSION_NAME = "conjure";
 
-    private final Set<String> javaFeatureFlags = Sets.newHashSet();
-    private final DefaultExtraPropertiesExtension typescriptExtension = new DefaultExtraPropertiesExtension();
+    private final ConjureGeneratorParameters typescriptConfiguration = new ConjureGeneratorParameters();
+    private final ConjureGeneratorParameters javaConfiguration = new ConjureGeneratorParameters();
 
+    /**
+     * @deprecated use the {@link #java(Closure)} method to configure feature flags by setting {@code feature = true}.
+     */
+    @Deprecated
     public final void javaFeatureFlag(String feature) {
-        javaFeatureFlags.add(feature);
+        javaConfiguration.setProperty(feature, true);
     }
 
     public final void typescript(Closure closure) {
-        closure.setDelegate(typescriptExtension);
+        closure.setDelegate(typescriptConfiguration);
         closure.call();
     }
 
-    public final DefaultExtraPropertiesExtension getTypeScriptExtension() {
-        return typescriptExtension;
+    public final void java(Closure closure) {
+        closure.setDelegate(javaConfiguration);
+        closure.call();
     }
 
-    public final Set<String> getJavaFeatureFlags() {
-        return javaFeatureFlags;
+    public final ConjureGeneratorParameters getTypeScriptExtension() {
+        return typescriptConfiguration;
     }
 
+    public final ConjureGeneratorParameters getJavaExtension() {
+        return javaConfiguration;
+    }
 }

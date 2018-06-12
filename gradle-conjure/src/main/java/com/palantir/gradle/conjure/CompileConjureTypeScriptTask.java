@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.internal.plugins.DefaultExtraPropertiesExtension;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
@@ -40,7 +39,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
-    private Supplier<DefaultExtraPropertiesExtension> typeScriptExtension;
+    private Supplier<ConjureGeneratorParameters> typeScriptConfiguration;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -60,13 +59,13 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setTypeScriptExtension(Supplier<DefaultExtraPropertiesExtension> typeScriptExtension) {
-        this.typeScriptExtension = typeScriptExtension;
+    public final void setTypeScriptParameters(Supplier<ConjureGeneratorParameters> typeScriptConfiguration) {
+        this.typeScriptConfiguration = typeScriptConfiguration;
     }
 
     @Input
     public final Map<String, String> getTypeScriptProperties() {
-        return this.typeScriptExtension.get().getProperties()
+        return this.typeScriptConfiguration.get().getProperties()
                 .entrySet().stream()
                 .filter(entry -> entry.getValue() instanceof String)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));

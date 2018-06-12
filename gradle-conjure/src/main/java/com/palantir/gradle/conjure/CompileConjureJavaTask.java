@@ -18,7 +18,6 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.Set;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -27,10 +26,9 @@ import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
 public class CompileConjureJavaTask extends SourceTask {
-
     private File outputDirectory;
     private File executablePath;
-    private Supplier<Set<String>> featureFlagSupplier;
+    private Supplier<ConjureGeneratorParameters> generatorConfigurationSupplier;
     private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
@@ -51,13 +49,14 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setFeatureFlagSupplier(Supplier<Set<String>> featureFlagSupplier) {
-        this.featureFlagSupplier = featureFlagSupplier;
+    public final void setGeneratorParametersSupplier(
+            Supplier<ConjureGeneratorParameters> generatorParametersSupplier) {
+        this.generatorConfigurationSupplier = generatorParametersSupplier;
     }
 
     @Input
-    public final Set<String> getFeatureFlagSupplier() {
-        return this.featureFlagSupplier.get();
+    public final ConjureGeneratorParameters getGeneratorConfigurationSupplier() {
+        return this.generatorConfigurationSupplier.get();
     }
 
     public final void setGenerateTask(String generateTask) {
@@ -67,7 +66,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            Set<String> featureFlags = getFeatureFlagSupplier();
+            ConjureGeneratorParameters parameters = getGeneratorConfigurationSupplier();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(
@@ -77,10 +76,7 @@ public class CompileConjureJavaTask extends SourceTask {
                         outputDirectory.getAbsolutePath(),
                         generateTask);
 
-                if (!featureFlags.isEmpty()) {
-                    commandArgsBuilder.add("--features");
-                    commandArgsBuilder.addAll(featureFlags);
-                }
+                commandArgsBuilder.addAll(ConjureGeneratorParametersRenderer.toArgs(parameters));
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
         });
