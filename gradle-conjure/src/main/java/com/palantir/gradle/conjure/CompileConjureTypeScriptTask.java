@@ -17,12 +17,11 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -33,9 +32,11 @@ import org.gradle.api.tasks.TaskAction;
 public class CompileConjureTypeScriptTask extends SourceTask {
 
     private static final String PACKAGE_NAME = "packageName";
-    private static final String VERSION = "version";
+    private static final String VERSION = "packageVersion";
 
-    private static final ImmutableList<String> REQUIRED_FIELDS = ImmutableList.of(PACKAGE_NAME, VERSION);
+    private final Map<String, Supplier<String>> requiredFields = ImmutableMap.of(
+            PACKAGE_NAME, () -> getProject().getName(),
+            VERSION, () -> getProject().getVersion().toString());
 
     private File outputDirectory;
     private File executablePath;
@@ -64,11 +65,8 @@ public class CompileConjureTypeScriptTask extends SourceTask {
     }
 
     @Input
-    public final Map<String, String> getTypeScriptProperties() {
-        return this.options.get().getProperties()
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof String)
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+    public final GeneratorOptions getOptions() {
+        return this.options.get();
     }
 
     @TaskAction
@@ -77,23 +75,23 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         fileTree.exclude("node_modules/**/*");
         fileTree.forEach(File::delete);
 
-        Map<String, String> properties = getTypeScriptProperties();
-        List<String> additionalArgs = new ArrayList<>();
-        properties.entrySet().stream()
-                .filter(entry -> !REQUIRED_FIELDS.contains(entry.getKey()))
-                .forEach(entry -> {
-                    additionalArgs.add("--" + entry.getKey());
-                    additionalArgs.add(entry.getValue());
-                });
+        GeneratorOptions generatorOptions = new GeneratorOptions(getOptions());
+        requiredFields.forEach((field, defaultSupplier) -> {
+            if (!generatorOptions.has(field)) {
+                String defaultValue = defaultSupplier.get();
+                getLogger().info("Field '%s' was not defined in options, falling back to default: %s",
+                        field,
+                        defaultValue);
+                generatorOptions.setProperty(field, defaultValue);
+            }
+        });
+        List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions);
 
-        getSource().getFiles().stream().forEach(file -> {
+        getSource().getFiles().forEach(file -> {
             ImmutableList.Builder<String> builder = ImmutableList.builder();
-            builder.add("node")
-                    .add(executablePath.getAbsolutePath())
+            builder.add(executablePath.getAbsolutePath())
                     .add("generate")
                     .add(file.getAbsolutePath())
-                    .add(properties.getOrDefault(PACKAGE_NAME, getProject().getName()))
-                    .add(properties.getOrDefault(VERSION, (String) getProject().getVersion()))
                     .add(getOutputDirectory().getAbsolutePath())
                     .addAll(additionalArgs);
             getProject().exec(execSpec -> execSpec.commandLine(builder.build()));
