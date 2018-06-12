@@ -6,11 +6,9 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import groovy.lang.ReadOnlyPropertyException;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public final class ConjureGeneratorParameters implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
@@ -18,7 +16,7 @@ public final class ConjureGeneratorParameters implements Serializable {
 
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {
-            throw new ReadOnlyPropertyException("name", ExtraPropertiesExtension.class);
+            throw new RuntimeException("Can't override the 'properties' property");
         } else {
             this.set(name, newValue);
         }
