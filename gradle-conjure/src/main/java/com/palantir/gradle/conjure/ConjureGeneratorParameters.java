@@ -9,9 +9,13 @@ import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public final class ConjureGeneratorParameters implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
+    /** Keys must be defined in camelCase. */
+    private static Predicate<String> expectedKeyPattern = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
     private final Map<String, Object> storage = new LinkedHashMap<>();
 
     public void setProperty(String name, Object newValue) {
@@ -39,7 +43,9 @@ public final class ConjureGeneratorParameters implements Serializable {
     }
 
     private void set(String name, Object value) {
-        Preconditions.checkNotNull(value, "Value cannot be null (for property %s)", name);
+        Preconditions.checkNotNull(name, "Key cannot be null");
+        Preconditions.checkArgument(expectedKeyPattern.test(name), "Key must be camelCase: %s", name);
+        Preconditions.checkNotNull(value, "Property '%s': value cannot be null", name);
         this.storage.put(name, value);
     }
 }
