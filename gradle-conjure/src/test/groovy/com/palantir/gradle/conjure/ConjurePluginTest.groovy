@@ -418,10 +418,10 @@ class ConjurePluginTest extends IntegrationSpec {
         !result.wasExecuted(':api:compileConjureJersey')
     }
 
-    def 'featureFlag RetrofitCompletableFutures can be enabled'() {
+    def 'featureFlag RetrofitCompletableFutures can be enabled in the deprecated way'() {
         file('api/build.gradle') << '''
         conjure {
-            javaFeatureFlag "RetrofitCompletableFutures"
+            javaFeatureFlag "retrofitCompletableFutures"
         }
         '''.stripIndent()
 
@@ -432,6 +432,24 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
+
+    def 'featureFlag RetrofitCompletableFutures can be enabled'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                retrofitCompletableFutures = true
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureRetrofit')
+
+        then:
+        fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
+        file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
+    }
+
 
     def 'typescript extension is respected'() {
          file('api/build.gradle') << '''
