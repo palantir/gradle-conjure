@@ -28,7 +28,7 @@ import org.gradle.api.tasks.TaskAction;
 public class CompileConjureJavaTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
-    private Supplier<ConjureGeneratorParameters> generatorConfigurationSupplier;
+    private Supplier<ConjureGeneratorParameters> generatorParametersSupplier;
     private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
@@ -49,14 +49,13 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setGeneratorParametersSupplier(
-            Supplier<ConjureGeneratorParameters> generatorParametersSupplier) {
-        this.generatorConfigurationSupplier = generatorParametersSupplier;
+    public final void setGeneratorParametersSupplier(Supplier<ConjureGeneratorParameters> generatorParametersSupplier) {
+        this.generatorParametersSupplier = generatorParametersSupplier;
     }
 
     @Input
-    public final ConjureGeneratorParameters getGeneratorConfigurationSupplier() {
-        return this.generatorConfigurationSupplier.get();
+    public final ConjureGeneratorParameters getGeneratorParametersSupplier() {
+        return this.generatorParametersSupplier.get();
     }
 
     public final void setGenerateTask(String generateTask) {
@@ -66,7 +65,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            ConjureGeneratorParameters parameters = getGeneratorConfigurationSupplier();
+            ConjureGeneratorParameters parameters = getGeneratorParametersSupplier();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(

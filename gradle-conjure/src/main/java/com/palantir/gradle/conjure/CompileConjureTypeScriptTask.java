@@ -39,7 +39,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
     private File outputDirectory;
     private File executablePath;
-    private Supplier<ConjureGeneratorParameters> typeScriptConfiguration;
+    private Supplier<ConjureGeneratorParameters> typeScriptParameters;
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -59,13 +59,13 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setTypeScriptParameters(Supplier<ConjureGeneratorParameters> typeScriptConfiguration) {
-        this.typeScriptConfiguration = typeScriptConfiguration;
+    public final void setTypeScriptParameters(Supplier<ConjureGeneratorParameters> typeScriptParameters) {
+        this.typeScriptParameters = typeScriptParameters;
     }
 
     @Input
     public final Map<String, String> getTypeScriptProperties() {
-        return this.typeScriptConfiguration.get().getProperties()
+        return this.typeScriptParameters.get().getProperties()
                 .entrySet().stream()
                 .filter(entry -> entry.getValue() instanceof String)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
