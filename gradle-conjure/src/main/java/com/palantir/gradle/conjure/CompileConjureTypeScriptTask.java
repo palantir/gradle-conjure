@@ -70,7 +70,6 @@ public class CompileConjureTypeScriptTask extends SourceTask {
     }
 
     @TaskAction
-    @SuppressWarnings("Slf4jLogsafeArgs")
     public final void compileFiles() {
         ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
         fileTree.exclude("node_modules/**/*");

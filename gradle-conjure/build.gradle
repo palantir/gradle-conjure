@@ -37,3 +37,7 @@ idea {
         testSourceDirs += file("src/test/groovy")
     }
 }
+
+compileJava {
+    options.compilerArgs += '-Xep:Slf4jLogsafeArgs:OFF'
+}
