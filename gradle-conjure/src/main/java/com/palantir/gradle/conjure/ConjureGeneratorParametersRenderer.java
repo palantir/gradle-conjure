@@ -26,7 +26,9 @@ import java.util.stream.Stream;
  * Renders a {@link ConjureGeneratorParameters} to command-line arguments.
  */
 public final class ConjureGeneratorParametersRenderer {
-    public List<String> toArgs(ConjureGeneratorParameters parameters) {
+    private ConjureGeneratorParametersRenderer() { }
+
+    public static List<String> toArgs(ConjureGeneratorParameters parameters) {
         return parameters.getProperties().entrySet().stream().flatMap(entry -> {
             Object value = entry.getValue();
             if (value instanceof Boolean) {

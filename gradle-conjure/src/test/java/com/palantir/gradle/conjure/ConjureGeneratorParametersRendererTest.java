@@ -22,14 +22,13 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import org.junit.Test;
 
 public class ConjureGeneratorParametersRendererTest {
-    private final ConjureGeneratorParametersRenderer renderer = new ConjureGeneratorParametersRenderer();
     private final ConjureGeneratorParameters parameters = new ConjureGeneratorParameters();
 
     @Test
     public void testBoolean() {
         parameters.setProperty("foo", true);
         parameters.setProperty("bar", false);
-        assertThat(renderer.toArgs(parameters)).containsExactly("--foo");
+        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo");
     }
 
     @Test
@@ -40,7 +39,7 @@ public class ConjureGeneratorParametersRendererTest {
                 return "hel lo";
             }
         });
-        assertThat(renderer.toArgs(parameters)).containsExactly("--foo=hel lo");
+        assertThat(ConjureGeneratorParametersRenderer.toArgs(parameters)).containsExactly("--foo=hel lo");
     }
 
     @Test
@@ -56,6 +55,6 @@ public class ConjureGeneratorParametersRendererTest {
                 return null;
             }
         });
-        assertThatNullPointerException().isThrownBy(() -> renderer.toArgs(parameters));
+        assertThatNullPointerException().isThrownBy(() -> ConjureGeneratorParametersRenderer.toArgs(parameters));
     }
 }
