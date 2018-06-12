@@ -77,7 +77,7 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.4.2
+        com.palantir.conjure.typescript:conjure-typescript = 0.5.0
         com.palantir.conjure.java:* = 0.2.4
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
@@ -457,7 +457,7 @@ class ConjurePluginTest extends IntegrationSpec {
             typescript {
                 packageName = "foo"
                 version = "0.0.0"
-                moduleType = "commonjs"
+                nodeCompatibleModules = true
             }
         }
         '''.stripIndent()
@@ -475,7 +475,7 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/build.gradle') << '''
         conjure {
             typescript {
-                moduleType = "testmodule"
+                nodeCompatibleModules = true
                 unknownOps = "Unknown"
             }
         }
@@ -485,7 +485,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasks(':api:compileConjureTypeScript')
 
         then:
-        result.standardOutput.contains("--moduleType testmodule --unknownOps Unknown");
+        result.standardOutput.contains("--nodeCompatibleModules --unknownOps=Unknown");
     }
 
     def 'works with afterEvaluate'() {
