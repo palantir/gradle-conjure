@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
+import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import org.junit.Test;
 
@@ -29,7 +30,8 @@ public class RenderGeneratorOptionsTest {
     public void testBoolean() {
         generatorOptions.setProperty("foo", true);
         generatorOptions.setProperty("bar", false);
-        assertThat(RenderGeneratorOptions.toArgs(generatorOptions)).containsExactly("--foo", "--bar=false");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of())).containsExactly(
+                "--foo", "--bar=false");
     }
 
     @Test
@@ -40,7 +42,7 @@ public class RenderGeneratorOptionsTest {
                 return "hel lo";
             }
         });
-        assertThat(RenderGeneratorOptions.toArgs(generatorOptions)).containsExactly("--foo=hel lo");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of())).containsExactly("--foo=hel lo");
     }
 
     @Test
@@ -56,6 +58,7 @@ public class RenderGeneratorOptionsTest {
                 return null;
             }
         });
-        assertThatNullPointerException().isThrownBy(() -> RenderGeneratorOptions.toArgs(generatorOptions));
+        assertThatNullPointerException().isThrownBy(
+                () -> RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()));
     }
 }

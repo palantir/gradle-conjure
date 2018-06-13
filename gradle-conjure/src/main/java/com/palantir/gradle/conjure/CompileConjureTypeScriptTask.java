@@ -22,7 +22,7 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
@@ -36,9 +36,9 @@ public class CompileConjureTypeScriptTask extends SourceTask {
     private static final String PACKAGE_NAME = "packageName";
     private static final String VERSION = "packageVersion";
 
-    private final Map<String, Supplier<String>> requiredFields = ImmutableMap.of(
-            PACKAGE_NAME, () -> getProject().getName(),
-            VERSION, () -> getProject().getVersion().toString());
+    private final Map<String, Optional<Supplier<String>>> requiredFields = ImmutableMap.of(
+            PACKAGE_NAME, Optional.of(() -> getProject().getName()),
+            VERSION, Optional.of(() -> getProject().getVersion().toString()));
 
     private File outputDirectory;
     private File executablePath;
@@ -77,21 +77,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
         fileTree.exclude("node_modules/**/*");
         fileTree.forEach(File::delete);
 
-        GeneratorOptions generatorOptions = new GeneratorOptions(getOptions());
-        requiredFields.forEach((field, defaultSupplier) -> {
-            String defaultValue = defaultSupplier.get();
-            if (!generatorOptions.has(field)) {
-                getLogger().info("Field '{}' was not defined in options, falling back to default: {}",
-                        field,
-                        defaultValue);
-                generatorOptions.setProperty(field, defaultValue);
-            } else if (Objects.equals(defaultValue, Objects.toString(generatorOptions.get(field)))) {
-                getLogger().warn("Field '{}' was defined in options but its value is the same as the default: {}",
-                        field,
-                        defaultValue);
-            }
-        });
-        List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions);
+        List<String> additionalArgs = RenderGeneratorOptions.toArgs(getOptions(), requiredFields);
 
         getSource().getFiles().forEach(file -> {
             ImmutableList.Builder<String> builder = ImmutableList.builder();
