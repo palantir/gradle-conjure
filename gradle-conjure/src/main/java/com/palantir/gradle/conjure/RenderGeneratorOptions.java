@@ -46,7 +46,7 @@ public final class RenderGeneratorOptions {
             if (!defaultSupplierOpt.isPresent()) {
                 Preconditions.checkArgument(
                         properties.containsKey(field),
-                        "Required field '{}' did not have a value in options: {}",
+                        "Required field '%s' did not have a value in options: %s",
                         field,
                         properties);
                 return;

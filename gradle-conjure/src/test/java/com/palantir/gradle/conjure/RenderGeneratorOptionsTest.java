@@ -17,10 +17,12 @@
 package com.palantir.gradle.conjure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
+import java.util.Optional;
 import org.junit.Test;
 
 public class RenderGeneratorOptionsTest {
@@ -60,5 +62,20 @@ public class RenderGeneratorOptionsTest {
         });
         assertThatNullPointerException().isThrownBy(
                 () -> RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()));
+    }
+
+    @Test
+    public void testRequiredWithDefault() {
+        generatorOptions.setProperty("foo", "bar");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of("baz", Optional.of(() -> "yep"))))
+                .containsExactly("--foo=bar", "--baz=yep");
+    }
+
+    @Test
+    public void testRequiredWithoutDefault() {
+        generatorOptions.setProperty("foo", "bar");
+        assertThatIllegalArgumentException().isThrownBy(() -> RenderGeneratorOptions.toArgs(
+                generatorOptions, ImmutableMap.of("baz", Optional.empty())))
+                .withMessageContaining("field 'baz' did not have a value");
     }
 }
