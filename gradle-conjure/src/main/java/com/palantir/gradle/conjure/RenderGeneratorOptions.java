@@ -64,7 +64,7 @@ public final class RenderGeneratorOptions {
             }
         });
 
-        return properties.entrySet().stream().map(entry -> {
+        return resolvedProperties.build().entrySet().stream().map(entry -> {
             Object value = entry.getValue();
             if (value == Boolean.TRUE) {
                 return "--" + entry.getKey();
