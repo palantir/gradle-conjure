@@ -10,7 +10,6 @@ com.palantir.syntactic-paths:syntactic-paths = 0.6.1
 com.palantir.tokens:* = 3.0.1
 com.squareup.okhttp3:mockwebserver = 3.9.1
 com.squareup:javapoet = 1.11.1
-com.palantir.conjure.typescript:conjure-typescript = 2.1.2
 commons-io:commons-io = 2.6
 junit:junit = 4.12
 org.apache.commons:commons-lang3 = 3.7

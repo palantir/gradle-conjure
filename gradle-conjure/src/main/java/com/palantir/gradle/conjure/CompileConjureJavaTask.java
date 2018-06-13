@@ -17,8 +17,10 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -27,10 +29,9 @@ import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
 public class CompileConjureJavaTask extends SourceTask {
-
     private File outputDirectory;
     private File executablePath;
-    private Supplier<Set<String>> featureFlagSupplier;
+    private Supplier<GeneratorOptions> options;
     private String generateTask;
 
     public final void setOutputDirectory(File outputDirectory) {
@@ -51,13 +52,13 @@ public class CompileConjureJavaTask extends SourceTask {
         return executablePath;
     }
 
-    public final void setFeatureFlagSupplier(Supplier<Set<String>> featureFlagSupplier) {
-        this.featureFlagSupplier = featureFlagSupplier;
+    public final void setOptions(Supplier<GeneratorOptions> options) {
+        this.options = options;
     }
 
     @Input
-    public final Set<String> getFeatureFlagSupplier() {
-        return this.featureFlagSupplier.get();
+    public final GeneratorOptions getOptions() {
+        return this.options.get();
     }
 
     public final void setGenerateTask(String generateTask) {
@@ -67,7 +68,7 @@ public class CompileConjureJavaTask extends SourceTask {
     @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
-            Set<String> featureFlags = getFeatureFlagSupplier();
+            GeneratorOptions generatorOptions = getOptions();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(
@@ -77,10 +78,9 @@ public class CompileConjureJavaTask extends SourceTask {
                         outputDirectory.getAbsolutePath(),
                         generateTask);
 
-                if (!featureFlags.isEmpty()) {
-                    commandArgsBuilder.add("--features");
-                    commandArgsBuilder.addAll(featureFlags);
-                }
+                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of());
+                getLogger().info("Running generator with args: {}", additionalArgs);
+                commandArgsBuilder.addAll(additionalArgs);
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
         });

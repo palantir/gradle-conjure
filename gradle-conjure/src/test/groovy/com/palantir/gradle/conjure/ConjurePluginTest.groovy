@@ -77,8 +77,8 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.4.2
-        com.palantir.conjure.java:* = 0.2.1
+        com.palantir.conjure.typescript:conjure-typescript = 0.5.0
+        com.palantir.conjure.java:* = 0.2.4
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
         '''.stripIndent()
@@ -418,10 +418,10 @@ class ConjurePluginTest extends IntegrationSpec {
         !result.wasExecuted(':api:compileConjureJersey')
     }
 
-    def 'featureFlag RetrofitCompletableFutures can be enabled'() {
+    def 'featureFlag RetrofitCompletableFutures can be enabled in the deprecated way'() {
         file('api/build.gradle') << '''
         conjure {
-            javaFeatureFlag "RetrofitCompletableFutures"
+            javaFeatureFlag "retrofitCompletableFutures"
         }
         '''.stripIndent()
 
@@ -433,13 +433,31 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
+    def 'featureFlag RetrofitCompletableFutures can be enabled'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                retrofitCompletableFutures = true
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureRetrofit')
+
+        then:
+        fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
+        file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
+    }
+
+
     def 'typescript extension is respected'() {
          file('api/build.gradle') << '''
         conjure {
             typescript {
                 packageName = "foo"
                 version = "0.0.0"
-                moduleType = "commonjs"
+                nodeCompatibleModules = true
             }
         }
         '''.stripIndent()
@@ -457,7 +475,7 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/build.gradle') << '''
         conjure {
             typescript {
-                moduleType = "testmodule"
+                nodeCompatibleModules = true
                 unknownOps = "Unknown"
             }
         }
@@ -467,7 +485,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasks(':api:compileConjureTypeScript')
 
         then:
-        result.standardOutput.contains("--moduleType testmodule --unknownOps Unknown");
+        result.standardOutput.contains("--nodeCompatibleModules --unknownOps=Unknown");
     }
 
     def 'works with afterEvaluate'() {
