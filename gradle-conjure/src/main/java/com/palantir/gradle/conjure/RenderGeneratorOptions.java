@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.List;
 import java.util.Map;

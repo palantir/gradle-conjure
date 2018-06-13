@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import org.junit.Test;
 
 public class RenderGeneratorOptionsTest {

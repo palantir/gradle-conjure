@@ -19,6 +19,8 @@ package com.palantir.gradle.conjure;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.palantir.gradle.conjure.api.ConjureExtension;
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;

@@ -15,30 +15,9 @@
  */
 
 apply plugin: 'groovy'
-apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
+    compile localGroovy()
     compile 'com.palantir.conjure:conjure-core'
-    compile project(':gradle-conjure-api')
-
-    testCompile gradleTestKit()
-    testCompile 'com.netflix.nebula:nebula-test'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
-}
-
-gradlePlugin {
-    automatedPublishing = false
-}
-
-idea {
-    module {
-        testSourceDirs += file("src/test/groovy")
-    }
-}
-
-compileJava {
-    options.compilerArgs += '-Xep:Slf4jLogsafeArgs:OFF'
 }

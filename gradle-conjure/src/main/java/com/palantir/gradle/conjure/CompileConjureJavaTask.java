@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
+import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
