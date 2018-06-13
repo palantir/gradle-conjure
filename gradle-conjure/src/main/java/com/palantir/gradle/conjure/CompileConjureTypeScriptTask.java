@@ -22,7 +22,6 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
@@ -36,9 +35,9 @@ public class CompileConjureTypeScriptTask extends SourceTask {
     private static final String PACKAGE_NAME = "packageName";
     private static final String VERSION = "packageVersion";
 
-    private final Map<String, Optional<Supplier<String>>> requiredFields = ImmutableMap.of(
-            PACKAGE_NAME, Optional.of(() -> getProject().getName()),
-            VERSION, Optional.of(() -> getProject().getVersion().toString()));
+    private final Map<String, Supplier<String>> requiredFields = ImmutableMap.of(
+            PACKAGE_NAME, () -> getProject().getName(),
+            VERSION, () -> getProject().getVersion().toString());
 
     private File outputDirectory;
     private File executablePath;

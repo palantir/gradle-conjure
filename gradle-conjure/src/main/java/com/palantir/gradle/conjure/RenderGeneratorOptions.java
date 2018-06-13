@@ -22,7 +22,6 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -35,23 +34,15 @@ public final class RenderGeneratorOptions {
 
     /**
      * Renders a {@link GeneratorOptions} to command-line arguments.
-     * @param requiredOptions a map of required options to their optional default values
+     * @param requiredOptions a map of required options to their default values
      */
     public static List<String> toArgs(
-            GeneratorOptions options, Map<String, Optional<Supplier<String>>> requiredOptions) {
+            GeneratorOptions options, Map<String, Supplier<String>> requiredOptions) {
         Map<String, Object> properties = options.getProperties();
         ImmutableMap.Builder<String, Object> resolvedProperties =
                 ImmutableMap.<String, Object>builder().putAll(properties);
         requiredOptions.forEach((field, defaultSupplierOpt) -> {
-            if (!defaultSupplierOpt.isPresent()) {
-                Preconditions.checkArgument(
-                        properties.containsKey(field),
-                        "Required field '%s' did not have a value in options: %s",
-                        field,
-                        properties);
-                return;
-            }
-            String defaultValue = defaultSupplierOpt.get().get();
+            String defaultValue = defaultSupplierOpt.get();
             if (!properties.containsKey(field)) {
                 log.info("Field '{}' was not defined in options, falling back to default: {}",
                         field,
