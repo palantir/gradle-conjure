@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableList;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -76,8 +77,9 @@ public class CompileConjureJavaTask extends SourceTask {
                         outputDirectory.getAbsolutePath(),
                         generateTask);
 
-                getLogger().info("Running generator with args: {}", RenderGeneratorOptions.toArgs(generatorOptions));
-                commandArgsBuilder.addAll(RenderGeneratorOptions.toArgs(generatorOptions));
+                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions);
+                getLogger().info("Running generator with args: {}", additionalArgs);
+                commandArgsBuilder.addAll(additionalArgs);
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
             });
         });

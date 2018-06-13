@@ -101,7 +101,7 @@ public class CompileConjureTypeScriptTask extends SourceTask {
                     .add(getOutputDirectory().getAbsolutePath())
                     .addAll(additionalArgs);
 
-            getLogger().info("Running generator with args: {}", RenderGeneratorOptions.toArgs(generatorOptions));
+            getLogger().info("Running generator with args: {}", additionalArgs);
             getProject().exec(execSpec -> execSpec.commandLine(builder.build()));
         });
     }
