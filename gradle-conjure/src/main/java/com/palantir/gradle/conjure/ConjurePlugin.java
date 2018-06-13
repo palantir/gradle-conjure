@@ -271,7 +271,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
-            Supplier<GeneratorOptions> conjureTypeScriptParametersSupplier,
+            Supplier<GeneratorOptions> options,
             Task conjureTask,
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
@@ -304,7 +304,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(
                                     new File(conjureTypescriptDir, "conjure-typescript"));
                             task.setOutputDirectory(srcDirectory);
-                            task.setOptions(conjureTypeScriptParametersSupplier);
+                            task.setOptions(options);
                             conjureTask.dependsOn(task);
                             task.dependsOn(
                                     createWriteGitignoreTask(
