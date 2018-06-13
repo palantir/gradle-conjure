@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
@@ -77,12 +78,16 @@ public class CompileConjureTypeScriptTask extends SourceTask {
 
         GeneratorOptions generatorOptions = new GeneratorOptions(getOptions());
         requiredFields.forEach((field, defaultSupplier) -> {
+            String defaultValue = defaultSupplier.get();
             if (!generatorOptions.has(field)) {
-                String defaultValue = defaultSupplier.get();
                 getLogger().info("Field '{}' was not defined in options, falling back to default: {}",
                         field,
                         defaultValue);
                 generatorOptions.setProperty(field, defaultValue);
+            } else if (Objects.equals(defaultValue, Objects.toString(generatorOptions.get(field)))) {
+                getLogger().warn("Field '{}' was defined in options but its value is the same as the default: {}",
+                        field,
+                        defaultValue);
             }
         });
         List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions);
