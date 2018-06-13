@@ -22,32 +22,32 @@ public class ConjureExtension {
 
     public static final String EXTENSION_NAME = "conjure";
 
-    private final GeneratorOptions typescriptConfiguration = new GeneratorOptions();
-    private final GeneratorOptions javaConfiguration = new GeneratorOptions();
+    private final GeneratorOptions typescriptOptions = new GeneratorOptions();
+    private final GeneratorOptions javaOptions = new GeneratorOptions();
 
     /**
      * @deprecated use the {@link #java(Closure)} method to configure feature flags by setting {@code feature = true}.
      */
     @Deprecated
     public final void javaFeatureFlag(String feature) {
-        javaConfiguration.setProperty(feature, true);
+        javaOptions.setProperty(feature, true);
     }
 
     public final void typescript(Closure closure) {
-        closure.setDelegate(typescriptConfiguration);
+        closure.setDelegate(typescriptOptions);
         closure.call();
     }
 
     public final void java(Closure closure) {
-        closure.setDelegate(javaConfiguration);
+        closure.setDelegate(javaOptions);
         closure.call();
     }
 
-    public final GeneratorOptions getTypeScriptExtension() {
-        return typescriptConfiguration;
+    public final GeneratorOptions getTypescript() {
+        return typescriptOptions;
     }
 
-    public final GeneratorOptions getJavaExtension() {
-        return javaConfiguration;
+    public final GeneratorOptions getJava() {
+        return javaOptions;
     }
 }

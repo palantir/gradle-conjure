@@ -87,9 +87,9 @@ public final class ConjurePlugin implements Plugin<Project> {
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
-        setupConjureJavaProject(project, extension::getJavaExtension, conjureTask, compileIrTask);
+        setupConjureJavaProject(project, extension::getJava, conjureTask, compileIrTask);
         setupConjurePythonProject(project, conjureTask, compileIrTask);
-        setupConjureTypescriptProject(project, extension::getTypeScriptExtension, conjureTask, compileIrTask);
+        setupConjureTypescriptProject(project, extension::getTypescript, conjureTask, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
