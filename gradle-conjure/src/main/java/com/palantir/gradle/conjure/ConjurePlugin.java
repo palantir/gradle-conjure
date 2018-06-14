@@ -363,7 +363,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir);
                 project.getTasks().create("compileConjurePython",
-                        CompileConjurePythonTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             Set<File> conjurePythonFiles = conjurePythonConfig.resolve();
                             Preconditions.checkState(conjurePythonFiles.size() == 1,
