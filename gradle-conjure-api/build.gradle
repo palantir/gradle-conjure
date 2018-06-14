@@ -18,5 +18,4 @@ apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
     compile localGroovy()
-    compile 'com.google.guava:guava'
 }

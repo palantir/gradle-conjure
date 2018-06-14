@@ -16,9 +16,8 @@
 
 package com.palantir.gradle.conjure.api;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -26,8 +25,9 @@ import java.util.regex.Pattern;
 
 public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
+
     /** Keys must be defined in camelCase. */
-    private static Predicate<String> expectedKeyPattern = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
+    private static Predicate<String> camelCase = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
     private final Map<String, Object> storage;
 
     public GeneratorOptions() {
@@ -47,7 +47,7 @@ public final class GeneratorOptions implements Serializable {
     }
 
     public Map<String, Object> getProperties() {
-        return ImmutableMap.copyOf(this.storage);
+        return Collections.unmodifiableMap(this.storage);
     }
 
     public boolean has(String name) {
@@ -62,10 +62,19 @@ public final class GeneratorOptions implements Serializable {
         }
     }
 
-    private void set(String name, Object value) {
-        Preconditions.checkNotNull(name, "Key cannot be null");
-        Preconditions.checkArgument(expectedKeyPattern.test(name), "Key must be camelCase: %s", name);
-        Preconditions.checkNotNull(value, "Property '%s': value cannot be null", name);
-        this.storage.put(name, value);
+    private void set(String key, Object value) {
+        if (key == null) {
+            throw new NullPointerException("Key cannot be null: " + key);
+        }
+
+        if (!camelCase.test(key)) {
+            throw new IllegalArgumentException("Key must be camelCase: " + key);
+        }
+
+        if (value == null) {
+            throw new NullPointerException(String.format("Property '%s': value cannot be null", key));
+        }
+
+        this.storage.put(key, value);
     }
 }
