@@ -35,7 +35,7 @@ public final class GeneratorOptions implements Serializable {
     }
 
     public GeneratorOptions(GeneratorOptions options) {
-        this.storage = options.getProperties();
+        this.storage = new LinkedHashMap<>(options.getProperties());
     }
 
     public void setProperty(String name, Object newValue) {
