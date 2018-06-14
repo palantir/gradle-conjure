@@ -16,78 +16,29 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
 
-public class CompileConjureTypeScriptTask extends SourceTask {
+public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
 
     private static final String PACKAGE_NAME = "packageName";
     private static final String VERSION = "packageVersion";
 
-    private final Map<String, Supplier<String>> requiredFields = ImmutableMap.of(
-            PACKAGE_NAME, () -> getProject().getName(),
-            VERSION, () -> getProject().getVersion().toString());
-
-    private File outputDirectory;
-    private File executablePath;
-    private Supplier<GeneratorOptions> options;
-
-    public final void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
-    }
-
-    @OutputDirectory
-    public final File getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    public final void setExecutablePath(File executablePath) {
-        this.executablePath = executablePath;
-    }
-
-    @InputFile
-    public final File getExecutablePath() {
-        return executablePath;
-    }
-
-    public final void setOptions(Supplier<GeneratorOptions> options) {
-        this.options = options;
-    }
-
-    @Input
-    public final GeneratorOptions getOptions() {
-        return this.options.get();
-    }
-
-    @TaskAction
-    public final void compileFiles() {
-        ConfigurableFileTree fileTree = getProject().fileTree(outputDirectory);
-        fileTree.exclude("node_modules/**/*");
-        fileTree.forEach(File::delete);
-
-        List<String> additionalArgs = RenderGeneratorOptions.toArgs(getOptions(), requiredFields);
-
-        getSource().getFiles().forEach(file -> {
-            ImmutableList.Builder<String> builder = ImmutableList.builder();
-            builder.add(executablePath.getAbsolutePath())
-                    .add("generate")
-                    .add(file.getAbsolutePath())
-                    .add(getOutputDirectory().getAbsolutePath())
-                    .addAll(additionalArgs);
-
-            getLogger().info("Running generator with args: {}", additionalArgs);
-            getProject().exec(execSpec -> execSpec.commandLine(builder.build()));
+    public CompileConjureTypeScriptTask() {
+        doFirst(task -> {
+            ConfigurableFileTree fileTree = task.getProject().fileTree(getOutputDirectory());
+            fileTree.exclude("node_modules/**/*");
+            fileTree.forEach(File::delete);
         });
+    }
+
+    @Override
+    protected final Map<String, Supplier<String>> requiredOptions() {
+        return ImmutableMap.of(
+                PACKAGE_NAME, () -> getProject().getName(),
+                VERSION, () -> getProject().getVersion().toString());
     }
 }
