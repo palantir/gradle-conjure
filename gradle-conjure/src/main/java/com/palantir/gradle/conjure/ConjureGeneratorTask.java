@@ -29,7 +29,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
-public abstract class ConjureGeneratorTask extends SourceTask {
+public class ConjureGeneratorTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
     private Supplier<GeneratorOptions> options;
