@@ -64,7 +64,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
     private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
 
-    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python-cli";
+    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
     private static final String CONJURE_PYTHON = "conjurePython";
 
     private final SourceDirectorySetFactory sourceDirectorySetFactory;
@@ -277,23 +277,13 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File srcDirectory = subproj.file("src");
                 project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
 
-                Task extractConjureTypeScriptTask = project.getTasks().create(
-                        "extractConjureTypeScript",
-                        Copy.class, (task) -> {
-                            Set<File> conjureTypeScriptFiles = conjureTypeScriptConfig.resolve();
-                            Preconditions.checkState(conjureTypeScriptFiles.size() == 1,
-                                    "Expected exactly one conjureTypeScript dependency, found %s",
-                                    conjureTypeScriptFiles);
-                            task.into(conjureTypescriptDir);
-                            task.from(project.tarTree(
-                                    project.getResources().gzip(Iterables.getOnlyElement(conjureTypeScriptFiles))));
-                        });
-
+                Task extractConjureTypeScriptTask = createExtractTask(
+                        project, "extractConjureTypeScript", conjureTypeScriptConfig, conjureTypescriptDir);
                 Task compileConjureTypeScript = project.getTasks().create("compileConjureTypeScript",
                         CompileConjureTypeScriptTask.class, (task) -> {
                             task.setSource(compileIrTask);
                             task.setExecutablePath(
-                                    new File(conjureTypescriptDir, "conjure-typescript"));
+                                    extractExecutable(conjureTypescriptDir, "typescript", conjureTypeScriptConfig));
                             task.setOutputDirectory(srcDirectory);
                             task.setOptions(options);
                             conjureTask.dependsOn(task);
