@@ -153,7 +153,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureObjects",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
                             task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
@@ -200,7 +200,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureRetrofit",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
                             task.setOptions(() -> addFlag(optionsSupplier.get(), "retrofit"));
@@ -248,7 +248,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureJersey",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
                             task.setOptions(() -> addFlag(optionsSupplier.get(), "jersey"));
