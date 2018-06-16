@@ -27,12 +27,17 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
 
 public class ConjureGeneratorTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
     private Supplier<GeneratorOptions> options;
+
+    public ConjureGeneratorTask() {
+        // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
+        // main task
+        doLast(task -> this.compileFiles());
+    }
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -61,7 +66,6 @@ public class ConjureGeneratorTask extends SourceTask {
         return this.options.get();
     }
 
-    @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
             GeneratorOptions generatorOptions = getOptions();
