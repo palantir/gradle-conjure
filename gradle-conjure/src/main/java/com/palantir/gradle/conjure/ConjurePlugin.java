@@ -144,7 +144,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         "compileConjureObjects",
                         ConjureGeneratorTask.class,
                         (task) -> {
-                            task.setDescription("Generates Java POJOs from your Conjure definitions");
+                            task.setDescription("Generates Java POJOs from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setExecutablePath(executablePath);
                             task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
