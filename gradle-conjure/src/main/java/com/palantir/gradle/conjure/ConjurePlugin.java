@@ -344,19 +344,18 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 Task extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir);
-                project.getTasks().create("compileConjurePython",
-                        ConjureGeneratorTask.class,
-                        (task) -> {
-                            task.setSource(compileIrTask);
-                            task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
-                            task.setOutputDirectory(subproj.file("python"));
-                            compileConjure.dependsOn(task);
-                            task.dependsOn(
-                                    createWriteGitignoreTask(
-                                            subproj, "gitignoreConjurePython", subproj.getProjectDir(),
-                                            "*.py\n"));
-                            task.dependsOn(extractConjurePythonTask);
-                        });
+                project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
+                    task.setDescription("Generates python files from your Conjure IR JSON.");
+                    task.setGroup(TASK_GROUP);
+                    task.setSource(compileIrTask);
+                    task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
+                    task.setOutputDirectory(subproj.file("python"));
+                    compileConjure.dependsOn(task);
+                    task.dependsOn(createWriteGitignoreTask(
+                            subproj, "gitignoreConjurePython", subproj.getProjectDir(),
+                            "*.py\n"));
+                    task.dependsOn(extractConjurePythonTask);
+                });
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
