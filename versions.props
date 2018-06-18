@@ -3,6 +3,7 @@ com.fasterxml.jackson.datatype:jackson-datatype-jdk7 = 2.6.7
 com.google.errorprone:error_prone_annotations = 2.3.1
 com.google.googlejavaformat:google-java-format = 1.5
 com.google.guava:guava = 22.0
+com.netflix.nebula:nebula-dependency-recommender = 5.2.0
 com.netflix.nebula:nebula-test = 6.7.0
 com.palantir.baseline:* = 0.19.0
 com.palantir.conjure:* = 0.4.4

@@ -21,6 +21,7 @@ apply from: "$rootDir/gradle/publish-jar.gradle"
 dependencies {
     compile 'com.palantir.conjure:conjure-core'
     compile project(':gradle-conjure-api')
+    compileOnly 'com.netflix.nebula:nebula-dependency-recommender'
 
     testCompile gradleTestKit()
     testCompile 'com.netflix.nebula:nebula-test'

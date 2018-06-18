@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.palantir.gradle.conjure.api.ConjureExtension;
@@ -27,6 +28,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.inject.Inject;
+import netflix.nebula.dependency.recommender.provider.MapRecommendationProvider;
+import netflix.nebula.dependency.recommender.provider.RecommendationProviderContainer;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -61,7 +64,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final String TASK_COPY_CONJURE_SOURCES = "copyConjureSourcesIntoBuild";
     private static final String TASK_CLEAN_COPY_CONJURE_SOURCES = "cleanCopyConjureSourcesIntoBuild";
 
-    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
+    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript";
     private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
 
     private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
@@ -92,6 +95,16 @@ public final class ConjurePlugin implements Plugin<Project> {
         setupConjureTypescriptProject(project, extension::getTypescript, conjureTask, compileIrTask);
     }
 
+    private static void addNebulaDependencyRecommendation(Project project, String dep, String version) {
+        project.getPluginManager().withPlugin("nebula.dependency-recommender", plugin -> {
+            project.getExtensions().configure(RecommendationProviderContainer.class, recommendations -> {
+                MapRecommendationProvider provider = new MapRecommendationProvider();
+                provider.setRecommendations(ImmutableMap.of(dep, version));
+                recommendations.addFirst(provider);
+            });
+        });
+    }
+
     private static void setupConjureJavaProject(
             Project project,
             Supplier<GeneratorOptions> optionsSupplier,
@@ -107,6 +120,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             : project.getConfigurations().create(CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
+            addNebulaDependencyRecommendation(project, CONJURE_JAVA_BINARY, "0.2.4");
             Task extractJavaTask = createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir);
 
@@ -282,6 +296,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
                 File srcDirectory = subproj.file("src");
                 project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
+                addNebulaDependencyRecommendation(project, CONJURE_TYPESCRIPT_BINARY, "0.6.1");
 
                 Task extractConjureTypeScriptTask = createExtractTask(
                         project, "extractConjureTypeScript", conjureTypeScriptConfig, conjureTypescriptDir);
