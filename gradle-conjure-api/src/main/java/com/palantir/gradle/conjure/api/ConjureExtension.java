@@ -24,6 +24,7 @@ public class ConjureExtension {
 
     private final GeneratorOptions typescriptOptions = new GeneratorOptions();
     private final GeneratorOptions javaOptions = new GeneratorOptions();
+    private final GeneratorOptions pythonOptions = new GeneratorOptions();
 
     /**
      * @deprecated use the {@link #java(Closure)} method to configure feature flags by setting {@code feature = true}.
@@ -43,11 +44,20 @@ public class ConjureExtension {
         closure.call();
     }
 
+    public final void python(Closure closure) {
+        closure.setDelegate(pythonOptions);
+        closure.call();
+    }
+
     public final GeneratorOptions getTypescript() {
         return typescriptOptions;
     }
 
     public final GeneratorOptions getJava() {
         return javaOptions;
+    }
+
+    public final GeneratorOptions getPython() {
+        return pythonOptions;
     }
 }

@@ -89,7 +89,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
         setupConjureJavaProject(project, extension::getJava, compileConjure, compileIrTask);
-        setupConjurePythonProject(project, compileConjure, compileIrTask);
+        setupConjurePythonProject(project, extension::getPython, compileConjure, compileIrTask);
         setupConjureTypescriptProject(project, extension::getTypescript, compileConjure, compileIrTask);
     }
 
@@ -333,6 +333,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjurePythonProject(
             Project project,
+            Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
@@ -352,6 +353,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setSource(compileIrTask);
                     task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
                     task.setOutputDirectory(subproj.file("python"));
+                    task.setOptions(options);
                     compileConjure.dependsOn(task);
                     task.dependsOn(createWriteGitignoreTask(
                             subproj, "gitignoreConjurePython", subproj.getProjectDir(),
