@@ -316,8 +316,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(installTypeScriptDependencies);
                 });
                 Task publishTypeScript = project.getTasks().create("publishTypeScript", Exec.class, task -> {
-                    task.setDescription(
-                            "Runs `npm publish` to publish TypeScript package generated from your Conjure definitions.");
+                    task.setDescription("Runs `npm publish` to publish a TypeScript package "
+                            + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.commandLine("npm", "publish");
                     task.workingDir(srcDirectory);
