@@ -284,7 +284,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task compileConjureTypeScript = project.getTasks().create("compileConjureTypeScript",
                         CompileConjureTypeScriptTask.class, task -> {
                             task.setDescription(
-                                    "Generates typescript files and a package.json from your Conjure definitions.");
+                                    "Generates TypeScript files and a package.json from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setSource(compileIrTask);
                             task.setExecutablePath(
@@ -341,7 +341,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir);
                 project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
-                    task.setDescription("Generates python files from your Conjure definitions.");
+                    task.setDescription("Generates Python files from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.setSource(compileIrTask);
                     task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
@@ -413,7 +413,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         File irPath = Paths.get(project.getBuildDir().toString(), "conjure-ir", project.getName() + ".json").toFile();
         return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
-            compileIr.setDescription(TASK_GROUP);
+            compileIr.setGroup(TASK_GROUP);
             compileIr.setSource(copyConjureSourcesTask);
             compileIr.setOutputFile(irPath);
         });
