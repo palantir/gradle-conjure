@@ -45,27 +45,26 @@ import org.gradle.util.GFileUtils;
 
 public final class ConjurePlugin implements Plugin<Project> {
 
+    private static final String TASK_GROUP = "Conjure";
+    private static final String TASK_CLEAN = "clean";
+
+    // configuration names
+    private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
+    private static final String CONJURE_PYTHON = "conjurePython";
+    private static final String CONJURE_JAVA = "conjureJava";
+
+    // executable distributions
+    private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
+    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
+    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
+
     // java project constants
     private static final String JAVA_OBJECTS_SUFFIX = "-objects";
     private static final String JAVA_JERSEY_SUFFIX = "-jersey";
     private static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
-    private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
-    private static final String CONJURE_JAVA = "conjureJava";
     private static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     private static final String JAVA_GITIGNORE_DIRNAME = "src";
     private static final String JAVA_GITIGNORE_CONTENTS = "/generated/**/*.java\n";
-
-    // gradle task constants
-    private static final String TASK_COMPILE_CONJURE = "compileConjure";
-    private static final String TASK_CLEAN = "clean";
-    private static final String TASK_COPY_CONJURE_SOURCES = "copyConjureSourcesIntoBuild";
-    private static final String TASK_CLEAN_COPY_CONJURE_SOURCES = "cleanCopyConjureSourcesIntoBuild";
-
-    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
-    private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
-
-    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
-    private static final String CONJURE_PYTHON = "conjurePython";
 
     private final SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -427,7 +426,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         File buildDir = new File(project.getBuildDir(), "conjure");
 
         // Copy conjure sources into build directory
-        Copy copyConjureSourcesTask = project.getTasks().create(TASK_COPY_CONJURE_SOURCES, Copy.class);
+        Copy copyConjureSourcesTask = project.getTasks().create("copyConjureSourcesIntoBuild", Copy.class);
         copyConjureSourcesTask.into(project.file(buildDir)).from(conjureSourceSet);
 
         copyConjureSourcesTask.doFirst(task -> {
@@ -435,7 +434,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
 
         Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-        cleanTask.dependsOn(project.getTasks().findByName(TASK_CLEAN_COPY_CONJURE_SOURCES));
+        cleanTask.dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild"));
 
         return copyConjureSourcesTask;
     }
