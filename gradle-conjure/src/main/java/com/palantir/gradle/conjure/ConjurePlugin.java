@@ -55,7 +55,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     // executable distributions
     private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
-    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
+    private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript";
     private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
 
     // java project constants
