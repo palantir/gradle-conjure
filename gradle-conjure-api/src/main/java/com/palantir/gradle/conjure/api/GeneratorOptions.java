@@ -28,7 +28,15 @@ public final class GeneratorOptions implements Serializable {
 
     /** Keys must be defined in camelCase. */
     private static Predicate<String> camelCase = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
-    private final Map<String, Object> storage = new LinkedHashMap<>();
+    private final Map<String, Object> storage;
+
+    public GeneratorOptions() {
+        this.storage = new LinkedHashMap<>();
+    }
+
+    public GeneratorOptions(GeneratorOptions options) {
+        this.storage = new LinkedHashMap<>(options.getProperties());
+    }
 
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {

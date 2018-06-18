@@ -120,6 +120,15 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
     }
 
+    private static GeneratorOptions addFlag(GeneratorOptions options, String flag) {
+        Preconditions.checkArgument(
+                !options.has(flag),
+                "Passed GeneratorOptions already has flag '%s' set: %s", flag, options);
+        GeneratorOptions generatorOptions = new GeneratorOptions(options);
+        generatorOptions.setProperty(flag, true);
+        return generatorOptions;
+    }
+
     private static void setupConjureObjectsProject(
             Project project,
             File executablePath,
@@ -135,11 +144,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureObjects",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setOptions(optionsSupplier);
-                            task.setGenerateTask("--objects");
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
@@ -183,11 +191,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureRetrofit",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setOptions(optionsSupplier);
-                            task.setGenerateTask("--retrofit");
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "retrofit"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
@@ -232,11 +239,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureJersey",
-                        CompileConjureJavaTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setExecutablePath(executablePath);
-                            task.setOptions(optionsSupplier);
-                            task.setGenerateTask("--jersey");
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "jersey"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
@@ -338,7 +344,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir);
                 project.getTasks().create("compileConjurePython",
-                        CompileConjurePythonTask.class,
+                        ConjureGeneratorTask.class,
                         (task) -> {
                             task.setSource(compileIrTask);
                             task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));

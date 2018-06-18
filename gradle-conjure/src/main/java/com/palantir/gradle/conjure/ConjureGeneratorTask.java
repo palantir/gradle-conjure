@@ -21,18 +21,23 @@ import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
 
-public class CompileConjureJavaTask extends SourceTask {
+public class ConjureGeneratorTask extends SourceTask {
     private File outputDirectory;
     private File executablePath;
     private Supplier<GeneratorOptions> options;
-    private String generateTask;
+
+    public ConjureGeneratorTask() {
+        // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
+        // main task
+        doLast(task -> this.compileFiles());
+    }
 
     public final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
@@ -61,11 +66,6 @@ public class CompileConjureJavaTask extends SourceTask {
         return this.options.get();
     }
 
-    public final void setGenerateTask(String generateTask) {
-        this.generateTask = generateTask;
-    }
-
-    @TaskAction
     public final void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
             GeneratorOptions generatorOptions = getOptions();
@@ -75,10 +75,9 @@ public class CompileConjureJavaTask extends SourceTask {
                         executablePath.getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
-                        outputDirectory.getAbsolutePath(),
-                        generateTask);
+                        outputDirectory.getAbsolutePath());
 
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of());
+                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
                 getLogger().info("Running generator with args: {}", additionalArgs);
                 commandArgsBuilder.addAll(additionalArgs);
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
@@ -86,4 +85,11 @@ public class CompileConjureJavaTask extends SourceTask {
         });
     }
 
+    /**
+     * What options are required, along with suppliers for obtaining their default values if they were not defined in
+     * the {@link #getOptions() options}.
+     */
+    protected Map<String, Supplier<String>> requiredOptions() {
+        return ImmutableMap.of();
+    }
 }
