@@ -102,10 +102,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
-            final Configuration conjureJavaConfig =
-                    project.getConfigurations().findByName(CONJURE_JAVA) != null
-                            ? project.getConfigurations().findByName(CONJURE_JAVA)
-                            : project.getConfigurations().create(CONJURE_JAVA);
+            Configuration conjureJavaConfig = createConfigurationIfNecessary(project, CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
             Task extractJavaTask = createExtractTask(
@@ -274,10 +271,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
-            final Configuration conjureTypeScriptConfig =
-                    project.getConfigurations().findByName(CONJURE_TYPESCRIPT) != null
-                            ? project.getConfigurations().findByName(CONJURE_TYPESCRIPT)
-                            : project.getConfigurations().create(CONJURE_TYPESCRIPT);
+            Configuration conjureTypeScriptConfig = createConfigurationIfNecessary(project, CONJURE_TYPESCRIPT);
             project.project(typescriptProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
@@ -333,10 +327,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
         if (project.findProject(pythonProjectName) != null) {
-            final Configuration conjurePythonConfig =
-                    project.getConfigurations().findByName(CONJURE_PYTHON) != null
-                            ? project.getConfigurations().findByName(CONJURE_PYTHON)
-                            : project.getConfigurations().create(CONJURE_PYTHON);
+            Configuration conjurePythonConfig = createConfigurationIfNecessary(project, CONJURE_PYTHON);
+
             project.project(pythonProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
@@ -361,6 +353,12 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
             });
         }
+    }
+
+    private static Configuration createConfigurationIfNecessary(Project project, String configurationName) {
+        return project.getConfigurations().findByName(configurationName) != null
+                ? project.getConfigurations().findByName(configurationName)
+                : project.getConfigurations().create(configurationName);
     }
 
     private static void addGeneratedToMainSourceSet(Project subproj) {
@@ -450,6 +448,5 @@ public final class ConjurePlugin implements Plugin<Project> {
                         "%s/bin/conjure-%s",
                         Iterables.getOnlyElement(configurationFiles).getName().replaceAll(".tgz", ""),
                         language));
-
     }
 }
