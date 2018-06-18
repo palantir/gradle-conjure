@@ -409,13 +409,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Task createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
-
         File irPath = Paths.get(project.getBuildDir().toString(), "conjure-ir", project.getName() + ".json").toFile();
-        Task compileIr = project.getTasks().create("compileIr", CompileIrTask.class, (task) -> {
-            task.setSource(copyConjureSourcesTask);
-            task.setOutputFile(irPath);
+        return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
+            compileIr.setDescription("Converts your Conjure YML files into a single portable file containing IR JSON.");
+            compileIr.setDescription(TASK_GROUP);
+            compileIr.setSource(copyConjureSourcesTask);
+            compileIr.setOutputFile(irPath);
         });
-        return compileIr;
     }
 
     private static Copy getConjureSources(Project project, SourceDirectorySetFactory sourceDirectorySetFactory) {
