@@ -406,7 +406,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(config);
             task.setOutputDirectory(outputDir);
-            task.setLanguage(language);
+            task.setExecutableName(language);
         });
     }
 

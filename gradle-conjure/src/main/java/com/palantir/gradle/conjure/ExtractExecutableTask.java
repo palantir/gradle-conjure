@@ -33,49 +33,54 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-@SuppressWarnings("checkstyle:DesignForExtension") // tasks cannot be final / non public
 public class ExtractExecutableTask extends DefaultTask {
     /**
      * {@link ConfigurableFileCollection} is lazy.
      */
     private Configuration archive;
     private File outputDirectory;
-    private String language;
+    private String executableName;
 
     @InputFiles
-    public FileCollection getArchive() {
+    public final FileCollection getArchive() {
         return archive;
     }
 
-    void setArchive(Configuration archive) {
+    final void setArchive(Configuration archive) {
         this.archive = archive;
     }
 
     @OutputDirectory
-    public File getOutputDirectory() {
+    public final File getOutputDirectory() {
         return outputDirectory;
     }
 
-    void setOutputDirectory(File outputDirectory) {
+    final void setOutputDirectory(File outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
+    /**
+     * The file name of the executable.
+     */
     @Input
-    public String getLanguage() {
-        return language;
+    public final String getExecutableName() {
+        return executableName;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public final void setExecutableName(String executableName) {
+        this.executableName = executableName;
     }
 
+    /**
+     * The full path to the executable that will be extracted by this task.
+     */
     @OutputFile
-    File getExecutable() {
-        return new File(getOutputDirectory(), String.format("bin/conjure-%s", language));
+    final File getExecutable() {
+        return new File(getOutputDirectory(), String.format("bin/conjure-%s", executableName));
     }
 
     @TaskAction
-    void run() {
+    final void run() {
         Set<File> resolvedFiles = archive.getFiles();
         Preconditions.checkState(resolvedFiles.size() == 1,
                 "Expected exactly one %s dependency, found %s",
