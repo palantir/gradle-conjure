@@ -160,14 +160,16 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result2 = runTasksSuccessfully('check')
 
         then:
+        result.wasExecuted(':api:extractConjureJava')
         result.wasExecuted(':api:api-jersey:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureObjects')
+
+        result2.wasUpToDate(':api:extractConjureJava')
         result2.wasUpToDate(":api:api-jersey:compileJava")
         result2.wasUpToDate(":api:compileConjureJersey")
         result2.wasUpToDate(":api:compileConjureObjects")
     }
-
 
     def 'check code compiles when run in parallel with multiple build targets'() {
         when:
