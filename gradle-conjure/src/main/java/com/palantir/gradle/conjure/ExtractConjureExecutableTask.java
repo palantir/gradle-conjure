@@ -82,7 +82,7 @@ public class ExtractConjureExecutableTask extends DefaultTask {
                 archive.getName(),
                 resolvedFiles);
         File tarFile = Iterables.getOnlyElement(resolvedFiles);
-        getProject().copy(spec -> {
+        getProject().sync(spec -> {
             spec.from(getProject().tarTree(tarFile));
             spec.eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
             spec.into(getOutputDirectory());
