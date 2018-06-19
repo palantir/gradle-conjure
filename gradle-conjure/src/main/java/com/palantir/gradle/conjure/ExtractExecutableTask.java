@@ -34,7 +34,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 @SuppressWarnings("checkstyle:DesignForExtension") // tasks cannot be final / non public
-public class ExtractConjureExecutableTask extends DefaultTask {
+public class ExtractExecutableTask extends DefaultTask {
     /**
      * {@link ConfigurableFileCollection} is lazy.
      */

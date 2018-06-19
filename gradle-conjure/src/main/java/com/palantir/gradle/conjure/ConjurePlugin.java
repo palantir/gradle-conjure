@@ -104,7 +104,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Configuration conjureJavaConfig = createConfigurationIfNecessary(project, CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
-            ExtractConjureExecutableTask extractJavaTask = createExtractTask(
+            ExtractExecutableTask extractJavaTask = createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "java");
 
             setupConjureObjectsProject(
@@ -130,7 +130,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            ExtractConjureExecutableTask extractJavaTask) {
+            ExtractExecutableTask extractJavaTask) {
 
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
@@ -172,7 +172,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            ExtractConjureExecutableTask extractJavaTask) {
+            ExtractExecutableTask extractJavaTask) {
 
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
         if (project.findProject(retrofitProjectName) != null) {
@@ -218,7 +218,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            ExtractConjureExecutableTask extractJavaTask) {
+            ExtractExecutableTask extractJavaTask) {
 
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
         if (project.findProject(jerseyProjectName) != null) {
@@ -274,7 +274,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File srcDirectory = subproj.file("src");
                 project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
 
-                ExtractConjureExecutableTask extractConjureTypeScriptTask = createExtractTask(
+                ExtractExecutableTask extractConjureTypeScriptTask = createExtractTask(
                         project,
                         "extractConjureTypeScript",
                         conjureTypeScriptConfig,
@@ -343,7 +343,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
                 project.getDependencies().add(CONJURE_PYTHON, CONJURE_PYTHON_BINARY);
 
-                ExtractConjureExecutableTask extractConjurePythonTask = createExtractTask(
+                ExtractExecutableTask extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "python");
                 project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Python files from your Conjure definitions.");
@@ -401,9 +401,9 @@ public final class ConjurePlugin implements Plugin<Project> {
         return writeGitignoreTask;
     }
 
-    private static ExtractConjureExecutableTask createExtractTask(
+    private static ExtractExecutableTask createExtractTask(
             Project project, String taskName, Configuration config, File outputDir, String language) {
-        return project.getTasks().create(taskName, ExtractConjureExecutableTask.class, task -> {
+        return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(config);
             task.setOutputDirectory(outputDir);
             task.setLanguage(language);
