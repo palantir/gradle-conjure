@@ -18,7 +18,6 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.io.IOException;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputDirectory;
@@ -50,8 +49,17 @@ public class CompileIrTask extends DefaultTask {
         return inputDirectory;
     }
 
+    public final void setExecutablePath(Supplier<File> executablePath) {
+        this.executablePath = executablePath;
+    }
+
+    @InputFile
+    public final File getExecutablePath() {
+        return executablePath.get();
+    }
+
     @TaskAction
-    public final void generate() throws IOException {
+    public final void generate() {
         getProject().exec(execSpec -> {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
@@ -63,14 +71,4 @@ public class CompileIrTask extends DefaultTask {
             execSpec.commandLine(commandArgsBuilder.build().toArray());
         });
     }
-
-    public final void setExecutablePath(Supplier<File> executablePath) {
-        this.executablePath = executablePath;
-    }
-
-    @InputFile
-    public final File getExecutablePath() {
-        return executablePath.get();
-    }
-
 }
