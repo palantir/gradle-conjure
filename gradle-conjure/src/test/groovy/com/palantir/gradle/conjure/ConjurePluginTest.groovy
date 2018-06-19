@@ -388,6 +388,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:compileConjureRetrofit')
+        result.wasExecuted(":api:compileIr")
 
         fileExists('api/build/conjure/internal-import.yml')
         fileExists('api/build/conjure/conjure.yml')
@@ -402,6 +403,9 @@ class ConjurePluginTest extends IntegrationSpec {
         // typescript
         file('api/api-typescript/src/service/testServiceFoo2.ts').text.contains(
                 'import { IInternalImport } from "../internal/internalImport"')
+
+        // ir
+        fileExists("api/build/conjure-ir/api.json")
     }
 
     def 'omitting a project from settings is sufficient to disable'() {
