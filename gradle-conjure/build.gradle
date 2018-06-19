@@ -19,8 +19,8 @@ apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
-    compile 'com.palantir.conjure:conjure-core'
     compile project(':gradle-conjure-api')
+    compile 'com.google.guava:guava'
 
     testCompile gradleTestKit()
     testCompile 'com.netflix.nebula:nebula-test'

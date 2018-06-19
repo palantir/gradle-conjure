@@ -48,11 +48,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final String TASK_CLEAN = "clean";
 
     // configuration names
+    private static final String CONJURE_COMPILER = "conjureCompiler";
     private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
     private static final String CONJURE_PYTHON = "conjurePython";
     private static final String CONJURE_JAVA = "conjureJava";
 
     // executable distributions
+    private static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
     private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
     private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
     private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
@@ -411,12 +413,21 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Task createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
+        Configuration conjureCompilerConfig = createConfigurationIfNecessary(project, CONJURE_COMPILER);
+        File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
+        project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
+        ExtractExecutableTask extractCompilerTask = createExtractTask(
+                project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
+
         File irPath = Paths.get(project.getBuildDir().toString(), "conjure-ir", project.getName() + ".json").toFile();
         return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
-            compileIr.setSource(copyConjureSourcesTask);
+            compileIr.setInputDirectory(copyConjureSourcesTask.getDestinationDir());;
+            compileIr.setExecutablePath(extractCompilerTask::getExecutable);
             compileIr.setOutputFile(irPath);
+            compileIr.dependsOn(copyConjureSourcesTask);
+            compileIr.dependsOn(extractCompilerTask);
         });
     }
 
