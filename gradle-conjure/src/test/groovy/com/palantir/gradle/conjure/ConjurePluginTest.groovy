@@ -535,6 +535,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
 
         where:
-        version << ['4.7', '4.6', '4.5', '4.4', '4.3']
+        version << ['4.7', '4.4', '4.3', '4.2', '4.1', '4.0', '3.5']
     }
 }
