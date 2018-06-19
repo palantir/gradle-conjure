@@ -23,8 +23,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -32,7 +31,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 
 public class ConjureGeneratorTask extends SourceTask {
-    private final RegularFileProperty executablePathProperty = getProject().getLayout().fileProperty();
+    private final Property<File> executablePathProperty = getProject().getObjects().property(File.class);
     private File outputDirectory;
     private Supplier<GeneratorOptions> options;
 
@@ -51,17 +50,13 @@ public class ConjureGeneratorTask extends SourceTask {
         return outputDirectory;
     }
 
-    final void setExecutablePath(Provider<RegularFile> executablePathProvider) {
+    final void setExecutablePath(Provider<File> executablePathProvider) {
         this.executablePathProperty.set(executablePathProvider);
     }
 
-    public final void setExecutablePath(File executablePath) {
-        this.executablePathProperty.set(executablePath);
-    }
-
     @InputFile
-    public final File getExecutablePath() {
-        return executablePathProperty.get().getAsFile();
+    public final Provider<File> getExecutablePath() {
+        return executablePathProperty;
     }
 
     public final void setOptions(Supplier<GeneratorOptions> options) {
@@ -79,7 +74,7 @@ public class ConjureGeneratorTask extends SourceTask {
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(
-                        getExecutablePath().getAbsolutePath(),
+                        executablePathProperty.get().getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
                         outputDirectory.getAbsolutePath());

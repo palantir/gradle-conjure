@@ -19,28 +19,28 @@ package com.palantir.gradle.conjure;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.io.File;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.file.RelativePath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-class ExtractConjureExecutableTask extends DefaultTask {
+@SuppressWarnings("checkstyle:DesignForExtension") // tasks cannot be final / non public
+public class ExtractConjureExecutableTask extends DefaultTask {
     /**
      * {@link ConfigurableFileCollection} is lazy.
      */
     private Configuration archive;
     private File outputDirectory;
     private String language;
-    // Output
-    private final RegularFileProperty executable = getProject().getLayout().fileProperty();
 
     @InputFiles
     public FileCollection getArchive() {
@@ -69,8 +69,9 @@ class ExtractConjureExecutableTask extends DefaultTask {
         this.language = language;
     }
 
-    Provider<RegularFile> getExecutableProvider() {
-        return executable;
+    @OutputFile
+    File getExecutable() {
+        return new File(getOutputDirectory(), String.format("bin/conjure-%s", language));
     }
 
     @TaskAction
@@ -83,14 +84,20 @@ class ExtractConjureExecutableTask extends DefaultTask {
         File tarFile = Iterables.getOnlyElement(resolvedFiles);
         getProject().copy(spec -> {
             spec.from(getProject().tarTree(tarFile));
+            spec.eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
             spec.into(getOutputDirectory());
         });
-        // Find the executable
-        executable.set(new File(
-                outputDirectory,
-                String.format(
-                        "%s/bin/conjure-%s",
-                        tarFile.getName().replaceAll(".tgz", ""),
-                        language)));
+        getLogger().info("Extracted into {}", getOutputDirectory());
+        // Ensure the executable exists
+        Preconditions.checkState(
+                Files.exists(getExecutable().toPath()),
+                "Couldn't find expected file after extracting archive %s: %s",
+                tarFile,
+                getExecutable());
+    }
+
+    private static RelativePath stripFirstName(RelativePath relativePath) {
+        String[] segments = relativePath.getSegments();
+        return new RelativePath(relativePath.isFile(), Arrays.copyOfRange(segments, 1, segments.length));
     }
 }

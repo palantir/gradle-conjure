@@ -143,7 +143,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         (task) -> {
                             task.setDescription("Generates Java POJOs from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
-                            task.setExecutablePath(extractJavaTask.getExecutableProvider());
+                            task.setExecutablePath(project.provider(extractJavaTask::getExecutable));
                             task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
@@ -189,7 +189,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription(
                             "Generates Retrofit interfaces for use on the client-side from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask.getExecutableProvider());
+                    task.setExecutablePath(project.provider(extractJavaTask::getExecutable));
                     task.setOptions(() -> addFlag(optionsSupplier.get(), "retrofit"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
@@ -235,7 +235,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription("Generates Jersey interfaces from your Conjure definitions "
                             + "(for use on both the client-side and server-side).");
                     task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask.getExecutableProvider());
+                    task.setExecutablePath(project.provider(extractJavaTask::getExecutable));
                     task.setOptions(() -> addFlag(optionsSupplier.get(), "jersey"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
@@ -286,7 +286,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     "Generates TypeScript files and a package.json from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setSource(compileIrTask);
-                            task.setExecutablePath(extractConjureTypeScriptTask.getExecutableProvider());
+                            task.setExecutablePath(project.provider(extractConjureTypeScriptTask::getExecutable));
                             task.setOutputDirectory(srcDirectory);
                             task.setOptions(options);
                             compileConjure.dependsOn(task);
@@ -342,7 +342,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription("Generates Python files from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.setSource(compileIrTask);
-                    task.setExecutablePath(extractConjurePythonTask.getExecutableProvider());
+                    task.setExecutablePath(project.provider(extractConjurePythonTask::getExecutable));
                     task.setOutputDirectory(subproj.file("python"));
                     compileConjure.dependsOn(task);
                     task.dependsOn(createWriteGitignoreTask(
