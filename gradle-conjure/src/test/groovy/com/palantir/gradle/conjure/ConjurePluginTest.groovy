@@ -144,17 +144,30 @@ class ConjurePluginTest extends IntegrationSpec {
     def 'check code compiles'() {
         when:
         ExecutionResult result = runTasksSuccessfully('check')
+
+        then:
+        result.wasExecuted(':api:api-jersey:compileJava')
+        result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(':api:compileConjureObjects')
+
+        fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
+        fileExists('api/api-objects/src/.gitignore')
+    }
+
+    def 'check cache is used'() {
+        when:
+        ExecutionResult result = runTasksSuccessfully('check')
         ExecutionResult result2 = runTasksSuccessfully('check')
 
         then:
         result.wasExecuted(':api:api-jersey:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureObjects')
+        result2.wasUpToDate(":api:api-jersey:compileJava")
         result2.wasUpToDate(":api:compileConjureJersey")
-
-        fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/.gitignore')
+        result2.wasUpToDate(":api:compileConjureObjects")
     }
+
 
     def 'check code compiles when run in parallel with multiple build targets'() {
         when:
