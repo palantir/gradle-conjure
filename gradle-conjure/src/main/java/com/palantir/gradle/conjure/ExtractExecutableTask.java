@@ -22,13 +22,17 @@ import com.google.common.collect.Iterables;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
+import org.gradle.api.GradleException;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileVisitDetails;
+import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -49,6 +53,31 @@ public class ExtractExecutableTask extends Sync {
         from((Callable) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
         eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
         into((Callable) this::getOutputDirectory); // will get lazily resolved
+
+        doFirst(new Action<Task>() {
+            @Override
+            public void execute(Task task) {
+                Set<RelativePath> rootDirectories = new HashSet<>();
+                getProject().tarTree(tarFile.get()).visit(new FileVisitor() {
+                    @Override
+                    public void visitDir(FileVisitDetails dirDetails) {
+                        RelativePath relativePath = dirDetails.getRelativePath();
+                        if (relativePath.getSegments().length == 1) {
+                            rootDirectories.add(relativePath);
+                        }
+                    }
+
+                    @Override
+                    public void visitFile(FileVisitDetails fileDetails) { }
+                });
+                if (rootDirectories.size() != 1) {
+                    throw new GradleException(String.format(
+                            "Expected exactly one root directory in tar '%s', aborting: %s",
+                            tarFile.get(),
+                            rootDirectories));
+                }
+            }
+        });
 
         doLast(new Action<Task>() {
             @Override
