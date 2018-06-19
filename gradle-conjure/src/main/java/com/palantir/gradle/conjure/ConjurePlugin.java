@@ -88,7 +88,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
         setupConjureJavaProject(project, extension::getJava, compileConjure, compileIrTask);
-        setupConjurePythonProject(project, compileConjure, compileIrTask);
+        setupConjurePythonProject(project, extension::getPython, compileConjure, compileIrTask);
         setupConjureTypescriptProject(project, extension::getTypescript, compileConjure, compileIrTask);
     }
 
@@ -306,11 +306,17 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.getOutputs().dir(new File(srcDirectory, "node_modules"));
                         });
                 Task compileTypeScript = project.getTasks().create("compileTypeScript", Exec.class, task -> {
+                    task.setDescription(
+                            "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
+                    task.setGroup(TASK_GROUP);
                     task.commandLine("npm", "run-script", "build");
                     task.workingDir(srcDirectory);
                     task.dependsOn(installTypeScriptDependencies);
                 });
                 Task publishTypeScript = project.getTasks().create("publishTypeScript", Exec.class, task -> {
+                    task.setDescription("Runs `npm publish` to publish a TypeScript package "
+                            + "generated from your Conjure definitions.");
+                    task.setGroup(TASK_GROUP);
                     task.commandLine("npm", "publish");
                     task.workingDir(srcDirectory);
                     task.dependsOn(compileConjureTypeScript);
@@ -325,6 +331,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjurePythonProject(
             Project project,
+            Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
@@ -344,6 +351,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setSource(compileIrTask);
                     task.setExecutablePath(project.provider(extractConjurePythonTask::getExecutable));
                     task.setOutputDirectory(subproj.file("python"));
+                    task.setOptions(options);
                     compileConjure.dependsOn(task);
                     task.dependsOn(createWriteGitignoreTask(
                             subproj, "gitignoreConjurePython", subproj.getProjectDir(),
