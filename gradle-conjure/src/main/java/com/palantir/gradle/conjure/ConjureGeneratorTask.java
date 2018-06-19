@@ -23,15 +23,13 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 
 public class ConjureGeneratorTask extends SourceTask {
-    private final Property<File> executablePathProperty = getProject().getObjects().property(File.class);
+    private Supplier<File> executablePathSupplier;
     private File outputDirectory;
     private Supplier<GeneratorOptions> options;
 
@@ -50,13 +48,13 @@ public class ConjureGeneratorTask extends SourceTask {
         return outputDirectory;
     }
 
-    final void setExecutablePath(Provider<File> executablePathProvider) {
-        this.executablePathProperty.set(executablePathProvider);
+    final void setExecutablePath(Supplier<File> executablePath) {
+        this.executablePathSupplier = executablePath;
     }
 
     @InputFile
-    public final Provider<File> getExecutablePath() {
-        return executablePathProperty;
+    public final File getExecutablePath() {
+        return executablePathSupplier.get();
     }
 
     public final void setOptions(Supplier<GeneratorOptions> options) {
@@ -74,7 +72,7 @@ public class ConjureGeneratorTask extends SourceTask {
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(
-                        executablePathProperty.get().getAbsolutePath(),
+                        getExecutablePath().getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
                         outputDirectory.getAbsolutePath());
