@@ -17,29 +17,52 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Set;
-import org.gradle.api.DefaultTask;
+import java.util.concurrent.Callable;
+import java.util.function.Supplier;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.Sync;
 
-public class ExtractExecutableTask extends DefaultTask {
-    /**
-     * {@link ConfigurableFileCollection} is lazy.
-     */
+public class ExtractExecutableTask extends Sync {
     private Configuration archive;
     private File outputDirectory;
     private String executableName;
+
+    public ExtractExecutableTask() {
+        // Memoize this because we are re-using it in the doLast action.
+        Supplier<File> tarFile = Suppliers.memoize(this::resolveTarFile);
+
+        // Configure the spec lazily
+        from((Callable) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
+        eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
+        into((Callable) this::getOutputDirectory); // will get lazily resolved
+
+        doLast(new Action<Task>() {
+            @Override
+            public void execute(Task task) {
+                getLogger().info("Extracted into {}", getOutputDirectory());
+                // Ensure the executable exists
+                Preconditions.checkState(
+                        Files.exists(getExecutable().toPath()),
+                        "Couldn't find expected file after extracting archive %s: %s",
+                        tarFile,
+                        getExecutable());
+            }
+        });
+    }
 
     @InputFiles
     public final FileCollection getArchive() {
@@ -79,26 +102,13 @@ public class ExtractExecutableTask extends DefaultTask {
         return new File(getOutputDirectory(), String.format("bin/conjure-%s", executableName));
     }
 
-    @TaskAction
-    final void run() {
+    private File resolveTarFile() {
         Set<File> resolvedFiles = archive.getFiles();
         Preconditions.checkState(resolvedFiles.size() == 1,
                 "Expected exactly one %s dependency, found %s",
                 archive.getName(),
                 resolvedFiles);
-        File tarFile = Iterables.getOnlyElement(resolvedFiles);
-        getProject().sync(spec -> {
-            spec.from(getProject().tarTree(tarFile));
-            spec.eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
-            spec.into(getOutputDirectory());
-        });
-        getLogger().info("Extracted into {}", getOutputDirectory());
-        // Ensure the executable exists
-        Preconditions.checkState(
-                Files.exists(getExecutable().toPath()),
-                "Couldn't find expected file after extracting archive %s: %s",
-                tarFile,
-                getExecutable());
+        return Iterables.getOnlyElement(resolvedFiles);
     }
 
     private static RelativePath stripFirstName(RelativePath relativePath) {
