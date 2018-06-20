@@ -348,19 +348,20 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 Task extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir);
-                Task compileConjurePython = project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
-                    task.setDescription("Generates Python files from your Conjure definitions.");
-                    task.setGroup(TASK_GROUP);
-                    task.setSource(compileIrTask);
-                    task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
-                    task.setOutputDirectory(subproj.file("python"));
-                    task.setOptions(options);
-                    compileConjure.dependsOn(task);
-                    task.dependsOn(createWriteGitignoreTask(
-                            subproj, "gitignoreConjurePython", subproj.getProjectDir(),
-                            "*.py\n"));
-                    task.dependsOn(extractConjurePythonTask);
-                });
+                Task compileConjurePython = project.getTasks().create("compileConjurePython",
+                        ConjureGeneratorTask.class, task -> {
+                            task.setDescription("Generates Python files from your Conjure definitions.");
+                            task.setGroup(TASK_GROUP);
+                            task.setSource(compileIrTask);
+                            task.setExecutablePath(extractExecutable(conjurePythonDir, "python", conjurePythonConfig));
+                            task.setOutputDirectory(subproj.file("python"));
+                            task.setOptions(options);
+                            compileConjure.dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
+                                    subproj, "gitignoreConjurePython", subproj.getProjectDir(),
+                                    "*.py\n"));
+                            task.dependsOn(extractConjurePythonTask);
+                        });
                 project.getTasks().create("buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
