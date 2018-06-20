@@ -48,11 +48,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final String TASK_CLEAN = "clean";
 
     // configuration names
+    private static final String CONJURE_COMPILER = "conjureCompiler";
     private static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
     private static final String CONJURE_PYTHON = "conjurePython";
     private static final String CONJURE_JAVA = "conjureJava";
 
     // executable distributions
+    private static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
     private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
     private static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
     private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
@@ -101,7 +103,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
-            Configuration conjureJavaConfig = createConfigurationIfNecessary(project, CONJURE_JAVA);
+            Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
             ExtractExecutableTask extractJavaTask = createExtractTask(
@@ -267,7 +269,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
-            Configuration conjureTypeScriptConfig = createConfigurationIfNecessary(project, CONJURE_TYPESCRIPT);
+            Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
             project.project(typescriptProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
@@ -336,7 +338,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
         if (project.findProject(pythonProjectName) != null) {
-            Configuration conjurePythonConfig = createConfigurationIfNecessary(project, CONJURE_PYTHON);
+            Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(CONJURE_PYTHON);
 
             project.project(pythonProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
@@ -363,12 +365,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
             });
         }
-    }
-
-    private static Configuration createConfigurationIfNecessary(Project project, String configurationName) {
-        return project.getConfigurations().findByName(configurationName) != null
-                ? project.getConfigurations().findByName(configurationName)
-                : project.getConfigurations().create(configurationName);
     }
 
     private static void addGeneratedToMainSourceSet(Project subproj) {
@@ -411,12 +407,21 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Task createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
+        Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
+        File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
+        project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
+        ExtractExecutableTask extractCompilerTask = createExtractTask(
+                project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
+
         File irPath = Paths.get(project.getBuildDir().toString(), "conjure-ir", project.getName() + ".json").toFile();
         return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
-            compileIr.setSource(copyConjureSourcesTask);
+            compileIr.setInputDirectory(copyConjureSourcesTask::getDestinationDir);
+            compileIr.setExecutablePath(extractCompilerTask::getExecutable);
             compileIr.setOutputFile(irPath);
+            compileIr.dependsOn(copyConjureSourcesTask);
+            compileIr.dependsOn(extractCompilerTask);
         });
     }
 
