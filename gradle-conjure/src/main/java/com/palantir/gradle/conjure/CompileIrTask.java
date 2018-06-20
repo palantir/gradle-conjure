@@ -28,14 +28,14 @@ import org.gradle.api.tasks.TaskAction;
 public class CompileIrTask extends DefaultTask {
 
     private File outputFile;
-    private File inputDirectory;
+    private Supplier<File> inputDirectory;
     private Supplier<File> executablePath;
 
     public final void setOutputFile(File outputFile) {
         this.outputFile = outputFile;
     }
 
-    public final void setInputDirectory(File inputDirectory) {
+    public final void setInputDirectory(Supplier<File> inputDirectory) {
         this.inputDirectory = inputDirectory;
     }
 
@@ -46,7 +46,7 @@ public class CompileIrTask extends DefaultTask {
 
     @InputDirectory
     public final File getInputDirectory() {
-        return inputDirectory;
+        return inputDirectory.get();
     }
 
     public final void setExecutablePath(Supplier<File> executablePath) {
@@ -64,7 +64,7 @@ public class CompileIrTask extends DefaultTask {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
                     executablePath.get().getAbsolutePath(),
-                    inputDirectory.getAbsolutePath(),
+                    inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());
 
             getLogger().info("Running compiler with args: {}", commandArgsBuilder);
