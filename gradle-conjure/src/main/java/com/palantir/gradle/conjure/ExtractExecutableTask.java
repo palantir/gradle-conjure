@@ -90,7 +90,7 @@ public class ExtractExecutableTask extends Sync {
                 Preconditions.checkState(
                         Files.exists(getExecutable().toPath()),
                         "Couldn't find expected file after extracting archive %s: %s",
-                        tarFile,
+                        tarFile.get(),
                         getExecutable());
             }
         });
