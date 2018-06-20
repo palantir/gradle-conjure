@@ -105,7 +105,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
             ExtractExecutableTask extractJavaTask = createExtractTask(
-                    project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "java");
+                    project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
             setupConjureObjectsProject(
                     project, optionsSupplier, compileConjure, compileIrTask, extractJavaTask);
@@ -279,7 +279,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         "extractConjureTypeScript",
                         conjureTypeScriptConfig,
                         conjureTypescriptDir,
-                        "typescript");
+                        "conjure-typescript");
                 Task compileConjureTypeScript = project.getTasks().create("compileConjureTypeScript",
                         CompileConjureTypeScriptTask.class, task -> {
                             task.setDescription(
@@ -344,7 +344,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project.getDependencies().add(CONJURE_PYTHON, CONJURE_PYTHON_BINARY);
 
                 ExtractExecutableTask extractConjurePythonTask = createExtractTask(
-                        project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "python");
+                        project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
                 project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Python files from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
@@ -402,11 +402,11 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static ExtractExecutableTask createExtractTask(
-            Project project, String taskName, Configuration config, File outputDir, String language) {
+            Project project, String taskName, Configuration config, File outputDir, String executableName) {
         return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(config);
             task.setOutputDirectory(outputDir);
-            task.setExecutableName(language);
+            task.setExecutableName(executableName);
         });
     }
 

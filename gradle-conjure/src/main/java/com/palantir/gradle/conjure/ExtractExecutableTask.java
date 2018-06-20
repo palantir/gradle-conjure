@@ -115,7 +115,8 @@ public class ExtractExecutableTask extends Sync {
     }
 
     /**
-     * The file name of the executable.
+     * The file name of the executable. This file should exist under {@code <single root directory>/bin} inside the
+     * tar archive.
      */
     @Input
     public final String getExecutableName() {
@@ -131,7 +132,7 @@ public class ExtractExecutableTask extends Sync {
      */
     @OutputFile
     final File getExecutable() {
-        return new File(getOutputDirectory(), String.format("bin/conjure-%s", executableName));
+        return new File(getOutputDirectory(), String.format("bin/%s", executableName));
     }
 
     private File resolveTarFile() {
