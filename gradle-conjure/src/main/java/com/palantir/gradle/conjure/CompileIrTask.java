@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputDirectory;
@@ -67,8 +68,9 @@ public class CompileIrTask extends DefaultTask {
                     inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());
 
-            getLogger().info("Running compiler with args: {}", commandArgsBuilder);
-            execSpec.commandLine(commandArgsBuilder.build().toArray());
+            List<String> args = commandArgsBuilder.build();
+            getLogger().info("Running compiler with args: {}", args);
+            execSpec.commandLine(args.toArray());
         });
     }
 }
