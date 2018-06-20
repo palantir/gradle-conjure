@@ -29,8 +29,8 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 
 public class ConjureGeneratorTask extends SourceTask {
+    private Supplier<File> executablePathSupplier;
     private File outputDirectory;
-    private File executablePath;
     private Supplier<GeneratorOptions> options;
 
     public ConjureGeneratorTask() {
@@ -48,13 +48,13 @@ public class ConjureGeneratorTask extends SourceTask {
         return outputDirectory;
     }
 
-    public final void setExecutablePath(File executablePath) {
-        this.executablePath = executablePath;
+    final void setExecutablePath(Supplier<File> executablePath) {
+        this.executablePathSupplier = executablePath;
     }
 
     @InputFile
     public final File getExecutablePath() {
-        return executablePath;
+        return executablePathSupplier.get();
     }
 
     public final void setOptions(Supplier<GeneratorOptions> options) {
@@ -72,7 +72,7 @@ public class ConjureGeneratorTask extends SourceTask {
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 commandArgsBuilder.add(
-                        executablePath.getAbsolutePath(),
+                        getExecutablePath().getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
                         outputDirectory.getAbsolutePath());
