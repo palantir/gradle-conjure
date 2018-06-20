@@ -57,13 +57,16 @@ public class ExtractExecutableTask extends Sync {
         doFirst(new Action<Task>() {
             @Override
             public void execute(Task task) {
-                Set<RelativePath> rootDirectories = new HashSet<>();
+                Set<String> rootDirectories = new HashSet<>();
                 getProject().tarTree(tarFile.get()).visit(new FileVisitor() {
                     @Override
                     public void visitDir(FileVisitDetails dirDetails) {
-                        RelativePath relativePath = dirDetails.getRelativePath();
-                        if (relativePath.getSegments().length == 1) {
-                            rootDirectories.add(relativePath);
+                        // Note: If root dir contains only another dir (e.g. a/b), we won't get called with just that
+                        // root dir 'a', but with 'a/b' directly. Hence, we look at all dirs and extract their first
+                        // 'segment'.
+                        String[] segments = dirDetails.getRelativePath().getSegments();
+                        if (segments.length >= 1) {
+                            rootDirectories.add(segments[0]);
                         }
                     }
 
