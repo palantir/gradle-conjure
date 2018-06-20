@@ -65,6 +65,7 @@ public class CompileIrTask extends DefaultTask {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
                     executablePath.get().getAbsolutePath(),
+                    "compile",
                     inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());
 
