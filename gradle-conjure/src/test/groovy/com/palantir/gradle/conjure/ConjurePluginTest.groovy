@@ -79,6 +79,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.google.guava:guava = 18.0
         com.palantir.conjure.typescript:conjure-typescript = 0.6.1
         com.palantir.conjure.java:* = 0.2.4
+        com.palantir.conjure:conjure = 4.0.0-rc3
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.ws.rs:javax.ws.rs-api = 2.0.1
         '''.stripIndent()
@@ -152,6 +153,23 @@ class ConjurePluginTest extends IntegrationSpec {
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         fileExists('api/api-objects/src/.gitignore')
+    }
+
+    def 'check cache is used'() {
+        when:
+        ExecutionResult result = runTasksSuccessfully('check')
+        ExecutionResult result2 = runTasksSuccessfully('check')
+
+        then:
+        result.wasExecuted(':api:extractConjureJava')
+        result.wasExecuted(':api:api-jersey:compileJava')
+        result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(':api:compileConjureObjects')
+
+        result2.wasUpToDate(':api:extractConjureJava')
+        result2.wasUpToDate(":api:api-jersey:compileJava")
+        result2.wasUpToDate(":api:compileConjureJersey")
+        result2.wasUpToDate(":api:compileConjureObjects")
     }
 
     def 'check code compiles when run in parallel with multiple build targets'() {
@@ -370,6 +388,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:compileConjureRetrofit')
+        result.wasExecuted(":api:compileIr")
 
         fileExists('api/build/conjure/internal-import.yml')
         fileExists('api/build/conjure/conjure.yml')
@@ -384,6 +403,9 @@ class ConjurePluginTest extends IntegrationSpec {
         // typescript
         file('api/api-typescript/src/service/testServiceFoo2.ts').text.contains(
                 'import { IInternalImport } from "../internal/internalImport"')
+
+        // ir
+        fileExists("api/build/conjure-ir/api.json")
     }
 
     def 'omitting a project from settings is sufficient to disable'() {
@@ -518,6 +540,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
 
         where:
-        version << ['4.3', '4.2', '4.1', '4.0', '3.5']
+        version << ['4.7', '4.4', '4.3', '4.2', '4.1', '4.0', '3.5']
     }
 }
