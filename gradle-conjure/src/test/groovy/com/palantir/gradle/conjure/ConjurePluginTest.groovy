@@ -77,7 +77,7 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 0.6.1
+        com.palantir.conjure.typescript:conjure-typescript = 0.8.0
         com.palantir.conjure.java:* = 0.2.4
         com.palantir.conjure:conjure = 4.0.0-rc3
         com.squareup.retrofit2:retrofit = 2.1.0
@@ -130,7 +130,7 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-typescript/src/index.ts')
         fileExists('api/api-typescript/src/tsconfig.json')
         fileExists('api/api-typescript/src/package.json')
-        fileExists('api/api-typescript/.gitignore')
+        fileExists('api/api-typescript/src/.gitignore')
 
         // irFile
         fileExists('api/build/conjure-ir/api.json')
