@@ -131,11 +131,6 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-typescript/src/tsconfig.json')
         fileExists('api/api-typescript/src/package.json')
         fileExists('api/api-typescript/.gitignore')
-        file('api/api-typescript/.gitignore').text.contains('*.ts')
-        file('api/api-typescript/.gitignore').text.contains('.npmrc')
-        file('api/api-typescript/.gitignore').text.contains('package.json')
-        file('api/api-typescript/.gitignore').text.contains('tsconfig.json')
-        file('api/api-typescript/.gitignore').text.contains('node_modules')
 
         // irFile
         fileExists('api/build/conjure-ir/api.json')
@@ -228,7 +223,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasUpToDate(':api:api-objects:gitignoreConjureObjects')
         result.wasUpToDate(':api:api-jersey:gitignoreConjureJersey')
         result.wasUpToDate(':api:api-retrofit:gitignoreConjureRetrofit')
-        result.wasUpToDate(':api:api-typescript:gitignoreConjureTypeScript')
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')
