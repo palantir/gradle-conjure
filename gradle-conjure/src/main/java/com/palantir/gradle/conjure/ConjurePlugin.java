@@ -294,7 +294,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(
                                     createWriteGitignoreTask(
                                             subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(),
-                                            "/src/"));
+                                            "/src/\n"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
 
