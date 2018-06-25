@@ -437,21 +437,6 @@ class ConjurePluginTest extends IntegrationSpec {
         !result.wasExecuted(':api:compileConjureJersey')
     }
 
-    def 'featureFlag RetrofitCompletableFutures can be enabled in the deprecated way'() {
-        file('api/build.gradle') << '''
-        conjure {
-            javaFeatureFlag "retrofitCompletableFutures"
-        }
-        '''.stripIndent()
-
-        when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjureRetrofit')
-
-        then:
-        fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
-        file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
-    }
-
     def 'featureFlag RetrofitCompletableFutures can be enabled'() {
         file('api/build.gradle') << '''
         conjure {
