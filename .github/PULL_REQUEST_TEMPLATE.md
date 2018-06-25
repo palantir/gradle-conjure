@@ -1,4 +1,4 @@
-<!-- PR title should start with '[fix]', '[improvement]' or '[break]' if this PR would cause a SemVer patch, minor or major bump -->
+<!-- PR title should start with '[fix]', '[improvement]' or '[break]' if this PR would cause a patch, minor or major SemVer bump. Omit the prefix if this PR doesn't warrant a standalone release. -->
 
 ## Before this PR
 <!-- Describe the problem you encountered with the current state of the world (or link to an issue) and why it's important to fix now. -->
