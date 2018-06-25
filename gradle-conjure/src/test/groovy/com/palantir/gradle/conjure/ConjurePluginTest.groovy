@@ -178,7 +178,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/.gitignore')
+        fileExists('api/api-objects/.gitignore')
     }
 
     def 'clean cleans up src/generated/java'() {
