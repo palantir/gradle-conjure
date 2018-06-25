@@ -65,7 +65,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
     private static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     private static final String JAVA_GITIGNORE_DIRNAME = "src";
-    private static final String JAVA_GITIGNORE_CONTENTS = "/generated/**/*.java\n";
+    private static final String JAVA_GITIGNORE_CONTENTS = "/generated/java/\n";
 
     private final SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -295,7 +295,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(
                                     createWriteGitignoreTask(
                                             subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(),
-                                            "*.js\n*.ts\n.npmrc\npackage.json\ntsconfig.json\nnode_modules\n"));
+                                            "src/"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
 
@@ -358,7 +358,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             compileConjure.dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj, "gitignoreConjurePython", subproj.getProjectDir(),
-                                    "*.py\n"));
+                                    "python/\n"));
                             task.dependsOn(extractConjurePythonTask);
                         });
                 project.getTasks().create("buildWheel", Exec.class, task -> {
