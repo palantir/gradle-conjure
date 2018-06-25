@@ -37,12 +37,12 @@ public final class RenderGeneratorOptions {
      * @param requiredOptions a map of required options to their default values
      */
     public static List<String> toArgs(
-            GeneratorOptions options, Map<String, Supplier<Object>> requiredOptions) {
+            GeneratorOptions options, Map<String, Supplier<String>> requiredOptions) {
         Map<String, Object> properties = options.getProperties();
         ImmutableMap.Builder<String, Object> resolvedProperties =
                 ImmutableMap.<String, Object>builder().putAll(properties);
         requiredOptions.forEach((field, defaultSupplierOpt) -> {
-            Object defaultValue = defaultSupplierOpt.get();
+            String defaultValue = defaultSupplierOpt.get();
             if (!properties.containsKey(field)) {
                 log.info("Field '{}' was not defined in options, falling back to default: {}",
                         field,

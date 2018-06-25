@@ -89,7 +89,7 @@ public class ConjureGeneratorTask extends SourceTask {
      * What options are required, along with suppliers for obtaining their default values if they were not defined in
      * the {@link #getOptions() options}.
      */
-    protected Map<String, Supplier<Object>> requiredOptions() {
+    protected Map<String, Supplier<String>> requiredOptions() {
         return ImmutableMap.of();
     }
 }

@@ -24,6 +24,9 @@ import org.gradle.api.file.ConfigurableFileTree;
 
 public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
 
+    private static final String PACKAGE_NAME = "packageName";
+    private static final String VERSION = "packageVersion";
+
     public CompileConjureTypeScriptTask() {
         doFirst(task -> {
             ConfigurableFileTree fileTree = task.getProject().fileTree(getOutputDirectory());
@@ -33,10 +36,9 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     }
 
     @Override
-    protected final Map<String, Supplier<Object>> requiredOptions() {
+    protected final Map<String, Supplier<String>> requiredOptions() {
         return ImmutableMap.of(
-                "packageName", () -> getProject().getName(),
-                "packageVersion", () -> getProject().getVersion(),
-                "generateGitIgnore", () -> Boolean.TRUE);
+                PACKAGE_NAME, () -> getProject().getName(),
+                VERSION, () -> getProject().getVersion().toString());
     }
 }
