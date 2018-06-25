@@ -122,15 +122,16 @@ class ConjurePluginTest extends IntegrationSpec {
         // java
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         file('api/api-objects/src/generated/java/test/test/api/StringExample.java').text.contains('ignoreUnknown')
-        fileExists('api/api-objects/src/.gitignore')
-        file('api/api-objects/src/.gitignore').text.contentEquals('/generated/**/*.java\n')
+        fileExists('api/api-objects/.gitignore')
+        file('api/api-objects/.gitignore').readLines() == ['/src/generated/java/']
 
         // typescript
         fileExists('api/api-typescript/src/api/index.ts')
         fileExists('api/api-typescript/src/index.ts')
         fileExists('api/api-typescript/src/tsconfig.json')
         fileExists('api/api-typescript/src/package.json')
-        fileExists('api/api-typescript/src/.gitignore')
+        fileExists('api/api-typescript/.gitignore')
+        file('api/api-typescript/.gitignore').readLines() == ["/src/"]
 
         // irFile
         fileExists('api/build/conjure-ir/api.json')
@@ -147,7 +148,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureObjects')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/.gitignore')
+        fileExists('api/api-objects/.gitignore')
     }
 
     def 'check cache is used'() {
@@ -177,7 +178,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/.gitignore')
+        fileExists('api/api-objects/.gitignore')
     }
 
     def 'clean cleans up src/generated/java'() {
@@ -223,6 +224,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasUpToDate(':api:api-objects:gitignoreConjureObjects')
         result.wasUpToDate(':api:api-jersey:gitignoreConjureJersey')
         result.wasUpToDate(':api:api-retrofit:gitignoreConjureRetrofit')
+        result.wasUpToDate(':api:api-typescript:gitignoreConjureTypeScript')
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')
