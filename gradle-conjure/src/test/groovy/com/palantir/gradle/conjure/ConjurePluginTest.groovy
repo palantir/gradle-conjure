@@ -123,7 +123,7 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         file('api/api-objects/src/generated/java/test/test/api/StringExample.java').text.contains('ignoreUnknown')
         fileExists('api/api-objects/src/.gitignore')
-        file('api/api-objects/src/.gitignore').text.contentEquals('/generated/**/*.java\n')
+        file('api/api-objects/src/.gitignore').readLines() == ['/generated/java/']
 
         // typescript
         fileExists('api/api-typescript/src/api/index.ts')
@@ -131,7 +131,7 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-typescript/src/tsconfig.json')
         fileExists('api/api-typescript/src/package.json')
         fileExists('api/api-typescript/.gitignore')
-        file('api/api-typescript/.gitignore').readLines() == ["src/"]
+        file('api/api-typescript/.gitignore').readLines() == ["/src/"]
 
         // irFile
         fileExists('api/build/conjure-ir/api.json')
