@@ -339,26 +339,36 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.project(pythonProjectName, (subproj) -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
+                File buildDir = new File(project.getBuildDir(), "python");
                 project.getDependencies().add(CONJURE_PYTHON, CONJURE_PYTHON_BINARY);
-
                 ExtractExecutableTask extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
-                project.getTasks().create("compileConjurePython", ConjureGeneratorTask.class, task -> {
-                    task.setDescription("Generates Python files from your Conjure definitions.");
+                Task compileConjurePython = project.getTasks().create("compileConjurePython",
+                        ConjureGeneratorTask.class, task -> {
+                            task.setDescription("Generates Python files from your Conjure definitions.");
+                            task.setGroup(TASK_GROUP);
+                            task.setSource(compileIrTask);
+                            task.setExecutablePath(extractConjurePythonTask::getExecutable);
+                            task.setOutputDirectory(subproj.file("python"));
+                            task.setOptions(options);
+                            compileConjure.dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
+                                    subproj, "gitignoreConjurePython", subproj.getProjectDir(),
+                                    "*.py\n"));
+                            task.dependsOn(extractConjurePythonTask);
+                        });
+                project.getTasks().create("buildWheel", Exec.class, task -> {
+                    task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
+                            + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.setSource(compileIrTask);
-                    task.setExecutablePath(extractConjurePythonTask::getExecutable);
-                    task.setOutputDirectory(subproj.file("python"));
-                    task.setOptions(options);
-                    compileConjure.dependsOn(task);
-                    task.dependsOn(createWriteGitignoreTask(
-                            subproj, "gitignoreConjurePython", subproj.getProjectDir(),
-                            "*.py\n"));
-                    task.dependsOn(extractConjurePythonTask);
+                    task.commandLine("python", "setup.py", "build", "--build-base", buildDir, "egg_info", "--egg-base",
+                            buildDir, "sdist", "--dist-dir", buildDir, "bdist_wheel", "--universal", "--dist-dir",
+                            buildDir);
+                    task.workingDir(subproj.file("python"));
+                    task.dependsOn(compileConjurePython);
+                    Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
+                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
                 });
-
-                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
             });
         }
     }
