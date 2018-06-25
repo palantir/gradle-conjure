@@ -122,8 +122,8 @@ class ConjurePluginTest extends IntegrationSpec {
         // java
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         file('api/api-objects/src/generated/java/test/test/api/StringExample.java').text.contains('ignoreUnknown')
-        fileExists('api/api-objects/src/.gitignore')
-        file('api/api-objects/src/.gitignore').readLines() == ['/generated/java/']
+        fileExists('api/api-objects/.gitignore')
+        file('api/api-objects/.gitignore').readLines() == ['/src/generated/java/']
 
         // typescript
         fileExists('api/api-typescript/src/api/index.ts')
@@ -148,7 +148,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureObjects')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/.gitignore')
+        fileExists('api/api-objects/.gitignore')
     }
 
     def 'check cache is used'() {
