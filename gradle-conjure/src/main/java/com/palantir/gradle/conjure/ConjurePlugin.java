@@ -295,7 +295,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(
                                     createWriteGitignoreTask(
                                             subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(),
-                                            "src/"));
+                                            "/src/"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
 
@@ -358,7 +358,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             compileConjure.dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj, "gitignoreConjurePython", subproj.getProjectDir(),
-                                    "python/\n"));
+                                    "/python/\n"));
                             task.dependsOn(extractConjurePythonTask);
                         });
                 project.getTasks().create("buildWheel", Exec.class, task -> {
