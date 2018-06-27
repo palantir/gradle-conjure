@@ -343,6 +343,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
                 File buildDir = new File(project.getBuildDir(), "python");
+                File distDir = new File(buildDir, "dist");
                 project.getDependencies().add(CONJURE_PYTHON, CONJURE_PYTHON_BINARY);
                 ExtractExecutableTask extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
@@ -365,8 +366,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.commandLine("python", "setup.py", "build", "--build-base", buildDir, "egg_info", "--egg-base",
-                            buildDir, "sdist", "--dist-dir", buildDir, "bdist_wheel", "--universal", "--dist-dir",
-                            buildDir);
+                            buildDir, "sdist", "--dist-dir", distDir, "bdist_wheel", "--universal", "--dist-dir",
+                            distDir);
                     task.workingDir(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                     Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
