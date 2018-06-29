@@ -18,9 +18,11 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.gradle.api.InvalidUserDataException;
 
 public class CompileConjurePythonTask extends ConjureGeneratorTask {
 
@@ -29,18 +31,43 @@ public class CompileConjurePythonTask extends ConjureGeneratorTask {
         return ImmutableMap.of(
                 "packageName", () -> getProject().getName()
                         .replace("-api", "").replace("-", "_"),
-                "packageVersion", () -> pythonVersion(getProject().getVersion().toString()));
+                "packageVersion", () -> formatPythonVersion(getProject().getVersion().toString()));
     }
 
-    private String pythonVersion(String version) {
-        Matcher matcher = Pattern.compile("((\\d+[.]?)+)[-_](\\d+)[-_]g(.*)").matcher(version);
-        if (matcher.matches()) {
-            String publicVersion = matcher.group(1);
-            String distance = matcher.group(3);
-            String hash = matcher.group(4);
-            String pepVersion = publicVersion + "+" + distance + "." + hash;
-            return pepVersion.replace("-", "_");
+    private static final Pattern gradleVersion = Pattern.compile("^"
+            + "(?<tag>[0-9]+\\.[0-9]+\\.[0-9]+)"
+            + "(-rc(?<rc>[0-9]+))?"
+            + "(-(?<distance>[0-9]+)-g(?<hash>[a-f0-9]+))?"
+            + "(\\.(?<dirty>dirty))?"
+            + "$");
+
+    private static String formatPythonVersion(String stringVersion) {
+        if (stringVersion.equals("unspecified")) {
+            return stringVersion;
         }
-        return version.replace("-", "_");
+
+        Matcher matcher = gradleVersion.matcher(stringVersion);
+        if (!matcher.find()) {
+            throw new InvalidUserDataException("Invalid project version " + stringVersion);
+        }
+
+        StringBuilder version = new StringBuilder();
+        version.append(matcher.group("tag"));
+        getGroup(matcher, "rc").ifPresent(rc -> version.append("rc").append(rc));
+        getGroup(matcher, "distance").ifPresent(distance -> {
+            String hash = getGroup(matcher, "hash")
+                    .orElseThrow(() -> new InvalidUserDataException("Cannot specify commit distance without hash"));
+            version.append("+").append(distance).append(".").append(hash);
+        });
+        getGroup(matcher, "dirty").ifPresent(dirty -> version.append('.').append(dirty));
+        return version.toString();
+    }
+
+    private static Optional<String> getGroup(Matcher matcher, String groupName) {
+        try {
+            return Optional.ofNullable(matcher.group(groupName));
+        } catch (IllegalStateException e) {
+            return Optional.empty();
+        }
     }
 }
