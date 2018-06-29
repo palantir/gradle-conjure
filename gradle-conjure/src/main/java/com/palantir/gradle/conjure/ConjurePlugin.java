@@ -348,7 +348,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ExtractExecutableTask extractConjurePythonTask = createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
                 Task compileConjurePython = project.getTasks().create("compileConjurePython",
-                        ConjureGeneratorTask.class, task -> {
+                        CompileConjurePythonTask.class, task -> {
                             task.setDescription("Generates Python files from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setSource(compileIrTask);
