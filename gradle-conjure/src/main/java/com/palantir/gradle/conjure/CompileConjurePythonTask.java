@@ -29,8 +29,7 @@ public class CompileConjurePythonTask extends ConjureGeneratorTask {
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions() {
         return ImmutableMap.of(
-                "packageName", () -> getProject().getName()
-                        .replace("-api", "").replace("-", "_"),
+                "packageName", () -> getProject().getName().replace("-", "_"),
                 "packageVersion", () -> formatPythonVersion(getProject().getVersion().toString()));
     }
 
