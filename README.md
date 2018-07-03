@@ -23,8 +23,8 @@ Then create a new project for your API with the following directory structure
 ```groovy
 your-project-api
 ├── build.gradle
-├── conjure-api-objects/
-├── conjure-api-jersey/
+├── your-project-api-objects/
+├── your-project-api-jersey/
 └── src/
     └── main/
         └── conjure/
