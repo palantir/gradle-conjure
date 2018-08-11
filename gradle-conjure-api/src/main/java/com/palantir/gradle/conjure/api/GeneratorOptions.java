@@ -77,4 +77,21 @@ public final class GeneratorOptions implements Serializable {
 
         this.storage.put(key, value);
     }
+
+    public static GeneratorOptions addFlag(GeneratorOptions options, String flag) {
+        if (options.has(flag)) {
+            throw new IllegalArgumentException(
+                    String.format("Passed GeneratorOptions already has flag '%s' set: %s", flag, options));
+        }
+        GeneratorOptions generatorOptions = new GeneratorOptions(options);
+        generatorOptions.setProperty(flag, true);
+        return generatorOptions;
+    }
+
+    public static GeneratorOptions addProperty(GeneratorOptions options, String propertyName, Object propertyValue) {
+        GeneratorOptions generatorOptions = new GeneratorOptions(options);
+        generatorOptions.setProperty(propertyName, propertyValue);
+        return generatorOptions;
+    }
+
 }

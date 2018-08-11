@@ -66,7 +66,10 @@ public class ConjureGeneratorTask extends SourceTask {
         return this.options.get();
     }
 
-    public final void compileFiles() {
+    /**
+     * Entry point for the task.
+     */
+    public void compileFiles() {
         getSource().getFiles().stream().forEach(file -> {
             GeneratorOptions generatorOptions = getOptions();
             getProject().exec(execSpec -> {
