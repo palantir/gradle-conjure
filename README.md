@@ -85,8 +85,8 @@ Gradle-Conjure provides the following tasks:
 - publishTypeScript - Runs `npm publish` to publish a TypeScript package generated from your Conjure definitions.
 
 Gradle-Conjure also exposes the `conjure` extension, which allows you to configure the behaviour of each supported
-generator. You configure the generator by specifying properties in a corresponding named closure. There properties 
-are converted into options and flag which are passed on to the generator at code generation time. 
+generator. You configure the generator by specifying properties in a corresponding named closure. These properties 
+are converted into command line options or flags and passed on to the generator CLI. 
 
 The supported closures are:
 - `java` - Configuration for [Conjure-Java][]
