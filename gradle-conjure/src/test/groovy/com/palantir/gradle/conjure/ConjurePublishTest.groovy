@@ -19,7 +19,7 @@ package com.palantir.gradle.conjure
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 
-class ConjureIrPublishTest extends IntegrationSpec {
+class ConjurePublishTest extends IntegrationSpec {
 
     private static final String VERSION = '0.1.0'
     private static final String GROUP_ID = 'com.palantir.test-palantir'
@@ -35,7 +35,7 @@ class ConjureIrPublishTest extends IntegrationSpec {
                 }
             }
 
-            apply plugin: 'com.palantir.conjure'
+            apply plugin: 'com.palantir.conjure-publish'
             group = '${GROUP_ID}'
             version = '${VERSION}'
 
