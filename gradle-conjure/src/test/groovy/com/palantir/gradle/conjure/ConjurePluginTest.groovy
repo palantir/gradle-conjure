@@ -134,8 +134,8 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-typescript/.gitignore').readLines() == ["/src/"]
 
         // irFile
-        fileExists('api/build/conjure-ir/api.json')
-        file('api/build/conjure-ir/api.json').text.contains('TestServiceFoo')
+        fileExists('api/build/conjure-ir/api.conjure.json')
+        file('api/build/conjure-ir/api.conjure.json').text.contains('TestServiceFoo')
     }
 
     def 'check code compiles'() {
@@ -401,7 +401,7 @@ class ConjurePluginTest extends IntegrationSpec {
                 'import { IInternalImport } from "../internal/internalImport"')
 
         // ir
-        fileExists("api/build/conjure-ir/api.json")
+        fileExists("api/build/conjure-ir/api.conjure.json")
     }
 
     def 'omitting a project from settings is sufficient to disable'() {
