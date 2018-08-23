@@ -40,7 +40,6 @@ class ConjurePluginTest extends IntegrationSpec {
                     url 'https://dl.bintray.com/palantir/releases/'
                 }
             }
-
             dependencies {
                 classpath 'com.netflix.nebula:nebula-dependency-recommender:5.2.0'
             }

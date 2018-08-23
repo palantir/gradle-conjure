@@ -36,6 +36,9 @@ import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
@@ -76,6 +79,9 @@ public final class ConjurePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
+        // Ensure publishing exists before configuring IR publishing
+        project.getPlugins().apply(MavenPublishPlugin.class);
+
         ConjureExtension extension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
@@ -425,6 +431,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         File irPath = Paths.get(
                 project.getBuildDir().toString(), "conjure-ir", project.getName() + ".conjure.json").toFile();
+
         return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
@@ -433,6 +440,21 @@ public final class ConjurePlugin implements Plugin<Project> {
             compileIr.setOutputFile(irPath);
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
+
+            // Configure publishing
+            project.getExtensions().configure(PublishingExtension.class, publishing -> {
+                publishing.publications(publications -> {
+                    publications.create(
+                            "conjure",
+                            MavenPublication.class,
+                            mavenPublication -> mavenPublication.artifact(
+                                    compileIr.getOutputs().getFiles().getAsPath(),
+                                    (mavenArtifact) -> {
+                                        mavenArtifact.builtBy(compileIr);
+                                        mavenArtifact.setExtension("conjure.json");
+                                    }));
+                });
+            });
         });
     }
 
