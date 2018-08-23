@@ -16,7 +16,6 @@
 
 package com.palantir.gradle.conjure;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.publish.PublishingExtension;
@@ -32,10 +31,7 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
         project.getPlugins().apply(ConjurePlugin.class);
 
         CompileIrTask compileIr = (CompileIrTask) project.getTasks().findByName(ConjurePlugin.CONJURE_IR);
-        if (compileIr == null) {
-            throw new GradleException(
-                    "Task 'compileIr' not found. Please upgrade to gradle-conjure plugin to 4.0.0 or above.");
-        }
+
         // Configure publishing
         project.getExtensions().configure(PublishingExtension.class, publishing -> {
             publishing.publications(publications -> {

@@ -78,7 +78,6 @@ public final class ConjurePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
-
         ConjureExtension extension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
