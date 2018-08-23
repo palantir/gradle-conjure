@@ -75,7 +75,6 @@ com.palantir.conjure.typescript:conjure-typescript = 3.0.0
 ```
 
 ## Usage 
-
 Gradle-Conjure provides the following tasks:
 - compileConjure - Generates code for your API definitions in src/main/conjure/**/*.yml
 - compileConjureObjects - Generates Java POJOs from your Conjure definitions.
@@ -106,6 +105,13 @@ conjure {
     }
 }
 ```
+
+## Publishing
+To enable publishing of your API definition for external consumption, you may use the `com.palantir.conjure-publish`
+plugin instead of `com.palantir.conjure` plugin. The behaviour of these plugins is identical, except that
+`com.palantir.conjure-publish` also creates a new `"conjure"` publication.
+
+
 ## Contributing
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
