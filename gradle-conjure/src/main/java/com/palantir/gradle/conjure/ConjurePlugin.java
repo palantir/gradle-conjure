@@ -448,8 +448,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                             "conjure",
                             MavenPublication.class,
                             mavenPublication -> mavenPublication.artifact(
-                                    compileIr.getOutputs().getFiles().getAsPath(),
-                                    (mavenArtifact) -> {
+                                    compileIr.getOutputFile(),
+                                    mavenArtifact -> {
                                         mavenArtifact.builtBy(compileIr);
                                         mavenArtifact.setExtension("conjure.json");
                                     }));
