@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
+import com.sun.xml.internal.ws.util.StringUtils;
 import java.io.File;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
@@ -36,9 +37,48 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         Task generateConjure = project.getTasks().create("generateConjure", DefaultTask.class);
+
         setupConjureJava(project, extension::getJava, conjureIrConfiguration, generateConjure);
         setupConjurePython(project, extension::getPython, conjureIrConfiguration, generateConjure);
         setupConjureTypeScriptProject(project, extension::getTypescript, conjureIrConfiguration, generateConjure);
+        setupGenericConjureProjects(project, extension, conjureIrConfiguration, generateConjure);
+    }
+
+    private void setupGenericConjureProjects(
+            Project project,
+            ConjureExtension conjureExtension,
+            Configuration conjureIrConfiguration,
+            Task generateConjure) {
+        project.getChildProjects().entrySet().stream()
+                .filter(e -> e.getKey().startsWith("conjure-"))
+                .forEach(e -> {
+                    String subProjectName = e.getKey();
+                    String generatorName = subProjectName.replaceFirst("conjure-","");
+                    Configuration generatorConfig = project.getConfigurations().maybeCreate(generatorName);
+                    project.project(subProjectName, (subproj) -> {
+                        File generatorDir = new File(project.getBuildDir(), generatorName);
+                        project.getDependencies().add(generatorName,
+                                String.format("com.palantir.conjure.%s:conjure-%s", generatorName, generatorName));
+                        ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
+                                project,
+                                String.format("extractConjure%s", StringUtils.capitalize(generatorName)),
+                                generatorConfig,
+                                generatorDir,
+                                String.format("conjure-%s", generatorName));
+
+                        project.getTasks().create(String.format("generate%s", StringUtils.capitalize(generatorName)),
+                                ConjureLocalGenerateTask.class, task -> {
+                            task.setDescription(String.format("Generates %s files from remote Conjure definitions.", generatorName));
+                            task.setGroup(ConjurePlugin.TASK_GROUP);
+                            task.setSource(conjureIrConfiguration);
+                            task.setExecutablePath(extractConjureGeneratorTask::getExecutable);
+                            task.setOptions(() -> conjureExtension.getGenericOptions(generatorName));
+                            task.setOutputDirectory(subproj.file(generatorName));
+                            task.dependsOn(extractConjureGeneratorTask);
+                            generateConjure.dependsOn(task);
+                        });
+                    });
+                });
     }
 
     private void setupConjureJava(
