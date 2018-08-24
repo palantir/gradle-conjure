@@ -108,8 +108,7 @@ conjure {
 
 ## Publishing
 To enable publishing of your API definition for external consumption, you may use the `com.palantir.conjure-publish`
-plugin instead of `com.palantir.conjure` plugin. The behaviour of these plugins is identical, except that
-`com.palantir.conjure-publish` also creates a new `"conjure"` publication.
+plugin instead of `com.palantir.conjure` plugin. This plugin applies `com.palantir.conjure` and also creates a new `"conjure"` publication.
 
 
 ## Contributing
