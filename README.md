@@ -48,7 +48,7 @@ Then update your `settings.gradle`
 ```
 _Note, you can omit any of these projects if you don't need the generated code (gradle-conjure just looks at the project name suffix to figure out where to put generated code).  For example, if you only want to generate Java objects, you can just add the `your-project-api-objects` project and omit the others._
 
-For guidance on how to write `your-project-api.yml` please see the [Conjure Specification](https://github.com/palantir/conjure/blob/develop/specification.md). 
+For guidance on how to write `your-project-api.yml` please see the [Conjure Source Files Specification][]. 
 
 Once applied you can configure the versions of the generators to use manually or through the use of dependency recommendation.
 
@@ -84,6 +84,33 @@ Gradle-Conjure provides the following tasks:
 - compileTypeScript - Runs `npm tsc` to compile generated TypeScript files into JavaScript files.
 - publishTypeScript - Runs `npm publish` to publish a TypeScript package generated from your Conjure definitions.
 
+Gradle-Conjure also exposes the `conjure` extension, which allows you to configure the behaviour of each supported
+generator. You configure the generator by specifying properties in a corresponding named closure. These properties 
+are converted into command line options or flags and passed on to the generator CLI. 
+
+The supported closures are:
+- `java` - Configuration for [Conjure-Java][]
+- `typescript` - Configuration for [Conjure-TypeScript][]
+- `python` - Configuration for [Conjure-Python][]
+
+The following is example usage of the extension.
+
+```groovy
+conjure {
+    typescript {
+        version = "0.0.0"
+    }
+    
+    java {
+        retrofitCompletableFutures = true
+    }
+}
+```
 ## Contributing
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
+
+[Conjure Source Files Specification]: https://github.com/palantir/conjure/blob/develop/docs/spec/source_files.md
+[Conjure-Java]: https://github.com/palantir/conjure-java
+[Conjure-TypeScript]: https://github.com/palantir/conjure-typescript
+[Conjure-Python]: https://github.com/palantir/conjure-python
