@@ -33,7 +33,6 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         
             repositories {
                 mavenCentral()
-                // TODO(forozco): Add IR publishing
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
             configurations.all {
@@ -41,7 +40,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.5.0'
-                   force 'com.palantir.conjure.java:conjure-java:2.0.0-rc2'
+                   force 'com.palantir.conjure.java:conjure-java:2.0.0-rc3'
                    force 'com.palantir.conjure:conjure:4.0.0'
                }
            }
@@ -50,7 +49,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         apply plugin: 'com.palantir.conjure-local'
         
         dependencies {
-            conjure 'com.palantir.conjure:conjure-api:3.2.0'
+            conjure 'com.palantir.conjure:conjure-api:4.1.1'
         }
     '''.stripIndent()
 
