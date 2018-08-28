@@ -180,7 +180,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
         if (project.findProject(retrofitProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
-            if (project.findProject(objectsProjectName) == null) {
+            Project objectsProject = project.findProject(objectsProjectName);
+            if (objectsProject == null) {
                 throw new IllegalStateException(
                         String.format("Cannot enable '%s' without '%s'", retrofitProjectName, objectsProjectName));
             }
@@ -211,7 +212,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("compile", objectsProject);
                 subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
             });
         }
