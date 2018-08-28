@@ -90,7 +90,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 });
         applyDependencyForIdeTasks(project, compileConjure);
 
-        Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
+        TaskProvider<Copy> copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         TaskProvider<CompileIrTask> compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
         setupConjureJavaProject(project, extension::getJava, compileConjure, compileIrTask);
@@ -422,7 +422,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static TaskProvider<CompileIrTask> createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
+    private static TaskProvider<CompileIrTask> createCompileIrTask(
+            Project project, TaskProvider<Copy> copyConjureSourcesTask) {
         Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
         File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
         project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
@@ -435,7 +436,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         return project.getTasks().register(CONJURE_IR, CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
-            compileIr.setInputDirectory(copyConjureSourcesTask::getDestinationDir);
+            compileIr.setInputDirectory(copyConjureSourcesTask.get()::getDestinationDir);
             compileIr.setExecutablePath(extractCompilerTask.get()::getExecutable);
             compileIr.setOutputFile(irPath);
             compileIr.dependsOn(copyConjureSourcesTask);
@@ -443,7 +444,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static Copy getConjureSources(Project project, SourceDirectorySetFactory sourceDirectorySetFactory) {
+    private static TaskProvider<Copy> getConjureSources(
+            Project project, SourceDirectorySetFactory sourceDirectorySetFactory) {
         // Conjure code source set
         SourceDirectorySet conjureSourceSet = sourceDirectorySetFactory.create("conjure");
         conjureSourceSet.setSrcDirs(Collections.singleton("src/main/conjure"));
@@ -453,15 +455,15 @@ public final class ConjurePlugin implements Plugin<Project> {
         File buildDir = new File(project.getBuildDir(), "conjure");
 
         // Copy conjure sources into build directory
-        Copy copyConjureSourcesTask = project.getTasks().create("copyConjureSourcesIntoBuild", Copy.class);
-        copyConjureSourcesTask.into(project.file(buildDir)).from(conjureSourceSet);
+        TaskProvider<Copy> copyConjureSourcesTask =
+                project.getTasks().register("copyConjureSourcesIntoBuild", Copy.class, copy -> {
+                    copy.into(project.file(buildDir)).from(conjureSourceSet);
+                    copy.doFirst(task -> GFileUtils.deleteDirectory(buildDir));
+                });
 
-        copyConjureSourcesTask.doFirst(task -> {
-            GFileUtils.deleteDirectory(buildDir);
+        project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+            cleanTask.dependsOn(project.getTasks().named("cleanCopyConjureSourcesIntoBuild"));
         });
-
-        Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-        cleanTask.dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild"));
 
         return copyConjureSourcesTask;
     }
