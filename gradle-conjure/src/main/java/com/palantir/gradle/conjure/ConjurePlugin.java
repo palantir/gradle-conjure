@@ -299,13 +299,13 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(extractConjureTypeScriptTask.get()::getExecutable);
                             task.setOutputDirectory(srcDirectory);
                             task.setOptions(options);
-                            compileConjure.configure(cc -> cc.dependsOn(task));
                             task.dependsOn(createWriteGitignoreTask(subproj,
                                     "gitignoreConjureTypeScript",
                                     subproj.getProjectDir(),
                                     "/src/\n"));
                             task.dependsOn(extractConjureTypeScriptTask);
                         });
+                compileConjure.configure(cc -> cc.dependsOn(compileConjureTypeScript));
 
                 TaskProvider<Exec> installTypeScriptDependencies =
                         project.getTasks().register("installTypeScriptDependencies", Exec.class, task -> {
@@ -367,13 +367,13 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(extractConjurePythonTask.get()::getExecutable);
                             task.setOutputDirectory(subproj.file("python"));
                             task.setOptions(options);
-                            compileConjure.configure(cc -> cc.dependsOn(task));
                             task.dependsOn(createWriteGitignoreTask(subproj,
                                     "gitignoreConjurePython",
                                     subproj.getProjectDir(),
                                     "/python/\n"));
                             task.dependsOn(extractConjurePythonTask);
                         });
+                compileConjure.configure(cc -> cc.dependsOn(compileConjurePython));
                 project.getTasks().register("buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
