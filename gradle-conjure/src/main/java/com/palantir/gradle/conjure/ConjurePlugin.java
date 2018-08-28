@@ -226,7 +226,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
         if (project.findProject(jerseyProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
-            if (project.findProject(objectsProjectName) == null) {
+            Project objectProject = project.findProject(objectsProjectName);
+            if (objectProject == null) {
                 throw new IllegalStateException(
                         String.format("Cannot enable '%s' without '%s'", jerseyProjectName, objectsProjectName));
             }
@@ -255,9 +256,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(extractJavaTask);
                 });
 
-                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
+                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                    cleanTask.dependsOn(project.getTasks().named("cleanCompileConjureJersey"));
+                });
+                subproj.getDependencies().add("compile", objectProject);
                 subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
             });
         }
