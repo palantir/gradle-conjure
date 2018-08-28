@@ -164,7 +164,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
+                    cleanTask.dependsOn("cleanCompileConjureObjects");
                 });
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
             });
@@ -212,7 +212,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
+                    cleanTask.dependsOn("cleanCompileConjureRetrofit");
                 });
                 subproj.getDependencies().add("compile", objectsProject);
                 subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
@@ -384,7 +384,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.workingDir(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                     project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-                        cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
+                        cleanTask.dependsOn("cleanCompileConjurePython");
                     });
                 });
             });
