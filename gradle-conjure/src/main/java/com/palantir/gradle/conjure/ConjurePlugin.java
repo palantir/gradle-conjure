@@ -163,8 +163,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
-                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
+                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
+                });
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
             });
         }
@@ -210,8 +211,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
-                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
+                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
+                });
                 subproj.getDependencies().add("compile", objectsProject);
                 subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
             });
@@ -333,8 +335,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(compileTypeScript);
                         });
                 subproj.afterEvaluate(p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishTypeScript));
-                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureTypeScript"));
+                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureTypeScript"));
+                });
             });
         }
     }
@@ -380,8 +383,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                             distDir);
                     task.workingDir(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
-                    Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
-                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
+                    project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                        cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
+                    });
                 });
             });
         }
