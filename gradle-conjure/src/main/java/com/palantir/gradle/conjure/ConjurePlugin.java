@@ -83,9 +83,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         // Set up conjure compile task
-        Task compileConjure = project.getTasks().create("compileConjure", DefaultTask.class);
-        compileConjure.setDescription("Generates code for your API definitions in src/main/conjure/**/*.yml");
-        compileConjure.setGroup(TASK_GROUP);
+        TaskProvider<DefaultTask> compileConjure =
+                project.getTasks().register("compileConjure", DefaultTask.class, task -> {
+                    task.setDescription("Generates code for your API definitions in src/main/conjure/**/*.yml");
+                    task.setGroup(TASK_GROUP);
+                });
         applyDependencyForIdeTasks(project, compileConjure);
 
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
@@ -99,7 +101,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureJavaProject(
             Project project,
             Supplier<GeneratorOptions> optionsSupplier,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask) {
 
         Set<String> javaProjectSuffixes = ImmutableSet.of(
@@ -132,7 +134,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureObjectsProject(
             Project project,
             Supplier<GeneratorOptions> optionsSupplier,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask,
             TaskProvider<ExtractExecutableTask> extractJavaTask) {
 
@@ -141,23 +143,25 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.project(objectsProjectName, (subproj) -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
-                project.getTasks().register("compileConjureObjects", ConjureGeneratorTask.class, (task) -> {
-                    task.setDescription("Generates Java POJOs from your Conjure definitions.");
-                    task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask.get()::getExecutable);
-                    task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
-                    task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
-                    task.setSource(compileIrTask);
+                TaskProvider<ConjureGeneratorTask> conjureGeneratorTask =
+                        project.getTasks().register("compileConjureObjects", ConjureGeneratorTask.class, task -> {
+                            task.setDescription("Generates Java POJOs from your Conjure definitions.");
+                            task.setGroup(TASK_GROUP);
+                            task.setExecutablePath(extractJavaTask.get()::getExecutable);
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "objects"));
+                            task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                            task.setSource(compileIrTask);
 
-                    compileConjure.dependsOn(task);
-                    subproj.getTasks().getByName("compileJava").dependsOn(task);
-                    applyDependencyForIdeTasks(subproj, task);
-                    task.dependsOn(createWriteGitignoreTask(subproj,
-                            "gitignoreConjureObjects",
-                            subproj.getProjectDir(),
-                            JAVA_GITIGNORE_CONTENTS));
-                    task.dependsOn(extractJavaTask);
-                });
+                            compileConjure.configure(cc -> cc.dependsOn(task));
+                            subproj.getTasks().getByName("compileJava").dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
+                                    subproj,
+                                    "gitignoreConjureObjects",
+                                    subproj.getProjectDir(),
+                                    JAVA_GITIGNORE_CONTENTS));
+                            task.dependsOn(extractJavaTask);
+                        });
+                applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
@@ -169,7 +173,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureRetrofitProject(
             Project project,
             Supplier<GeneratorOptions> optionsSupplier,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask,
             TaskProvider<ExtractExecutableTask> extractJavaTask) {
 
@@ -184,24 +188,26 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.project(retrofitProjectName, (subproj) -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
-                project.getTasks().register("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
-                    task.setDescription(
-                            "Generates Retrofit interfaces for use on the client-side from your Conjure definitions.");
-                    task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask.get()::getExecutable);
-                    task.setOptions(() -> addFlag(optionsSupplier.get(), "retrofit"));
-                    task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
-                    task.setSource(compileIrTask);
+                TaskProvider<ConjureGeneratorTask> conjureGeneratorTask =
+                        project.getTasks().register("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
+                            task.setDescription("Generates Retrofit interfaces for use on the client-side from your "
+                                    + "Conjure definitions.");
+                            task.setGroup(TASK_GROUP);
+                            task.setExecutablePath(extractJavaTask.get()::getExecutable);
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "retrofit"));
+                            task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                            task.setSource(compileIrTask);
 
-                    compileConjure.dependsOn(task);
-                    subproj.getTasks().getByName("compileJava").dependsOn(task);
-                    applyDependencyForIdeTasks(subproj, task);
-                    task.dependsOn(createWriteGitignoreTask(subproj,
-                            "gitignoreConjureRetrofit",
-                            subproj.getProjectDir(),
-                            JAVA_GITIGNORE_CONTENTS));
-                    task.dependsOn(extractJavaTask);
-                });
+                            compileConjure.configure(cc -> cc.dependsOn(task));
+                            subproj.getTasks().getByName("compileJava").dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
+                                    subproj,
+                                    "gitignoreConjureRetrofit",
+                                    subproj.getProjectDir(),
+                                    JAVA_GITIGNORE_CONTENTS));
+                            task.dependsOn(extractJavaTask);
+                        });
+                applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
@@ -214,7 +220,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureJerseyProject(
             Project project,
             Supplier<GeneratorOptions> optionsSupplier,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask,
             TaskProvider<ExtractExecutableTask> extractJavaTask) {
 
@@ -230,26 +236,26 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.project(jerseyProjectName, (subproj) -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
-                project.getTasks().register("compileConjureJersey", ConjureGeneratorTask.class, task -> {
-                    task.setDescription("Generates Jersey interfaces from your Conjure definitions "
-                            + "(for use on both the client-side and server-side).");
-                    task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask.get()::getExecutable);
-                    task.setOptions(() -> addFlag(optionsSupplier.get(), "jersey"));
-                    task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
-                    task.setSource(compileIrTask);
+                TaskProvider<ConjureGeneratorTask> conjureGeneratorTask =
+                        project.getTasks().register("compileConjureJersey", ConjureGeneratorTask.class, task -> {
+                            task.setDescription("Generates Jersey interfaces from your Conjure definitions "
+                                    + "(for use on both the client-side and server-side).");
+                            task.setGroup(TASK_GROUP);
+                            task.setExecutablePath(extractJavaTask.get()::getExecutable);
+                            task.setOptions(() -> addFlag(optionsSupplier.get(), "jersey"));
+                            task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                            task.setSource(compileIrTask);
 
-                    compileConjure.dependsOn(task);
-                    subproj.getTasks().getByName("compileJava").dependsOn(task);
-                    applyDependencyForIdeTasks(subproj, task);
-                    task.dependsOn(
-                            createWriteGitignoreTask(
+                            compileConjure.configure(cc -> cc.dependsOn(task));
+                            subproj.getTasks().getByName("compileJava").dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
                                     subproj,
                                     "gitignoreConjureJersey",
                                     subproj.getProjectDir(),
                                     JAVA_GITIGNORE_CONTENTS));
-                    task.dependsOn(extractJavaTask);
-                });
+                            task.dependsOn(extractJavaTask);
+                        });
+                applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
                     cleanTask.dependsOn(project.getTasks().named("cleanCompileConjureJersey"));
@@ -263,7 +269,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjureTypescriptProject(
             Project project,
             Supplier<GeneratorOptions> options,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
@@ -290,7 +296,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(extractConjureTypeScriptTask.get()::getExecutable);
                             task.setOutputDirectory(srcDirectory);
                             task.setOptions(options);
-                            compileConjure.dependsOn(task);
+                            compileConjure.configure(cc -> cc.dependsOn(task));
                             task.dependsOn(createWriteGitignoreTask(subproj,
                                     "gitignoreConjureTypeScript",
                                     subproj.getProjectDir(),
@@ -335,7 +341,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupConjurePythonProject(
             Project project,
             Supplier<GeneratorOptions> options,
-            Task compileConjure,
+            TaskProvider<DefaultTask> compileConjure,
             TaskProvider<CompileIrTask> compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
         if (project.findProject(pythonProjectName) != null) {
@@ -357,7 +363,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setExecutablePath(extractConjurePythonTask.get()::getExecutable);
                             task.setOutputDirectory(subproj.file("python"));
                             task.setOptions(options);
-                            compileConjure.dependsOn(task);
+                            compileConjure.configure(cc -> cc.dependsOn(task));
                             task.dependsOn(createWriteGitignoreTask(subproj,
                                     "gitignoreConjurePython",
                                     subproj.getProjectDir(),
@@ -385,21 +391,17 @@ public final class ConjurePlugin implements Plugin<Project> {
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
     }
 
-    private static void applyDependencyForIdeTasks(Project project, Task compileConjure) {
+    private static void applyDependencyForIdeTasks(Project project, TaskProvider<? extends Task> dependency) {
         project.getPlugins().withType(IdeaPlugin.class, plugin -> {
-            Task task = project.getTasks().findByName("ideaModule");
-            if (task != null) {
-                task.dependsOn(compileConjure);
-            }
+            project.getTasks().named("ideaModule").configure(task -> task.dependsOn(dependency));
 
             plugin.getModel().getModule().getSourceDirs().add(project.file(JAVA_GENERATED_SOURCE_DIRNAME));
             plugin.getModel().getModule().getGeneratedSourceDirs().add(project.file(JAVA_GENERATED_SOURCE_DIRNAME));
         });
         project.getPlugins().withType(EclipsePlugin.class, plugin -> {
-            Task task = project.getTasks().findByName("eclipseClasspath");
-            if (task != null) {
-                task.dependsOn(compileConjure);
-            }
+            project.getTasks().named("eclipseClasspath").configure(task -> {
+                task.dependsOn(dependency);
+            });
         });
     }
 
