@@ -152,8 +152,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
-                            compileConjure.configure(cc -> cc.dependsOn(task));
-                            subproj.getTasks().getByName("compileJava").dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj,
                                     "gitignoreConjureObjects",
@@ -161,6 +159,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
                         });
+                subproj.getTasks().named("compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
+                compileConjure.configure(cc -> cc.dependsOn(conjureGeneratorTask));
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
@@ -200,8 +200,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
-                            compileConjure.configure(cc -> cc.dependsOn(task));
-                            subproj.getTasks().getByName("compileJava").dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj,
                                     "gitignoreConjureRetrofit",
@@ -209,6 +207,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
                         });
+                subproj.getTasks().named("compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
+                compileConjure.configure(cc -> cc.dependsOn(conjureGeneratorTask));
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
@@ -249,8 +249,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
-                            compileConjure.configure(cc -> cc.dependsOn(task));
-                            subproj.getTasks().getByName("compileJava").dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj,
                                     "gitignoreConjureJersey",
@@ -258,6 +256,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
                         });
+                subproj.getTasks().named("compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
+                compileConjure.configure(cc -> cc.dependsOn(conjureGeneratorTask));
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
