@@ -261,7 +261,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-                    cleanTask.dependsOn(project.getTasks().named("cleanCompileConjureJersey"));
+                    cleanTask.dependsOn("cleanCompileConjureJersey");
                 });
                 subproj.getDependencies().add("compile", objectProject);
                 subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
@@ -336,7 +336,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 subproj.afterEvaluate(p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishTypeScript));
                 project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-                    cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureTypeScript"));
+                    cleanTask.dependsOn("cleanCompileConjureTypeScript");
                 });
             });
         }
@@ -466,7 +466,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 });
 
         project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
-            cleanTask.dependsOn(project.getTasks().named("cleanCopyConjureSourcesIntoBuild"));
+            cleanTask.dependsOn("cleanCopyConjureSourcesIntoBuild");
         });
 
         return copyConjureSourcesTask;
