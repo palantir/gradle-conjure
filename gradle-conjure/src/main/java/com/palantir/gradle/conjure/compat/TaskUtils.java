@@ -26,6 +26,10 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
+/**
+ * Tools to allow operating on {@link Task tasks} lazily if possible (gradle 4.9+) while preserving
+ * backwards-compatibility.
+ */
 public final class TaskUtils {
     private static final Pattern GRADLE_MAJOR_MINOR = Pattern.compile("(\\d+)\\.(\\d+)\\b.*");
 
