@@ -19,6 +19,13 @@ package com.palantir.gradle.conjure.compat;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
+/**
+ * A potentially lazy provider for {@link Task}.
+ * <p>
+ * In gradle 4.9 and higher, this is implemented using {@link NewTaskProvider} which is a thin wrapper over
+ * {@link org.gradle.api.tasks.TaskProvider}.
+ * In older versions, this is implemented using {@link OldTaskProvider} which is a non-lazy wrapper around {@link Task}.
+ */
 public interface TaskProvider<T extends Task> {
     T get();
 

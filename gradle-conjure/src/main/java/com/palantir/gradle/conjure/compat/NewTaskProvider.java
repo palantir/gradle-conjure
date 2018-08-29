@@ -22,6 +22,10 @@ import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+/**
+ * A wrapper around the {@link org.gradle.api.tasks.TaskProvider} introduced in gradle 4.9 that also implements
+ * {@link TaskProvider} so that it can be used in a backwards-compatible way.
+ */
 public final class NewTaskProvider<T extends Task> implements TaskProvider<T>, org.gradle.api.tasks.TaskProvider<T> {
     private final org.gradle.api.tasks.TaskProvider<T> provider;
 
