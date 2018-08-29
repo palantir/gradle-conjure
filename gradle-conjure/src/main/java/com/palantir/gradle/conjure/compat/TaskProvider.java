@@ -16,12 +16,10 @@
 
 package com.palantir.gradle.conjure.compat;
 
-import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
-public interface TaskProvider<T extends Task> extends Supplier<T> {
-    @Override
+public interface TaskProvider<T extends Task> {
     T get();
 
     /** Configure the task, lazily if possible. */

@@ -16,10 +16,13 @@
 
 package com.palantir.gradle.conjure.compat;
 
+import javax.annotation.Nullable;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
+import org.gradle.api.provider.Provider;
 
-public final class NewTaskProvider<T extends Task> implements TaskProvider<T> {
+public final class NewTaskProvider<T extends Task> implements TaskProvider<T>, org.gradle.api.tasks.TaskProvider<T> {
     private final org.gradle.api.tasks.TaskProvider<T> provider;
 
     public NewTaskProvider(org.gradle.api.tasks.TaskProvider provider) {
@@ -35,4 +38,31 @@ public final class NewTaskProvider<T extends Task> implements TaskProvider<T> {
     public void configure(Action<? super T> action) {
         provider.configure(action);
     }
+
+    @Override
+    public String getName() {
+        return provider.getName();
+    }
+
+    @Override
+    @Nullable
+    public T getOrNull() {
+        return provider.getOrNull();
+    }
+
+    @Override
+    public T getOrElse(T def) {
+        return provider.getOrElse(def);
+    }
+
+    @Override
+    public <S> Provider<S> map(Transformer<? extends S, ? super T> transformer) {
+        return provider.map(transformer);
+    }
+
+    @Override
+    public boolean isPresent() {
+        return provider.isPresent();
+    }
+
 }

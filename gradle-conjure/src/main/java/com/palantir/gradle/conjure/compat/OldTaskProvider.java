@@ -16,10 +16,14 @@
 
 package com.palantir.gradle.conjure.compat;
 
+import java.util.concurrent.Callable;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
-public final class OldTaskProvider<T extends Task> implements TaskProvider<T> {
+/**
+ * This implements {@link Callable} os we can pass it to {@link Task#dependsOn}.
+ */
+public final class OldTaskProvider<T extends Task> implements TaskProvider<T>, Callable<T> {
     private final T task;
 
     public OldTaskProvider(T task) {
@@ -34,5 +38,10 @@ public final class OldTaskProvider<T extends Task> implements TaskProvider<T> {
     @Override
     public void configure(Action<? super T> action) {
         action.execute(task);
+    }
+
+    @Override
+    public T call() {
+        return get();
     }
 }
