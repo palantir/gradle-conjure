@@ -384,7 +384,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(extractConjurePythonTask);
                         });
                 compileConjure.configure(cc -> cc.dependsOn(compileConjurePython));
-                project.getTasks().register("buildWheel", Exec.class, task -> {
+                registerTask(project, "buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
