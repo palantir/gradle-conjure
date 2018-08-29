@@ -170,11 +170,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
                         });
-                subproj.getTasks().named("compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
+                getNamedTask(subproj, "compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
                 compileConjure.configure(cc -> cc.dependsOn(conjureGeneratorTask));
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
-                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                getNamedTask(project, TASK_CLEAN).configure(cleanTask -> {
                     cleanTask.dependsOn("cleanCompileConjureObjects");
                 });
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
@@ -218,11 +218,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
                         });
-                subproj.getTasks().named("compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
+                getNamedTask(subproj, "compileJava").configure(cj -> cj.dependsOn(conjureGeneratorTask));
                 compileConjure.configure(cc -> cc.dependsOn(conjureGeneratorTask));
                 applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
 
-                project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                getNamedTask(project, TASK_CLEAN).configure(cleanTask -> {
                     cleanTask.dependsOn("cleanCompileConjureRetrofit");
                 });
                 subproj.getDependencies().add("compile", objectsProject);
@@ -393,7 +393,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             distDir);
                     task.workingDir(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
-                    project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+                    getNamedTask(project, TASK_CLEAN).configure(cleanTask -> {
                         cleanTask.dependsOn("cleanCompileConjurePython");
                     });
                 });
@@ -474,7 +474,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     copy.doFirst(task -> GFileUtils.deleteDirectory(buildDir));
                 });
 
-        project.getTasks().named(TASK_CLEAN).configure(cleanTask -> {
+        getNamedTask(project, TASK_CLEAN).configure(cleanTask -> {
             cleanTask.dependsOn("cleanCopyConjureSourcesIntoBuild");
         });
 
