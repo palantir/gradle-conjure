@@ -39,6 +39,23 @@ public final class TaskUtils {
         this.gradleVersion = Suppliers.memoize(() -> getGradleVersion(project));
     }
 
+    public <T extends Task> TaskProvider<T> registerTask(
+            Project project, String taskName, Class<T> taskType, Action<? super T> configuration) {
+        if (isAtLeast(4, 9)) {
+            return new NewTaskProvider<>(project.getTasks().register(taskName, taskType, configuration));
+        } else {
+            return new OldTaskProvider<>(project.getTasks().create(taskName, taskType, configuration));
+        }
+    }
+
+    public TaskProvider<Task> getNamedTask(Project project, String taskName) {
+        if (isAtLeast(4, 9)) {
+            return new NewTaskProvider<>(project.getTasks().named(taskName));
+        } else {
+            return new OldTaskProvider<>(project.getTasks().getByName(taskName));
+        }
+    }
+
     private static Optional<GradleVersion> getGradleVersion(Project project) {
         Matcher matcher = GRADLE_MAJOR_MINOR.matcher(project.getGradle().getGradleVersion());
         if (!matcher.matches()) {
@@ -58,22 +75,5 @@ public final class TaskUtils {
         GradleVersion version = versionOpt.get();
         return version.getMajor() > expectedMajor || (version.getMajor() == expectedMajor
                 && version.getMinor() >= expectedMinor);
-    }
-
-    public <T extends Task> TaskProvider<T> registerTask(
-            Project project, String taskName, Class<T> taskType, Action<? super T> configuration) {
-        if (isAtLeast(4, 9)) {
-            return new NewTaskProvider<>(project.getTasks().register(taskName, taskType, configuration));
-        } else {
-            return new OldTaskProvider<>(project.getTasks().create(taskName, taskType, configuration));
-        }
-    }
-
-    public TaskProvider<Task> getNamedTask(Project project, String taskName) {
-        if (isAtLeast(4, 9)) {
-            return new NewTaskProvider<>(project.getTasks().named(taskName));
-        } else {
-            return new OldTaskProvider<>(project.getTasks().getByName(taskName));
-        }
     }
 }
