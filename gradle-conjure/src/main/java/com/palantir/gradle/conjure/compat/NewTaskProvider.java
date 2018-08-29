@@ -20,7 +20,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 
 public final class NewTaskProvider<T extends Task> implements TaskProvider<T> {
-    private final org.gradle.api.tasks.TaskProvider provider;
+    private final org.gradle.api.tasks.TaskProvider<T> provider;
 
     public NewTaskProvider(org.gradle.api.tasks.TaskProvider provider) {
         this.provider = provider;
