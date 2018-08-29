@@ -458,8 +458,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private TaskProvider<Copy> getConjureSources(
-            Project project, SourceDirectorySetFactory sourceDirectorySetFactory) {
+    private TaskProvider<Copy> getConjureSources(Project project) {
         // Conjure code source set
         SourceDirectorySet conjureSourceSet = sourceDirectorySetFactory.create("conjure");
         conjureSourceSet.setSrcDirs(Collections.singleton("src/main/conjure"));
