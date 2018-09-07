@@ -19,6 +19,8 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableList;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
@@ -29,8 +31,11 @@ public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
             // Strip extension and version
             File outputDirectory = new File(
                     getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
-            if (!outputDirectory.exists()) {
-                outputDirectory.mkdir();
+
+            try {
+                Files.createDirectories(outputDirectory.toPath());
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create " + outputDirectory, e);
             }
 
             GeneratorOptions generatorOptions = getOptions();
