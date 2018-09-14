@@ -40,7 +40,6 @@ class ConjureLocalPluginTest extends IntegrationSpec {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.5.0'
-                   force 'com.palantir.conjure.java:conjure-java:2.0.0-rc3'
                    force 'com.palantir.conjure:conjure:4.0.0'
                }
            }
@@ -56,7 +55,6 @@ class ConjureLocalPluginTest extends IntegrationSpec {
     def standardProject = '''
         include 'typescript'
         include 'python'
-        include 'java'
     '''.stripIndent()
 
 
@@ -72,10 +70,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         then:
         result.wasExecuted("generateTypeScript")
         result.wasExecuted("generatePython")
-        result.wasExecuted("generateJavaObjects")
-        result.wasExecuted("generateJavaJersey")
 
-        fileExists('java/src/generated/java/com/palantir/conjure/spec/ConjureDefinition.java')
         fileExists('typescript/src/conjure-api/index.ts')
         fileExists('python/python/conjure-api/foo/__init__.py')
     }
