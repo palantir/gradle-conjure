@@ -61,7 +61,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     conjurePythonDir,
                     "conjure-python");
 
-            subproj.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
+            project.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
                 task.setDescription("Generates Python files from remote Conjure definitions.");
                 task.setGroup(ConjurePlugin.TASK_GROUP);
                 task.setSource(conjureIrConfiguration);
@@ -104,7 +104,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     conjureTypescriptDir,
                     "conjure-typescript");
 
-            subproj.getTasks().create("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
+            project.getTasks().create("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
                 task.setDescription("Generate Typescript bindings from remote Conjure definitions.");
                 task.setGroup(ConjurePlugin.TASK_GROUP);
                 task.setSource(conjureIrConfiguration);
