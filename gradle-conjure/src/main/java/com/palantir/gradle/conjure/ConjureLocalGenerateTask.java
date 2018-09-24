@@ -17,18 +17,8 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.gradle.api.tasks.OutputDirectories;
 
 public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
-    /**
-     * This will create the directories for us.
-     */
-    @OutputDirectories
-    public final List<File> getOutputDirectoriesForAllSources() {
-        return getSource().getFiles().stream().map(this::outputDirectoryFor).collect(Collectors.toList());
-    }
 
     @Override
     protected final File outputDirectoryFor(File file) {

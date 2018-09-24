@@ -82,11 +82,13 @@ public class ConjureGeneratorTask extends SourceTask {
             GeneratorOptions generatorOptions = getOptions();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
+                File thisOutputDirectory = outputDirectoryFor(file);
+                getProject().mkdir(thisOutputDirectory);
                 commandArgsBuilder.add(
                         getExecutablePath().getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
-                        outputDirectoryFor(file).getAbsolutePath());
+                        thisOutputDirectory.getAbsolutePath());
 
                 List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
                 getLogger().info("Running generator with args: {}", additionalArgs);
