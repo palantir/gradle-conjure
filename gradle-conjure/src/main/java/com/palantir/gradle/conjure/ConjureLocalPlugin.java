@@ -109,7 +109,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                 task.setGroup(ConjurePlugin.TASK_GROUP);
                 task.setSource(conjureIrConfiguration);
                 task.setExecutablePath(extractConjureTypeScriptTask::getExecutable);
-                task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "rawSource"));
+                task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
                 task.setOutputDirectory(srcDirectory);
                 task.dependsOn(extractConjureTypeScriptTask);
                 generateConjure.dependsOn(task);

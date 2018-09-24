@@ -137,7 +137,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setDescription("Generates Java POJOs from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setExecutablePath(extractJavaTask::getExecutable);
-                            task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "objects"));
+                            task.setOptions(() -> optionsSupplier.get().addFlag("objects"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
@@ -183,7 +183,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             "Generates Retrofit interfaces for use on the client-side from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.setExecutablePath(extractJavaTask::getExecutable);
-                    task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "retrofit"));
+                    task.setOptions(() -> optionsSupplier.get().addFlag("retrofit"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
 
@@ -229,7 +229,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + "(for use on both the client-side and server-side).");
                     task.setGroup(TASK_GROUP);
                     task.setExecutablePath(extractJavaTask::getExecutable);
-                    task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "jersey"));
+                    task.setOptions(() -> optionsSupplier.get().addFlag("jersey"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
 
