@@ -68,8 +68,8 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully("generateConjure")
 
         then:
-        result.wasExecuted("generateTypeScript")
-        result.wasExecuted("generatePython")
+        result.wasExecuted(":typescript:generateTypeScript")
+        result.wasExecuted(":python:generatePython")
 
         fileExists('typescript/src/conjure-api/index.ts')
         fileExists('python/python/conjure-api/foo/__init__.py')
