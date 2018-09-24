@@ -16,41 +16,24 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.collect.ImmutableList;
-import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.gradle.api.tasks.OutputDirectories;
 
 public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
+    /**
+     * This will create the directories for us.
+     */
+    @OutputDirectories
+    public final List<File> getOutputDirectoriesForAllSources() {
+        return getSource().getFiles().stream().map(this::outputDirectoryFor).collect(Collectors.toList());
+    }
 
     @Override
-    public final void compileFiles() {
-        getSource().getFiles().stream().forEach(file -> {
-            // Strip extension and version
-            File outputDirectory = new File(
-                    getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
-
-            try {
-                Files.createDirectories(outputDirectory.toPath());
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to create " + outputDirectory, e);
-            }
-
-            GeneratorOptions generatorOptions = getOptions();
-            getProject().exec(execSpec -> {
-                ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-                commandArgsBuilder.add(
-                        getExecutablePath().getAbsolutePath(),
-                        "generate",
-                        file.getAbsolutePath(),
-                        outputDirectory.getAbsolutePath());
-
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
-                commandArgsBuilder.addAll(additionalArgs);
-                execSpec.commandLine(commandArgsBuilder.build().toArray());
-            });
-        });
+    protected final File outputDirectoryFor(File file) {
+        // Strip extension and version
+        return new File(
+                getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
     }
 }
