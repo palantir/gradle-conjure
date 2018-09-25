@@ -83,15 +83,7 @@ public final class GeneratorOptions implements Serializable {
             throw new IllegalArgumentException(
                     String.format("Passed GeneratorOptions already has flag '%s' set: %s", flag, this));
         }
-        GeneratorOptions generatorOptions = new GeneratorOptions(this);
-        generatorOptions.setProperty(flag, true);
-        return generatorOptions;
+        this.setProperty(flag, true);
+        return this;
     }
-
-    public GeneratorOptions addProperty(String propertyName, Object propertyValue) {
-        GeneratorOptions generatorOptions = new GeneratorOptions(this);
-        generatorOptions.setProperty(propertyName, propertyValue);
-        return generatorOptions;
-    }
-
 }
