@@ -20,7 +20,6 @@ import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.util.function.Supplier;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -35,7 +34,11 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         ConjureExtension extension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
-        Task generateConjure = project.getTasks().create("generateConjure", DefaultTask.class);
+        Task generateConjure = project.getTasks().create("generateConjure", task -> {
+            task.setDescription("Generates code for all requested languages (for which there is a subproject) "
+                    + "from remote Conjure definitions.");
+            task.setGroup(ConjurePlugin.TASK_GROUP);
+        });
         setupConjurePython(project, extension::getPython, conjureIrConfiguration, generateConjure);
         setupConjureTypeScript(project, extension::getTypescript, conjureIrConfiguration, generateConjure);
     }
