@@ -139,40 +139,38 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Configuration conjureIrConfiguration,
             Task generateConjure) {
-        if (project.findProject(PYTHON_PROJECT_NAME) == null) {
+        Project subproj = project.findProject(PYTHON_PROJECT_NAME);
+        if (subproj == null) {
             return;
         }
         Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_PYTHON);
 
-        project.project(PYTHON_PROJECT_NAME, (subproj) -> {
-            File conjurePythonDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_PYTHON);
-            project.getDependencies().add(ConjurePlugin.CONJURE_PYTHON, ConjurePlugin.CONJURE_PYTHON_BINARY);
+        File conjurePythonDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_PYTHON);
+        project.getDependencies().add(ConjurePlugin.CONJURE_PYTHON, ConjurePlugin.CONJURE_PYTHON_BINARY);
 
-            ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
-                    project,
-                    "extractConjurePython",
-                    conjurePythonConfig,
-                    conjurePythonDir,
-                    "conjure-python");
+        ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
+                project,
+                "extractConjurePython",
+                conjurePythonConfig,
+                conjurePythonDir,
+                "conjure-python");
 
-            project.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
-                task.setDescription("Generates Python files from remote Conjure definitions.");
-                task.setGroup(ConjurePlugin.TASK_GROUP);
-                task.setSource(conjureIrConfiguration);
-                task.setExecutablePath(extractConjurePythonTask::getExecutable);
-                task.setOutputDirectory(subproj.file("python"));
-                task.setOptions(() -> {
-                    GeneratorOptions generatorOptions = new GeneratorOptions(optionsSupplier.get());
-                    // TODO(forozco): remove once rawSource option is added
-                    generatorOptions.setProperty("packageName", "foo");
-                    generatorOptions.setProperty("packageVersion", "0.0.0");
-                    return generatorOptions;
-                });
-                task.dependsOn(extractConjurePythonTask);
-                generateConjure.dependsOn(task);
+        project.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
+            task.setDescription("Generates Python files from remote Conjure definitions.");
+            task.setGroup(ConjurePlugin.TASK_GROUP);
+            task.setSource(conjureIrConfiguration);
+            task.setExecutablePath(extractConjurePythonTask::getExecutable);
+            task.setOutputDirectory(subproj.file("python"));
+            task.setOptions(() -> {
+                GeneratorOptions generatorOptions = new GeneratorOptions(optionsSupplier.get());
+                // TODO(forozco): remove once rawSource option is added
+                generatorOptions.setProperty("packageName", "foo");
+                generatorOptions.setProperty("packageVersion", "0.0.0");
+                return generatorOptions;
             });
+            task.dependsOn(extractConjurePythonTask);
+            generateConjure.dependsOn(task);
         });
-
     }
 
     private void setupConjureTypeScript(
@@ -180,34 +178,33 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Configuration conjureIrConfiguration,
             Task generateConjure) {
-        if (project.findProject(TYPESCRIPT_PROJECT_NAME) == null) {
+        Project subproj = project.findProject(TYPESCRIPT_PROJECT_NAME);
+        if (subproj == null) {
             return;
         }
         Configuration conjureTypeScriptConfig = project.getConfigurations()
                 .maybeCreate(ConjurePlugin.CONJURE_TYPESCRIPT);
-        project.project(TYPESCRIPT_PROJECT_NAME, (subproj) -> {
-            File conjureTypescriptDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_TYPESCRIPT);
-            File srcDirectory = subproj.file("src");
-            project.getDependencies().add(
-                    ConjurePlugin.CONJURE_TYPESCRIPT, ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
+        File conjureTypescriptDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_TYPESCRIPT);
+        File srcDirectory = subproj.file("src");
+        project.getDependencies().add(
+                ConjurePlugin.CONJURE_TYPESCRIPT, ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
 
-            ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
-                    project,
-                    "extractConjureTypeScript",
-                    conjureTypeScriptConfig,
-                    conjureTypescriptDir,
-                    "conjure-typescript");
+        ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
+                project,
+                "extractConjureTypeScript",
+                conjureTypeScriptConfig,
+                conjureTypescriptDir,
+                "conjure-typescript");
 
-            project.getTasks().create("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
-                task.setDescription("Generate Typescript bindings from remote Conjure definitions.");
-                task.setGroup(ConjurePlugin.TASK_GROUP);
-                task.setSource(conjureIrConfiguration);
-                task.setExecutablePath(extractConjureTypeScriptTask::getExecutable);
-                task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
-                task.setOutputDirectory(srcDirectory);
-                task.dependsOn(extractConjureTypeScriptTask);
-                generateConjure.dependsOn(task);
-            });
+        project.getTasks().create("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
+            task.setDescription("Generate Typescript bindings from remote Conjure definitions.");
+            task.setGroup(ConjurePlugin.TASK_GROUP);
+            task.setSource(conjureIrConfiguration);
+            task.setExecutablePath(extractConjureTypeScriptTask::getExecutable);
+            task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
+            task.setOutputDirectory(srcDirectory);
+            task.dependsOn(extractConjureTypeScriptTask);
+            generateConjure.dependsOn(task);
         });
     }
 }
