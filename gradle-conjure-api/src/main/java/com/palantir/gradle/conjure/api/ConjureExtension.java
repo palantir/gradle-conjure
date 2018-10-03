@@ -17,6 +17,8 @@
 package com.palantir.gradle.conjure.api;
 
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,22 +31,22 @@ public class ConjureExtension {
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
-    public final void typescript(Closure closure) {
+    public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure closure) {
         closure.setDelegate(typescriptOptions);
         closure.call();
     }
 
-    public final void java(Closure closure) {
+    public final void java(@DelegatesTo(GeneratorOptions.class) Closure closure) {
         closure.setDelegate(javaOptions);
         closure.call();
     }
 
-    public final void python(Closure closure) {
+    public final void python(@DelegatesTo(GeneratorOptions.class)Closure closure) {
         closure.setDelegate(pythonOptions);
         closure.call();
     }
 
-    public final void options(String generator, Closure closure) {
+    public final void options(String generator, @DelegatesTo(GeneratorOptions.class) Closure closure) {
         closure.setDelegate(getGenericOptions(generator));
         closure.call();
     }
