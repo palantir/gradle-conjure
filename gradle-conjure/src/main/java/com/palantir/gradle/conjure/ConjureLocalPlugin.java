@@ -107,13 +107,11 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
                             dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
 
-                    File generatorDir = new File(subproject.getBuildDir(), "generator");
-
                     ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                             project,
                             GUtil.toLowerCamelCase("extractConjure " + subprojectName),
                             matchingGeneratorDeps,
-                            generatorDir,
+                            new File(subproject.getBuildDir(), "generator"),
                             String.format("conjure-%s", subprojectName));
 
                     ConjureLocalGenerateTask conjureLocalGenerateTask = project
