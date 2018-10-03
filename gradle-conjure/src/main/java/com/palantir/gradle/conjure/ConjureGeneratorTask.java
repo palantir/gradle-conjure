@@ -67,18 +67,28 @@ public class ConjureGeneratorTask extends SourceTask {
     }
 
     /**
+     * Where to put the output for the given input source file.
+     * This should return a directory that's under {@link #getOutputDirectory()}.
+     */
+    protected File outputDirectoryFor(File file) {
+        return getOutputDirectory();
+    }
+
+    /**
      * Entry point for the task.
      */
     public void compileFiles() {
-        getSource().getFiles().stream().forEach(file -> {
+        getSource().getFiles().forEach(file -> {
             GeneratorOptions generatorOptions = getOptions();
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
+                File thisOutputDirectory = outputDirectoryFor(file);
+                getProject().mkdir(thisOutputDirectory);
                 commandArgsBuilder.add(
                         getExecutablePath().getAbsolutePath(),
                         "generate",
                         file.getAbsolutePath(),
-                        outputDirectory.getAbsolutePath());
+                        thisOutputDirectory.getAbsolutePath());
 
                 List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
                 getLogger().info("Running generator with args: {}", additionalArgs);

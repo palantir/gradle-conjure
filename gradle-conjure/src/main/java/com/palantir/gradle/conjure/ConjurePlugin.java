@@ -43,27 +43,29 @@ import org.gradle.util.GFileUtils;
 
 public final class ConjurePlugin implements Plugin<Project> {
 
-    public static final String TASK_GROUP = "Conjure";
-    public static final String TASK_CLEAN = "clean";
+    static final String TASK_GROUP = "Conjure";
+    static final String TASK_CLEAN = "clean";
+
+    public static final String CONJURE_IR = "compileIr";
 
     // configuration names
-    public static final String CONJURE_COMPILER = "conjureCompiler";
-    public static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
-    public static final String CONJURE_PYTHON = "conjurePython";
-    public static final String CONJURE_JAVA = "conjureJava";
+    static final String CONJURE_COMPILER = "conjureCompiler";
+    static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
+    static final String CONJURE_PYTHON = "conjurePython";
+    static final String CONJURE_JAVA = "conjureJava";
 
     // executable distributions
-    public static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
-    public static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
-    public static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
-    public static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
+    static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
+    static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
+    static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
+    static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
 
     // java project constants
-    public static final String JAVA_OBJECTS_SUFFIX = "-objects";
-    public static final String JAVA_JERSEY_SUFFIX = "-jersey";
-    public static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
-    public static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    public static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+    static final String JAVA_OBJECTS_SUFFIX = "-objects";
+    static final String JAVA_JERSEY_SUFFIX = "-jersey";
+    static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
+    static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
+    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
     private final SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -135,7 +137,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setDescription("Generates Java POJOs from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setExecutablePath(extractJavaTask::getExecutable);
-                            task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "objects"));
+                            task.setOptions(() -> optionsSupplier.get().addFlag("objects"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
 
@@ -181,7 +183,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             "Generates Retrofit interfaces for use on the client-side from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
                     task.setExecutablePath(extractJavaTask::getExecutable);
-                    task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "retrofit"));
+                    task.setOptions(() -> optionsSupplier.get().addFlag("retrofit"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
 
@@ -227,7 +229,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + "(for use on both the client-side and server-side).");
                     task.setGroup(TASK_GROUP);
                     task.setExecutablePath(extractJavaTask::getExecutable);
-                    task.setOptions(() -> GeneratorOptions.addFlag(optionsSupplier.get(), "jersey"));
+                    task.setOptions(() -> optionsSupplier.get().addFlag("jersey"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
 
@@ -404,8 +406,10 @@ public final class ConjurePlugin implements Plugin<Project> {
         ExtractExecutableTask extractCompilerTask = ExtractExecutableTask.createExtractTask(
                 project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
 
-        File irPath = Paths.get(project.getBuildDir().toString(), "conjure-ir", project.getName() + ".json").toFile();
-        return project.getTasks().create("compileIr", CompileIrTask.class, compileIr -> {
+        File irPath = Paths.get(
+                project.getBuildDir().toString(), "conjure-ir", project.getName() + ".conjure.json").toFile();
+
+        return project.getTasks().create(CONJURE_IR, CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
             compileIr.setInputDirectory(copyConjureSourcesTask::getDestinationDir);

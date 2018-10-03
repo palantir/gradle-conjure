@@ -16,36 +16,14 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.collect.ImmutableList;
-import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.util.List;
 
 public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
 
     @Override
-    public final void compileFiles() {
-        getSource().getFiles().stream().forEach(file -> {
-            // Strip extension and version
-            File outputDirectory = new File(
-                    getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
-            if (!outputDirectory.exists()) {
-                outputDirectory.mkdir();
-            }
-
-            GeneratorOptions generatorOptions = getOptions();
-            getProject().exec(execSpec -> {
-                ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-                commandArgsBuilder.add(
-                        getExecutablePath().getAbsolutePath(),
-                        "generate",
-                        file.getAbsolutePath(),
-                        outputDirectory.getAbsolutePath());
-
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
-                commandArgsBuilder.addAll(additionalArgs);
-                execSpec.commandLine(commandArgsBuilder.build().toArray());
-            });
-        });
+    protected final File outputDirectoryFor(File file) {
+        // Strip extension and version
+        return new File(
+                getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
     }
 }

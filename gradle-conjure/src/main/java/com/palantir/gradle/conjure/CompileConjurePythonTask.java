@@ -56,7 +56,8 @@ public class CompileConjurePythonTask extends ConjureGeneratorTask {
         getGroup(matcher, "distance").ifPresent(distance -> {
             String hash = getGroup(matcher, "hash")
                     .orElseThrow(() -> new InvalidUserDataException("Cannot specify commit distance without hash"));
-            version.append("+").append(distance).append(".").append(hash);
+            // We prefix 'g' to the hash because conda strips leading zeros!!
+            version.append("+").append(distance).append(".").append("g" + hash);
         });
         getGroup(matcher, "dirty").ifPresent(dirty -> version.append('.').append(dirty));
         return version.toString();
