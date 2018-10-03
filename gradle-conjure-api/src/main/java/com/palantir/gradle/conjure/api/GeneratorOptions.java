@@ -77,4 +77,13 @@ public final class GeneratorOptions implements Serializable {
 
         this.storage.put(key, value);
     }
+
+    public GeneratorOptions addFlag(String flag) {
+        if (has(flag)) {
+            throw new IllegalArgumentException(
+                    String.format("Passed GeneratorOptions already has flag '%s' set: %s", flag, this));
+        }
+        this.setProperty(flag, true);
+        return this;
+    }
 }

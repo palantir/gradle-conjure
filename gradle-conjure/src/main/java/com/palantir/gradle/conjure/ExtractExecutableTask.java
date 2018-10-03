@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
@@ -95,6 +96,16 @@ public class ExtractExecutableTask extends Sync {
             }
         });
     }
+
+    public static ExtractExecutableTask createExtractTask(
+            Project project, String taskName, Configuration config, File outputDir, String executableName) {
+        return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
+            task.setArchive(config);
+            task.setOutputDirectory(outputDir);
+            task.setExecutableName(executableName);
+        });
+    }
+
 
     @InputFiles
     public final FileCollection getArchive() {
