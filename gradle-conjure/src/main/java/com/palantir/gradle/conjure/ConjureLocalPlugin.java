@@ -99,6 +99,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     String subprojectName = e.getKey();
                     Project subproject = e.getValue();
 
+                    // We create a lazy filtered FileCollection to avoid using afterEvaluate.
                     FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
                             dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
 
