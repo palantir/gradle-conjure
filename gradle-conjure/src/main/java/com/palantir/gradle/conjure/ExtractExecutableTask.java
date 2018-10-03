@@ -149,7 +149,7 @@ public class ExtractExecutableTask extends Sync {
         Set<File> resolvedFiles = archive.getFiles();
         Preconditions.checkState(resolvedFiles.size() == 1,
                 "Expected exactly one dependency for executable '%s', found %s",
-                resolvedFiles, getExecutableName());
+                getExecutableName(), resolvedFiles);
         return Iterables.getOnlyElement(resolvedFiles);
     }
 
