@@ -41,7 +41,7 @@ public class ConjureExtension {
         closure.call();
     }
 
-    public final void python(@DelegatesTo(GeneratorOptions.class)Closure closure) {
+    public final void python(@DelegatesTo(GeneratorOptions.class) Closure closure) {
         closure.setDelegate(pythonOptions);
         closure.call();
     }
