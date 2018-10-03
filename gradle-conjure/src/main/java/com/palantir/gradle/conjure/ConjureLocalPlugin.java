@@ -70,7 +70,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             Configuration conjureIrConfiguration,
             Task generateConjure,
             Configuration conjureGeneratorsConfiguration) {
-        // Validation
+        // Validating that each subproject has a corresponding generator.
+        // We do this in afterEvaluate to ensure the configuration is populated.
         project.afterEvaluate(p -> {
             Map<String, Dependency> generators = conjureGeneratorsConfiguration
                     .getAllDependencies()
