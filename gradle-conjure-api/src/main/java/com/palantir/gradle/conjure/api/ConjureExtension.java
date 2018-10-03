@@ -64,8 +64,6 @@ public class ConjureExtension {
     }
 
     public final GeneratorOptions getGenericOptions(String generator) {
-        GeneratorOptions options = genericOptions.getOrDefault(generator, new GeneratorOptions());
-        genericOptions.put(generator, options);
-        return options;
+        return genericOptions.computeIfAbsent(generator, g -> new GeneratorOptions());
     }
 }
