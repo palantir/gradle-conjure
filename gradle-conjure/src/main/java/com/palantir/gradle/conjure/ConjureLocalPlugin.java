@@ -35,6 +35,8 @@ import org.gradle.util.GUtil;
 
 public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final String CONJURE_CONFIGURATION = "conjure";
+    /** Configuration where custom generators should be added as dependencies. */
+    private static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
     private static final String PYTHON_PROJECT_NAME = "python";
     private static final String TYPESCRIPT_PROJECT_NAME = "typescript";
@@ -45,10 +47,11 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         Configuration conjureIrConfiguration = project.getConfigurations().maybeCreate(CONJURE_CONFIGURATION);
+        Configuration conjureGeneratorsConfiguration = project.getConfigurations().maybeCreate(
+                CONJURE_GENERATORS_CONFIGURATION_NAME);
+
         ConjureExtension extension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
-
-        Configuration conjureGeneratorsConfiguration = project.getConfigurations().maybeCreate("conjureGenerators");
 
         Task generateConjure = project.getTasks().create("generateConjure", task -> {
             task.setDescription("Generates code for all requested languages (for which there is a subproject) "
