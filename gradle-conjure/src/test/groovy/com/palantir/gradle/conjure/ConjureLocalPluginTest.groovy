@@ -41,6 +41,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.5.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
+                   force 'com.palantir.conjure.postman:conjure-postman:0.1.0'
                }
            }
         }
@@ -52,18 +53,14 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         }
     '''.stripIndent()
 
-    def standardProject = '''
-        include 'typescript'
-        include 'python'
-    '''.stripIndent()
-
-
     def setup() {
-        createFile("build.gradle") << standardBuildFile
-        createFile("settings.gradle") << standardProject
+        buildFile << standardBuildFile
     }
 
     def "generateConjure generates code in subprojects"() {
+        addSubproject("typescript")
+        addSubproject("python")
+
         when:
         ExecutionResult result = runTasksSuccessfully("generateConjure")
 
@@ -73,5 +70,36 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
         fileExists('typescript/src/conjure-api/index.ts')
         fileExists('python/python/conjure-api/foo/__init__.py')
+    }
+
+    def "custom generator throws if generator missing"() {
+        addSubproject("postman")
+
+        expect:
+        ExecutionResult result1 = runTasksWithFailure("generateConjure")
+        result1.standardError.contains("without corresponding generator dependency")
+    }
+
+    def 'supports custom postman generator'() {
+        addSubproject("postman")
+
+        when:
+        buildFile << '''
+            dependencies {
+                conjureGenerators 'com.palantir.conjure.postman:conjure-postman'
+            }
+            
+            conjure {
+                options "postman", {
+                    productName = 'foo'
+                    productVersion = '0.0.0'
+                }
+            }
+        '''.stripIndent()
+
+        then:
+        ExecutionResult result = runTasksSuccessfully("generateConjure")
+        result.wasExecuted(":generatePostman")
+        fileExists('postman/postman/conjure-api/foo.postman_collection.json')
     }
 }

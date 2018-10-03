@@ -30,7 +30,6 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
@@ -42,7 +41,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.Sync;
 
 public class ExtractExecutableTask extends Sync {
-    private Configuration archive;
+    private FileCollection archive;
     private File outputDirectory;
     private String executableName;
 
@@ -98,9 +97,9 @@ public class ExtractExecutableTask extends Sync {
     }
 
     public static ExtractExecutableTask createExtractTask(
-            Project project, String taskName, Configuration config, File outputDir, String executableName) {
+            Project project, String taskName, FileCollection archive, File outputDir, String executableName) {
         return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
-            task.setArchive(config);
+            task.setArchive(archive);
             task.setOutputDirectory(outputDir);
             task.setExecutableName(executableName);
         });
@@ -112,7 +111,7 @@ public class ExtractExecutableTask extends Sync {
         return archive;
     }
 
-    final void setArchive(Configuration archive) {
+    final void setArchive(FileCollection archive) {
         this.archive = archive;
     }
 
@@ -149,9 +148,8 @@ public class ExtractExecutableTask extends Sync {
     private File resolveTarFile() {
         Set<File> resolvedFiles = archive.getFiles();
         Preconditions.checkState(resolvedFiles.size() == 1,
-                "Expected exactly one %s dependency, found %s",
-                archive.getName(),
-                resolvedFiles);
+                "Expected exactly one dependency for executable '%s', found %s",
+                getExecutableName(), resolvedFiles);
         return Iterables.getOnlyElement(resolvedFiles);
     }
 
