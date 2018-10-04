@@ -94,5 +94,6 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully("generateConjure")
         result.wasExecuted(":generatePostman")
         fileExists('postman/postman/conjure-api/conjure-api.postman_collection.json')
+        file('postman/postman/conjure-api/conjure-api.postman_collection.json').text.contains('"version" : "4.1.1"')
     }
 }

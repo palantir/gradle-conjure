@@ -26,8 +26,8 @@ public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
         String irFileName = irFile.getName();
-        String irVersion = irFileName.substring(
-                irFileName.lastIndexOf("-") + 1, irFileName.lastIndexOf("."));
+        String irVersion = irFileName.substring(irFileName.lastIndexOf("-") + 1,
+                irFileName.lastIndexOf(".", irFileName.lastIndexOf(".") - 1));
         String irName = irFileName.substring(0, irFileName.lastIndexOf("-"));
 
         return ImmutableMap.of("productName", () -> irName, "productVersion", () -> irVersion);
