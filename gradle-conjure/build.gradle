@@ -39,6 +39,8 @@ idea {
     }
 }
 
-compileJava {
-    options.compilerArgs += '-Xep:Slf4jLogsafeArgs:OFF'
+tasks.withType(JavaCompile).configureEach {
+    options.errorprone {
+        check('Slf4jLogsafeArgs', net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF)
+    }
 }
