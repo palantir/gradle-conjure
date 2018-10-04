@@ -90,7 +90,7 @@ public class ConjureGeneratorTask extends SourceTask {
                         file.getAbsolutePath(),
                         thisOutputDirectory.getAbsolutePath());
 
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions());
+                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions(file));
                 getLogger().info("Running generator with args: {}", additionalArgs);
                 commandArgsBuilder.addAll(additionalArgs);
                 execSpec.commandLine(commandArgsBuilder.build().toArray());
@@ -102,7 +102,7 @@ public class ConjureGeneratorTask extends SourceTask {
      * What options are required, along with suppliers for obtaining their default values if they were not defined in
      * the {@link #getOptions() options}.
      */
-    protected Map<String, Supplier<Object>> requiredOptions() {
+    protected Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of();
     }
 }

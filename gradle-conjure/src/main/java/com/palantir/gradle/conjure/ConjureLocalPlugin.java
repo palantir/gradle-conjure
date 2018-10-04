@@ -117,7 +117,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     ConjureLocalGenerateTask conjureLocalGenerateTask = project
                             .getTasks()
                             .create(GUtil.toLowerCamelCase("generate " + subprojectName),
-                                    ConjureLocalGenerateTask.class,
+                                    ConjureLocalGenerateGenericTask.class,
                                     task -> {
                                         task.setDescription(String.format(
                                                 "Generates %s files from remote Conjure definitions.", subprojectName));

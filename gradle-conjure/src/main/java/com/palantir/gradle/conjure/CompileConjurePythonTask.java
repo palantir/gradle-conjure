@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -27,7 +28,7 @@ import org.gradle.api.InvalidUserDataException;
 public class CompileConjurePythonTask extends ConjureGeneratorTask {
 
     @Override
-    protected final Map<String, Supplier<Object>> requiredOptions() {
+    protected final Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of(
                 "packageName", () -> getProject().getName(),
                 "packageVersion", () -> formatPythonVersion(getProject().getVersion().toString()));

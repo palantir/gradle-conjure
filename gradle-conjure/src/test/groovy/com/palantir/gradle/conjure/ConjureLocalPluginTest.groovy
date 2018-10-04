@@ -88,18 +88,12 @@ class ConjureLocalPluginTest extends IntegrationSpec {
             dependencies {
                 conjureGenerators 'com.palantir.conjure.postman:conjure-postman'
             }
-            
-            conjure {
-                options "postman", {
-                    productName = 'foo'
-                    productVersion = '0.0.0'
-                }
-            }
         '''.stripIndent()
 
         then:
         ExecutionResult result = runTasksSuccessfully("generateConjure")
         result.wasExecuted(":generatePostman")
-        fileExists('postman/postman/conjure-api/foo.postman_collection.json')
+        fileExists('postman/postman/conjure-api/conjure-api.postman_collection.json')
+        file('postman/postman/conjure-api/conjure-api.postman_collection.json').text.contains('"version" : "4.1.1"')
     }
 }
