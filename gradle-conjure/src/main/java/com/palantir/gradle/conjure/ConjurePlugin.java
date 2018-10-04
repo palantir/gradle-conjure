@@ -31,7 +31,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.SourceDirectorySetFactory;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -67,10 +66,10 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
-    private final SourceDirectorySetFactory sourceDirectorySetFactory;
+    private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
     @Inject
-    public ConjurePlugin(SourceDirectorySetFactory sourceDirectorySetFactory) {
+    public ConjurePlugin(org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory) {
         this.sourceDirectorySetFactory = sourceDirectorySetFactory;
     }
 
@@ -127,13 +126,13 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
-            project.project(objectsProjectName, (subproj) -> {
+            project.project(objectsProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureObjects",
                         ConjureGeneratorTask.class,
-                        (task) -> {
+                        task -> {
                             task.setDescription("Generates Java POJOs from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.setExecutablePath(extractJavaTask::getExecutable);
@@ -175,7 +174,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         String.format("Cannot enable '%s' without '%s'", retrofitProjectName, objectsProjectName));
             }
 
-            project.project(retrofitProjectName, (subproj) -> {
+            project.project(retrofitProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
@@ -221,7 +220,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         String.format("Cannot enable '%s' without '%s'", jerseyProjectName, objectsProjectName));
             }
 
-            project.project(jerseyProjectName, (subproj) -> {
+            project.project(jerseyProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureJersey", ConjureGeneratorTask.class, task -> {
@@ -261,7 +260,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
             Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
-            project.project(typescriptProjectName, (subproj) -> {
+            project.project(typescriptProjectName, subproj -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
                 File srcDirectory = subproj.file("src");
@@ -331,7 +330,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (project.findProject(pythonProjectName) != null) {
             Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(CONJURE_PYTHON);
 
-            project.project(pythonProjectName, (subproj) -> {
+            project.project(pythonProjectName, subproj -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
                 File buildDir = new File(project.getBuildDir(), "python");
@@ -420,7 +419,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static Copy getConjureSources(Project project, SourceDirectorySetFactory sourceDirectorySetFactory) {
+    private static Copy getConjureSources(
+            Project project, org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory) {
         // Conjure code source set
         SourceDirectorySet conjureSourceSet = sourceDirectorySetFactory.create("conjure");
         conjureSourceSet.setSrcDirs(Collections.singleton("src/main/conjure"));

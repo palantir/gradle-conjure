@@ -18,7 +18,6 @@ package com.palantir.gradle.conjure.api;
 
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -77,7 +77,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
         expect:
         ExecutionResult result1 = runTasksWithFailure("generateConjure")
-        result1.standardError.contains("without corresponding generator dependency")
+        result1.standardOutput.contains("without corresponding generator dependency")
     }
 
     def 'supports custom postman generator'() {
