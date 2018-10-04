@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
     @Override
-    protected Map<String, Supplier<Object>> requiredOptions(File irFile) {
+    protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
         String irFileName = irFile.getName();
         String irVersion = irFileName.substring(
                 irFileName.lastIndexOf("-") + 1, irFileName.lastIndexOf("."));
