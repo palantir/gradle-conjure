@@ -20,22 +20,16 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.gradle.api.file.ConfigurableFileTree;
 
-public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
-
-    public CompileConjureTypeScriptTask() {
-        doFirst(task -> {
-            ConfigurableFileTree fileTree = task.getProject().fileTree(getOutputDirectory());
-            fileTree.exclude("node_modules/**/*");
-            fileTree.forEach(File::delete);
-        });
-    }
+public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
     @Override
-    protected final Map<String, Supplier<Object>> requiredOptions(File file) {
-        return ImmutableMap.of(
-                "packageName", () -> getProject().getName(),
-                "packageVersion", () -> getProject().getVersion().toString());
+    protected Map<String, Supplier<Object>> requiredOptions(File irFile) {
+        String irFileName = irFile.getName();
+        String irVersion = irFileName.substring(
+                irFileName.lastIndexOf("-") + 1, irFileName.lastIndexOf("."));
+        String irName = irFileName.substring(0, irFileName.lastIndexOf("-"));
+
+        return ImmutableMap.of("productName", () -> irName, "productVersion", () -> irVersion);
     }
 }
