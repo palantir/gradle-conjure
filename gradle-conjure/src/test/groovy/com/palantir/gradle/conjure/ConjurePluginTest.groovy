@@ -18,7 +18,7 @@ package com.palantir.gradle.conjure
 
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
-import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 class ConjurePluginTest extends IntegrationSpec {
@@ -513,6 +513,7 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     @Unroll
+    @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
         when:
         gradleVersion = version
@@ -522,7 +523,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
 
         where:
-        version <<
-                (!JavaVersion.current().isJava11Compatible() ? ['4.7', '4.4', '4.3', '4.2', '4.1', '4.0', '3.5'] : [])
+        version << ['4.7', '4.4', '4.3', '4.2', '4.1', '4.0', '3.5']
     }
 }
