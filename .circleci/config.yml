@@ -9,7 +9,7 @@ build-defaults: &build-defaults
 
 jobs:
   build:
-    docker: [{ image: 'circleci/openjdk:8u181-jdk' }]
+    docker: [{ image: 'circleci/openjdk:8u181-jdk-node-browsers' }]
     <<: *build-defaults
     steps:
       - checkout
@@ -39,7 +39,7 @@ jobs:
       - store_artifacts: { path: ~/artifacts }
 
   build-11:
-    docker: [{ image: 'circleci/openjdk:11' }]
+    docker: [{ image: 'circleci/openjdk:11-node-browsers' }]
     <<: *build-defaults
     steps:
       - checkout
