@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import net.ltgt.gradle.errorprone.CheckSeverity;
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
@@ -41,6 +41,6 @@ idea {
 
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
-        check('Slf4jLogsafeArgs', net.ltgt.gradle.errorprone.CheckSeverity.OFF)
+        check('Slf4jLogsafeArgs', CheckSeverity.OFF)
     }
 }
