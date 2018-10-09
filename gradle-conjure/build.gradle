@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import net.ltgt.gradle.errorprone.CheckSeverity;
+import net.ltgt.gradle.errorprone.CheckSeverity
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
