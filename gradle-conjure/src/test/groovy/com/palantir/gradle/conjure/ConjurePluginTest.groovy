@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure
 
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 class ConjurePluginTest extends IntegrationSpec {
@@ -80,6 +81,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.palantir.conjure.java:* = 1.0.0
         com.palantir.conjure:conjure = 4.0.0
         com.squareup.retrofit2:retrofit = 2.1.0
+        javax.annotation:javax.annotation-api = 1.3.2
         javax.ws.rs:javax.ws.rs-api = 2.0.1
         '''.stripIndent()
 
@@ -511,6 +513,7 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     @Unroll
+    @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
         when:
         gradleVersion = version
