@@ -41,6 +41,6 @@ idea {
 
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
-        check('Slf4jLogsafeArgs', net.ltgt.gradle.errorprone.javacplugin.CheckSeverity.OFF)
+        check('Slf4jLogsafeArgs', net.ltgt.gradle.errorprone.CheckSeverity.OFF)
     }
 }
