@@ -20,16 +20,23 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
+    private static final Pattern PATTERN = Pattern.compile(
+            "^(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-g[a-f0-9]+)?)(?:.conjure)?.json$");
+
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
-        String irFileName = irFile.getName();
-        String irVersion = irFileName.substring(irFileName.lastIndexOf("-") + 1,
-                irFileName.lastIndexOf(".", irFileName.lastIndexOf(".") - 1));
-        String irName = irFileName.substring(0, irFileName.lastIndexOf("-"));
+        Matcher matcher = PATTERN.matcher(irFile.getName());
+        if (!matcher.matches() || matcher.groupCount() != 2) {
+            throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", irFile.getName()));
+        }
 
+        String irName = matcher.group(1);
+        String irVersion = matcher.group(2);
         return ImmutableMap.of("productName", () -> irName, "productVersion", () -> irVersion);
     }
 }
