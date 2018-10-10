@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
@@ -30,9 +31,14 @@ public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
-        Matcher matcher = PATTERN.matcher(irFile.getName());
+        return resolveProductMetadata(irFile.getName());
+    }
+
+    @VisibleForTesting
+    public static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
+        Matcher matcher = PATTERN.matcher(productName);
         if (!matcher.matches() || matcher.groupCount() != 2) {
-            throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", irFile.getName()));
+            throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", productName));
         }
 
         String irName = matcher.group(1);
