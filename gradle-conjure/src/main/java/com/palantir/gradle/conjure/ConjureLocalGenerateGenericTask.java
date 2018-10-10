@@ -35,7 +35,7 @@ public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
     }
 
     @VisibleForTesting
-    public static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
+    static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
         Matcher matcher = PATTERN.matcher(productName);
         if (!matcher.matches() || matcher.groupCount() != 2) {
             throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", productName));
