@@ -47,9 +47,9 @@ class ConjureLocalGenerateGenericTaskTest extends Specification {
         ex.message.contains(fileName)
 
         where:
-        fileName | _
-        "invalid-name.json" | _
-        "invalid-version-1.x.0.json" | _
+        fileName                      | _
+        "invalid-name.json"           | _
+        "invalid-version-1.x.0.json"  | _
         "invalid-structure-1.2.0.tgz" | _
     }
 }
