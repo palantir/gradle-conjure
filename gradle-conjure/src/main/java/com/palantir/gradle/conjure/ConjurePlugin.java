@@ -88,9 +88,12 @@ public final class ConjurePlugin implements Plugin<Project> {
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
 
-        setupConjureJavaProject(project, extension::getJava, compileConjure, compileIrTask);
-        setupConjurePythonProject(project, extension::getPython, compileConjure, compileIrTask);
-        setupConjureTypescriptProject(project, extension::getTypescript, compileConjure, compileIrTask);
+        setupConjureJavaProject(
+                project, immutableOptionsSupplier(extension::getJava), compileConjure, compileIrTask);
+        setupConjurePythonProject(
+                project, immutableOptionsSupplier(extension::getPython), compileConjure, compileIrTask);
+        setupConjureTypescriptProject(
+                project, immutableOptionsSupplier(extension::getTypescript), compileConjure, compileIrTask);
     }
 
     private static void setupConjureJavaProject(
@@ -98,7 +101,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask) {
-
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
@@ -444,5 +446,9 @@ public final class ConjurePlugin implements Plugin<Project> {
         cleanTask.dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild"));
 
         return copyConjureSourcesTask;
+    }
+
+    private static Supplier<GeneratorOptions> immutableOptionsSupplier(Supplier<GeneratorOptions> supplier) {
+        return () -> new GeneratorOptions(supplier.get());
     }
 }
