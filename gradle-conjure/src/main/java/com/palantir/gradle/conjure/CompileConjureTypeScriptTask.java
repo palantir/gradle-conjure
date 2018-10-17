@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.tasks.Input;
 
 public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
 
@@ -35,7 +36,17 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of(
-                "packageName", () -> getProject().getName(),
-                "packageVersion", () -> getProject().getVersion().toString());
+                "packageName", this::getPackageName,
+                "packageVersion", this::getProjectVersion);
+    }
+
+    @Input
+    private String getPackageName() {
+        return getProject().getName();
+    }
+
+    @Input
+    private String getProjectVersion() {
+        return getProject().getVersion().toString();
     }
 }
