@@ -58,8 +58,10 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     + "from remote Conjure definitions.");
             task.setGroup(ConjurePlugin.TASK_GROUP);
         });
-        setupConjurePython(project, immutableOptionsSupplier(extension::getPython), conjureIrConfiguration, generateConjure);
-        setupConjureTypeScript(project, immutableOptionsSupplier(extension::getTypescript), conjureIrConfiguration, generateConjure);
+        setupConjurePython(
+                project, immutableOptionsSupplier(extension::getPython), conjureIrConfiguration, generateConjure);
+        setupConjureTypeScript(
+                project, immutableOptionsSupplier(extension::getTypescript), conjureIrConfiguration, generateConjure);
         setupGenericConjureProjects(
                 project, extension, conjureIrConfiguration, generateConjure, conjureGeneratorsConfiguration);
     }
