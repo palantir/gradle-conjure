@@ -24,14 +24,15 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.tasks.Input;
 
 public class CompileConjurePythonTask extends ConjureGeneratorTask {
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of(
-                "packageName", () -> getProject().getName(),
-                "packageVersion", () -> formatPythonVersion(getProject().getVersion().toString()));
+                "packageName", this::getProjectName,
+                "packageVersion", this::getPackageVersion);
     }
 
     private static final Pattern gradleVersion = Pattern.compile("^"
@@ -40,6 +41,16 @@ public class CompileConjurePythonTask extends ConjureGeneratorTask {
             + "(-(?<distance>[0-9]+)-g(?<hash>[a-f0-9]+))?"
             + "(\\.(?<dirty>dirty))?"
             + "$");
+
+    @Input
+    public final String getProjectName() {
+        return getProject().getName();
+    }
+
+    @Input
+    public final String getPackageVersion() {
+        return formatPythonVersion(getProject().getVersion().toString());
+    }
 
     private static String formatPythonVersion(String stringVersion) {
         if (stringVersion.equals("unspecified")) {
