@@ -51,15 +51,15 @@ public class ConjureExtension {
     }
 
     public final GeneratorOptions getTypescript() {
-        return new GeneratorOptions(typescriptOptions);
+        return typescriptOptions;
     }
 
     public final GeneratorOptions getJava() {
-        return new GeneratorOptions(javaOptions);
+        return javaOptions;
     }
 
     public final GeneratorOptions getPython() {
-        return new GeneratorOptions(pythonOptions);
+        return pythonOptions;
     }
 
     public final GeneratorOptions getGenericOptions(String generator) {
