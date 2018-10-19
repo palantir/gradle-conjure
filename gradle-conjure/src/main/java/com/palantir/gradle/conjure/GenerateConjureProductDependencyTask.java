@@ -19,15 +19,16 @@ package com.palantir.gradle.conjure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.palantir.gradle.conjure.api.ConjureProductDependencyExtension;
+import com.google.common.base.Preconditions;
 import com.palantir.gradle.conjure.api.ProductDependency;
 import com.palantir.sls.versions.SlsVersion;
 import com.palantir.sls.versions.SlsVersionMatcher;
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
@@ -36,46 +37,36 @@ public class GenerateConjureProductDependencyTask extends DefaultTask {
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
 
-    private Supplier<ConjureProductDependencyExtension> conjureProductDependency;
+    private Supplier<Set<ProductDependency>> conjureProductDependencies;
 
-    public final Optional<ProductDependency> getConjureProductDependency() {
-        return conjureProductDependency.get().getProductDependency();
+    @Input
+    public final Set<ProductDependency> getConjureProductDependencies() {
+        return conjureProductDependencies.get();
     }
 
     @OutputFile
     public final File getOutputFile() {
-        return new File(getProject().getBuildDir(), "pdep.json");
+        return new File(getProject().getBuildDir(), "pdeps.json");
     }
 
-    public final Optional<ProductDependency> getValidatedProductDependency() {
-        return conjureProductDependency.get().getProductDependency();
-    }
-
-    final void setConjureProductDependency(
-            Supplier<ConjureProductDependencyExtension> conjureProductDependency) {
-        this.conjureProductDependency = conjureProductDependency;
+    final void setConjureProductDependencies(
+            Supplier<Set<ProductDependency>> conjureProductDependencies) {
+        this.conjureProductDependencies = conjureProductDependencies;
     }
 
     @TaskAction
     public final void generateConjureProductDependencies() throws IOException {
-        Optional<ProductDependency> maybeProductDependency = getConjureProductDependency();
-        if (maybeProductDependency.isPresent()) {
-            ProductDependency productDependency = maybeProductDependency.get();
-            validateProductDependency(productDependency);
-            jsonMapper.writeValue(getOutputFile(), productDependency);
-        }
+        getConjureProductDependencies().forEach(GenerateConjureProductDependencyTask::validateProductDependency);
+        jsonMapper.writeValue(getOutputFile(), getConjureProductDependencies());
     }
 
     private static void validateProductDependency(ProductDependency productDependency) {
-        if (productDependency.getProductGroup() == null) {
-            throw new IllegalArgumentException(
+        Preconditions.checkNotNull(productDependency.getProductGroup(),
                     "productGroup must be specified for a recommended product dependency");
-        } else if (productDependency.getProductName() == null) {
-            throw new IllegalArgumentException(
+        Preconditions.checkNotNull(productDependency.getProductName(),
                     "productName must be specified for a recommended product dependency");
-        } else if (productDependency.getMinimumVersion() == null) {
-            throw new IllegalArgumentException("minimum version must be specified");
-        } else if (!SlsVersion.check(productDependency.getMaximumVersion())
+        Preconditions.checkNotNull(productDependency.getMinimumVersion(), "minimum version must be specified");
+        if (!SlsVersion.check(productDependency.getMaximumVersion())
                 && !SlsVersionMatcher.safeValueOf(productDependency.getMaximumVersion()).isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "
                     + productDependency.getMaximumVersion());

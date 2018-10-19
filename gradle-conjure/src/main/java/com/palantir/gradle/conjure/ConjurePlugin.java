@@ -67,6 +67,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated";
 
+    static final String PRODUCT_DEPENDENCY_FLAG = "productDependency";
+
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
     @Inject
@@ -92,7 +94,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
         GenerateConjureProductDependencyTask productDependencyTask = project.getTasks().create(
                 "generateConjureProductDependency", GenerateConjureProductDependencyTask.class, task -> {
-                    task.setConjureProductDependency(() -> conjureProductDependencyExtension);
+                    task.setConjureProductDependencies(conjureProductDependencyExtension::getProductDependencies);
                 });
 
         setupConjureJavaProject(
@@ -159,7 +161,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask,
+            GenerateConjureProductDependencyTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -177,6 +179,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOptions(() -> optionsSupplier.get().addFlag("objects"));
                             task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                             task.setSource(compileIrTask);
+                            task.setProductDependencyFile(productDependencyTask.getOutputFile());
 
                             compileConjure.dependsOn(task);
                             subproj.getTasks().getByName("compileJava").dependsOn(task);
@@ -188,14 +191,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                                             subproj.getProjectDir(),
                                             JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
-                            task.dependsOn(validateProductDependencyTask);
+                            task.dependsOn(productDependencyTask);
                         });
-                Task productDependencyTask = createCopyProductDependenciesTask(
-                        project,
-                        subproj,
-                        "conjureObjectsProductDependency",
-                        validateProductDependencyTask.getOutputFile());
-                compileConjure.dependsOn(productDependencyTask);
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
@@ -231,6 +228,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setOptions(() -> optionsSupplier.get().addFlag("retrofit"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
+                    task.setProductDependencyFile(productDependencyTask.getOutputFile());
 
                     compileConjure.dependsOn(task);
                     subproj.getTasks().getByName("compileJava").dependsOn(task);
@@ -243,12 +241,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(extractJavaTask);
                     task.dependsOn(productDependencyTask);
                 });
-
-                compileConjure.dependsOn(createCopyProductDependenciesTask(
-                        project,
-                        subproj,
-                        "conjureRetrofitProductDependency",
-                        productDependencyTask.getOutputFile()));
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
@@ -286,6 +278,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setOptions(() -> optionsSupplier.get().addFlag("jersey"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
+                    task.setProductDependencyFile(productDependencyTask.getOutputFile());
 
                     compileConjure.dependsOn(task);
                     subproj.getTasks().getByName("compileJava").dependsOn(task);
@@ -300,11 +293,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(productDependencyTask);
                 });
 
-                compileConjure.dependsOn(createCopyProductDependenciesTask(
-                                project,
-                                subproj,
-                                "conjureJerseyProductDependency",
-                                productDependencyTask.getOutputFile()));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
@@ -342,6 +330,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setGroup(TASK_GROUP);
                             task.setSource(compileIrTask);
                             task.setExecutablePath(extractConjureTypeScriptTask::getExecutable);
+                            task.setProductDependencyFile(productDependencyTask.getOutputFile());
                             task.setOutputDirectory(srcDirectory);
                             task.setOptions(options);
                             compileConjure.dependsOn(task);
@@ -454,14 +443,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             if (task != null) {
                 task.dependsOn(compileConjure);
             }
-        });
-    }
-
-    private static Task createCopyProductDependenciesTask(Project project, Project subproj,
-            String taskName, File inputFile) {
-        return project.getTasks().create(taskName, Copy.class, task -> {
-            task.from(inputFile);
-            task.into(new File(subproj.getProjectDir(), "src/generated/resources/META-INF"));
         });
     }
 

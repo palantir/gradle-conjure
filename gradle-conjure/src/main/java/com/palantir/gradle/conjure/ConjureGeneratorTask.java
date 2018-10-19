@@ -20,15 +20,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 
 public class ConjureGeneratorTask extends SourceTask {
+    private File productDependencyFile;
     private Supplier<File> executablePathSupplier;
     private File outputDirectory;
     private Supplier<GeneratorOptions> options;
@@ -74,6 +77,15 @@ public class ConjureGeneratorTask extends SourceTask {
         return getOutputDirectory();
     }
 
+    @InputFile
+    public final File getProductDependencyFile() {
+        return productDependencyFile;
+    }
+
+    public final void setProductDependencyFile(File productDependencyFile) {
+        this.productDependencyFile = productDependencyFile;
+    }
+
     /**
      * Entry point for the task.
      */
@@ -103,6 +115,9 @@ public class ConjureGeneratorTask extends SourceTask {
      * the {@link #getOptions() options}.
      */
     protected Map<String, Supplier<Object>> requiredOptions(File file) {
+        if (Files.exists(getProductDependencyFile().toPath())) {
+            return ImmutableMap.of("productDependencies", () -> getProductDependencyFile().getAbsolutePath());
+        }
         return ImmutableMap.of();
     }
 }

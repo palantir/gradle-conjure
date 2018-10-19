@@ -16,44 +16,25 @@
 
 package com.palantir.gradle.conjure.api;
 
-import java.util.Optional;
+import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConjureProductDependencyExtension {
 
-    public static final String EXTENSION_NAME = "conjureProductDependency";
+    public static final String EXTENSION_NAME = "productDependencies";
 
-    private final ProductDependency productDependency = new ProductDependency();
-    private boolean isConfigured = false;
+    private final Set<ProductDependency> productDependencies = new HashSet<>();
 
-    public final Optional<ProductDependency> getProductDependency() {
-        if (isConfigured) {
-            return Optional.of(productDependency);
-        }
-        return Optional.empty();
+    public final Set<ProductDependency> getProductDependencies() {
+        return productDependencies;
     }
 
-    public final void setProductGroup(String productGroup) {
-        isConfigured = true;
-        productDependency.setProductGroup(productGroup);
-    }
-
-    public final void setProductName(String productName) {
-        isConfigured = true;
-        productDependency.setProductName(productName);
-    }
-
-    public final void setMinimumVersion(String minimumVersion) {
-        isConfigured = true;
-        productDependency.setMinimumVersion(minimumVersion);
-    }
-
-    public final void setMaximumVersion(String maximumVersion) {
-        isConfigured = true;
-        productDependency.setMaximumVersion(maximumVersion);
-    }
-
-    public final void setRecommendedVersion(String recommendedVersion) {
-        isConfigured = true;
-        productDependency.setRecommendedVersion(recommendedVersion);
+    public final void productDependency(@DelegatesTo(ProductDependency.class) Closure closure) {
+        ProductDependency productDependency = new ProductDependency();
+        closure.setDelegate(productDependency);
+        closure.call();
+        productDependencies.add(productDependency);
     }
 }

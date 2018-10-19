@@ -17,8 +17,10 @@
 package com.palantir.gradle.conjure.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.util.Objects;
 
-public final class ProductDependency {
+public final class ProductDependency implements Serializable {
 
     @JsonProperty("product-group")
     private String productGroup;
@@ -73,5 +75,26 @@ public final class ProductDependency {
 
     public void setRecommendedVersion(String recommendedVersion) {
         this.recommendedVersion = recommendedVersion;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ProductDependency that = (ProductDependency) o;
+        return Objects.equals(productGroup, that.productGroup) &&
+                Objects.equals(productName, that.productName) &&
+                Objects.equals(minimumVersion, that.minimumVersion) &&
+                Objects.equals(maximumVersion, that.maximumVersion) &&
+                Objects.equals(recommendedVersion, that.recommendedVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productGroup, productName, minimumVersion, maximumVersion, recommendedVersion);
     }
 }
