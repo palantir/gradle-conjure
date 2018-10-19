@@ -16,11 +16,23 @@
 
 package com.palantir.gradle.conjure.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class ProductDependency {
+
+    @JsonProperty("product-group")
     private String productGroup;
+
+    @JsonProperty("product-name")
     private String productName;
+
+    @JsonProperty("minimum-version")
     private String minimumVersion;
+
+    @JsonProperty("maximum-version")
     private String maximumVersion;
+
+    @JsonProperty("recommended-version")
     private String recommendedVersion;
 
     public String getProductGroup() {

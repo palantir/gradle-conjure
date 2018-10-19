@@ -20,46 +20,100 @@ import nebula.test.IntegrationSpec
 
 class ConjureProductDependencyTest extends IntegrationSpec {
 
-    def standardBuildFile = '''
+    def setup() {
+        createFile('settings.gradle') << '''
+        include 'api'
+        include 'api:api-objects'
+        include 'api:api-typescript'
+        '''.stripIndent()
+
+        buildFile << '''
         buildscript {
-            repositories {
-                mavenCentral()
-            }
-        }
-        
-        allprojects {
-            group = 'test.abc.group'
-            version = '1.0.0'
-        
             repositories {
                 mavenCentral()
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
+        }
+        
+        allprojects {
+            version '0.1.0'
+            group 'com.palantir.conjure.test'
+
+            repositories {
+                mavenCentral()
+                maven { url 'https://dl.bintray.com/palantir/releases/' }
+            }
+            
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
+                   force 'com.palantir.conjure.java:conjure-java:1.0.0'
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.5.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
-                   force 'com.palantir.conjure.postman:conjure-postman:0.1.0'
                }
-           }
+            }
         }
-        
-        apply plugin: 'com.palantir.conjure'
-    '''.stripIndent()
+        '''.stripIndent()
 
-    def setup() {
-        buildFile << standardBuildFile
+        createFile('api/build.gradle') << '''
+        apply plugin: 'com.palantir.conjure'
+        '''.stripIndent()
+
+        createFile('api/src/main/conjure/api.yml') << '''
+        types:
+          definitions:
+            default-package: test.test.api
+            objects:
+              StringExample:
+                fields:
+                  string: string
+        services:
+          TestServiceFoo:
+            name: Test Service Foo
+            package: test.test.api
+
+            endpoints:
+              post:
+                http: POST /post
+                args:
+                  object: StringExample
+                returns: StringExample
+        '''.stripIndent()
+        file("gradle.properties") << "org.gradle.daemon=false"
     }
 
     def "no op if extension is not configured"() {
-        expect:
-        runTasksSuccessfully(":validateConjureProductDependency")
+        when:
+        def result = runTasksSuccessfully(":api:compileConjure")
+
+        then:
+        result.wasExecuted(':api:compileConjureObjects')
+        result.wasExecuted(":api:generateConjureProductDependency")
+        result.wasSkipped(':api:conjureObjectsProductDependency')
+
+        !fileExists("api/build/pdep.json")
     }
 
-    def "validation succeeds with valid extension configuration"() {
-        buildFile << '''
+    def "generates pdep if extension is configured"() {
+        file('api/build.gradle') << '''
+        conjureDependency {
+            productGroup "com.palantir.conjure"
+            productName "conjure"
+            minimumVersion "1.2.0"
+            recommendedVersion "1.2.0"
+            maximumVersion "2.x.x"
+        }
+        '''.stripIndent()
+        when:
+        runTasksSuccessfully(':api:generateConjureProductDependency')
+
+        then:
+        fileExists('api/build/pdep.json')
+    }
+
+    def "packages pdeps into java projects"() {
+        file('api/build.gradle') << '''
         conjureDependency {
             productGroup "com.palantir.conjure"
             productName "conjure"
@@ -69,12 +123,19 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
 
-        expect:
-        runTasksSuccessfully(":validateConjureProductDependency")
+        when:
+        def result = runTasksSuccessfully(':api:compileConjure')
+
+        then:
+        result.wasExecuted(':api:compileConjureObjects')
+        result.wasExecuted(':api:generateConjureProductDependency')
+        result.wasExecuted(':api:conjureObjectsProductDependency')
+
+        fileExists('api/api-objects/resources/META-INF/pdep.json')
     }
 
     def "fails on absent fields"() {
-        buildFile << '''
+        file('api/build.gradle') << '''
         conjureDependency {
             productName "conjure"
             minimumVersion "1.2.0"
@@ -84,11 +145,11 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(":validateConjureProductDependency")
+        runTasksWithFailure(':generateConjureProductDependency')
     }
 
     def "fails on invalid fields"() {
-        buildFile << '''
+        file('api/build.gradle') << '''
         conjureDependency {
             productGroup "com.palantir.conjure"
             productName "conjure"
@@ -99,6 +160,6 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(":validateConjureProductDependency")
+        runTasksWithFailure(':generateConjureProductDependency')
     }
 }
