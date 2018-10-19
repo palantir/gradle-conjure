@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class ConjureProductDependencyExtension {
 
-    public static final String EXTENSION_NAME = "conjureDependency";
+    public static final String EXTENSION_NAME = "conjureProductDependency";
 
     private final ProductDependency productDependency = new ProductDependency();
     private boolean isConfigured = false;

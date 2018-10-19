@@ -19,7 +19,6 @@ package com.palantir.gradle.conjure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.annotations.VisibleForTesting;
 import com.palantir.gradle.conjure.api.ConjureProductDependencyExtension;
 import com.palantir.gradle.conjure.api.ProductDependency;
 import com.palantir.sls.versions.SlsVersion;

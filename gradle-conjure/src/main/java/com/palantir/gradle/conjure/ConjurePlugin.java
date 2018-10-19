@@ -65,7 +65,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_JERSEY_SUFFIX = "-jersey";
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\nresources";
+    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated";
 
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -90,7 +90,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
-        GenerateConjureProductDependencyTask validateProductDependencyTask = project.getTasks().create(
+        GenerateConjureProductDependencyTask productDependencyTask = project.getTasks().create(
                 "generateConjureProductDependency", GenerateConjureProductDependencyTask.class, task -> {
                     task.setConjureProductDependency(() -> conjureProductDependencyExtension);
                 });
@@ -100,19 +100,19 @@ public final class ConjurePlugin implements Plugin<Project> {
                 immutableOptionsSupplier(conjureExtension::getJava),
                 compileConjure,
                 compileIrTask,
-                validateProductDependencyTask);
+                productDependencyTask);
         setupConjurePythonProject(
                 project,
                 immutableOptionsSupplier(conjureExtension::getPython),
                 compileConjure,
                 compileIrTask,
-                validateProductDependencyTask);
+                productDependencyTask);
         setupConjureTypescriptProject(
                 project,
                 immutableOptionsSupplier(conjureExtension::getTypescript),
                 compileConjure,
                 compileIrTask,
-                validateProductDependencyTask);
+                productDependencyTask);
     }
 
     private static void setupConjureJavaProject(
@@ -120,7 +120,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask) {
+            GenerateConjureProductDependencyTask productDependencyTask) {
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
@@ -135,21 +135,21 @@ public final class ConjurePlugin implements Plugin<Project> {
                     optionsSupplier,
                     compileConjure,
                     compileIrTask,
-                    validateProductDependencyTask,
+                    productDependencyTask,
                     extractJavaTask);
             setupConjureRetrofitProject(
                     project,
                     optionsSupplier,
                     compileConjure,
                     compileIrTask,
-                    validateProductDependencyTask,
+                    productDependencyTask,
                     extractJavaTask);
             setupConjureJerseyProject(
                     project,
                     optionsSupplier,
                     compileConjure,
                     compileIrTask,
-                    validateProductDependencyTask,
+                    productDependencyTask,
                     extractJavaTask);
         }
     }
@@ -209,7 +209,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask,
+            GenerateConjureProductDependencyTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
@@ -241,15 +241,14 @@ public final class ConjurePlugin implements Plugin<Project> {
                             subproj.getProjectDir(),
                             JAVA_GITIGNORE_CONTENTS));
                     task.dependsOn(extractJavaTask);
-                    task.dependsOn(validateProductDependencyTask);
+                    task.dependsOn(productDependencyTask);
                 });
 
-                Task productDependencyTask = createCopyProductDependenciesTask(
+                compileConjure.dependsOn(createCopyProductDependenciesTask(
                         project,
                         subproj,
-                        "conjureJavaRetrofitProductDependency",
-                        validateProductDependencyTask.getOutputFile());
-                compileConjure.dependsOn(productDependencyTask);
+                        "conjureRetrofitProductDependency",
+                        productDependencyTask.getOutputFile()));
 
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
@@ -265,7 +264,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask,
+            GenerateConjureProductDependencyTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
@@ -298,16 +297,14 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     subproj.getProjectDir(),
                                     JAVA_GITIGNORE_CONTENTS));
                     task.dependsOn(extractJavaTask);
-                    task.dependsOn(validateProductDependencyTask);
+                    task.dependsOn(productDependencyTask);
                 });
 
-                Task productDependencyTask = createCopyProductDependenciesTask(
-                        project,
-                        subproj,
-                        "conjureJavaJerseyProductDependency",
-                        validateProductDependencyTask.getOutputFile());
-                compileConjure.dependsOn(productDependencyTask);
-
+                compileConjure.dependsOn(createCopyProductDependenciesTask(
+                                project,
+                                subproj,
+                                "conjureJerseyProductDependency",
+                                productDependencyTask.getOutputFile()));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
@@ -322,7 +319,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask) {
+            GenerateConjureProductDependencyTask productDependencyTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
             Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
@@ -353,7 +350,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                             subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(),
                                             "/src/\n"));
                             task.dependsOn(extractConjureTypeScriptTask);
-                            task.dependsOn(validateProductDependencyTask);
+                            task.dependsOn(productDependencyTask);
                         });
 
                 Task installTypeScriptDependencies = project.getTasks().create("installTypeScriptDependencies",
@@ -393,7 +390,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask validateProductDependencyTask) {
+            GenerateConjureProductDependencyTask productDependencyTask) {
         String pythonProjectName = project.getName() + "-python";
         if (project.findProject(pythonProjectName) != null) {
             Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(CONJURE_PYTHON);
@@ -419,7 +416,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     subproj, "gitignoreConjurePython", subproj.getProjectDir(),
                                     "/python/\n"));
                             task.dependsOn(extractConjurePythonTask);
-                            task.dependsOn(validateProductDependencyTask);
+                            task.dependsOn(productDependencyTask);
                         });
                 project.getTasks().create("buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
@@ -464,7 +461,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             String taskName, File inputFile) {
         return project.getTasks().create(taskName, Copy.class, task -> {
             task.from(inputFile);
-            task.into(new File(subproj.getProjectDir(), "resources/META-INF"));
+            task.into(new File(subproj.getProjectDir(), "src/generated/resources/META-INF"));
         });
     }
 

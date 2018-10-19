@@ -18,6 +18,5 @@ apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
     compile localGroovy()
-    compile 'com.fasterxml.jackson.core:jackson-databind'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    compile 'com.fasterxml.jackson.core:jackson-annotations'
 }

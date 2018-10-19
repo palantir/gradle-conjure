@@ -49,7 +49,6 @@ class ConjureProductDependencyTest extends IntegrationSpec {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.java:conjure-java:1.0.0'
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
-                   force 'com.palantir.conjure.python:conjure-python:3.5.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
                }
             }
@@ -90,14 +89,13 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         then:
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(":api:generateConjureProductDependency")
-        result.wasSkipped(':api:conjureObjectsProductDependency')
 
         !fileExists("api/build/pdep.json")
     }
 
     def "generates pdep if extension is configured"() {
         file('api/build.gradle') << '''
-        conjureDependency {
+        conjureProductDependency {
             productGroup "com.palantir.conjure"
             productName "conjure"
             minimumVersion "1.2.0"
@@ -110,11 +108,16 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
         then:
         fileExists('api/build/pdep.json')
+        file('api/build/pdep.json').text.contains('"product-group":"com.palantir.conjure"')
+        file('api/build/pdep.json').text.contains('"product-name":"conjure"')
+        file('api/build/pdep.json').text.contains('"minimum-version":"1.2.0"')
+        file('api/build/pdep.json').text.contains('"maximum-version":"2.x.x"')
+        file('api/build/pdep.json').text.contains('"recommended-version":"1.2.0"')
     }
 
     def "packages pdeps into java projects"() {
         file('api/build.gradle') << '''
-        conjureDependency {
+        conjureProductDependency {
             productGroup "com.palantir.conjure"
             productName "conjure"
             minimumVersion "1.2.0"
@@ -131,12 +134,12 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         result.wasExecuted(':api:generateConjureProductDependency')
         result.wasExecuted(':api:conjureObjectsProductDependency')
 
-        fileExists('api/api-objects/resources/META-INF/pdep.json')
+        fileExists('api/api-objects/src/generated/resources/META-INF/pdep.json')
     }
 
     def "fails on absent fields"() {
         file('api/build.gradle') << '''
-        conjureDependency {
+        conjureProductDependency {
             productName "conjure"
             minimumVersion "1.2.0"
             recommendedVersion "1.2.0"
@@ -150,7 +153,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
     def "fails on invalid fields"() {
         file('api/build.gradle') << '''
-        conjureDependency {
+        conjureProductDependency {
             productGroup "com.palantir.conjure"
             productName "conjure"
             minimumVersion "1.x.0"
