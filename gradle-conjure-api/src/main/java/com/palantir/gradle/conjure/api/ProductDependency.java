@@ -78,19 +78,19 @@ public final class ProductDependency implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ProductDependency that = (ProductDependency) o;
-        return Objects.equals(productGroup, that.productGroup) &&
-                Objects.equals(productName, that.productName) &&
-                Objects.equals(minimumVersion, that.minimumVersion) &&
-                Objects.equals(maximumVersion, that.maximumVersion) &&
-                Objects.equals(recommendedVersion, that.recommendedVersion);
+        ProductDependency that = (ProductDependency) obj;
+        return Objects.equals(productGroup, that.productGroup)
+                && Objects.equals(productName, that.productName)
+                && Objects.equals(minimumVersion, that.minimumVersion)
+                && Objects.equals(maximumVersion, that.maximumVersion)
+                && Objects.equals(recommendedVersion, that.recommendedVersion);
     }
 
     @Override
