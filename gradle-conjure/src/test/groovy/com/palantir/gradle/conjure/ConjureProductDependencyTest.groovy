@@ -85,8 +85,8 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         runTasksSuccessfully(":api:generateConjureProductDependency")
 
         then:
-        fileExists("api/build/pdeps.json")
-        file('api/build/pdeps.json').text == '[]'
+        fileExists("api/build/product-dependencies.json")
+        file('api/build/product-dependencies.json').text == '[]'
     }
 
     def "generates product dependencies if extension is configured"() {
@@ -105,12 +105,12 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         runTasksSuccessfully(':api:generateConjureProductDependency')
 
         then:
-        fileExists('api/build/pdeps.json')
-        file('api/build/pdeps.json').text.contains('"product-group":"com.palantir.conjure"')
-        file('api/build/pdeps.json').text.contains('"product-name":"conjure"')
-        file('api/build/pdeps.json').text.contains('"minimum-version":"1.2.0"')
-        file('api/build/pdeps.json').text.contains('"maximum-version":"2.x.x"')
-        file('api/build/pdeps.json').text.contains('"recommended-version":"1.2.0"')
+        fileExists('api/build/product-dependencies.json')
+        file('api/build/product-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
+        file('api/build/product-dependencies.json').text.contains('"product-name":"conjure"')
+        file('api/build/product-dependencies.json').text.contains('"minimum-version":"1.2.0"')
+        file('api/build/product-dependencies.json').text.contains('"maximum-version":"2.x.x"')
+        file('api/build/product-dependencies.json').text.contains('"recommended-version":"1.2.0"')
     }
 
     def "correctly passes product dependencies to generators"() {
@@ -132,7 +132,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         result.wasExecuted(':api:generateConjureProductDependency')
         result.wasExecuted(":api:conjureObjectsProductDependency")
         file('api/api-typescript/src/package.json').text.contains('sls')
-        fileExists('api/api-objects/src/generated/resources/META-INF/pdeps.json')
+        fileExists('api/api-objects/src/generated/resources/META-INF/product-dependencies.json')
     }
 
     def "fails on absent fields"() {

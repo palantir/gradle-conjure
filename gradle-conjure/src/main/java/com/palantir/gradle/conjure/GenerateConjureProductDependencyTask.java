@@ -46,7 +46,7 @@ public class GenerateConjureProductDependencyTask extends DefaultTask {
 
     @OutputFile
     public final File getOutputFile() {
-        return new File(getProject().getBuildDir(), "pdeps.json");
+        return new File(getProject().getBuildDir(), "product-dependencies.json");
     }
 
     final void setConjureProductDependencies(
