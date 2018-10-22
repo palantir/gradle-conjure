@@ -48,7 +48,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
                resolutionStrategy {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.java:conjure-java:1.0.0'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
+                   force 'com.palantir.conjure.typescript:conjure-typescript:3.3.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
                }
             }
@@ -84,11 +84,11 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
     def "generates empty product dependencies if not configured"() {
         when:
-        runTasksWithFailure(":api:generateConjureProductDependency")
+        runTasksSuccessfully(":api:generateConjureProductDependency")
 
         then:
         fileExists("api/build/pdeps.json")
-        file('api/build/pdep.json').text == '[]'
+        file('api/build/pdeps.json').text == '[]'
     }
 
     def "generates product dependencies if extension is configured"() {
@@ -107,7 +107,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         runTasksSuccessfully(':api:generateConjureProductDependency')
 
         then:
-        fileExists('api/build/pdep.json')
+        fileExists('api/build/pdeps.json')
         file('api/build/pdeps.json').text.contains('"product-group":"com.palantir.conjure"')
         file('api/build/pdeps.json').text.contains('"product-name":"conjure"')
         file('api/build/pdeps.json').text.contains('"minimum-version":"1.2.0"')
@@ -128,11 +128,13 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:compileConjureTypeScript')
+        def result = runTasksSuccessfully(':api:compileConjure')
 
         then:
         result.wasExecuted(':api:generateConjureProductDependency')
+        result.wasExecuted(":api:conjureObjectsProductDependency")
         file('api/api-typescript/src/package.json').text.contains('sls')
+        fileExists('api/api-objects/src/generated/resources/META-INF/pdeps.json')
     }
 
     def "fails on absent fields"() {

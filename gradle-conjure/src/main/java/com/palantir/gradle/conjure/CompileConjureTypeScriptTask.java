@@ -21,8 +21,20 @@ import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.tasks.InputFile;
 
 public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
+
+    private File productDependencyFile;
+
+    @InputFile
+    public final File getProductDependencyFile() {
+        return productDependencyFile;
+    }
+
+    public final void setProductDependencyFile(File productDependencyFile) {
+        this.productDependencyFile = productDependencyFile;
+    }
 
     public CompileConjureTypeScriptTask() {
         doFirst(task -> {
@@ -37,6 +49,6 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
         return ImmutableMap.of(
                 "packageName", () -> getProject().getName(),
                 "packageVersion", () -> getProject().getVersion().toString(),
-                "packageDependencies", () -> getProductDependencyFile().getAbsolutePath());
+                "productDependencies", () -> getProductDependencyFile().getAbsolutePath());
     }
 }
