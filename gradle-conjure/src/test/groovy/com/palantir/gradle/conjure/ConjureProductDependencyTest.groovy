@@ -21,11 +21,9 @@ import nebula.test.IntegrationSpec
 class ConjureProductDependencyTest extends IntegrationSpec {
 
     def setup() {
-        createFile('settings.gradle') << '''
-        include 'api'
-        include 'api:api-objects'
-        include 'api:api-typescript'
-        '''.stripIndent()
+        addSubproject('api')
+        addSubproject('api:api-objects')
+        addSubproject('api:api-typescript')
 
         buildFile << '''
         buildscript {
