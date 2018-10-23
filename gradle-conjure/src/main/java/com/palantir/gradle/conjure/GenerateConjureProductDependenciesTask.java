@@ -33,10 +33,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-public class GenerateConjureProductDependencyTask extends DefaultTask {
+public class GenerateConjureProductDependenciesTask extends DefaultTask {
     private static final Pattern GROUP_PATTERN = Pattern.compile("^[a-z0-9-]+(\\.[a-z0-9-]+)+$");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z0-9-]+");
-    private static final ObjectMapper jsonMapper = new ObjectMapper()
+    public static final ObjectMapper jsonMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
 
@@ -59,7 +59,7 @@ public class GenerateConjureProductDependencyTask extends DefaultTask {
 
     @TaskAction
     public final void generateConjureProductDependencies() throws IOException {
-        getConjureProductDependencies().forEach(GenerateConjureProductDependencyTask::validateProductDependency);
+        getConjureProductDependencies().forEach(GenerateConjureProductDependenciesTask::validateProductDependency);
         jsonMapper.writeValue(getOutputFile(), getConjureProductDependencies());
     }
 
@@ -73,7 +73,6 @@ public class GenerateConjureProductDependencyTask extends DefaultTask {
         Preconditions.checkArgument(NAME_PATTERN.matcher(productDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
         Preconditions.checkNotNull(productDependency.getMinimumVersion(), "minimum version must be specified");
-        Preconditions.checkNotNull(productDependency.getProductGroup());
         if (!SlsVersion.check(productDependency.getMaximumVersion())
                 && !SlsVersionMatcher.safeValueOf(productDependency.getMaximumVersion()).isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "

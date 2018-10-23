@@ -37,6 +37,7 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.util.GFileUtils;
@@ -90,8 +91,8 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
-        GenerateConjureProductDependencyTask productDependencyTask = project.getTasks().create(
-                "generateConjureProductDependency", GenerateConjureProductDependencyTask.class, task -> {
+        GenerateConjureProductDependenciesTask productDependencyTask = project.getTasks().create(
+                "generateConjureProductDependency", GenerateConjureProductDependenciesTask.class, task -> {
                     task.setConjureProductDependencies(conjureProductDependenciesExtension::getProductDependencies);
                 });
 
@@ -119,7 +120,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask) {
+            GenerateConjureProductDependenciesTask productDependencyTask) {
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
@@ -158,7 +159,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask,
+            GenerateConjureProductDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -207,7 +208,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask,
+            GenerateConjureProductDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
@@ -261,7 +262,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask,
+            GenerateConjureProductDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
@@ -298,10 +299,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                 });
 
                 compileConjure.dependsOn(createJavaProductDependenciesTask(
-                                project,
-                                subproj,
-                                "conjureJerseyProductDependency",
-                                productDependencyTask));
+                        project,
+                        subproj,
+                        "conjureJerseyProductDependency",
+                        productDependencyTask));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
@@ -316,7 +317,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask) {
+            GenerateConjureProductDependenciesTask productDependencyTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
             Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
@@ -451,11 +452,12 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Task createJavaProductDependenciesTask(Project project, Project subproj,
-            String taskName, Task productDependencyTask) {
-        return project.getTasks().create(taskName, Copy.class, task -> {
-            task.from(productDependencyTask);
-            task.into(new File(subproj.getProjectDir(), "src/main/resources/META-INF"));
+            String taskName, GenerateConjureProductDependenciesTask productDependencyTask) {
+        return project.getTasks().create(taskName, ConjureJavaProductDependenciesTask.class, task -> {
+            task.setProductDependencies(productDependencyTask::getConjureProductDependencies);
+            task.setSubproject(subproj);
             task.dependsOn(productDependencyTask);
+            subproj.getTasks().withType(Jar.class, jar -> jar.dependsOn(task));
         });
     }
 

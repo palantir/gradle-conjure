@@ -16,6 +16,8 @@
 
 package com.palantir.gradle.conjure
 
+import java.util.jar.Manifest
+import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
 
 class ConjureProductDependencyTest extends IntegrationSpec {
@@ -31,6 +33,9 @@ class ConjureProductDependencyTest extends IntegrationSpec {
                 mavenCentral()
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
+            dependencies {
+                classpath 'com.netflix.nebula:nebula-dependency-recommender:5.2.0'
+            }
         }
         
         allprojects {
@@ -42,15 +47,24 @@ class ConjureProductDependencyTest extends IntegrationSpec {
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
             
-            configurations.all {
-               resolutionStrategy {
-                   failOnVersionConflict()
-                   force 'com.palantir.conjure.java:conjure-java:1.0.0'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:3.3.0'
-                   force 'com.palantir.conjure:conjure:4.0.0'
-               }
+            apply plugin: 'nebula.dependency-recommender'
+
+            dependencyRecommendations {
+                strategy OverrideTransitives
+                propertiesFile file: project.rootProject.file('versions.props')
             }
         }
+        '''.stripIndent()
+
+        createFile('versions.props') << '''
+        com.fasterxml.jackson.*:* = 2.6.7
+        com.google.guava:guava = 18.0
+        com.palantir.conjure.typescript:conjure-typescript = 3.3.0
+        com.palantir.conjure.java:* = 2.3.0
+        com.palantir.conjure:conjure = 4.0.0
+        com.squareup.retrofit2:retrofit = 2.1.0
+        javax.annotation:javax.annotation-api = 1.3.2
+        javax.ws.rs:javax.ws.rs-api = 2.0.1
         '''.stripIndent()
 
         createFile('api/build.gradle') << '''
@@ -130,9 +144,33 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
         then:
         result.wasExecuted(':api:generateConjureProductDependency')
-        result.wasExecuted(":api:conjureObjectsProductDependency")
         file('api/api-typescript/src/package.json').text.contains('sls')
-        fileExists('api/api-objects/src/main/resources/META-INF/product-dependencies.json')
+    }
+
+    def "correctly configures manifest for java generators"() {
+        file('api/build.gradle') << '''
+        productDependencies {
+            productDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-objects:Jar')
+
+        then:
+        result.wasExecuted(':api:generateConjureProductDependency')
+        def recommendedDeps = readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar'))
+        recommendedDeps == '{"recommended-product-dependencies":[{' +
+                '"product-group":"com.palantir.conjure",' +
+                '"product-name":"conjure",' +
+                '"minimum-version":"1.2.0",' +
+                '"maximum-version":"2.x.x",' +
+                '"recommended-version":"1.2.0"}]}'
     }
 
     def "fails on absent fields"() {
@@ -183,5 +221,13 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
         expect:
         runTasksWithFailure(':generateConjureProductDependency')
+    }
+
+    def readRecommendedProductDeps(File jarFile) {
+        def zf = new ZipFile(jarFile)
+        def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
+        def manifest = new Manifest(zf.getInputStream(manifestEntry))
+        return manifest.getMainAttributes().getValue(
+                ConjureJavaProductDependenciesTask.SLS_RECCOMENDED_PRODUCT_DEPS_KEY)
     }
 }
