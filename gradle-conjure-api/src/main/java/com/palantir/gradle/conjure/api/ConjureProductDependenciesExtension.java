@@ -21,7 +21,7 @@ import groovy.lang.DelegatesTo;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConjureProductDependencyExtension {
+public class ConjureProductDependenciesExtension {
 
     public static final String EXTENSION_NAME = "productDependencies";
 

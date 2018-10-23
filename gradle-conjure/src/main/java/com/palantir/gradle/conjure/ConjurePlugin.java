@@ -18,7 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableSet;
 import com.palantir.gradle.conjure.api.ConjureExtension;
-import com.palantir.gradle.conjure.api.ConjureProductDependencyExtension;
+import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.nio.file.Paths;
@@ -79,8 +79,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         project.getPlugins().apply(BasePlugin.class);
         ConjureExtension conjureExtension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
-        ConjureProductDependencyExtension conjureProductDependencyExtension = project.getExtensions()
-                .create(ConjureProductDependencyExtension.EXTENSION_NAME, ConjureProductDependencyExtension.class);
+        ConjureProductDependenciesExtension conjureProductDependenciesExtension = project.getExtensions()
+                .create(ConjureProductDependenciesExtension.EXTENSION_NAME, ConjureProductDependenciesExtension.class);
 
         // Set up conjure compile task
         Task compileConjure = project.getTasks().create("compileConjure", DefaultTask.class);
@@ -92,7 +92,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
         GenerateConjureProductDependencyTask productDependencyTask = project.getTasks().create(
                 "generateConjureProductDependency", GenerateConjureProductDependencyTask.class, task -> {
-                    task.setConjureProductDependencies(conjureProductDependencyExtension::getProductDependencies);
+                    task.setConjureProductDependencies(conjureProductDependenciesExtension::getProductDependencies);
                 });
 
         setupConjureJavaProject(
