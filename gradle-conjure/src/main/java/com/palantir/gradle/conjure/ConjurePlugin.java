@@ -189,7 +189,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(extractJavaTask);
                             task.dependsOn(productDependencyTask);
                         });
-                compileConjure.dependsOn(createCopyProductDependenciesTask(
+                compileConjure.dependsOn(createJavaProductDependenciesTask(
                         project,
                         subproj,
                         "conjureObjectsProductDependency",
@@ -242,7 +242,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(productDependencyTask);
                 });
 
-                compileConjure.dependsOn(createCopyProductDependenciesTask(
+                compileConjure.dependsOn(createJavaProductDependenciesTask(
                         project,
                         subproj,
                         "conjureRetrofitProductDependency",
@@ -297,7 +297,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(productDependencyTask);
                 });
 
-                compileConjure.dependsOn(createCopyProductDependenciesTask(
+                compileConjure.dependsOn(createJavaProductDependenciesTask(
                                 project,
                                 subproj,
                                 "conjureJerseyProductDependency",
@@ -450,7 +450,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static Task createCopyProductDependenciesTask(Project project, Project subproj,
+    private static Task createJavaProductDependenciesTask(Project project, Project subproj,
             String taskName, Task productDependencyTask) {
         return project.getTasks().create(taskName, Copy.class, task -> {
             task.from(productDependencyTask);
