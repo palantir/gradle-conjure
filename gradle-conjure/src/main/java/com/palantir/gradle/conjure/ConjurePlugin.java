@@ -105,8 +105,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project,
                 immutableOptionsSupplier(conjureExtension::getPython),
                 compileConjure,
-                compileIrTask,
-                productDependencyTask);
+                compileIrTask);
         setupConjureTypescriptProject(
                 project,
                 immutableOptionsSupplier(conjureExtension::getTypescript),
@@ -385,11 +384,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupConjurePythonProject(
-            Project project,
-            Supplier<GeneratorOptions> options,
-            Task compileConjure,
-            Task compileIrTask,
-            GenerateConjureProductDependencyTask productDependencyTask) {
+            Project project, Supplier<GeneratorOptions> options, Task compileConjure, Task compileIrTask) {
         String pythonProjectName = project.getName() + "-python";
         if (project.findProject(pythonProjectName) != null) {
             Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(CONJURE_PYTHON);
@@ -415,7 +410,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     subproj, "gitignoreConjurePython", subproj.getProjectDir(),
                                     "/python/\n"));
                             task.dependsOn(extractConjurePythonTask);
-                            task.dependsOn(productDependencyTask);
                         });
                 project.getTasks().create("buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
