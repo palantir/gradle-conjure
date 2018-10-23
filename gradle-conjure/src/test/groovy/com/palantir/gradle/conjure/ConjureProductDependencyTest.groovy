@@ -151,13 +151,30 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         runTasksWithFailure(':generateConjureProductDependency')
     }
 
-    def "fails on invalid fields"() {
+    def "fails on invalid version"() {
         file('api/build.gradle') << '''
         productDependencies {
             productDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.x.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+
+        expect:
+        runTasksWithFailure(':generateConjureProductDependency')
+    }
+
+    def "fails on invalid group"() {
+        file('api/build.gradle') << '''
+        productDependencies {
+            productDependency {
+                productGroup = "com.palantir:conjure"
+                productName = "conjure"
+                minimumVersion = "1.0.0"
                 recommendedVersion = "1.2.0"
                 maximumVersion = "2.x.x"
             }
