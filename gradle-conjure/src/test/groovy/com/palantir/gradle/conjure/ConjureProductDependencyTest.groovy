@@ -132,7 +132,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         result.wasExecuted(':api:generateConjureProductDependency')
         result.wasExecuted(":api:conjureObjectsProductDependency")
         file('api/api-typescript/src/package.json').text.contains('sls')
-        fileExists('api/api-objects/src/generated/resources/META-INF/product-dependencies.json')
+        fileExists('api/api-objects/src/main/resources/META-INF/product-dependencies.json')
     }
 
     def "fails on absent fields"() {

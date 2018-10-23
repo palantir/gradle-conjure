@@ -460,7 +460,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             String taskName, Task productDependencyTask) {
         return project.getTasks().create(taskName, Copy.class, task -> {
             task.from(productDependencyTask);
-            task.into(new File(subproj.getProjectDir(), "src/generated/resources/META-INF"));
+            task.into(new File(subproj.getProjectDir(), "src/main/resources/META-INF"));
             task.dependsOn(productDependencyTask);
         });
     }
