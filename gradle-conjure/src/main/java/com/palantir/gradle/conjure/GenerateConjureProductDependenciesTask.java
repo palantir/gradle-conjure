@@ -34,8 +34,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class GenerateConjureProductDependenciesTask extends DefaultTask {
-    private static final Pattern GROUP_PATTERN = Pattern.compile("^[a-z0-9-]+(\\.[a-z0-9-]+)+$");
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z0-9-]+");
+    private static final Pattern GROUP_PATTERN = Pattern.compile("^[^:@?\\s]+");
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
     public static final ObjectMapper jsonMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
