@@ -253,6 +253,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                if (optionsSupplier.get().has("retrofitListenableFutures")) {
+                    subproj.getDependencies().add("compile", "com.google.gauva:gauva");
+                }
             });
         }
     }

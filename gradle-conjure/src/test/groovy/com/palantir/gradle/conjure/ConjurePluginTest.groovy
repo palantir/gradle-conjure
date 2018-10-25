@@ -455,6 +455,22 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
+    def 'featureFlag RetrofitListenableFutures can be enabled'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                retrofitListenableFutures = true
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureRetrofit')
+
+        then:
+        fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
+        file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('ListenableFuture<StringExample>')
+    }
 
     def 'typescript extension is respected'() {
          file('api/build.gradle') << '''
