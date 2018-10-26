@@ -135,7 +135,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     optionsSupplier,
                     compileConjure,
                     compileIrTask,
-                    productDependencyTask,
                     extractJavaTask);
             setupConjureRetrofitProject(
                     project,
@@ -159,7 +158,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -188,13 +186,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                             subproj.getProjectDir(),
                                             JAVA_GITIGNORE_CONTENTS));
                             task.dependsOn(extractJavaTask);
-                            task.dependsOn(productDependencyTask);
                         });
-                compileConjure.dependsOn(createJavaProductDependenciesTask(
-                        project,
-                        subproj,
-                        "conjureObjectsProductDependency",
-                        productDependencyTask));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
