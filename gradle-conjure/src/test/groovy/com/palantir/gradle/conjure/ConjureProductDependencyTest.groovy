@@ -25,6 +25,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
     def setup() {
         addSubproject('api')
         addSubproject('api:api-objects')
+        addSubproject('api:api-jersey')
         addSubproject('api:api-typescript')
 
         buildFile << '''
@@ -147,8 +148,8 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         file('api/api-typescript/src/package.json').text.contains('sls')
     }
 
-    def "correctly configures manifest for java generators"() {
-        file('api/build.gradle') << '''
+    def "does not pass product dependencies to java objects"() {
+         file('api/build.gradle') << '''
         productDependencies {
             productDependency {
                 productGroup = "com.palantir.conjure"
@@ -163,8 +164,28 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:api-objects:Jar')
 
         then:
+        !result.wasExecuted(':api:generateConjureProductDependency')
+        readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar')) == null
+    }
+
+    def "correctly configures manifest for java jersey"() {
+        file('api/build.gradle') << '''
+        productDependencies {
+            productDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+
+        then:
         result.wasExecuted(':api:generateConjureProductDependency')
-        def recommendedDeps = readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar'))
+        def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         recommendedDeps == '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
                 '"product-name":"conjure",' +
