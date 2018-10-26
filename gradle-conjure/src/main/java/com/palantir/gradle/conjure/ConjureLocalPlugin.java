@@ -161,13 +161,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             task.setSource(conjureIrConfiguration);
             task.setExecutablePath(extractConjurePythonTask::getExecutable);
             task.setOutputDirectory(subproj.file("python"));
-            task.setOptions(() -> {
-                GeneratorOptions generatorOptions = new GeneratorOptions(optionsSupplier.get());
-                // TODO(forozco): remove once rawSource option is added
-                generatorOptions.setProperty("packageName", "foo");
-                generatorOptions.setProperty("packageVersion", "0.0.0");
-                return generatorOptions;
-            });
+            task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
             task.dependsOn(extractConjurePythonTask);
             generateConjure.dependsOn(task);
         });
