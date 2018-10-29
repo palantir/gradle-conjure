@@ -59,7 +59,7 @@ To enable publishing of your API definition for external consumption, add the `c
 - **generateConjure** - Generates code for all Conjure dependencies 
 - **generateTypeScript** - Generates TypeScript bindings for all Conjure dependencies
 - **generatePython** - Generates Python bindings for all Conjure dependencies
-- **generate\<Language\>** - Task rule which will generates \<Language> bindings for all Conjure dependencies, where \<Language\> is the name of the generator to be used
+- **generate\<language\>** - Task rule which will generates \<language> bindings for all Conjure dependencies, where \<language\> is the name of the generator to be used
 
 ### Configurations
 
@@ -82,13 +82,13 @@ Using the `conjureGenerators` extension allows you to use use any Conjure genera
      conjure 'com.company.other.product:other-api:1.0.0'
     
 +    conjureGenerators 'com.palantir.conjure.postman:conjure-postman:0.1.0'
-}
+ }
 ```
 
 For each generator specified referenced by the configuration you must also add a project with the corresponding name
 ```diff
  include 'conjure-api'
-+ include 'conjure-api:postman'
++include 'conjure-api:postman'
 ```
 
 ## Contributing
