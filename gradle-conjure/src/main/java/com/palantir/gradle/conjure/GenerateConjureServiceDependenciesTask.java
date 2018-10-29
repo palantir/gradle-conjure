@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.base.Preconditions;
-import com.palantir.gradle.conjure.api.ProductDependency;
+import com.palantir.gradle.conjure.api.ServiceDependency;
 import com.palantir.sls.versions.SlsVersion;
 import com.palantir.sls.versions.SlsVersionMatcher;
 import java.io.File;
@@ -33,57 +33,57 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-public class GenerateConjureProductDependenciesTask extends DefaultTask {
+public class GenerateConjureServiceDependenciesTask extends DefaultTask {
     private static final Pattern GROUP_PATTERN = Pattern.compile("^[^:@?\\s]+");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
     public static final ObjectMapper jsonMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
 
-    private Supplier<Set<ProductDependency>> conjureProductDependencies;
+    private Supplier<Set<ServiceDependency>> conjureServiceDependencies;
 
     @Input
-    public final Set<ProductDependency> getConjureProductDependencies() {
-        return conjureProductDependencies.get();
+    public final Set<ServiceDependency> getConjureServiceDependencies() {
+        return conjureServiceDependencies.get();
     }
 
     @OutputFile
     public final File getOutputFile() {
-        return new File(getProject().getBuildDir(), "product-dependencies.json");
+        return new File(getProject().getBuildDir(), "service-dependencies.json");
     }
 
-    final void setConjureProductDependencies(
-            Supplier<Set<ProductDependency>> conjureProductDependencies) {
-        this.conjureProductDependencies = conjureProductDependencies;
+    final void setConjureServiceDependencies(
+            Supplier<Set<ServiceDependency>> conjureServiceDependencies) {
+        this.conjureServiceDependencies = conjureServiceDependencies;
     }
 
     @TaskAction
-    public final void generateConjureProductDependencies() throws IOException {
-        getConjureProductDependencies().forEach(GenerateConjureProductDependenciesTask::validateProductDependency);
-        jsonMapper.writeValue(getOutputFile(), getConjureProductDependencies());
+    public final void generateConjureServiceDependencies() throws IOException {
+        getConjureServiceDependencies().forEach(GenerateConjureServiceDependenciesTask::validateServiceDependency);
+        jsonMapper.writeValue(getOutputFile(), getConjureServiceDependencies());
     }
 
-    private static void validateProductDependency(ProductDependency productDependency) {
-        Preconditions.checkNotNull(productDependency.getProductGroup(),
-                    "productGroup must be specified for a recommended product dependency");
-        Preconditions.checkArgument(GROUP_PATTERN.matcher(productDependency.getProductGroup()).matches(),
+    private static void validateServiceDependency(ServiceDependency serviceDependency) {
+        Preconditions.checkNotNull(serviceDependency.getProductGroup(),
+                    "productGroup must be specified for a recommended service dependency");
+        Preconditions.checkArgument(GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
                 "productGroup must be a valid maven group");
-        Preconditions.checkNotNull(productDependency.getProductName(),
-                    "productName must be specified for a recommended product dependency");
-        Preconditions.checkArgument(NAME_PATTERN.matcher(productDependency.getProductName()).matches(),
+        Preconditions.checkNotNull(serviceDependency.getProductName(),
+                    "productName must be specified for a recommended service dependency");
+        Preconditions.checkArgument(NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
-        Preconditions.checkNotNull(productDependency.getMinimumVersion(), "minimum version must be specified");
-        if (!SlsVersion.check(productDependency.getMaximumVersion())
-                && !SlsVersionMatcher.safeValueOf(productDependency.getMaximumVersion()).isPresent()) {
+        Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");
+        if (!SlsVersion.check(serviceDependency.getMaximumVersion())
+                && !SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion()).isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "
-                    + productDependency.getMaximumVersion());
-        } else if (!SlsVersion.check(productDependency.getMinimumVersion())) {
+                    + serviceDependency.getMaximumVersion());
+        } else if (!SlsVersion.check(serviceDependency.getMinimumVersion())) {
             throw new IllegalArgumentException("minimumVersion must be valid SLS versions: "
-                    + productDependency.getMinimumVersion());
-        } else if (!SlsVersion.check(productDependency.getRecommendedVersion())) {
+                    + serviceDependency.getMinimumVersion());
+        } else if (!SlsVersion.check(serviceDependency.getRecommendedVersion())) {
             throw new IllegalArgumentException("recommendedVersion must be valid SLS versions: "
-                    + productDependency.getRecommendedVersion());
-        } else if (productDependency.getMinimumVersion().equals(productDependency.getMaximumVersion())) {
+                    + serviceDependency.getRecommendedVersion());
+        } else if (serviceDependency.getMinimumVersion().equals(serviceDependency.getMaximumVersion())) {
             throw new IllegalArgumentException("minimumVersion and maximumVersion must be different");
         }
     }

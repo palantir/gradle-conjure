@@ -20,7 +20,7 @@ import java.util.jar.Manifest
 import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
 
-class ConjureProductDependencyTest extends IntegrationSpec {
+class ConjureServiceDependencyTest extends IntegrationSpec {
 
     def setup() {
         addSubproject('api')
@@ -97,17 +97,17 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
     def "generates empty product dependencies if not configured"() {
         when:
-        runTasksSuccessfully(":api:generateConjureProductDependency")
+        runTasksSuccessfully(':api:generateConjureServiceDependencies')
 
         then:
-        fileExists("api/build/product-dependencies.json")
-        file('api/build/product-dependencies.json').text == '[]'
+        fileExists("api/build/service-dependencies.json")
+        file('api/build/service-dependencies.json').text == '[]'
     }
 
     def "generates product dependencies if extension is configured"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.2.0"
@@ -117,21 +117,21 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        runTasksSuccessfully(':api:generateConjureProductDependency')
+        runTasksSuccessfully(':api:generateConjureServiceDependencies')
 
         then:
-        fileExists('api/build/product-dependencies.json')
-        file('api/build/product-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
-        file('api/build/product-dependencies.json').text.contains('"product-name":"conjure"')
-        file('api/build/product-dependencies.json').text.contains('"minimum-version":"1.2.0"')
-        file('api/build/product-dependencies.json').text.contains('"maximum-version":"2.x.x"')
-        file('api/build/product-dependencies.json').text.contains('"recommended-version":"1.2.0"')
+        fileExists('api/build/service-dependencies.json')
+        file('api/build/service-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
+        file('api/build/service-dependencies.json').text.contains('"product-name":"conjure"')
+        file('api/build/service-dependencies.json').text.contains('"minimum-version":"1.2.0"')
+        file('api/build/service-dependencies.json').text.contains('"maximum-version":"2.x.x"')
+        file('api/build/service-dependencies.json').text.contains('"recommended-version":"1.2.0"')
     }
 
     def "correctly passes product dependencies to generators"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.2.0"
@@ -144,14 +144,14 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:generateConjureProductDependency')
+        result.wasExecuted(':api:generateConjureServiceDependencies')
         file('api/api-typescript/src/package.json').text.contains('sls')
     }
 
     def "does not pass product dependencies to java objects"() {
          file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.2.0"
@@ -164,14 +164,14 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:api-objects:Jar')
 
         then:
-        !result.wasExecuted(':api:generateConjureProductDependency')
+        !result.wasExecuted(':api:generateConjureServiceDependencies')
         readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar')) == null
     }
 
     def "correctly configures manifest for java jersey"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.2.0"
@@ -184,7 +184,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:api-jersey:Jar')
 
         then:
-        result.wasExecuted(':api:generateConjureProductDependency')
+        result.wasExecuted(':api:generateConjureServiceDependencies')
         def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         recommendedDeps == '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
@@ -196,8 +196,8 @@ class ConjureProductDependencyTest extends IntegrationSpec {
 
     def "fails on absent fields"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productName = "conjure"
                 minimumVersion = "1.2.0"
                 recommendedVersion = "1.2.0"
@@ -207,13 +207,13 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':generateConjureProductDependency')
+        runTasksWithFailure(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid version"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir.conjure"
                 productName = "conjure"
                 minimumVersion = "1.x.0"
@@ -224,13 +224,13 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':generateConjureProductDependency')
+        runTasksWithFailure(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid group"() {
         file('api/build.gradle') << '''
-        productDependencies {
-            productDependency {
+        serviceDependencies {
+            serviceDependency {
                 productGroup = "com.palantir:conjure"
                 productName = "conjure"
                 minimumVersion = "1.0.0"
@@ -241,7 +241,7 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':generateConjureProductDependency')
+        runTasksWithFailure(':api:generateConjureServiceDependencies')
     }
 
     def readRecommendedProductDeps(File jarFile) {
@@ -249,6 +249,6 @@ class ConjureProductDependencyTest extends IntegrationSpec {
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
-                ConjureJavaProductDependenciesTask.SLS_RECCOMENDED_PRODUCT_DEPS_KEY)
+                ConjureJavaServiceDependenciesTask.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
     }
 }

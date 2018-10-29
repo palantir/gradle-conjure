@@ -91,9 +91,9 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
-        GenerateConjureProductDependenciesTask productDependencyTask = project.getTasks().create(
-                "generateConjureProductDependency", GenerateConjureProductDependenciesTask.class, task -> {
-                    task.setConjureProductDependencies(conjureProductDependenciesExtension::getProductDependencies);
+        GenerateConjureServiceDependenciesTask productDependencyTask = project.getTasks().create(
+                "generateConjureServiceDependencies", GenerateConjureServiceDependenciesTask.class, task -> {
+                    task.setConjureServiceDependencies(conjureProductDependenciesExtension::getProductDependencies);
                 });
 
         setupConjureJavaProject(
@@ -120,7 +120,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependenciesTask productDependencyTask) {
+            GenerateConjureServiceDependenciesTask productDependencyTask) {
         Set<String> javaProjectSuffixes = ImmutableSet.of(
                 JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
@@ -200,7 +200,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependenciesTask productDependencyTask,
+            GenerateConjureServiceDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
@@ -254,7 +254,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependenciesTask productDependencyTask,
+            GenerateConjureServiceDependenciesTask productDependencyTask,
             ExtractExecutableTask extractJavaTask) {
 
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
@@ -309,7 +309,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> options,
             Task compileConjure,
             Task compileIrTask,
-            GenerateConjureProductDependenciesTask productDependencyTask) {
+            GenerateConjureServiceDependenciesTask productDependencyTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
             Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
@@ -444,9 +444,9 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Task createJavaProductDependenciesTask(Project project, Project subproj,
-            String taskName, GenerateConjureProductDependenciesTask productDependencyTask) {
-        return project.getTasks().create(taskName, ConjureJavaProductDependenciesTask.class, task -> {
-            task.setProductDependencies(productDependencyTask::getConjureProductDependencies);
+            String taskName, GenerateConjureServiceDependenciesTask productDependencyTask) {
+        return project.getTasks().create(taskName, ConjureJavaServiceDependenciesTask.class, task -> {
+            task.setServiceDependencies(productDependencyTask::getConjureServiceDependencies);
             task.setSubproject(subproj);
             task.dependsOn(productDependencyTask);
             subproj.getTasks().withType(Jar.class, jar -> jar.dependsOn(task));
