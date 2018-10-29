@@ -76,7 +76,7 @@ dependencies {
 
 Using the `conjureGenerators` extension allows you to use use any Conjure generator which conforms to [RFC 002][]
 
-```diff+gradle
+```diff
  dependencies {
      conjure 'com.company.product:some-api:1.0.0'
      conjure 'com.company.other.product:other-api:1.0.0'
@@ -86,8 +86,7 @@ Using the `conjureGenerators` extension allows you to use use any Conjure genera
 ```
 
 For each generator specified referenced by the configuration you must also add a project with the corresponding name
-```diff+properties
-
+```diff
  include 'conjure-api'
 + include 'conjure-api:postman'
 ```
