@@ -249,6 +249,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
-                ConjureJavaServiceDependenciesTask.SIS_RECOMMENCED_PRODUCT_DEPS_KEY)
+                ConjureJavaServiceDependenciesTask.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
     }
 }

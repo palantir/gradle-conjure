@@ -28,7 +28,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.jvm.tasks.Jar;
 
 public class ConjureJavaServiceDependenciesTask extends DefaultTask {
-    public static final String SIS_RECOMMENCED_PRODUCT_DEPS_KEY = "Sls-Recommended-Product-Dependencies";
+    public static final String SLS_RECOMMENDED_PRODUCT_DEPENDENCIES = "Sls-Recommended-Product-Dependencies";
     private Supplier<Set<ServiceDependency>> serviceDependencies;
     private Project subproject;
 
@@ -50,7 +50,7 @@ public class ConjureJavaServiceDependenciesTask extends DefaultTask {
         for (Jar jarTask : subproject.getTasks().withType(Jar.class)) {
             jarTask.getManifest()
                     .getAttributes()
-                    .put(SIS_RECOMMENCED_PRODUCT_DEPS_KEY,
+                    .put(SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
                             GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
                                     new RecommendedProductDependencies(getServiceDependencies())));
         }
