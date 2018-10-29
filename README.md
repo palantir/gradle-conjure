@@ -59,17 +59,45 @@ To enable publishing of your API definition for external consumption, add the `c
 - **generateConjure** - Generates code for all API definitions in the `conjure` configuration
 - **generateTypeScript** - Generates TypeScript bindings for all remote Conjure dependencies
 - **generatePython** - Generates Python bindings for all remote Conjure dependencies
-- **generateLanguage** - Generates
+- **generate\<Language\>** - Task rule which will generates bindings for \<Language>, where <Language> is the name of the generator to be used
 
 ### Configurations
 
-`com.palantir.conjure-local` also exposes a `conjure` and `conjureGenerator` configurations.
+- **`conjure`** - Configuration for adding Conjure API dependencies
+- **`conjureGenerators`** - Configuration for adding generator dependencies
+
+`com.palantir.conjure-local` allows you to depend upon multiple Conjure APIs at once using the `conjure` extension.
+```gradle
+dependencies {
+    conjure 'com.company.product:some-api:1.0.0'
+    conjure 'com.company.other.product:other-api:1.0.0'
+}
+```
+
+`conjureGenerators` allows you to use use any Conjure generator which conforms to [RFC 002][]
+
+```diff+gradle
+ dependencies {
+     conjure 'com.company.product:some-api:1.0.0'
+     conjure 'com.company.other.product:other-api:1.0.0'
+    
++    conjureGenerators 'com.palantir.conjure.postman:conjure-postman:0.1.0'
+}
+```
+
+For each generator specified referenced by the configuration you must also add a project with the corresponding name
+```diff+properties
+
+ include 'conjure-api'
++ include 'conjure-api:postman'
+```
 
 ## Contributing
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
 
 [getting started guide]: https://github.com/palantir/conjure/blob/develop/docs/getting_started.md
+[RFC 002]: https://github.com/palantir/conjure/blob/develop/docs/rfc/002-contract-for-conjure-generators.md
 [Conjure Source Files Specification]: https://github.com/palantir/conjure/blob/develop/docs/spec/source_files.md
 [Conjure-Java]: https://github.com/palantir/conjure-java
 [Conjure-TypeScript]: https://github.com/palantir/conjure-typescript
