@@ -50,7 +50,7 @@ public class ConjureJavaServiceDependenciesTask extends DefaultTask {
         for (Jar jarTask : subproject.getTasks().withType(Jar.class)) {
             jarTask.getManifest()
                     .getAttributes()
-                    .put(SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
+                    .putIfAbsent(SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
                             GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
                                     new RecommendedProductDependencies(getServiceDependencies())));
         }
