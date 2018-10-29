@@ -66,7 +66,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_JERSEY_SUFFIX = "-jersey";
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n/src/main/resources/\n";
+    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
