@@ -23,18 +23,18 @@ import java.util.Set;
 
 public class ConjureProductDependenciesExtension {
 
-    public static final String EXTENSION_NAME = "productDependencies";
+    public static final String EXTENSION_NAME = "serviceDependencies";
 
-    private final Set<ProductDependency> productDependencies = new HashSet<>();
+    private final Set<ServiceDependency> productDependencies = new HashSet<>();
 
-    public final Set<ProductDependency> getProductDependencies() {
+    public final Set<ServiceDependency> getProductDependencies() {
         return productDependencies;
     }
 
-    public final void productDependency(@DelegatesTo(ProductDependency.class) Closure closure) {
-        ProductDependency productDependency = new ProductDependency();
-        closure.setDelegate(productDependency);
+    public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure closure) {
+        ServiceDependency serviceDependency = new ServiceDependency();
+        closure.setDelegate(serviceDependency);
         closure.call();
-        productDependencies.add(productDependency);
+        productDependencies.add(serviceDependency);
     }
 }

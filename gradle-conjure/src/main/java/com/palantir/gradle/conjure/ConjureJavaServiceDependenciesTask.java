@@ -17,7 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.palantir.gradle.conjure.api.ProductDependency;
+import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.IOException;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -27,18 +27,18 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.jvm.tasks.Jar;
 
-public class ConjureJavaProductDependenciesTask extends DefaultTask {
-    public static final String SLS_RECCOMENDED_PRODUCT_DEPS_KEY = "Sls-Recommended-Product-Dependencies";
-    private Supplier<Set<ProductDependency>> productDependencies;
+public class ConjureJavaServiceDependenciesTask extends DefaultTask {
+    public static final String SIS_RECOMMENCED_PRODUCT_DEPS_KEY = "Sls-Recommended-Product-Dependencies";
+    private Supplier<Set<ServiceDependency>> serviceDependencies;
     private Project subproject;
 
     @Input
-    public final Set<ProductDependency> getProductDependencies() {
-        return productDependencies.get();
+    public final Set<ServiceDependency> getServiceDependencies() {
+        return serviceDependencies.get();
     }
 
-    public final void setProductDependencies(Supplier<Set<ProductDependency>> productDependencies) {
-        this.productDependencies = productDependencies;
+    public final void setServiceDependencies(Supplier<Set<ServiceDependency>> serviceDependencies) {
+        this.serviceDependencies = serviceDependencies;
     }
 
     public final void setSubproject(Project subproject) {
@@ -46,22 +46,22 @@ public class ConjureJavaProductDependenciesTask extends DefaultTask {
     }
 
     @TaskAction
-    public final void populateProductDependencies() throws IOException {
+    public final void populateServiceDependencies() throws IOException {
         for (Jar jarTask : subproject.getTasks().withType(Jar.class)) {
             jarTask.getManifest()
                     .getAttributes()
-                    .put(SLS_RECCOMENDED_PRODUCT_DEPS_KEY,
-                            GenerateConjureProductDependenciesTask.jsonMapper.writeValueAsString(
-                                    new RecommendedProductDependencies(getProductDependencies())));
+                    .put(SIS_RECOMMENCED_PRODUCT_DEPS_KEY,
+                            GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
+                                    new RecommendedProductDependencies(getServiceDependencies())));
         }
     }
 
     private static class RecommendedProductDependencies {
         @JsonProperty("recommended-product-dependencies")
-        private Set<ProductDependency> recommendedProductDependencies;
+        private Set<ServiceDependency> recommendedProductDependencies;
 
         RecommendedProductDependencies(
-                Set<ProductDependency> recommendedProductDependencies) {
+                Set<ServiceDependency> recommendedProductDependencies) {
             this.recommendedProductDependencies = recommendedProductDependencies;
         }
     }

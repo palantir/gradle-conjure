@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Objects;
 
-public final class ProductDependency implements Serializable {
+public final class ServiceDependency implements Serializable {
 
     @JsonProperty("product-group")
     private String productGroup;
@@ -85,7 +85,7 @@ public final class ProductDependency implements Serializable {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ProductDependency that = (ProductDependency) obj;
+        ServiceDependency that = (ServiceDependency) obj;
         return Objects.equals(productGroup, that.productGroup)
                 && Objects.equals(productName, that.productName)
                 && Objects.equals(minimumVersion, that.minimumVersion)
