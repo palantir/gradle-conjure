@@ -56,17 +56,17 @@ To enable publishing of your API definition for external consumption, add the `c
 
 ### Tasks
 
-- **generateConjure** - Generates code for all API definitions in the `conjure` configuration
-- **generateTypeScript** - Generates TypeScript bindings for all remote Conjure dependencies
-- **generatePython** - Generates Python bindings for all remote Conjure dependencies
-- **generate\<Language\>** - Task rule which will generates bindings for \<Language>, where <Language> is the name of the generator to be used
+- **generateConjure** - Generates code for all Conjure dependencies 
+- **generateTypeScript** - Generates TypeScript bindings for all Conjure dependencies
+- **generatePython** - Generates Python bindings for all Conjure dependencies
+- **generate\<Language\>** - Task rule which will generates \<Language> bindings for all Conjure dependencies, where \<Language\> is the name of the generator to be used
 
 ### Configurations
 
 - **`conjure`** - Configuration for adding Conjure API dependencies
 - **`conjureGenerators`** - Configuration for adding generator dependencies
 
-`com.palantir.conjure-local` allows you to depend upon multiple Conjure APIs at once using the `conjure` extension.
+Using the `conjure` extension you can depend upon multiple Conjure APIs at once
 ```gradle
 dependencies {
     conjure 'com.company.product:some-api:1.0.0'
@@ -74,7 +74,7 @@ dependencies {
 }
 ```
 
-`conjureGenerators` allows you to use use any Conjure generator which conforms to [RFC 002][]
+Using the `conjureGenerators` extension allows you to use use any Conjure generator which conforms to [RFC 002][]
 
 ```diff+gradle
  dependencies {
