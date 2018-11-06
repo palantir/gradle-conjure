@@ -50,7 +50,7 @@ conjure {
 
 ### Service dependencies
 
-To help consumers correlate generated Conjure API artifacts with a real server that implements this API, gradle-conjure supports embedding optional 'service dependencies' in generated artifacts.
+To help consumers correlate generated Conjure API artifacts with a real server that implements this API, the `com.palantir.conjure` plugin supports embedding optional 'service dependencies' in generated artifacts.
 
 This information can be defined using the `serviceDependencies` extension on your API project. You must specify the 'group' and 'name' of the server that implements this API, along with a minimum, maximum and recommended version for the server.
 
