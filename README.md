@@ -48,6 +48,31 @@ conjure {
 }
 ```
 
+### Service dependencies
+
+To help consumers correlate generated Conjure API artifacts with a real server that implements this API, the `com.palantir.conjure` plugin supports embedding optional 'service dependencies' in generated artifacts. (Requires gradle-conjure 4.6.2+.)
+
+This information can be defined using the `serviceDependencies` extension on your API project. You must specify the 'group' and 'name' of the server that implements this API, along with a minimum, maximum and recommended version for the server.
+
+```gradle
+apply plugin: 'com.palantir.conjure'
+
+serviceDependencies {
+    serviceDependency {
+        productGroup = 'com.palantir.group'
+        productName = 'foo'
+        minimumVersion = "${project.version}"
+        maximumVersion = "${project.version.tokenize('.')[0]}.x.x"
+        recommendedVersion = "${project.version}"
+    }
+}
+```
+
+For conjure-typescript, this information is passed as an extra flag, `--productDependencies=your-project/build/service-dependencies.json`, which is used to embed information in the resultant package.json.
+
+For conjure-java, this information is directly embedded into the Jar for the `-jersey` and `-retrofit` projects.  It is stored as a manifest property, `Sls-Recommended-Product-Dependencies`, which can be detected by [sls-packaging](https://github.com/palantir/sls-packaging).
+
+
 ## com.palantir.conjure-publish
 To enable publishing of your API definition for external consumption, add the `com.palantir.conjure-publish` which applies `com.palantir.conjure` and also creates a new `"conjure"` publication.
 
@@ -56,7 +81,7 @@ To enable publishing of your API definition for external consumption, add the `c
 
 ### Tasks
 
-- **generateConjure** - Generates code for all Conjure dependencies 
+- **generateConjure** - Generates code for all Conjure dependencies
 - **generateTypeScript** - Generates TypeScript bindings for all Conjure dependencies
 - **generatePython** - Generates Python bindings for all Conjure dependencies
 - **generate\<language\>** - Task rule which will generates \<language> bindings for all Conjure dependencies, where \<language\> is the name of the generator to be used
@@ -80,7 +105,7 @@ Using the `conjureGenerators` extension allows you to use use any Conjure genera
  dependencies {
      conjure 'com.company.product:some-api:1.0.0'
      conjure 'com.company.other.product:other-api:1.0.0'
-    
+
 +    conjureGenerators 'com.palantir.conjure.postman:conjure-postman:0.1.0'
  }
 ```
