@@ -31,6 +31,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -56,10 +57,11 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String CONJURE_JAVA = "conjureJava";
 
     // executable distributions
-    static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
-    static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
-    static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
-    static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
+    private static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure:4.3.0";
+    private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java:2.4.0";
+    private static final String CONJURE_TYPESCRIPT_BINARY
+            = "com.palantir.conjure.typescript:conjure-typescript:3.3.0@tgz";
+    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python:3.9.1";
 
     // java project constants
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
@@ -126,7 +128,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
             Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
-            project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
+            conjureJavaConfig.defaultDependencies(
+                    deps -> deps.add(project.getDependencies().create(CONJURE_JAVA_BINARY)));
             ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
@@ -189,8 +192,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
+
+                ConfigurationContainer configurations = subproj.getConfigurations();
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api:2.0.1");
             });
         }
     }
@@ -317,7 +322,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
                 File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
                 File srcDirectory = subproj.file("src");
-                project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
+                conjureTypeScriptConfig.defaultDependencies(
+                        deps -> deps.add(project.getDependencies().create(CONJURE_TYPESCRIPT_BINARY)));
 
                 ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
                         project,
@@ -387,7 +393,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File conjurePythonDir = new File(project.getBuildDir(), CONJURE_PYTHON);
                 File buildDir = new File(project.getBuildDir(), "python");
                 File distDir = new File(buildDir, "dist");
-                project.getDependencies().add(CONJURE_PYTHON, CONJURE_PYTHON_BINARY);
+                conjurePythonConfig.defaultDependencies(
+                        deps -> deps.add(project.getDependencies().create(CONJURE_PYTHON_BINARY)));
                 ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
                         project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
                 Task compileConjurePython = project.getTasks().create("compileConjurePython",
@@ -463,7 +470,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static Task createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
         Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
         File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
-        project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
+        conjureCompilerConfig.defaultDependencies(
+                deps -> deps.add(project.getDependencies().create(CONJURE_COMPILER_BINARY)));
         ExtractExecutableTask extractCompilerTask = ExtractExecutableTask.createExtractTask(
                 project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
 
