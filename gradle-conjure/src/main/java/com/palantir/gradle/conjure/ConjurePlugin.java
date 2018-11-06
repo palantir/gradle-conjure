@@ -194,7 +194,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 ConfigurationContainer configurations = subproj.getConfigurations();
                 subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api:2.0.1");
+                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
         }
     }
