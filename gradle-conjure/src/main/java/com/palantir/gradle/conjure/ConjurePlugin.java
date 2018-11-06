@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
@@ -55,10 +56,15 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
     static final String CONJURE_PYTHON = "conjurePython";
     static final String CONJURE_JAVA = "conjureJava";
+    static final String CONJURE_JAVA_LIB = "conjureJavaLib";
+    static final String CONJURE_JAVA_LIB_COMPILE_ONLY = "conjureJavaLibCompileOnly";
+
+    private static final String CONJURE_JAVA_DEFAULT_VERSION = "2.4.0";
 
     // executable distributions
     private static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure:4.3.0";
-    private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java:2.4.0";
+    private static final String CONJURE_JAVA_BINARY =
+            "com.palantir.conjure.java:conjure-java:" + CONJURE_JAVA_DEFAULT_VERSION;
     static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript:3.3.0@tgz";
     static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python:3.9.1";
 
@@ -68,6 +74,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+
+    private static final String JAX_RS_API_DEP = "javax.ws.rs:javax.ws.rs-api:2.0.1";
+    private static final String JAVAX_ANNOTATION_API_DEP = "javax.annotation:javax.annotation-api:1.3.2";
+    private static final String CONJURE_JAVA_LIB_DEP =
+            "com.palantir.conjure.java:conjure-lib:" + CONJURE_JAVA_DEFAULT_VERSION;
+    private static final String RETROFIT_2_DEP = "com.squareup.retrofit2:retrofit:2.1.0";
+
 
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -192,9 +205,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
 
-                ConfigurationContainer configurations = subproj.getConfigurations();
-                subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                configureJavaSubprojectDependencies(subproj);
             });
         }
     }
@@ -246,9 +257,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         productDependencyTask));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
+                configureJavaSubprojectDependencies(subproj, RETROFIT_2_DEP);
+
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
         }
     }
@@ -301,11 +312,35 @@ public final class ConjurePlugin implements Plugin<Project> {
                         productDependencyTask));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+
+                configureJavaSubprojectDependencies(subproj, JAX_RS_API_DEP);
             });
         }
+    }
+
+    /**
+     * Configures conjure-java-related default dependencies on the given project, in their own configurations, and
+     * makes {@code compile} and {@code compileOnly} extend those custom configurations.
+     * <p>
+     * This is in order to support nebula overriding these dependencies, while also providing sensible default versions.
+     *
+     * @param extraDependencies  any extra dependencies we want to add to {@code compile}
+     */
+    private static void configureJavaSubprojectDependencies(Project subproj, String... extraDependencies) {
+        ConfigurationContainer configurations = subproj.getConfigurations();
+        Configuration conjureJavaLibConf = configurations.create(CONJURE_JAVA_LIB, conf -> {
+            conf.defaultDependencies(deps -> {
+                deps.add(subproj.getDependencies().create(CONJURE_JAVA_LIB_DEP));
+                Stream.of(extraDependencies).map(subproj.getDependencies()::create).forEach(deps::add);
+            });
+        });
+        configurations.getByName("compile", conf -> conf.extendsFrom(conjureJavaLibConf));
+        Configuration conjureJavaLibCompileOnlyConf = configurations.create(
+                CONJURE_JAVA_LIB_COMPILE_ONLY, conf -> {
+                    conf.defaultDependencies(
+                            deps -> deps.add(subproj.getDependencies().create(JAVAX_ANNOTATION_API_DEP)));
+                });
+        configurations.getByName("compileOnly", conf -> conf.extendsFrom(conjureJavaLibCompileOnlyConf));
     }
 
     private static void setupConjureTypescriptProject(
