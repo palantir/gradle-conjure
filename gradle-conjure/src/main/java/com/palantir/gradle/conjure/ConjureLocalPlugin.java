@@ -146,7 +146,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_PYTHON);
 
         File conjurePythonDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_PYTHON);
-        project.getDependencies().add(ConjurePlugin.CONJURE_PYTHON, ConjurePlugin.CONJURE_PYTHON_BINARY);
+        conjurePythonConfig.defaultDependencies(
+                deps -> deps.add(project.getDependencies().create(ConjurePlugin.CONJURE_PYTHON_BINARY)));
 
         ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
                 project,
@@ -180,8 +181,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                 .maybeCreate(ConjurePlugin.CONJURE_TYPESCRIPT);
         File conjureTypescriptDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_TYPESCRIPT);
         File srcDirectory = subproj.file("src");
-        project.getDependencies().add(
-                ConjurePlugin.CONJURE_TYPESCRIPT, ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
+        conjureTypeScriptConfig.defaultDependencies(
+                deps -> deps.add(project.getDependencies().create(ConjurePlugin.CONJURE_TYPESCRIPT_BINARY)));
 
         ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
                 project,

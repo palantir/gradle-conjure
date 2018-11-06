@@ -59,9 +59,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     // executable distributions
     private static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure:4.3.0";
     private static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java:2.4.0";
-    private static final String CONJURE_TYPESCRIPT_BINARY
-            = "com.palantir.conjure.typescript:conjure-typescript:3.3.0@tgz";
-    private static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python:3.9.1";
+    static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript:3.3.0@tgz";
+    static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python:3.9.1";
 
     // java project constants
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
