@@ -68,6 +68,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
+    static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
+
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
     @Inject
@@ -129,6 +131,14 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
             ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+
+            // Set up task to ensure that conjure-java and conjure-lib versions are identical.
+            Task checkVersions = project
+                    .getTasks()
+                    .create("checkConjureJavaVersions",
+                            CheckConjureJavaVersions.class,
+                            task -> task.setJavaProjectSuffixes(javaProjectSuffixes));
+            extractJavaTask.dependsOn(checkVersions);
 
             setupConjureObjectsProject(
                     project,
