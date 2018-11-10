@@ -26,11 +26,11 @@ import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.tasks.TaskAction;
 
-public final class CheckConjureJavaVersions extends DefaultTask {
+public class CheckConjureJavaVersions extends DefaultTask {
     private Set<String> javaProjectSuffixes;
 
     @TaskAction
-    public void run() {
+    public final void run() {
         Preconditions.checkNotNull(javaProjectSuffixes, "Plugin error - didn't set javaProjectSuffixes");
         // 1. Figure out what version of conjure-java we resolved
         String conjureJavaVersion = findResolvedVersionOf(
@@ -65,7 +65,7 @@ public final class CheckConjureJavaVersions extends DefaultTask {
         return component.getModuleVersion().getVersion();
     }
 
-    public void setJavaProjectSuffixes(Set<String> javaProjectSuffixes) {
+    final void setJavaProjectSuffixes(Set<String> javaProjectSuffixes) {
         this.javaProjectSuffixes = javaProjectSuffixes;
     }
 }
