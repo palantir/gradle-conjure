@@ -257,8 +257,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                         productDependencyTask));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
-                configureJavaSubprojectDependencies(subproj, RETROFIT_2_DEP);
 
+                configureJavaSubprojectDependencies(subproj, RETROFIT_2_DEP);
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
             });
         }
@@ -314,6 +314,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
 
                 configureJavaSubprojectDependencies(subproj, JAX_RS_API_DEP);
+                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
             });
         }
     }
