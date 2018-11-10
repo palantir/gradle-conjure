@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.MoreCollectors;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -56,13 +57,17 @@ public class CheckConjureJavaVersions extends DefaultTask {
     private static String findResolvedVersionOf(Project project, String configuration, String moduleId) {
         ResolutionResult conjureJavaResolutionResult =
                 project.getConfigurations().getByName(configuration).getIncoming().getResolutionResult();
-        ResolvedComponentResult component = conjureJavaResolutionResult
+        Optional<ResolvedComponentResult> component = conjureJavaResolutionResult
                 .getAllComponents()
                 .stream()
                 .filter(c -> c.getModuleVersion() != null
                         && moduleId.equals(c.getModuleVersion().getModule().toString()))
-                .collect(MoreCollectors.onlyElement());
-        return component.getModuleVersion().getVersion();
+                .collect(MoreCollectors.toOptional());
+        return component
+                .orElseThrow(() ->
+                        new RuntimeException(String.format("Expected to find %s in %s", moduleId, configuration)))
+                .getModuleVersion()
+                .getVersion();
     }
 
     final void setJavaProjectSuffixes(Set<String> javaProjectSuffixes) {
