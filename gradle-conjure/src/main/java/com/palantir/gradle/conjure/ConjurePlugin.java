@@ -65,8 +65,12 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
     static final String JAVA_JERSEY_SUFFIX = "-jersey";
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
+    static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
+            JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+
+    static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
 
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
@@ -129,6 +133,9 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
             ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+
+            Task checkVersions = project.getTasks().create("checkConjureJavaVersions", CheckConjureJavaVersions.class);
+            extractJavaTask.dependsOn(checkVersions);
 
             setupConjureObjectsProject(
                     project,
