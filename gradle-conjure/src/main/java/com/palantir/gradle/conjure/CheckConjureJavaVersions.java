@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.MoreCollectors;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.result.ResolutionResult;
@@ -28,17 +27,20 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.tasks.TaskAction;
 
 public class CheckConjureJavaVersions extends DefaultTask {
-    private Set<String> javaProjectSuffixes;
+
+    public CheckConjureJavaVersions() {
+        setGroup(ConjurePlugin.TASK_GROUP);
+        setDescription("Ensures that conjure-java and conjure-lib versions are identical");
+    }
 
     @TaskAction
     public final void run() {
-        Preconditions.checkNotNull(javaProjectSuffixes, "Plugin error - didn't set javaProjectSuffixes");
         // 1. Figure out what version of conjure-java we resolved
         String conjureJavaVersion = findResolvedVersionOf(
                 getProject(), ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
 
         // 2. Ensure in each subproject, the version of conjure-lib in `compile` is the same.
-        javaProjectSuffixes.stream()
+        ConjurePlugin.JAVA_PROJECT_SUFFIXES.stream()
                 .map(suffix -> getProject().findProject(getProject().getName() + suffix))
                 .filter(Objects::nonNull)
                 .forEach(subproj -> {
@@ -68,9 +70,5 @@ public class CheckConjureJavaVersions extends DefaultTask {
                         new RuntimeException(String.format("Expected to find %s in %s", moduleId, configuration)))
                 .getModuleVersion()
                 .getVersion();
-    }
-
-    final void setJavaProjectSuffixes(Set<String> javaProjectSuffixes) {
-        this.javaProjectSuffixes = javaProjectSuffixes;
     }
 }
