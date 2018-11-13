@@ -35,7 +35,10 @@ dependencies {
 }
 
 gradlePlugin {
-    automatedPublishing = false
+    // NOTE: this MUST be true for `com.gradle.plugin-publish` to set up the pluginMaven publication.
+    // If we set this to false, that code path will lead to introspecting dependencies off the configuration, and
+    // break because they have no versions (they get recommended later by nebula).
+    automatedPublishing = true
 }
 
 idea {
@@ -64,8 +67,10 @@ pluginBundle {
     }
 }
 
-publishPlugins.onlyIf {
-    versionDetails().isCleanTag
+tasks.publishPlugins {
+    project.ext.'gradle.publish.key' = System.env.GRADLE_KEY
+    project.ext.'gradle.publish.secret' = System.env.GRADLE_SECRET
+    onlyIf { versionDetails().isCleanTag }
 }
 
 tasks.publish.dependsOn publishPlugins
