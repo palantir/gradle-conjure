@@ -39,26 +39,6 @@ gradlePlugin {
     // If we set this to false, that code path will lead to introspecting dependencies off the configuration, and
     // break because they have no versions (they get recommended later by nebula).
     automatedPublishing = true
-
-    plugins {
-        gradleConjurePlugin {
-            id = 'com.palantir.conjure'
-            displayName = 'Palantir Gradle Conjure'
-            implementationClass = 'com.palantir.gradle.conjure.ConjurePlugin'
-        }
-
-        gradleConjureLocalPlugin {
-            id = 'com.palantir.conjure-local'
-            displayName = 'Palantir Gradle Conjure (local code-gen)'
-            implementationClass = 'com.palantir.gradle.conjure.ConjureLocalPlugin'
-        }
-        
-        gradleConjurePublishPlugin {
-            id = 'com.palantir.conjure-publish'
-            displayName = 'Palantir Gradle Conjure publishing'
-            implementationClass = 'com.palantir.gradle.conjure.ConjurePublishPlugin'
-        }
-    }
 }
 
 idea {
@@ -78,12 +58,29 @@ pluginBundle {
     vcsUrl = 'https://github.com/palantir/gradle-conjure'
     description = 'Gradle Conjure is a build tool which allows defining and generating code for Conjure APIs in Java projects.'
     tags = ['conjure', 'java', 'typescript', 'python']
+
+    plugins {
+        gradleConjurePlugin {
+            id = 'com.palantir.conjure'
+            displayName = 'Palantir Gradle Conjure'
+        }
+
+        gradleConjureLocalPlugin {
+            id = 'com.palantir.conjure-local'
+            displayName = 'Palantir Gradle Conjure (local code-gen)'
+        }
+
+        gradleConjurePublishPlugin {
+            id = 'com.palantir.conjure-publish'
+            displayName = 'Palantir Gradle Conjure publishing'
+        }
+    }
 }
 
 tasks.publishPlugins {
     project.ext.'gradle.publish.key' = System.env.GRADLE_KEY
     project.ext.'gradle.publish.secret' = System.env.GRADLE_SECRET
-    onlyIf { versionDetails().isCleanTag }
+//    onlyIf { versionDetails().isCleanTag }
 }
 
 tasks.publish.dependsOn publishPlugins
