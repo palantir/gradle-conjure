@@ -55,24 +55,28 @@ tasks.withType(JavaCompile).configureEach {
 
 pluginBundle {
     website = 'https://github.com/palantir/gradle-conjure'
-    vcsUrl = 'https://github.com/palantir/gradle-conjure'
-    description = 'Gradle Conjure is a build tool which allows defining and generating code for Conjure APIs in Java projects.'
-    tags = ['conjure', 'java', 'typescript', 'python']
+    vcsUrl = 'https://github.com/palantir/gradle-conjure.git'
 
     plugins {
         gradleConjurePlugin {
             id = 'com.palantir.conjure'
             displayName = 'Palantir Gradle Conjure'
+            description = 'Gradle Conjure is a build tool which allows defining and generating code for Conjure APIs in Java projects.'
+            tags = ['conjure', 'java', 'typescript', 'python', 'codegen']
         }
 
         gradleConjureLocalPlugin {
             id = 'com.palantir.conjure-local'
             displayName = 'Palantir Gradle Conjure (local code-gen)'
+            description = 'Invokes Conjure generators to emit code from published Conjure IR files.'
+            tags = ['conjure', 'java', 'typescript', 'python', 'codegen']
         }
 
         gradleConjurePublishPlugin {
             id = 'com.palantir.conjure-publish'
             displayName = 'Palantir Gradle Conjure publishing'
+            description = 'Creates a maven publication of the Conjure IR produced by `com.palantir.conjure`.'
+            tags = ['conjure', 'publish']
         }
     }
 }
