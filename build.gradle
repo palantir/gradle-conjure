@@ -29,13 +29,11 @@ buildscript {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:7.2.3'
         classpath 'com.palantir.baseline:gradle-baseline-java:0.34.0'
-        classpath 'com.palantir.configurationresolver:gradle-configuration-resolver-plugin:0.3.0'
         classpath 'com.palantir.gradle.gitversion:gradle-git-version:0.11.0'
-        classpath 'gradle.plugin.org.inferred:gradle-processors:1.2.18'
+        classpath 'gradle.plugin.org.inferred:gradle-processors:2.1.0'
     }
 }
 
-apply plugin: 'java'
 apply plugin: 'com.palantir.baseline'
 apply plugin: 'com.palantir.git-version'
 
@@ -49,7 +47,6 @@ allprojects {
             url 'https://dl.bintray.com/palantir/releases/'
         }
     }
-    apply plugin: 'com.palantir.configuration-resolver'
 
     configurations.all {
         resolutionStrategy {
