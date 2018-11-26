@@ -120,7 +120,7 @@ For each generator specified referenced by the configuration you must also add a
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
 
-[getting started guide]: https://palantir.github.io/conjure/#/?id=conjure
+[getting started guide]: https://palantir.github.io/conjure/#/docs/getting_started
 [RFC 002]: https://palantir.github.io/conjure/#/docs/rfc/002-contract-for-conjure-generators
 [Conjure Source Files Specification]: https://palantir.github.io/conjure/#/docs/spec/conjure_definitions
 [Conjure-Java]: https://github.com/palantir/conjure-java
