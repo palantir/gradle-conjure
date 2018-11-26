@@ -69,7 +69,7 @@ jobs:
       - image: raviqqe/liche:0.1.1
     steps:
       - checkout
-      - run: liche -d . -r . -v
+      - run: /liche -d . -r . -v
 
 workflows:
   version: 2
