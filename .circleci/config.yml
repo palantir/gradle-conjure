@@ -65,8 +65,7 @@ jobs:
       - store_artifacts: { path: ~/artifacts }
 
   markdown:
-    docker:
-      - image: raviqqe/liche:0.1.1
+    docker: [{ image: 'raviqqe/liche:0.1.1' }]
     steps:
       - checkout
       - run: /liche -d . -r . -v
