@@ -39,7 +39,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
                resolutionStrategy {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
-                   force 'com.palantir.conjure.python:conjure-python:3.5.0'
+                   force 'com.palantir.conjure.python:conjure-python:3.9.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
                    force 'com.palantir.conjure.postman:conjure-postman:0.1.0'
                }
@@ -69,7 +69,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         result.wasExecuted(":generatePython")
 
         fileExists('typescript/src/conjure-api/index.ts')
-        fileExists('python/python/conjure-api/foo/__init__.py')
+        fileExists('python/python/conjure-api/conjure_spec/__init__.py')
     }
 
     def "custom generator throws if generator missing"() {

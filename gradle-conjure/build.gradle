@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import net.ltgt.gradle.errorprone.CheckSeverity
+
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
@@ -21,6 +23,8 @@ apply from: "$rootDir/gradle/publish-jar.gradle"
 dependencies {
     compile project(':gradle-conjure-api')
     compile 'com.google.guava:guava'
+    compile 'com.palantir.sls.versions:sls-versions'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
 
     testCompile gradleTestKit()
     testCompile 'com.netflix.nebula:nebula-test'
