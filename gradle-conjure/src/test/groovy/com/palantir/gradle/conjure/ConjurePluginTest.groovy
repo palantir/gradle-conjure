@@ -195,10 +195,12 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:cleanCompileConjureJersey')
         result.wasExecuted(':api:cleanCompileConjureObjects')
         result.wasExecuted(':api:cleanCompileConjureRetrofit')
+        result.wasExecuted(':api:cleanCompileConjureUndertow')
 
         !fileExists('api/api-jersey/src/generated/java')
         !fileExists('api/api-objects/src/generated/java')
         !fileExists('api/api-retrofit/src/generated/java')
+        !fileExists('api/api-undertow/src/generated/java')
     }
 
     def 'compileConjure creates build/conjure for root project'() {
@@ -462,6 +464,21 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
+    def 'featureFlag UndertowServicePrefix can be enabled'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                undertowServicePrefixes = true
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureUndertow')
+
+        then:
+        fileExists('api/api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java')
+    }
 
     def 'typescript extension is respected'() {
          file('api/build.gradle') << '''
