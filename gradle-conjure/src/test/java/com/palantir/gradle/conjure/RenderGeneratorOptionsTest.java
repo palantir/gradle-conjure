@@ -54,6 +54,7 @@ public class RenderGeneratorOptionsTest {
     public void testNullToString() {
         generatorOptions.setProperty("foo", new Object() {
             @Override
+            @SuppressWarnings("ToStringReturnsNull") // we're intentionally testing bad behaviour here
             public String toString() {
                 return null;
             }
