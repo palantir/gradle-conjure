@@ -30,6 +30,7 @@ class ConjurePluginTest extends IntegrationSpec {
         include 'api:api-jersey'
         include 'api:api-retrofit'
         include 'api:api-typescript'
+        include 'api:api-undertow'
         include 'server'
         '''.stripIndent()
 
@@ -78,7 +79,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
         com.palantir.conjure.typescript:conjure-typescript = 3.0.0
-        com.palantir.conjure.java:* = 1.0.0
+        com.palantir.conjure.java:* = 2.6.0
         com.palantir.conjure:conjure = 4.0.0
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.annotation:javax.annotation-api = 1.3.2
@@ -118,6 +119,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
+        result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:compileIr')
 
         // java
@@ -146,6 +148,8 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         result.wasExecuted(':api:api-jersey:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(':api:api-undertow:compileJava')
+        result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:compileConjureObjects')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
@@ -191,10 +195,12 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:cleanCompileConjureJersey')
         result.wasExecuted(':api:cleanCompileConjureObjects')
         result.wasExecuted(':api:cleanCompileConjureRetrofit')
+        result.wasExecuted(':api:cleanCompileConjureUndertow')
 
         !fileExists('api/api-jersey/src/generated/java')
         !fileExists('api/api-objects/src/generated/java')
         !fileExists('api/api-retrofit/src/generated/java')
+        !fileExists('api/api-undertow/src/generated/java')
     }
 
     def 'compileConjure creates build/conjure for root project'() {
@@ -226,10 +232,12 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasUpToDate(':api:api-jersey:gitignoreConjureJersey')
         result.wasUpToDate(':api:api-retrofit:gitignoreConjureRetrofit')
         result.wasUpToDate(':api:api-typescript:gitignoreConjureTypeScript')
+        result.wasUpToDate(':api:api-undertow:gitignoreConjureUndertow')
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')
         result.wasUpToDate(':api:compileConjureTypeScript')
+        result.wasUpToDate(':api:compileConjureUndertow')
         result.wasUpToDate(':api:copyConjureSourcesIntoBuild')
         result.wasUpToDate(':api:compileIr')
     }
@@ -264,6 +272,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
+        result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:copyConjureSourcesIntoBuild')
     }
 
@@ -455,6 +464,21 @@ class ConjurePluginTest extends IntegrationSpec {
         file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
     }
 
+    def 'featureFlag UndertowServicePrefix can be enabled'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                undertowServicePrefixes = true
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjureUndertow')
+
+        then:
+        fileExists('api/api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java')
+    }
 
     def 'typescript extension is respected'() {
          file('api/build.gradle') << '''

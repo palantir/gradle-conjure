@@ -65,6 +65,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
     static final String JAVA_JERSEY_SUFFIX = "-jersey";
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
+    static final String JAVA_UNDERTOW_SUFFIX = "-undertow";
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
             JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
@@ -151,6 +152,13 @@ public final class ConjurePlugin implements Plugin<Project> {
                     productDependencyTask,
                     extractJavaTask);
             setupConjureJerseyProject(
+                    project,
+                    optionsSupplier,
+                    compileConjure,
+                    compileIrTask,
+                    productDependencyTask,
+                    extractJavaTask);
+            setupConjureUndertowProject(
                     project,
                     optionsSupplier,
                     compileConjure,
@@ -307,6 +315,60 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+            });
+        }
+    }
+
+    private static void setupConjureUndertowProject(
+            Project project,
+            Supplier<GeneratorOptions> optionsSupplier,
+            Task compileConjure,
+            Task compileIrTask,
+            GenerateConjureServiceDependenciesTask productDependencyTask,
+            ExtractExecutableTask extractJavaTask) {
+
+        String undertowProjectName = project.getName() + JAVA_UNDERTOW_SUFFIX;
+        if (project.findProject(undertowProjectName) != null) {
+            String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
+            if (project.findProject(objectsProjectName) == null) {
+                throw new IllegalStateException(
+                        String.format("Cannot enable '%s' without '%s'", undertowProjectName, objectsProjectName));
+            }
+
+            project.project(undertowProjectName, subproj -> {
+                subproj.getPluginManager().apply(JavaPlugin.class);
+                addGeneratedToMainSourceSet(subproj);
+                project.getTasks().create("compileConjureUndertow", ConjureGeneratorTask.class, task -> {
+                    task.setDescription(
+                            "Generates Undertow server interfaces and handlers from your Conjure definitions.");
+                    task.setGroup(TASK_GROUP);
+                    task.setExecutablePath(extractJavaTask::getExecutable);
+                    task.setOptions(() -> optionsSupplier.get().addFlag("undertow"));
+                    task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                    task.setSource(compileIrTask);
+
+                    compileConjure.dependsOn(task);
+                    subproj.getTasks().getByName("compileJava").dependsOn(task);
+                    applyDependencyForIdeTasks(subproj, task);
+                    task.dependsOn(
+                            createWriteGitignoreTask(
+                                    subproj,
+                                    "gitignoreConjureUndertow",
+                                    subproj.getProjectDir(),
+                                    JAVA_GITIGNORE_CONTENTS));
+                    task.dependsOn(extractJavaTask);
+                    task.dependsOn(productDependencyTask);
+                });
+
+                compileConjure.dependsOn(createJavaProductDependenciesTask(
+                        project,
+                        subproj,
+                        "conjureUndertowProductDependency",
+                        productDependencyTask));
+                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
+                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureUndertow"));
+                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-undertow-lib");
             });
         }
     }
