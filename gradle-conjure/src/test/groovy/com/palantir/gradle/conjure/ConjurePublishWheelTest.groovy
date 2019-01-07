@@ -114,19 +114,15 @@ class ConjurePublishWheelTest extends IntegrationSpec {
             environment "TWINE_REPOSITORY_URL", "http://localhost:8888"
             environment "TWINE_USERNAME", "palantir"
             environment "TWINE_PASSWORD", "palantir"
-            ignoreExitValue true
         }
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
-        println "<=====>"
-        println result.getStandardError
-        println result.getStandardOutput
+        ExecutionResult result = runTasksSuccessfully('publishWheel')
         then:
-        result.wasExecuted('api:publishWheel')
         result.wasExecuted('api:buildWheel')
         result.wasExecuted('api:compileConjurePython')
+        result.wasExecuted('api:publishWheel')
 
         cleanup:
         server.shutdown()
