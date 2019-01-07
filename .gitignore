@@ -10,6 +10,9 @@
 bin
 .factorypath
 
+# Linux
+*~
+
 # SLSv2
 !*/service/bin
 **/var/log

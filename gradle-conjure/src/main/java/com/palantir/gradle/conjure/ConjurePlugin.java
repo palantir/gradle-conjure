@@ -473,7 +473,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     "/python/\n"));
                             task.dependsOn(extractConjurePythonTask);
                         });
-                project.getTasks().create("buildWheel", Exec.class, task -> {
+                Task buildWheelPython = project.getTasks().create("buildWheel", Exec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
@@ -485,6 +485,15 @@ public final class ConjurePlugin implements Plugin<Project> {
                     Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                     cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
                 });
+                Task publishWheel = project.getTasks().create("publishWheel", Exec.class, task -> {
+                    task.setDescription("Runs `python setup.py upload` to publish a python wheel "
+                            + "generated from your Conjure definitions.");
+                    task.setGroup(TASK_GROUP);
+                    task.commandLine("twine", "upload", project.getBuildDir().toString() + "/python/dist/*.whl");
+                    task.workingDir(subproj.file("python"));
+                    task.dependsOn(buildWheelPython);
+                });
+                subproj.afterEvaluate(p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishWheel));
             });
         }
     }
