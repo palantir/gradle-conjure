@@ -22,10 +22,13 @@ import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.gradle.api.logging.LogLevel
 
 class ConjurePublishWheelTest extends IntegrationSpec {
 
     def setup() {
+        fork = true
+        logLevel = LogLevel.DEBUG
         createFile('settings.gradle') << '''
         include 'api'
         include 'api:api-python'
@@ -117,8 +120,8 @@ class ConjurePublishWheelTest extends IntegrationSpec {
         }
         """.stripIndent()
 
-        when:
-        ExecutionResult result = runTasksSuccessfully('publishWheel')
+        when: //ExecutionResult result = runTasksSuccessfully('publish')
+        ExecutionResult result = runTasksWithFailure('publish')
         then:
         result.wasExecuted('api:buildWheel')
         result.wasExecuted('api:compileConjurePython')
