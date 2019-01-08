@@ -19,6 +19,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install python-setuptools python-pip
       - run: sudo pip install twine
+      - run: twine -h
       - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --max-workers=8 --profile build
       - save_cache:
           key: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}'
@@ -57,6 +58,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install python-setuptools python-pip
       - run: sudo pip install twine
+      - run: twine -h
       - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --profile build
       - save_cache:
           key: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}'
