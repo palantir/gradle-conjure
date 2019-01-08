@@ -18,7 +18,7 @@ jobs:
       - restore_cache: { key: 'gradle-cache-{{ checksum "versions.props" }}-{{ checksum "build.gradle" }}' }
       - run: sudo apt-get update
       - run: sudo apt-get install twine python-setuptools python-pip
-      - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --max-workers=8 --profile build --info
+      - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --max-workers=8 --profile build --debug
       - save_cache:
           key: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}'
           paths: [ ~/.gradle/wrapper ]
@@ -55,7 +55,7 @@ jobs:
       - restore_cache: { key: 'gradle-cache-{{ checksum "versions.props" }}-{{ checksum "build.gradle" }}' }
       - run: sudo apt-get update
       - run: sudo apt-get install twine python-setuptools python-pip
-      - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --profile build --info
+      - run: ./gradlew --no-daemon --parallel --stacktrace  --continue --profile build --debug
       - save_cache:
           key: 'gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}'
           paths: [ ~/.gradle/wrapper ]
