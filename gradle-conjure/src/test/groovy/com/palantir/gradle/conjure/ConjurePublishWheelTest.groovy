@@ -120,8 +120,8 @@ class ConjurePublishWheelTest extends IntegrationSpec {
         }
         """.stripIndent()
 
-        when: //ExecutionResult result = runTasksSuccessfully('publish')
-        ExecutionResult result = runTasksWithFailure('publish')
+        when: //        ExecutionResult result = runTasksWithFailure('publish')
+        ExecutionResult result = runTasksSuccessfully('publish')
         then:
         result.wasExecuted('api:buildWheel')
         result.wasExecuted('api:compileConjurePython')
