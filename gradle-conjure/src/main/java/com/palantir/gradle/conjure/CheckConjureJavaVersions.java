@@ -25,6 +25,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.VersionNumber;
 
 public class CheckConjureJavaVersions extends DefaultTask {
 
@@ -36,27 +37,31 @@ public class CheckConjureJavaVersions extends DefaultTask {
     @TaskAction
     public final void run() {
         // 1. Figure out what version of conjure-java we resolved
-        String conjureJavaVersion = findResolvedVersionOf(
+        VersionNumber conjureJavaVersion = findResolvedVersionOf(
                 getProject(), ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
+        VersionNumber conjureJavaNextMajor = VersionNumber.version(conjureJavaVersion.getMajor() + 1);
 
         // 2. Ensure in each subproject, the version of conjure-lib in `compile` is the same.
         ConjurePlugin.JAVA_PROJECT_SUFFIXES.stream()
                 .map(suffix -> getProject().findProject(getProject().getName() + suffix))
                 .filter(Objects::nonNull)
                 .forEach(subproj -> {
-                    String conjureJavaLibVersion =
+                    VersionNumber conjureJavaLibVersion =
                             findResolvedVersionOf(
                                     subproj, "compile", ConjurePlugin.CONJURE_JAVA_LIB_DEP);
-                    Preconditions.checkState(conjureJavaLibVersion.equals(conjureJavaVersion),
-                            "conjure-java generator and lib should have the same version but found:\n"
+                    boolean compatible = conjureJavaLibVersion.compareTo(conjureJavaVersion) >= 0
+                            && conjureJavaLibVersion.compareTo(conjureJavaNextMajor) < 0;
+                    Preconditions.checkState(
+                            compatible,
+                            "conjure-lib should be at least as new as the generator "
+                                    + "and within the same major version but found:\n"
                                     + "%s -> %s\n%s -> %s",
                             ConjurePlugin.CONJURE_JAVA_BINARY, conjureJavaVersion,
                             ConjurePlugin.CONJURE_JAVA_LIB_DEP, conjureJavaLibVersion);
-
                 });
     }
 
-    private static String findResolvedVersionOf(Project project, String configuration, String moduleId) {
+    private static VersionNumber findResolvedVersionOf(Project project, String configuration, String moduleId) {
         ResolutionResult conjureJavaResolutionResult =
                 project.getConfigurations().getByName(configuration).getIncoming().getResolutionResult();
         Optional<ResolvedComponentResult> component = conjureJavaResolutionResult
@@ -65,10 +70,11 @@ public class CheckConjureJavaVersions extends DefaultTask {
                 .filter(c -> c.getModuleVersion() != null
                         && moduleId.equals(c.getModuleVersion().getModule().toString()))
                 .collect(MoreCollectors.toOptional());
-        return component
-                .orElseThrow(() ->
-                        new RuntimeException(String.format("Expected to find %s in %s", moduleId, configuration)))
+        String version = component
+                .orElseThrow(() -> new RuntimeException(String.format("Expected to find %s in %s",
+                        moduleId, configuration)))
                 .getModuleVersion()
                 .getVersion();
+        return VersionNumber.parse(version);
     }
 }
