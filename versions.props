@@ -12,5 +12,5 @@ org.spockframework:* = 1.2-groovy-2.4
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
-com.squareup.okhttp3:okhttp = 3.13.0
+com.squareup.okhttp3:okhttp = 3.13.1
 org.objenesis:objenesis = 3.0.1
