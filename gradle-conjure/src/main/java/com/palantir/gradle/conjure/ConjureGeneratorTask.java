@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
@@ -35,8 +37,13 @@ public class ConjureGeneratorTask extends SourceTask {
 
     public ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
-        // main task
-        doLast(task -> this.compileFiles());
+        // main task. Intentionally not using a lambda because this breaks Gradle caching
+        doLast(new Action<Task>() {
+            @Override
+            public void execute(Task task) {
+                compileFiles();
+            }
+        });
     }
 
     public final void setOutputDirectory(File outputDirectory) {
