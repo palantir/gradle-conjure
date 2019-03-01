@@ -24,14 +24,19 @@ import java.util.Set;
 import org.gradle.api.Project;
 import org.gradle.jvm.tasks.Jar;
 
-public final class ConjureJavaServiceDependencies {
+final class ConjureJavaServiceDependencies {
     public static final String SLS_RECOMMENDED_PRODUCT_DEPENDENCIES = "Sls-Recommended-Product-Dependencies";
 
     private ConjureJavaServiceDependencies() {}
 
+    /*
+     * We directly configure the Jar task instead of using the generated product-dependencies.json since we use gradle
+     * to produce Jars which the Java generator is not aware of.
+     */
     static void configureJavaServiceDependencies(
             Project project, ConjureProductDependenciesExtension productDependencyExt)  {
 
+        // HACKHACK Jar does not expose a lazy mechanism for configuring attributes so we have to do it after evaluation
         project.afterEvaluate(p -> p.getTasks().withType(Jar.class, jar -> {
             Set<ServiceDependency> productDependencies = productDependencyExt.getProductDependencies();
 
