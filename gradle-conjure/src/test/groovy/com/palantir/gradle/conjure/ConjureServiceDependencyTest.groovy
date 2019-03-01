@@ -184,7 +184,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:api-jersey:Jar')
 
         then:
-        result.wasExecuted(':api:generateConjureServiceDependencies')
+        !result.wasExecuted(':api:generateConjureServiceDependencies')
         def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         recommendedDeps == '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
@@ -249,6 +249,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
-                ConjureJavaServiceDependenciesTask.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
+                ConjureJavaServiceDependencies.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
     }
 }
