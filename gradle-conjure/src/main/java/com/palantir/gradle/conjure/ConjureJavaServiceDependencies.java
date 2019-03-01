@@ -17,43 +17,34 @@
 package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.ServiceDependency;
-import java.io.IOException;
 import java.util.Set;
-import java.util.function.Supplier;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.TaskAction;
 import org.gradle.jvm.tasks.Jar;
 
-public class ConjureJavaServiceDependenciesTask extends DefaultTask {
+public final class ConjureJavaServiceDependencies {
     public static final String SLS_RECOMMENDED_PRODUCT_DEPENDENCIES = "Sls-Recommended-Product-Dependencies";
-    private Supplier<Set<ServiceDependency>> serviceDependencies;
-    private Project subproject;
 
-    @Input
-    public final Set<ServiceDependency> getServiceDependencies() {
-        return serviceDependencies.get();
-    }
+    private ConjureJavaServiceDependencies() {}
 
-    public final void setServiceDependencies(Supplier<Set<ServiceDependency>> serviceDependencies) {
-        this.serviceDependencies = serviceDependencies;
-    }
+    static void configureJavaServiceDependencies(
+            Project project, ConjureProductDependenciesExtension productDependencyExt)  {
 
-    public final void setSubproject(Project subproject) {
-        this.subproject = subproject;
-    }
+        project.afterEvaluate(p -> p.getTasks().withType(Jar.class, jar -> {
+            Set<ServiceDependency> productDependencies = productDependencyExt.getProductDependencies();
 
-    @TaskAction
-    public final void populateServiceDependencies() throws IOException {
-        for (Jar jarTask : subproject.getTasks().withType(Jar.class)) {
-            jarTask.getManifest()
-                    .getAttributes()
-                    .putIfAbsent(SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
-                            GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
-                                    new RecommendedProductDependencies(getServiceDependencies())));
-        }
+            try {
+                jar.getManifest().getAttributes()
+                        .putIfAbsent(
+                                SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
+                                GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
+                                        new RecommendedProductDependencies(productDependencies)));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
 
     private static class RecommendedProductDependencies {
