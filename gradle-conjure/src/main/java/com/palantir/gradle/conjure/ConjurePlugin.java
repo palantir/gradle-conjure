@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.inject.Inject;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -538,8 +539,13 @@ public final class ConjurePlugin implements Plugin<Project> {
         Copy copyConjureSourcesTask = project.getTasks().create("copyConjureSourcesIntoBuild", Copy.class);
         copyConjureSourcesTask.into(project.file(buildDir)).from(conjureSourceSet);
 
-        copyConjureSourcesTask.doFirst(task -> {
-            GFileUtils.deleteDirectory(buildDir);
+        // Replacing this with a lambda is not supported for build caching
+        // (see https://github.com/gradle/gradle/issues/5510)
+        copyConjureSourcesTask.doFirst(new Action<Task>() {
+            @Override
+            public void execute(Task task) {
+                GFileUtils.deleteDirectory(buildDir);
+            }
         });
 
         Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
