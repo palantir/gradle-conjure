@@ -31,7 +31,7 @@ public class CheckConjureJavaVersions extends DefaultTask {
 
     public CheckConjureJavaVersions() {
         setGroup(ConjurePlugin.TASK_GROUP);
-        setDescription("Ensures that conjure-java and conjure-lib versions are identical");
+        setDescription("Ensures that conjure-lib as at least as new as conjure-java.");
     }
 
     @TaskAction
