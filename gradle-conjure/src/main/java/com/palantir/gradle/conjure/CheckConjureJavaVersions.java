@@ -31,7 +31,7 @@ public class CheckConjureJavaVersions extends DefaultTask {
 
     public CheckConjureJavaVersions() {
         setGroup(ConjurePlugin.TASK_GROUP);
-        setDescription("Ensures that conjure-java and conjure-lib versions are identical");
+        setDescription("Ensures that conjure-lib as at least as new as conjure-java.");
     }
 
     @TaskAction
@@ -39,7 +39,6 @@ public class CheckConjureJavaVersions extends DefaultTask {
         // 1. Figure out what version of conjure-java we resolved
         VersionNumber conjureJavaVersion = findResolvedVersionOf(
                 getProject(), ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
-        VersionNumber conjureJavaNextMajor = VersionNumber.version(conjureJavaVersion.getMajor() + 1);
 
         // 2. Ensure in each subproject, the version of conjure-lib in `compile` is the same.
         ConjurePlugin.JAVA_PROJECT_SUFFIXES.stream()
@@ -49,12 +48,10 @@ public class CheckConjureJavaVersions extends DefaultTask {
                     VersionNumber conjureJavaLibVersion =
                             findResolvedVersionOf(
                                     subproj, "compile", ConjurePlugin.CONJURE_JAVA_LIB_DEP);
-                    boolean compatible = conjureJavaLibVersion.compareTo(conjureJavaVersion) >= 0
-                            && conjureJavaLibVersion.compareTo(conjureJavaNextMajor) < 0;
+                    boolean compatible = conjureJavaLibVersion.compareTo(conjureJavaVersion) >= 0;
                     Preconditions.checkState(
                             compatible,
-                            "conjure-lib should be at least as new as the generator "
-                                    + "and within the same major version but found:\n"
+                            "conjure-lib should be at least as new as the generator:\n"
                                     + "%s -> %s\n%s -> %s",
                             ConjurePlugin.CONJURE_JAVA_BINARY, conjureJavaVersion,
                             ConjurePlugin.CONJURE_JAVA_LIB_DEP, conjureJavaLibVersion);
