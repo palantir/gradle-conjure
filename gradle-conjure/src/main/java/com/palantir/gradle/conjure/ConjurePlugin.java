@@ -40,6 +40,7 @@ import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
+import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.util.GFileUtils;
 
 public final class ConjurePlugin implements Plugin<Project> {
@@ -486,8 +487,18 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.dependsOn(compileConjure);
             }
 
-            plugin.getModel().getModule().getSourceDirs().add(project.file(JAVA_GENERATED_SOURCE_DIRNAME));
-            plugin.getModel().getModule().getGeneratedSourceDirs().add(project.file(JAVA_GENERATED_SOURCE_DIRNAME));
+            // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
+            IdeaModule module = plugin.getModel().getModule();
+            module.setSourceDirs(ImmutableSet
+                    .<File>builder()
+                    .addAll(module.getSourceDirs())
+                    .add(project.file(JAVA_GENERATED_SOURCE_DIRNAME))
+                    .build());
+            module.setGeneratedSourceDirs(ImmutableSet
+                    .<File>builder()
+                    .addAll(module.getGeneratedSourceDirs())
+                    .add(project.file(JAVA_GENERATED_SOURCE_DIRNAME))
+                    .build());
         });
         project.getPlugins().withType(EclipsePlugin.class, plugin -> {
             Task task = project.getTasks().findByName("eclipseClasspath");
