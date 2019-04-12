@@ -23,6 +23,8 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.util.Set;
 import org.gradle.api.Project;
 import org.gradle.jvm.tasks.Jar;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Parameter;
 
 final class ConjureJavaServiceDependencies {
     public static final String SLS_RECOMMENDED_PRODUCT_DEPENDENCIES = "Sls-Recommended-Product-Dependencies";
@@ -45,20 +47,17 @@ final class ConjureJavaServiceDependencies {
                         .putIfAbsent(
                                 SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
                                 GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
-                                        new RecommendedProductDependencies(productDependencies)));
+                                        ImmutableRecommendedProductDependencies.of(productDependencies)));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
         }));
     }
 
-    private static class RecommendedProductDependencies {
+    @Value.Immutable
+    interface RecommendedProductDependencies {
+        @Parameter
         @JsonProperty("recommended-product-dependencies")
-        private Set<ServiceDependency> recommendedProductDependencies;
-
-        RecommendedProductDependencies(
-                Set<ServiceDependency> recommendedProductDependencies) {
-            this.recommendedProductDependencies = recommendedProductDependencies;
-        }
+        Set<ServiceDependency> recommendedProductDependencies();
     }
 }
