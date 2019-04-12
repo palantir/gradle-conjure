@@ -56,6 +56,7 @@ allprojects {
     }
 }
 
+import net.ltgt.gradle.errorprone.CheckSeverity
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'org.inferred.processors'
@@ -64,6 +65,9 @@ subprojects {
 
     tasks.withType(JavaCompile) {
         options.compilerArgs += ['-Werror']
+        options.errorprone {
+            check("PreferSafeLoggableExceptions", CheckSeverity.OFF)
+        }
     }
 
     // Run `./gradlew test -Drecreate=true` to recreate all the expected
