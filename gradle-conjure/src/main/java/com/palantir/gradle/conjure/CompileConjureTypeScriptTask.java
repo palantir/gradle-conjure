@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -38,10 +40,14 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     }
 
     public CompileConjureTypeScriptTask() {
-        doFirst(task -> {
-            ConfigurableFileTree fileTree = task.getProject().fileTree(getOutputDirectory());
-            fileTree.exclude("node_modules/**/*");
-            fileTree.forEach(File::delete);
+        doFirst(new Action<Task>() {
+            @Override
+            public void execute(Task task) {
+                ConfigurableFileTree fileTree =
+                        task.getProject().fileTree(CompileConjureTypeScriptTask.this.getOutputDirectory());
+                fileTree.exclude("node_modules/**/*");
+                fileTree.forEach(File::delete);
+            }
         });
     }
 

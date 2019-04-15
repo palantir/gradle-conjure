@@ -26,6 +26,9 @@ dependencies {
     compile 'com.palantir.sls.versions:sls-versions'
     compile 'com.fasterxml.jackson.core:jackson-databind'
 
+    annotationProcessor 'org.immutables:value'
+    compileOnly 'org.immutables:value::annotations'
+
     testCompile gradleTestKit()
     testCompile 'com.netflix.nebula:nebula-test'
     testCompile 'com.squareup.okhttp3:mockwebserver'
