@@ -529,7 +529,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(TASK_GROUP);
             compileIr.setInputDirectory(copyConjureSourcesTask::getDestinationDir);
-            compileIr.setExecutablePath(extractCompilerTask::getExecutable);
+            compileIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
             compileIr.setOutputFile(irPath);
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
