@@ -17,7 +17,9 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
+import org.gradle.api.tasks.CacheableTask;
 
+@CacheableTask
 public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
 
     @Override

@@ -25,11 +25,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 
+@CacheableTask
 public class ConjureGeneratorTask extends SourceTask {
     private Supplier<File> executablePathSupplier;
     private File outputDirectory;
@@ -60,6 +64,7 @@ public class ConjureGeneratorTask extends SourceTask {
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public final File getExecutablePath() {
         return executablePathSupplier.get();
     }

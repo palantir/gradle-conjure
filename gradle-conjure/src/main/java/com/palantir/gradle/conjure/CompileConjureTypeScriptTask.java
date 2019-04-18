@@ -23,14 +23,19 @@ import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 
+@CacheableTask
 public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
 
     private File productDependencyFile;
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public final File getProductDependencyFile() {
         return productDependencyFile;
     }
