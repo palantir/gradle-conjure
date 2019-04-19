@@ -69,7 +69,7 @@ public class CompileIrTask extends DefaultTask {
         getProject().exec(execSpec -> {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
-                    executableDir.get().toPath().resolve("bin").resolve("conjure").toFile().getAbsolutePath(),
+                    new File(executableDir.get(), "bin/conjure").getAbsolutePath(),
                     "compile",
                     inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());
