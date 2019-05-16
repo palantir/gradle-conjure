@@ -21,16 +21,19 @@ import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
+@CacheableTask
 public class CompileIrTask extends DefaultTask {
 
     private File outputFile;
     private Supplier<File> inputDirectory;
-    private Supplier<File> executablePath;
+    private Supplier<File> executableDir;
 
     public final void setOutputFile(File outputFile) {
         this.outputFile = outputFile;
@@ -46,17 +49,19 @@ public class CompileIrTask extends DefaultTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     public final File getInputDirectory() {
         return inputDirectory.get();
     }
 
-    public final void setExecutablePath(Supplier<File> executablePath) {
-        this.executablePath = executablePath;
+    public final void setExecutableDir(Supplier<File> executableDir) {
+        this.executableDir = executableDir;
     }
 
-    @InputFile
-    public final File getExecutablePath() {
-        return executablePath.get();
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public final File getExecutableDir() {
+        return executableDir.get();
     }
 
     @TaskAction
@@ -64,7 +69,7 @@ public class CompileIrTask extends DefaultTask {
         getProject().exec(execSpec -> {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
-                    executablePath.get().getAbsolutePath(),
+                    new File(executableDir.get(), "bin/conjure").getAbsolutePath(),
                     "compile",
                     inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());

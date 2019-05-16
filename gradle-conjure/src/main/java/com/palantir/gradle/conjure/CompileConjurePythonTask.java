@@ -24,8 +24,10 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 
+@CacheableTask
 public class CompileConjurePythonTask extends ConjureGeneratorTask {
 
     @Override
