@@ -328,7 +328,7 @@ class ConjurePluginTest extends IntegrationSpec {
         apply plugin: 'nebula.source-jar'
 
         dependencies {
-            compile project(':api:api-jersey')
+            compile project(':api:api-jaxrs')
             compile project(':api:api-retrofit') // safe to include both this and jersey, if necessary
         }
         '''.stripIndent()
@@ -337,16 +337,16 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully('--parallel', 'publishToMavenLocal')
 
         then:
-        result.wasExecuted(':api:api-jersey:compileJava')
+        result.wasExecuted(':api:api-jaxrs:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
 
         new File(System.getProperty('user.home') + '/.m2/repository/com/palantir/conjure/test/').exists()
         new File(System.getProperty('user.home') +
-                '/.m2/repository/com/palantir/conjure/test/api-jersey/0.1.0/api-jersey-0.1.0.pom').exists()
+                '/.m2/repository/com/palantir/conjure/test/api-jaxrs/0.1.0/api-jaxrs-0.1.0.pom').exists()
         new File(System.getProperty('user.home') +
                 '/.m2/repository/com/palantir/conjure/test/server/0.1.0/server-0.1.0.pom').exists()
         new File(System.getProperty('user.home') +
-                '/.m2/repository/com/palantir/conjure/test/server/0.1.0/server-0.1.0.pom').text.contains('>api-jersey<')
+                '/.m2/repository/com/palantir/conjure/test/server/0.1.0/server-0.1.0.pom').text.contains('>api-jaxrs<')
     }
 
     def 'copies conjure imports into build directory and provides imports to conjure compiler'() {

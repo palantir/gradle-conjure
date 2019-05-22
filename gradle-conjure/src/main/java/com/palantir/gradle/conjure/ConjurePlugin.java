@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -268,15 +269,17 @@ public final class ConjurePlugin implements Plugin<Project> {
             ConjureProductDependenciesExtension productDependencyExt,
             ExtractExecutableTask extractJavaTask) {
 
-        String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
-        if (project.findProject(jerseyProjectName) != null) {
+        // we configure both :foo-jersey (for backcompat) and :foo-jaxrs (recommended)
+        Stream.of(project.getName() + JAVA_JERSEY_SUFFIX, project.getName() + "-jaxrs")
+                .filter(name -> project.findProject(name) != null)
+                .forEach(name -> {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
             if (project.findProject(objectsProjectName) == null) {
                 throw new IllegalStateException(
-                        String.format("Cannot enable '%s' without '%s'", jerseyProjectName, objectsProjectName));
+                        String.format("Cannot enable '%s' without '%s'", name, objectsProjectName));
             }
 
-            project.project(jerseyProjectName, subproj -> {
+            project.project(name, subproj -> {
                 subproj.getPluginManager().apply(JavaPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureJersey", ConjureGeneratorTask.class, task -> {
@@ -307,7 +310,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
-        }
+        });
     }
 
     private static void setupConjureUndertowProject(
