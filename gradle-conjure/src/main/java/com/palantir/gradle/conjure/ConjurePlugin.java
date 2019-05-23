@@ -175,7 +175,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             Task compileIrTask,
             ExtractExecutableTask extractJavaTask) {
-
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
             project.project(objectsProjectName, subproj -> {
@@ -218,7 +217,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             ExtractExecutableTask extractJavaTask) {
-
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
         if (project.findProject(retrofitProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -267,7 +265,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             ExtractExecutableTask extractJavaTask) {
-
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
         if (project.findProject(jerseyProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -317,7 +314,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             ExtractExecutableTask extractJavaTask) {
-
         String undertowProjectName = project.getName() + JAVA_UNDERTOW_SUFFIX;
         if (project.findProject(undertowProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
