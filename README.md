@@ -9,6 +9,7 @@ gradle-conjure is a set of Gradle plugins which allow you to define and consume 
 - [`com.palantir.conjure`](#compalantirconjure) allows API authors to easily define APIs and generate bindings for Java, TypeScript and Python.
 - [`com.palantir.conjure-publish`](#compalantirconjure-publish) allows API authors to publish a Conjure definition as a single self-contained file.
 - [`com.palantir.conjure-local`](#compalantirconjure-local) allows API consumers to locally generate bindings for Conjure API definitions.
+- [`com.palantir.conjure-local-java`](#compalantirconjure-local-java) like above, but with specifically for Java code generators
 
 ## com.palantir.conjure
 
@@ -115,6 +116,11 @@ For each generator specified referenced by the configuration you must also add a
  include 'conjure-api'
 +include 'conjure-api:postman'
 ```
+
+## com.palantir.conjure-local-java
+
+The `conjure-local-java` plugin is similar to the `conjure-local`, but it wires up all generated projects as Java
+projects, including support for Gradle dependencies and IDEs.
 
 ## Contributing
 
