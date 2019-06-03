@@ -38,6 +38,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
+                   force 'com.palantir.conjure.java:conjure-java:3.10.0'
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.9.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
@@ -55,6 +56,25 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
     def setup() {
         buildFile << standardBuildFile
+    }
+
+    def "generates java code"() {
+        addSubproject("java")
+        buildFile << """
+        conjure {
+          java {
+            objects = true 
+          }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully("generateConjure")
+
+        then:
+        result.wasExecuted(":generateJava")
+
+        fileExists('java/src/generated/java/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
     def "generateConjure generates code in subprojects"() {
