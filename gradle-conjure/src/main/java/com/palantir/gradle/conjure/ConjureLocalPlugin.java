@@ -46,6 +46,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.of(
             JAVA_PROJECT_NAME, PYTHON_PROJECT_NAME, TYPESCRIPT_PROJECT_NAME);
     private static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
+    private static final ImmutableSet<String> UNSAFE_JAVA_OPTIONS = ImmutableSet.of(
+            "objects", "retrofit", "jersey", "undertow");
 
     @Override
     public void apply(Project project) {
@@ -89,7 +91,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                 project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
-
         subproj.getPluginManager().apply(JavaPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(subproj);
 
@@ -100,7 +101,15 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             task.setDescription("Generates Java bindings for remote Conjure definitions.");
             task.setGroup(ConjurePlugin.TASK_GROUP);
             // TODO(forozco): Automatically pass which category of code to generate
-            task.setOptions(optionsSupplier);
+            task.setOptions(() -> {
+                GeneratorOptions generatorOptions = optionsSupplier.get();
+                Preconditions.checkArgument(
+                        UNSAFE_JAVA_OPTIONS.stream().noneMatch(generatorOptions::has),
+                        "Unable to generate Java bindings since unsafe options were provided",
+                        generatorOptions.getProperties());
+
+                return generatorOptions;
+            });
             task.setSource(conjureIrConfiguration);
             task.setExecutablePath(extractJavaTask::getExecutable);
             task.setOutputDirectory(subproj.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));

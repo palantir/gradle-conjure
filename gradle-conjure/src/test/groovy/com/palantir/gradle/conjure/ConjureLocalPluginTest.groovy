@@ -58,7 +58,26 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         buildFile << standardBuildFile
     }
 
-    def "generates java code"() {
+    def "could generates java code"() {
+        addSubproject("java")
+        buildFile << """
+        conjure {
+          java {
+            dialog = true 
+          }
+        }
+        """.stripIndent()
+
+        when:
+        // Task fails since conjure-java does not support dialog flag
+        ExecutionResult result = runTasksWithFailure("generateConjure")
+
+        then:
+        result.wasExecuted(":generateJava")
+        result.standardOutput.contains('Running generator with args: [--dialog]')
+    }
+
+    def "fails to generate java with unsafe options"() {
         addSubproject("java")
         buildFile << """
         conjure {
@@ -69,12 +88,10 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully("generateConjure")
+        ExecutionResult result = runTasksWithFailure("generateConjure")
 
         then:
-        result.wasExecuted(":generateJava")
-
-        fileExists('java/src/generated/java/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains('Unable to generate Java bindings since unsafe options were provided')
     }
 
     def "generateConjure generates code in subprojects"() {
