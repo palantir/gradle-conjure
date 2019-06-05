@@ -35,20 +35,17 @@ import org.gradle.util.GUtil;
 
 public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final String CONJURE_CONFIGURATION = "conjure";
-    /** Configuration where custom generators should be added as dependencies. */
-    private static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
     private static final String PYTHON_PROJECT_NAME = "python";
     private static final String TYPESCRIPT_PROJECT_NAME = "typescript";
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.of(
             PYTHON_PROJECT_NAME, TYPESCRIPT_PROJECT_NAME);
-    private static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
 
     @Override
     public void apply(Project project) {
         Configuration conjureIrConfiguration = project.getConfigurations().maybeCreate(CONJURE_CONFIGURATION);
         Configuration conjureGeneratorsConfiguration = project.getConfigurations().maybeCreate(
-                CONJURE_GENERATORS_CONFIGURATION_NAME);
+                ConjurePlugin.CONJURE_GENERATORS_CONFIGURATION_NAME);
 
         ConjureExtension extension = project.getExtensions()
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
@@ -79,11 +76,12 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     .getAllDependencies()
                     .stream()
                     .collect(Collectors.toMap(dependency -> {
-                        Preconditions.checkState(dependency.getName().startsWith(CONJURE_GENERATOR_DEP_PREFIX),
+                        Preconditions.checkState(dependency.getName().startsWith(
+                                ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX),
                                 "Generators should start with '%s' according to conjure RFC 002, "
                                         + "but found name: '%s' (%s)",
-                                CONJURE_GENERATOR_DEP_PREFIX, dependency.getName(), dependency);
-                        return dependency.getName().substring(CONJURE_GENERATOR_DEP_PREFIX.length());
+                                ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX, dependency.getName(), dependency);
+                        return dependency.getName().substring(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX.length());
                     }, Function.identity()));
 
             project.getChildProjects().entrySet().stream()
@@ -94,7 +92,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                         if (!generators.containsKey(subprojectName)) {
                             throw new RuntimeException(String.format("Discovered subproject %s without corresponding "
                                             + "generator dependency with name '%s'",
-                                    subproject.getPath(), CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+                                    subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
                         }
                     });
         });
@@ -107,7 +105,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
                     // We create a lazy filtered FileCollection to avoid using afterEvaluate.
                     FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
-                            dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+                            dep -> dep.getName().equals(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
 
                     ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                             project,
