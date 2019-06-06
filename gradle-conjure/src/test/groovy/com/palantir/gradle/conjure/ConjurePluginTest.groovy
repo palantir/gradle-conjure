@@ -536,6 +536,35 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
     }
 
+    def 'supports generic generators'() {
+        addSubproject(':api:api-postman')
+        file('versions.props') << """
+        com.palantir.conjure.postman:conjure-postman = 0.1.0
+        """.stripIndent()
+        file('api/build.gradle') << """
+        dependencies {
+            conjureGenerators 'com.palantir.conjure.postman:conjure-postman'
+        }
+        
+        conjure {
+            options "postman", {
+                productName = project.name
+                productVersion = '1.0.0'
+            }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        println(result.standardOutput)
+
+        then:
+        result.wasExecuted(':api:compileConjurePostman')
+        fileExists('api/api-postman/src/api.postman_collection.json')
+        file('api/api-postman/src/api.postman_collection.json').text.contains('"version" : "1.0.0"')
+
+    }
+
     @Unroll
     @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {

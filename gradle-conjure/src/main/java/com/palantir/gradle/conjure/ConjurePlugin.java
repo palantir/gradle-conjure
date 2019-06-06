@@ -16,15 +16,20 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -32,6 +37,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -42,6 +49,7 @@ import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.util.GFileUtils;
+import org.gradle.util.GUtil;
 
 public final class ConjurePlugin implements Plugin<Project> {
 
@@ -49,6 +57,9 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String TASK_CLEAN = "clean";
 
     public static final String CONJURE_IR = "compileIr";
+
+    private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.of(
+            "objects", "jersey", "retrofit", "undertow", "typescript", "python");
 
     // configuration names
     static final String CONJURE_COMPILER = "conjureCompiler";
@@ -74,6 +85,10 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
 
+    /** Configuration where custom generators should be added as dependencies. */
+    static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
+    static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
+
     private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
 
     @Inject
@@ -88,6 +103,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
         ConjureProductDependenciesExtension conjureProductDependenciesExtension = project.getExtensions()
                 .create(ConjureProductDependenciesExtension.EXTENSION_NAME, ConjureProductDependenciesExtension.class);
+        Configuration conjureGeneratorsConfiguration = project.getConfigurations().maybeCreate(
+                CONJURE_GENERATORS_CONFIGURATION_NAME);
 
         // Set up conjure compile task
         Task compileConjure = project.getTasks().create("compileConjure", DefaultTask.class);
@@ -119,6 +136,12 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileConjure,
                 compileIrTask,
                 productDependencyTask);
+        setupGenericConjureProjects(
+                project,
+                conjureExtension::getGenericOptions,
+                compileConjure,
+                compileIrTask,
+                conjureGeneratorsConfiguration);
     }
 
     private static void setupConjureJavaProject(
@@ -471,6 +494,74 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
     }
 
+    private static void setupGenericConjureProjects(
+            Project project,
+            Function<String, GeneratorOptions> getGenericOptions,
+            Task compileConjure,
+            Task compileIrTask,
+            Configuration conjureGeneratorsConfiguration) {
+        Map<String, Project> genericSubProjects = Maps.filterKeys(
+                project.getChildProjects(),
+                key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
+                        extractSubprojectLanguage(project.getName(), key)));
+
+        // Validating that each subproject has a corresponding generator.
+        // We do this in afterEvaluate to ensure the configuration is populated.
+        project.afterEvaluate(p -> {
+            Map<String, Dependency> generators = conjureGeneratorsConfiguration
+                    .getAllDependencies()
+                    .stream()
+                    .collect(Collectors.toMap(dependency -> {
+                        Preconditions.checkState(dependency.getName().startsWith(CONJURE_GENERATOR_DEP_PREFIX),
+                                "Generators should start with '%s' according to conjure RFC 002, "
+                                        + "but found name: '%s' (%s)",
+                                CONJURE_GENERATOR_DEP_PREFIX, dependency.getName(), dependency);
+                        return dependency.getName().substring(CONJURE_GENERATOR_DEP_PREFIX.length());
+                    }, Function.identity()));
+
+            genericSubProjects.entrySet().forEach(entry -> {
+                String subprojectName = entry.getKey();
+                Project subproject = entry.getValue();
+                String conjureLanguage = extractSubprojectLanguage(p.getName(), subprojectName);
+                if (!FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(conjureLanguage)
+                        && !generators.containsKey(conjureLanguage)) {
+                    throw new RuntimeException(String.format("Discovered subproject %s without corresponding "
+                                    + "generator dependency with name '%s'",
+                            subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+                }
+            });
+        });
+
+        genericSubProjects.entrySet().forEach(e -> {
+            String subprojectName = e.getKey();
+            Project subproject = e.getValue();
+            String conjureLanguage = extractSubprojectLanguage(project.getName(), subprojectName);
+
+            // We create a lazy filtered FileCollection to avoid using afterEvaluate.
+            FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
+                    dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + conjureLanguage));
+
+            ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
+                    project,
+                    GUtil.toLowerCamelCase("extractConjure " + conjureLanguage),
+                    matchingGeneratorDeps,
+                    new File(subproject.getBuildDir(), "generator"),
+                    String.format("conjure-%s", conjureLanguage));
+
+            String taskName = GUtil.toLowerCamelCase("compile conjure " + conjureLanguage);
+            Task conjureLocalGenerateTask = project.getTasks().create(taskName, ConjureGeneratorTask.class, task -> {
+                task.setDescription(String.format("Generates %s files from your Conjure definition.", conjureLanguage));
+                task.setGroup(ConjurePlugin.TASK_GROUP);
+                task.setSource(compileIrTask);
+                task.setExecutablePath(extractConjureGeneratorTask::getExecutable);
+                task.setOptions(() -> getGenericOptions.apply(conjureLanguage));
+                task.setOutputDirectory(subproject.file("src"));
+                task.dependsOn(extractConjureGeneratorTask);
+            });
+            compileConjure.dependsOn(conjureLocalGenerateTask);
+        });
+    }
+
     static void addGeneratedToMainSourceSet(Project subproj) {
         JavaPluginConvention javaPlugin = subproj.getConvention().findPlugin(JavaPluginConvention.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
@@ -563,5 +654,9 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static Supplier<GeneratorOptions> immutableOptionsSupplier(Supplier<GeneratorOptions> supplier) {
         return () -> new GeneratorOptions(supplier.get());
+    }
+
+    private static String extractSubprojectLanguage(String projectName, String subprojectName) {
+        return subprojectName.substring(projectName.length() + 1);
     }
 }
