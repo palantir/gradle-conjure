@@ -58,7 +58,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         buildFile << standardBuildFile
     }
 
-    def "could generates java code"() {
+    def "could generate java code"() {
         addSubproject("java")
         buildFile << """
         conjure {
