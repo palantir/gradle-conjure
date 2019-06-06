@@ -471,12 +471,12 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
     }
 
-    private static void addGeneratedToMainSourceSet(Project subproj) {
+    static void addGeneratedToMainSourceSet(Project subproj) {
         JavaPluginConvention javaPlugin = subproj.getConvention().findPlugin(JavaPluginConvention.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
     }
 
-    private static void applyDependencyForIdeTasks(Project project, Task compileConjure) {
+    static void applyDependencyForIdeTasks(Project project, Task compileConjure) {
         project.getPlugins().withType(IdeaPlugin.class, plugin -> {
             Task task = project.getTasks().findByName("ideaModule");
             if (task != null) {
@@ -504,7 +504,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static Task createWriteGitignoreTask(Project project, String taskName, File outputDir, String contents) {
+    static Task createWriteGitignoreTask(Project project, String taskName, File outputDir, String contents) {
         WriteGitignoreTask writeGitignoreTask = project.getTasks().create(taskName, WriteGitignoreTask.class);
         writeGitignoreTask.setOutputDirectory(outputDir);
         writeGitignoreTask.setContents(contents);

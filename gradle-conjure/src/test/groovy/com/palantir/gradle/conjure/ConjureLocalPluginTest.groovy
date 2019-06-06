@@ -38,6 +38,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
+                   force 'com.palantir.conjure.java:conjure-java:3.10.0'
                    force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
                    force 'com.palantir.conjure.python:conjure-python:3.9.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
@@ -55,6 +56,42 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
     def setup() {
         buildFile << standardBuildFile
+    }
+
+    def "could generates java code"() {
+        addSubproject("java")
+        buildFile << """
+        conjure {
+          java {
+            dialog = true 
+          }
+        }
+        """.stripIndent()
+
+        when:
+        // Task fails since conjure-java does not support dialog flag
+        ExecutionResult result = runTasksWithFailure("generateConjure")
+
+        then:
+        result.wasExecuted(":generateJava")
+        result.standardOutput.contains('Running generator with args: [--dialog]')
+    }
+
+    def "fails to generate java with unsafe options"() {
+        addSubproject("java")
+        buildFile << """
+        conjure {
+          java {
+            objects = true 
+          }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksWithFailure("generateConjure")
+
+        then:
+        result.standardOutput.contains('Unable to generate Java bindings since unsafe options were provided')
     }
 
     def "generateConjure generates code in subprojects"() {
