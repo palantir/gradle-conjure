@@ -556,13 +556,24 @@ class ConjurePluginTest extends IntegrationSpec {
 
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
-        println(result.standardOutput)
 
         then:
         result.wasExecuted(':api:compileConjurePostman')
         fileExists('api/api-postman/src/api.postman_collection.json')
         file('api/api-postman/src/api.postman_collection.json').text.contains('"version" : "1.0.0"')
+    }
 
+    def 'generic setup is a no-op if there no generic subprojects'() {
+        given:
+        file('api/build.gradle') << """
+        dependencies {
+            // The following will cause configuration to fail
+            conjureGenerators 'com.google.guava:guava'
+        }
+        """.stripIndent()
+
+        expect:
+        runTasksSuccessfully('compileConjure')
     }
 
     @Unroll

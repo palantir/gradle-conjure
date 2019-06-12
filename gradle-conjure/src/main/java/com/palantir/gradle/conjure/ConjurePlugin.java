@@ -504,6 +504,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project.getChildProjects(),
                 key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
                         extractSubprojectLanguage(project.getName(), key)));
+        if (genericSubProjects.isEmpty()) {
+            return;
+        }
 
         // Validating that each subproject has a corresponding generator.
         // We do this in afterEvaluate to ensure the configuration is populated.
