@@ -95,7 +95,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         Task gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
                 subproj, "gitignoreConjureJava", subproj.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
-        project.getTasks().create("generateJava", ConjureGeneratorTask.class, task -> {
+        project.getTasks().create("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
             task.setDescription("Generates Java bindings for remote Conjure definitions.");
             task.setGroup(ConjurePlugin.TASK_GROUP);
             // TODO(forozco): Automatically pass which category of code to generate
