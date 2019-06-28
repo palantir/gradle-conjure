@@ -1,3 +1,7 @@
+<p align="right">
+<a href="https://autorelease.general.dmz.palantir.tech/palantir/gradle-conjure"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
+</p>
+
 # Gradle Conjure ![Bintray](https://img.shields.io/bintray/v/palantir/releases/gradle-conjure.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg)](https://opensource.org/licenses/Apache-2.0)
 
 _Gradle Conjure is a build tool which allows defining and generating code for Conjure APIs in Java projects._
