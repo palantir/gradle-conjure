@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.CacheableTask;
@@ -66,7 +67,7 @@ public class ConjureGeneratorTask extends SourceTask {
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
     public final File getExecutablePath() {
-        return executablePathSupplier.get();
+        return new File(executablePathSupplier.get().getAbsolutePath() + (SystemUtils.IS_OS_WINDOWS ? ".bat" : ""));
     }
 
     public final void setOptions(Supplier<GeneratorOptions> options) {
