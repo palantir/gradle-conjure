@@ -25,6 +25,7 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.palantir.sls.versions:sls-versions'
     compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'org.apache.commons:commons-lang3'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'
