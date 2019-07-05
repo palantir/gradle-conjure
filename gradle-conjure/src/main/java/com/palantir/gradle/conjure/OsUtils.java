@@ -17,13 +17,13 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
-import org.apache.commons.lang3.SystemUtils;
+import org.apache.tools.ant.taskdefs.condition.Os;
 
 final class OsUtils {
     private OsUtils() {}
 
     static String appendDotBatIfWindows(String executable) {
-        return executable + (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
+        return executable + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".bat" : "");
     }
 
     static File appendDotBatIfWindows(File executable) {
