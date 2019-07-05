@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
-import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputDirectory;
@@ -31,7 +30,7 @@ import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
 public class CompileIrTask extends DefaultTask {
-    private static final String EXECUTABLE = "bin/conjure" + (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
+    private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
 
     private File outputFile;
     private Supplier<File> inputDirectory;
