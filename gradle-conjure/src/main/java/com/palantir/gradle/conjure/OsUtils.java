@@ -27,6 +27,6 @@ final class OsUtils {
     }
 
     static File appendDotBatIfWindows(File executable) {
-        return new File(appendDotBatIfWindows(executable.getAbsolutePath()));
+        return new File(appendDotBatIfWindows(executable.getPath()));
     }
 }
