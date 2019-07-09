@@ -78,7 +78,7 @@ class ConjurePluginTest extends IntegrationSpec {
         createFile('versions.props') << '''
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 3.8.0
+        com.palantir.conjure.typescript:conjure-typescript = 3.8.1
         com.palantir.conjure.java:* = 2.6.0
         com.palantir.conjure:conjure = 4.0.0
         com.squareup.retrofit2:retrofit = 2.1.0
