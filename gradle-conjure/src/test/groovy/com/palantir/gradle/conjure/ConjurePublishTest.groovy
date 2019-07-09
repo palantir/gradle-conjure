@@ -44,7 +44,7 @@ class ConjurePublishTest extends IntegrationSpec {
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
-                   force 'com.palantir.conjure:conjure:4.0.0'
+                   force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                }
             }
             

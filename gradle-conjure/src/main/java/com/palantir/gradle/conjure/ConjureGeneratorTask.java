@@ -66,7 +66,7 @@ public class ConjureGeneratorTask extends SourceTask {
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
     public final File getExecutablePath() {
-        return executablePathSupplier.get();
+        return OsUtils.appendDotBatIfWindows(executablePathSupplier.get());
     }
 
     public final void setOptions(Supplier<GeneratorOptions> options) {

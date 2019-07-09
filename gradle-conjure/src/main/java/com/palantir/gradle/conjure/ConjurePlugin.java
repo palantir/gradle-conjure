@@ -418,9 +418,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(productDependencyTask);
                         });
 
+                String npmCommand = OsUtils.NPM_COMMAND_NAME;
                 Task installTypeScriptDependencies = project.getTasks().create("installTypeScriptDependencies",
                         Exec.class, task -> {
-                            task.commandLine("npm", "install", "--no-package-lock");
+                            task.commandLine(npmCommand, "install", "--no-package-lock");
                             task.workingDir(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
                             task.getInputs().file(new File(srcDirectory, "package.json"));
@@ -430,7 +431,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription(
                             "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
                     task.setGroup(TASK_GROUP);
-                    task.commandLine("npm", "run-script", "build");
+                    task.commandLine(npmCommand, "run-script", "build");
                     task.workingDir(srcDirectory);
                     task.dependsOn(installTypeScriptDependencies);
                 });
@@ -438,7 +439,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription("Runs `npm publish` to publish a TypeScript package "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.commandLine("npm", "publish");
+                    task.commandLine(npmCommand, "publish");
                     task.workingDir(srcDirectory);
                     task.dependsOn(compileConjureTypeScript);
                     task.dependsOn(compileTypeScript);

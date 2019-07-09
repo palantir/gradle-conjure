@@ -30,6 +30,7 @@ import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
 public class CompileIrTask extends DefaultTask {
+    private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
 
     private File outputFile;
     private Supplier<File> inputDirectory;
@@ -69,7 +70,7 @@ public class CompileIrTask extends DefaultTask {
         getProject().exec(execSpec -> {
             ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
             commandArgsBuilder.add(
-                    new File(executableDir.get(), "bin/conjure").getAbsolutePath(),
+                    new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
                     "compile",
                     inputDirectory.get().getAbsolutePath(),
                     outputFile.getAbsolutePath());

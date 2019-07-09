@@ -62,12 +62,6 @@ class ConjurePluginTest extends IntegrationSpec {
                 strategy OverrideTransitives
                 propertiesFile file: project.rootProject.file('versions.props')
             }
-
-            configurations.all {
-                resolutionStrategy {
-                    failOnVersionConflict()
-                }
-            }
         }
         '''.stripIndent()
 
@@ -75,16 +69,16 @@ class ConjurePluginTest extends IntegrationSpec {
         apply plugin: 'com.palantir.conjure'
         '''.stripIndent()
 
-        createFile('versions.props') << '''
+        createFile('versions.props') << """
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 3.0.0
-        com.palantir.conjure.java:* = 2.6.0
-        com.palantir.conjure:conjure = 4.0.0
+        com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
+        com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
+        com.palantir.conjure:conjure = ${TestVersions.CONJURE}
         com.squareup.retrofit2:retrofit = 2.1.0
         javax.annotation:javax.annotation-api = 1.3.2
         javax.ws.rs:javax.ws.rs-api = 2.0.1
-        '''.stripIndent()
+        """.stripIndent()
 
         createFile('api/src/main/conjure/api.yml') << '''
         types:
@@ -408,7 +402,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
         // typescript
         file('api/api-typescript/src/service/testServiceFoo2.ts').text.contains(
-                'import { IInternalImport } from "../internal/internalImport"')
+                'import { IInternalImport }')
 
         // ir
         fileExists("api/build/conjure-ir/api.conjure.json")
@@ -539,7 +533,7 @@ class ConjurePluginTest extends IntegrationSpec {
     def 'supports generic generators'() {
         addSubproject(':api:api-postman')
         file('versions.props') << """
-        com.palantir.conjure.postman:conjure-postman = 0.1.0
+        com.palantir.conjure.postman:conjure-postman = ${TestVersions.CONJURE_POSTMAN}
         """.stripIndent()
         file('api/build.gradle') << """
         dependencies {
