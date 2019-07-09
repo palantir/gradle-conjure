@@ -21,7 +21,7 @@ public final class TestVersions {
 
     public static final String CONJURE = "4.6.2";
     public static final String CONJURE_JAVA = "3.11.1";
-    public static final String CONJURE_PYTHON = "3.11.16";
+    public static final String CONJURE_PYTHON = "3.11.6";
     public static final String CONJURE_TYPESCRIPT = "3.8.1";
     public static final String CONJURE_POSTMAN = "0.1.0";
 
