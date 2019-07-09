@@ -20,7 +20,7 @@ import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 
 class ConjureLocalPluginTest extends IntegrationSpec {
-    def standardBuildFile = '''
+    def standardBuildFile = """
         buildscript {
             repositories {
                 mavenCentral()
@@ -38,11 +38,11 @@ class ConjureLocalPluginTest extends IntegrationSpec {
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
-                   force 'com.palantir.conjure.java:conjure-java:3.10.0'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:3.8.1'
-                   force 'com.palantir.conjure.python:conjure-python:3.9.0'
-                   force 'com.palantir.conjure:conjure:4.0.0'
-                   force 'com.palantir.conjure.postman:conjure-postman:0.1.0'
+                   force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
+                   force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
+                   force 'com.palantir.conjure.python:conjure-python:${TestVersions.CONJURE_PYTHON}'
+                   force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                   force 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
                }
            }
         }
@@ -50,9 +50,9 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         apply plugin: 'com.palantir.conjure-local'
         
         dependencies {
-            conjure 'com.palantir.conjure:conjure-api:4.1.1'
+            conjure 'com.palantir.conjure:conjure-api:${TestVersions.CONJURE}'
         }
-    '''.stripIndent()
+    """.stripIndent()
 
     def setup() {
         buildFile << standardBuildFile
