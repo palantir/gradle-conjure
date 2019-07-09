@@ -62,12 +62,6 @@ class ConjurePluginTest extends IntegrationSpec {
                 strategy OverrideTransitives
                 propertiesFile file: project.rootProject.file('versions.props')
             }
-
-            configurations.all {
-                resolutionStrategy {
-                    failOnVersionConflict()
-                }
-            }
         }
         '''.stripIndent()
 
