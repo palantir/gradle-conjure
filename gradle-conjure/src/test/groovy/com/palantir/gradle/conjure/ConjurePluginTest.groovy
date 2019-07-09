@@ -402,7 +402,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
         // typescript
         file('api/api-typescript/src/service/testServiceFoo2.ts').text.contains(
-                'import { IInternalImport } from "../internal/internalImport"')
+                'import { IInternalImport }')
 
         // ir
         fileExists("api/build/conjure-ir/api.conjure.json")
