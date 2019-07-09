@@ -1,5 +1,5 @@
 type: improvement
 improvement:
-  description: Windows is now supported for cthe common conjure generators
+  description: Windows is now supported for the common conjure generators
   links:
     - https://github.com/palantir/gradle-conjure/pull/164
