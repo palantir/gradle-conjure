@@ -20,13 +20,19 @@ import java.io.File;
 import org.apache.tools.ant.taskdefs.condition.Os;
 
 final class OsUtils {
+    public static final String NPM_COMMAND_NAME = appendIfWindows(".cmd", "npm");
+
     private OsUtils() {}
 
     static String appendDotBatIfWindows(String executable) {
-        return executable + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".bat" : "");
+        return appendIfWindows(".bat", executable);
     }
 
     static File appendDotBatIfWindows(File executable) {
         return new File(appendDotBatIfWindows(executable.getPath()));
+    }
+
+    private static String appendIfWindows(String toAppend, String value) {
+        return value + (Os.isFamily(Os.FAMILY_WINDOWS) ? toAppend : "");
     }
 }
