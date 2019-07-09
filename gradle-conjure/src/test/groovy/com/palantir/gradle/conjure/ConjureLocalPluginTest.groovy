@@ -39,7 +39,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
                resolutionStrategy {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.java:conjure-java:3.10.0'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:3.1.1'
+                   force 'com.palantir.conjure.typescript:conjure-typescript:3.8.0'
                    force 'com.palantir.conjure.python:conjure-python:3.9.0'
                    force 'com.palantir.conjure:conjure:4.0.0'
                    force 'com.palantir.conjure.postman:conjure-postman:0.1.0'

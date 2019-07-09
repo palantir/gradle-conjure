@@ -76,7 +76,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         createFile('versions.props') << '''
         com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = 3.0.0
+        com.palantir.conjure.typescript:conjure-typescript = 3.8.0
         com.palantir.conjure:conjure = 4.0.0
         '''.stripIndent()
 
