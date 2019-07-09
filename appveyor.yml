@@ -13,6 +13,7 @@ build:
 build_script:
   - node --version
   - npm --version
+  - ps: set
   - gradlew.bat compileJava compileTestJava --info --stacktrace --no-daemon
 
 test_script:
