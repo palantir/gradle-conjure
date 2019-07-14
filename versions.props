@@ -1,14 +1,14 @@
-com.fasterxml.jackson.*:* = 2.9.8
+com.fasterxml.jackson.*:* = 2.9.9
 com.google.errorprone:error_prone_annotations = 2.3.3
 com.google.guava:guava = 23.6.1-jre
-com.netflix.nebula:nebula-test = 7.2.3
-com.palantir.sls.versions:sls-versions = 0.9.0
+com.netflix.nebula:nebula-test = 7.2.5
+com.palantir.sls.versions:sls-versions = 0.10.0
 com.squareup.okhttp3:mockwebserver = 3.9.1
 commons-io:commons-io = 2.6
 junit:junit = 4.12
 org.assertj:* = 3.12.2
 org.immutables:value = 2.7.5
-org.mockito:mockito-core = 2.27.0
+org.mockito:mockito-core = 3.0.0
 org.spockframework:* = 1.2-groovy-2.4
 
 
