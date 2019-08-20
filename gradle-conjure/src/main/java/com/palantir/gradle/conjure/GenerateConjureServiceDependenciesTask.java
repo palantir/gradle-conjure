@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.palantir.gradle.conjure.api.ServiceDependency;
+import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import com.palantir.sls.versions.SlsVersion;
 import com.palantir.sls.versions.SlsVersionMatcher;
@@ -64,15 +65,15 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
     }
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {
-        com.palantir.logsafe.Preconditions.checkNotNull(serviceDependency.getProductGroup(),
+        Preconditions.checkNotNull(serviceDependency.getProductGroup(),
                     "productGroup must be specified for a recommended service dependency");
-        com.palantir.logsafe.Preconditions.checkArgument(GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
+        Preconditions.checkArgument(GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
                 "productGroup must be a valid maven group");
-        com.palantir.logsafe.Preconditions.checkNotNull(serviceDependency.getProductName(),
+        Preconditions.checkNotNull(serviceDependency.getProductName(),
                     "productName must be specified for a recommended service dependency");
-        com.palantir.logsafe.Preconditions.checkArgument(NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
+        Preconditions.checkArgument(NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
-        com.palantir.logsafe.Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");
+        Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");
         if (!SlsVersion.check(serviceDependency.getMaximumVersion())
                 && !SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion()).isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "
