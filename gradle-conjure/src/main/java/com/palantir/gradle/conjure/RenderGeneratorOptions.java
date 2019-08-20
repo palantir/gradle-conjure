@@ -65,7 +65,7 @@ public final class RenderGeneratorOptions {
                     "Conjure generator parameter '%s' cannot contain '='",
                     entry.getKey());
             String stringValue = Objects.toString(value);
-            Preconditions.checkNotNull(stringValue, "Value cannot be null");
+            com.palantir.logsafe.Preconditions.checkNotNull(stringValue, "Value cannot be null");
             return "--" + entry.getKey() + "=" + stringValue;
         }).collect(Collectors.toList());
     }
