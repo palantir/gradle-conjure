@@ -169,6 +169,8 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'check code compiles when run in parallel with multiple build targets'() {
         when:
+        System.setProperty("ignoreDeprecations", "true")
+        System.setProperty("ignoreMutableProjectStateWarnings", "true")
         ExecutionResult result = runTasksSuccessfully('--parallel', 'check', 'tasks')
 
         then:
@@ -291,6 +293,7 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     def 'check publication'() {
+        System.setProperty("ignoreMutableProjectStateWarnings", "true")
         file('build.gradle') << '''
         buildscript {
             repositories {
@@ -581,6 +584,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
 
         where:
-        version << ['4.7', '4.4', '4.3', '4.2', '4.1', '4.0', '3.5']
+        version << ['5.0', '5.1', '5.2', '5.3', '5.4', '5.5']
     }
 }

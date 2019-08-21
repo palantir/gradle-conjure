@@ -19,8 +19,9 @@ package com.palantir.gradle.conjure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.base.Preconditions;
 import com.palantir.gradle.conjure.api.ServiceDependency;
+import com.palantir.logsafe.Preconditions;
+import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import com.palantir.sls.versions.SlsVersion;
 import com.palantir.sls.versions.SlsVersionMatcher;
 import java.io.File;
@@ -84,7 +85,7 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
             throw new IllegalArgumentException("recommendedVersion must be valid SLS versions: "
                     + serviceDependency.getRecommendedVersion());
         } else if (serviceDependency.getMinimumVersion().equals(serviceDependency.getMaximumVersion())) {
-            throw new IllegalArgumentException("minimumVersion and maximumVersion must be different");
+            throw new SafeIllegalArgumentException("minimumVersion and maximumVersion must be different");
         }
     }
 }
