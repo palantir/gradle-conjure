@@ -170,6 +170,7 @@ class ConjurePluginTest extends IntegrationSpec {
     def 'check code compiles when run in parallel with multiple build targets'() {
         when:
         System.setProperty("ignoreDeprecations", "true")
+        System.setProperty("ignoreMutableProjectStateWarnings", "true")
         ExecutionResult result = runTasksSuccessfully('--parallel', 'check', 'tasks')
 
         then:
