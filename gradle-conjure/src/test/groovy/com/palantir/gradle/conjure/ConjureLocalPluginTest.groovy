@@ -91,7 +91,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksWithFailure("generateConjure")
 
         then:
-        result.standardOutput.contains('Unable to generate Java bindings since unsafe options were provided')
+        result.standardError.contains('Unable to generate Java bindings since unsafe options were provided')
     }
 
     def "generateConjure generates code in subprojects"() {
@@ -114,7 +114,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
         expect:
         ExecutionResult result1 = runTasksWithFailure("generateConjure")
-        result1.standardOutput.contains("without corresponding generator dependency")
+        result1.standardError.contains("without corresponding generator dependency")
     }
 
     def 'supports custom postman generator'() {
