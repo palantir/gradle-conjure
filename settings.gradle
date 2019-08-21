@@ -1,4 +1,4 @@
-rootProject.name = 'gradle-conjure'
+rootProject.name = 'gradle-conjure-root'
 
 include 'gradle-conjure'
 include 'gradle-conjure-api'
