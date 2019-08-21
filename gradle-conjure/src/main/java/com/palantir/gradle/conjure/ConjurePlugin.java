@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
@@ -89,13 +88,6 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
 
-    private final org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory;
-
-    @Inject
-    public ConjurePlugin(org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory) {
-        this.sourceDirectorySetFactory = sourceDirectorySetFactory;
-    }
-
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
@@ -112,7 +104,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         compileConjure.setGroup(TASK_GROUP);
         applyDependencyForIdeTasks(project, compileConjure);
 
-        Copy copyConjureSourcesTask = getConjureSources(project, sourceDirectorySetFactory);
+        Copy copyConjureSourcesTask = getConjureSources(project);
         Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
         GenerateConjureServiceDependenciesTask productDependencyTask = project.getTasks().create(
                 "generateConjureServiceDependencies", GenerateConjureServiceDependenciesTask.class, task -> {
@@ -627,10 +619,9 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    private static Copy getConjureSources(
-            Project project, org.gradle.api.internal.file.SourceDirectorySetFactory sourceDirectorySetFactory) {
+    private static Copy getConjureSources(Project project) {
         // Conjure code source set
-        SourceDirectorySet conjureSourceSet = sourceDirectorySetFactory.create("conjure");
+        SourceDirectorySet conjureSourceSet = project.getObjects().sourceDirectorySet("conjure", "conjure");
         conjureSourceSet.setSrcDirs(Collections.singleton("src/main/conjure"));
         conjureSourceSet.setIncludes(Collections.singleton("**/*.yml"));
 

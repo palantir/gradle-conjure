@@ -1,4 +1,3 @@
-enableFeaturePreview('STABLE_PUBLISHING')
 rootProject.name = 'gradle-conjure'
 
 include 'gradle-conjure'
