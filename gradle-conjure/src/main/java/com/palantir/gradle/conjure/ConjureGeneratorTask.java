@@ -32,6 +32,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
+import org.gradle.util.GFileUtils;
 
 @CacheableTask
 public class ConjureGeneratorTask extends SourceTask {
@@ -96,6 +97,7 @@ public class ConjureGeneratorTask extends SourceTask {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 File thisOutputDirectory = outputDirectoryFor(file);
                 getProject().mkdir(thisOutputDirectory);
+                GFileUtils.cleanDirectory(thisOutputDirectory);
                 commandArgsBuilder.add(
                         getExecutablePath().getAbsolutePath(),
                         "generate",

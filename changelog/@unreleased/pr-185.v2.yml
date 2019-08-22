@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Remove stale files from generator output directory
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/185
