@@ -20,9 +20,6 @@ import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 
 class ConjureGeneratorTaskTest extends IntegrationSpec {
-    private static final String CONJURE_VERSION = "4.4.0"
-    private static final String CONJURE_JAVA_VERSION = "2.5.0"
-
     def setup() {
         createFile('settings.gradle') << '''
         include 'api'
@@ -46,14 +43,14 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         createFile('api/build.gradle') << """
         apply plugin: 'com.palantir.conjure'
         dependencies {
-            conjureCompiler 'com.palantir.conjure:conjure:${CONJURE_VERSION}'
-            conjureJava 'com.palantir.conjure.java:conjure-java:${CONJURE_JAVA_VERSION}'
+            conjureCompiler 'com.palantir.conjure:conjure:${TestVersions.CONJURE_VERSION}'
+            conjureJava 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA_VERSION}'
         }
 
         subprojects {
             pluginManager.withPlugin 'java', {
                 dependencies {
-                    compile 'com.palantir.conjure.java:conjure-lib:${CONJURE_JAVA_VERSION}'
+                    compile 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA_VERSION}'
                 }
             }
         }
