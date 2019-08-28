@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure.api;
 
+import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -40,7 +41,7 @@ public final class GeneratorOptions implements Serializable {
 
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {
-            throw new RuntimeException("Can't override the 'properties' property");
+            throw new SafeRuntimeException("Can't override the 'properties' property");
         } else {
             this.set(name, newValue);
         }
