@@ -96,8 +96,8 @@ public class ConjureGeneratorTask extends SourceTask {
             getProject().exec(execSpec -> {
                 ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
                 File thisOutputDirectory = outputDirectoryFor(file);
+                GFileUtils.deleteDirectory(thisOutputDirectory);
                 getProject().mkdir(thisOutputDirectory);
-                GFileUtils.cleanDirectory(thisOutputDirectory);
                 commandArgsBuilder.add(
                         getExecutablePath().getAbsolutePath(),
                         "generate",
