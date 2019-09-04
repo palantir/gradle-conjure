@@ -58,12 +58,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     public static final String CONJURE_IR = "compileIr";
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.of(
-            "objects", "jersey", "retrofit", "undertow", "typescript", "python");
+            "objects", "jersey", "retrofit", "undertow", "typescript", "python", "rust");
 
     // configuration names
     static final String CONJURE_COMPILER = "conjureCompiler";
     static final String CONJURE_TYPESCRIPT = "conjureTypeScript";
     static final String CONJURE_PYTHON = "conjurePython";
+    static final String CONJURE_RUST = "conjureRust";
     static final String CONJURE_JAVA = "conjureJava";
 
     // executable distributions
@@ -71,6 +72,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
     static final String CONJURE_TYPESCRIPT_BINARY = "com.palantir.conjure.typescript:conjure-typescript@tgz";
     static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
+    static final String CONJURE_RUST_BINARY = "com.palantir.conjure.rust:conjure-rust";
 
     // java project constants
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
@@ -128,6 +130,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileConjure,
                 compileIrTask,
                 productDependencyTask);
+        setupConjureRustProject(
+                project,
+                immutableOptionsSupplier(conjureExtension::getRust),
+                compileConjure,
+                compileIrTask);
         setupGenericConjureProjects(
                 project,
                 conjureExtension::getGenericOptions,
@@ -483,6 +490,38 @@ public final class ConjurePlugin implements Plugin<Project> {
                     Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                     cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjurePython"));
                 });
+            });
+        }
+    }
+
+    private static void setupConjureRustProject(
+            Project project, Supplier<GeneratorOptions> options, Task compileConjure, Task compileIrTask) {
+        String rustProjectName = project.getName() + "-rust";
+        if (project.findProject(rustProjectName) != null) {
+            Configuration conjureRustConfig = project.getConfigurations().maybeCreate(CONJURE_RUST);
+
+            project.project(rustProjectName, subproj -> {
+                applyDependencyForIdeTasks(subproj, compileConjure);
+                File conjureRustDir = new File(project.getBuildDir(), CONJURE_RUST);
+                project.getDependencies().add(CONJURE_RUST, CONJURE_RUST_BINARY);
+                ExtractExecutableTask extractConjureRustTask = ExtractExecutableTask.createExtractTask(
+                        project, "extractConjureRust", conjureRustConfig, conjureRustDir, "conjure-rust");
+                project.getTasks().create("compileConjureRust",
+                        CompileConjureRustTask.class, task -> {
+                            task.setDescription("Generates Rust files from your Conjure definitions.");
+                            task.setGroup(TASK_GROUP);
+                            task.setSource(compileIrTask);
+                            task.setExecutablePath(extractConjureRustTask::getExecutable);
+                            task.setOutputDirectory(subproj.file("rust"));
+                            task.setOptions(options);
+                            compileConjure.dependsOn(task);
+                            task.dependsOn(createWriteGitignoreTask(
+                                    subproj, "gitignoreConjureRust", subproj.getProjectDir(),
+                                    "*\n"));
+                            task.dependsOn(extractConjureRustTask);
+                            Task cleanTask = project.getTasks().findByPath(TASK_CLEAN);
+                            cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRust"));
+                        });
             });
         }
     }

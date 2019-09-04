@@ -28,6 +28,7 @@ public class ConjureExtension {
     private final GeneratorOptions typescriptOptions = new GeneratorOptions();
     private final GeneratorOptions javaOptions = new GeneratorOptions();
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
+    private final GeneratorOptions rustOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
     public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure closure) {
@@ -60,6 +61,10 @@ public class ConjureExtension {
 
     public final GeneratorOptions getPython() {
         return pythonOptions;
+    }
+
+    public final GeneratorOptions getRust() {
+        return rustOptions;
     }
 
     public final GeneratorOptions getGenericOptions(String generator) {

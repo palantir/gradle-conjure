@@ -30,6 +30,7 @@ class ConjurePluginTest extends IntegrationSpec {
         include 'api:api-jersey'
         include 'api:api-retrofit'
         include 'api:api-typescript'
+        include 'api:api-rust'
         include 'api:api-undertow'
         include 'server'
         '''.stripIndent()
@@ -73,6 +74,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.fasterxml.jackson.*:* = 2.6.7
         com.google.guava:guava = 18.0
         com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
+        com.palantir.conjure.rust:conjure-rust = ${TestVersions.CONJURE_RUST}
         com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
         com.palantir.conjure:conjure = ${TestVersions.CONJURE}
         com.squareup.retrofit2:retrofit = 2.1.0
@@ -113,6 +115,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
+        result.wasExecuted(':api:compileConjureRust')
         result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:compileIr')
 
@@ -129,6 +132,12 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-typescript/src/package.json')
         fileExists('api/api-typescript/.gitignore')
         file('api/api-typescript/.gitignore').readLines() == ["/src/"]
+
+        // rust
+        fileExists('api/api-rust/rust/Cargo.toml')
+        fileExists('api/api-rust/rust/src/lib.rs')
+        fileExists('api/api-rust/.gitignore')
+        file('api/api-rust/.gitignore').readLines() == ["*"]
 
         // irFile
         fileExists('api/build/conjure-ir/api.conjure.json')
