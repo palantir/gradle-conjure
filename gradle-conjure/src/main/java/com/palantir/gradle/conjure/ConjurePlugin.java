@@ -40,7 +40,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
@@ -193,7 +193,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
             project.project(objectsProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureObjects",
@@ -219,7 +219,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
-                subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-lib");
+                subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
         }
@@ -241,7 +241,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(retrofitProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
@@ -266,8 +266,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("compile", "com.squareup.retrofit2:retrofit");
+                subproj.getDependencies().add("api", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
         }
@@ -289,7 +289,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(jerseyProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureJersey", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Jersey interfaces from your Conjure definitions "
@@ -315,8 +315,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("compile", "javax.ws.rs:javax.ws.rs-api");
+                subproj.getDependencies().add("api", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
             });
         }
@@ -338,7 +338,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(undertowProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureUndertow", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
@@ -364,8 +364,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureUndertow"));
-                subproj.getDependencies().add("compile", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("compile", "com.palantir.conjure.java:conjure-undertow-lib");
+                subproj.getDependencies().add("api", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-undertow-lib");
             });
         }
     }

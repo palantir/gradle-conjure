@@ -1,0 +1,7 @@
+type: fix
+fix:
+  description: gradle-conjure produces no longer sets up deprecated 'compile' dependencies,
+    instead preferring to declare 'api' dependencies (introduced with the java-library
+    plugin).
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/202

@@ -33,7 +33,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.util.GUtil;
 
 public final class ConjureLocalPlugin implements Plugin<Project> {
@@ -89,7 +89,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                 project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
-        subproj.getPluginManager().apply(JavaPlugin.class);
+        subproj.getPluginManager().apply(JavaLibraryPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(subproj);
 
         Task gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
@@ -121,7 +121,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
             Task cleanTask = project.getTasks().findByName(ConjurePlugin.TASK_CLEAN);
             cleanTask.dependsOn(project.getTasks().findByName("cleanGenerateJava"));
-            subproj.getDependencies().add("compile", subproj);
+            subproj.getDependencies().add("api", subproj);
         });
     }
 
