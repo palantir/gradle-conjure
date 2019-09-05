@@ -40,7 +40,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
@@ -193,7 +193,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
             project.project(objectsProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create(
                         "compileConjureObjects",
@@ -241,7 +241,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(retrofitProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
@@ -289,7 +289,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(jerseyProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureJersey", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Jersey interfaces from your Conjure definitions "
@@ -338,7 +338,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             }
 
             project.project(undertowProjectName, subproj -> {
-                subproj.getPluginManager().apply(JavaPlugin.class);
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureUndertow", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
