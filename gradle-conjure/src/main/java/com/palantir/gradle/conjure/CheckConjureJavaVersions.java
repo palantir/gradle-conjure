@@ -24,6 +24,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedComponentResult;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.VersionNumber;
 
@@ -45,9 +46,10 @@ public class CheckConjureJavaVersions extends DefaultTask {
                 .map(suffix -> getProject().findProject(getProject().getName() + suffix))
                 .filter(Objects::nonNull)
                 .forEach(subproj -> {
-                    VersionNumber conjureJavaLibVersion =
-                            findResolvedVersionOf(
-                                    subproj, "compile", ConjurePlugin.CONJURE_JAVA_LIB_DEP);
+                    VersionNumber conjureJavaLibVersion = findResolvedVersionOf(
+                            subproj,
+                            JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME,
+                            ConjurePlugin.CONJURE_JAVA_LIB_DEP);
                     boolean compatible = conjureJavaLibVersion.compareTo(conjureJavaVersion) >= 0;
                     Preconditions.checkState(
                             compatible,

@@ -121,7 +121,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
             Task cleanTask = project.getTasks().findByName(ConjurePlugin.TASK_CLEAN);
             cleanTask.dependsOn(project.getTasks().findByName("cleanGenerateJava"));
-            subproj.getDependencies().add("compile", subproj);
+            subproj.getDependencies().add("api", subproj);
         });
     }
 
