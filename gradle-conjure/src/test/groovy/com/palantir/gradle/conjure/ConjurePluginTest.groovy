@@ -137,7 +137,7 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/api-rust/rust/Cargo.toml')
         fileExists('api/api-rust/rust/src/lib.rs')
         fileExists('api/api-rust/.gitignore')
-        file('api/api-rust/.gitignore').readLines() == ["*"]
+        file('api/api-rust/.gitignore').readLines() == ["/rust/"]
 
         // irFile
         fileExists('api/build/conjure-ir/api.conjure.json')

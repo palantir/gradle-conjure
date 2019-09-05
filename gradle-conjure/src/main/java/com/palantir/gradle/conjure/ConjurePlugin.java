@@ -517,7 +517,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             compileConjure.dependsOn(task);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj, "gitignoreConjureRust", subproj.getProjectDir(),
-                                    "*\n"));
+                                    "/rust/\n"));
                             task.dependsOn(extractConjureRustTask);
                             Task cleanTask = project.getTasks().findByPath(TASK_CLEAN);
                             cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRust"));
