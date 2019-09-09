@@ -414,8 +414,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                         .create("compileConjureTypeScript",
                                 CompileConjureTypeScriptTask.class,
                                 task -> {
-                                    task.setDescription(
-                                            "Generates TypeScript files and a package.json from your Conjure definitions.");
+                                    task.setDescription("Generates TypeScript files and a package.json from your "
+                                            + "Conjure definitions.");
                                     task.setGroup(TASK_GROUP);
                                     task.setSource(compileIrTask);
                                     task.setExecutablePath(extractConjureTypeScriptTask::getExecutable);
