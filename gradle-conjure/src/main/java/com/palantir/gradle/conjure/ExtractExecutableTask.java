@@ -71,7 +71,7 @@ public class ExtractExecutableTask extends Sync {
                     }
 
                     @Override
-                    public void visitFile(FileVisitDetails fileDetails) { }
+                    public void visitFile(FileVisitDetails fileDetails) {}
                 });
                 if (rootDirectories.size() != 1) {
                     throw new GradleException(String.format(
@@ -97,14 +97,17 @@ public class ExtractExecutableTask extends Sync {
     }
 
     public static ExtractExecutableTask createExtractTask(
-            Project project, String taskName, FileCollection archive, File outputDir, String executableName) {
+            Project project,
+            String taskName,
+            FileCollection archive,
+            File outputDir,
+            String executableName) {
         return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(archive);
             task.setOutputDirectory(outputDir);
             task.setExecutableName(executableName);
         });
     }
-
 
     @InputFiles
     public final FileCollection getArchive() {
@@ -149,7 +152,8 @@ public class ExtractExecutableTask extends Sync {
         Set<File> resolvedFiles = archive.getFiles();
         Preconditions.checkState(resolvedFiles.size() == 1,
                 "Expected exactly one dependency for executable '%s', found %s",
-                getExecutableName(), resolvedFiles);
+                getExecutableName(),
+                resolvedFiles);
         return Iterables.getOnlyElement(resolvedFiles);
     }
 

@@ -33,8 +33,10 @@ public class CompileConjurePythonTask extends ConjureGeneratorTask {
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of(
-                "packageName", this::getProjectName,
-                "packageVersion", this::getPackageVersion);
+                "packageName",
+                this::getProjectName,
+                "packageVersion",
+                this::getPackageVersion);
     }
 
     private static final Pattern gradleVersion = Pattern.compile("^"

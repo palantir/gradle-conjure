@@ -66,11 +66,11 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {
         Preconditions.checkNotNull(serviceDependency.getProductGroup(),
-                    "productGroup must be specified for a recommended service dependency");
+                "productGroup must be specified for a recommended service dependency");
         Preconditions.checkArgument(GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
                 "productGroup must be a valid maven group");
         Preconditions.checkNotNull(serviceDependency.getProductName(),
-                    "productName must be specified for a recommended service dependency");
+                "productName must be specified for a recommended service dependency");
         Preconditions.checkArgument(NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
         Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");

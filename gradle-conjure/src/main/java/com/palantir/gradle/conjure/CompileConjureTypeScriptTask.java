@@ -59,9 +59,12 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File file) {
         return ImmutableMap.of(
-                "packageName", this::getPackageName,
-                "packageVersion", this::getProjectVersion,
-                "productDependencies", () -> getProductDependencyFile().getAbsolutePath());
+                "packageName",
+                this::getPackageName,
+                "packageVersion",
+                this::getProjectVersion,
+                "productDependencies",
+                () -> getProductDependencyFile().getAbsolutePath());
     }
 
     @Input
