@@ -30,14 +30,15 @@ import org.slf4j.LoggerFactory;
 public final class RenderGeneratorOptions {
     private static final Logger log = LoggerFactory.getLogger(RenderGeneratorOptions.class);
 
-    private RenderGeneratorOptions() { }
+    private RenderGeneratorOptions() {}
 
     /**
      * Renders a {@link GeneratorOptions} to command-line arguments.
      * @param requiredOptions a map of required options to their default values
      */
     public static List<String> toArgs(
-            GeneratorOptions options, Map<String, Supplier<Object>> requiredOptions) {
+            GeneratorOptions options,
+            Map<String, Supplier<Object>> requiredOptions) {
         Map<String, Object> properties = options.getProperties();
         ImmutableMap.Builder<String, Object> resolvedProperties =
                 ImmutableMap.<String, Object>builder().putAll(properties);

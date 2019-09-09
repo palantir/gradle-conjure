@@ -39,7 +39,9 @@ public class CheckConjureJavaVersions extends DefaultTask {
     public final void run() {
         // 1. Figure out what version of conjure-java we resolved
         VersionNumber conjureJavaVersion = findResolvedVersionOf(
-                getProject(), ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
+                getProject(),
+                ConjurePlugin.CONJURE_JAVA,
+                ConjurePlugin.CONJURE_JAVA_BINARY);
 
         // 2. Ensure in each subproject, the version of conjure-lib in `compile` is the same.
         ConjurePlugin.JAVA_PROJECT_SUFFIXES.stream()
@@ -55,8 +57,10 @@ public class CheckConjureJavaVersions extends DefaultTask {
                             compatible,
                             "conjure-lib should be at least as new as the generator:\n"
                                     + "%s -> %s\n%s -> %s",
-                            ConjurePlugin.CONJURE_JAVA_BINARY, conjureJavaVersion,
-                            ConjurePlugin.CONJURE_JAVA_LIB_DEP, conjureJavaLibVersion);
+                            ConjurePlugin.CONJURE_JAVA_BINARY,
+                            conjureJavaVersion,
+                            ConjurePlugin.CONJURE_JAVA_LIB_DEP,
+                            conjureJavaLibVersion);
                 });
     }
 
@@ -71,7 +75,8 @@ public class CheckConjureJavaVersions extends DefaultTask {
                 .collect(MoreCollectors.toOptional());
         String version = component
                 .orElseThrow(() -> new RuntimeException(String.format("Expected to find %s in %s",
-                        moduleId, configuration)))
+                        moduleId,
+                        configuration)))
                 .getModuleVersion()
                 .getVersion();
         return VersionNumber.parse(version);
