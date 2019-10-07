@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: The previous release had a bug, this release fixes that bug and correctly
+    configures source sets as not immutable.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/258
