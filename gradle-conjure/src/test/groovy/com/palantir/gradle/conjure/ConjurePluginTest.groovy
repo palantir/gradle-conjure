@@ -573,6 +573,25 @@ class ConjurePluginTest extends IntegrationSpec {
         runTasksSuccessfully('compileConjure')
     }
 
+    def 'sets up idea source sets correctly'() {
+        when:
+        file('api/build.gradle') << '''
+            subprojects {
+                apply plugin: 'idea'
+            }
+        '''
+
+        runTasksSuccessfully('idea')
+
+        then:
+        def slurper = new XmlParser()
+        def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
+        def sourcesFolderUrls = module.component.content.sourceFolder.@url
+
+        sourcesFolderUrls.size() == 1
+        sourcesFolderUrls.iterator().next().contains('src/generated/java')
+    }
+
     @Unroll
     @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
