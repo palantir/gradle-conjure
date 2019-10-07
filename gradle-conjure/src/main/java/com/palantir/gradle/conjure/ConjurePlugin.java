@@ -25,7 +25,6 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -47,7 +46,6 @@ import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.Exec;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
-import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.GUtil;
 
@@ -621,16 +619,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             if (task != null) {
                 task.dependsOn(compileConjure);
             }
-
-            // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
-            IdeaModule module = plugin.getModel().getModule();
-            module.setSourceDirs(mutableSetWithExtraEntry(
-                    module.getSourceDirs(),
-                    project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
-
-            module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
-                    module.getGeneratedSourceDirs(),
-                    project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
         project.getPlugins().withType(EclipsePlugin.class, plugin -> {
             Task task = project.getTasks().findByName("eclipseClasspath");
@@ -638,12 +626,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.dependsOn(compileConjure);
             }
         });
-    }
-
-    private static <T> Set<T> mutableSetWithExtraEntry(Set<T> set, T extraItem) {
-        Set<T> newSet = new LinkedHashSet<>(set);
-        set.add(extraItem);
-        return newSet;
     }
 
     static Task createWriteGitignoreTask(Project project, String taskName, File outputDir, String contents) {

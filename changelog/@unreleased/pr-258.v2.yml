@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Restores `./gradlew idea` functionality to pre-4.13.2 behaviour.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/258
