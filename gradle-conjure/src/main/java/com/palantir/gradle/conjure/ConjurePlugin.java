@@ -642,7 +642,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static <T> Set<T> mutableSetWithExtraEntry(Set<T> set, T extraItem) {
         Set<T> newSet = new LinkedHashSet<>(set);
-        set.add(extraItem);
+        newSet.add(extraItem);
         return newSet;
     }
 
