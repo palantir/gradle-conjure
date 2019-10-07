@@ -625,10 +625,12 @@ public final class ConjurePlugin implements Plugin<Project> {
             // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
             IdeaModule module = plugin.getModel().getModule();
             module.setSourceDirs(mutableSetWithExtraEntry(
-                    module.getSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
+                    module.getSourceDirs(),
+                    project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
 
             module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
-                    module.getGeneratedSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
+                    module.getGeneratedSourceDirs(),
+                    project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
         project.getPlugins().withType(EclipsePlugin.class, plugin -> {
             Task task = project.getTasks().findByName("eclipseClasspath");
