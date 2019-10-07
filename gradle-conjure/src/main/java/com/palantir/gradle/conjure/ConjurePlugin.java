@@ -25,7 +25,7 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -639,7 +639,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static <T> Set<T> mutableSetWithExtraEntry(Set<T> set, T extraItem) {
-        Set<T> newSet = new HashSet<>(set);
+        Set<T> newSet = new LinkedHashSet<>(set);
         set.add(extraItem);
         return newSet;
     }
