@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Correctly set IDEA source directories.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/260
