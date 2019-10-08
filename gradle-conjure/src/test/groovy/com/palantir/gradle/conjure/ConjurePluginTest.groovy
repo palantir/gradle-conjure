@@ -586,10 +586,14 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         def slurper = new XmlParser()
         def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
-        def sourcesFolderUrls = module.component.content.sourceFolder.@url
+        def sourcesFolders = module.component.content.sourceFolder
 
-        sourcesFolderUrls.size() == 1
-        sourcesFolderUrls.iterator().next().contains('src/generated/java')
+        sourcesFolders.size() == 1
+        def sourceFolder = sourcesFolders.iterator().next();
+
+        sourceFolder.@url.contains('src/generated/java')
+        sourceFolder.@isTestSource.equals('false')
+        sourceFolder.@generated == null
     }
 
     @Unroll
