@@ -347,11 +347,6 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     def 'copies conjure imports into build directory and provides imports to conjure compiler'() {
-        file('api/build.gradle').text = '''
-        apply plugin: 'com.palantir.conjure'
-
-        '''.stripIndent()
-
         createFile('api/src/main/conjure/conjure.yml') << '''
         types:
           conjure-imports:
@@ -574,13 +569,22 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     def 'sets up idea source sets correctly'() {
-        when:
-        file('api/build.gradle') << '''
-            subprojects {
-                apply plugin: 'idea'
-            }
-        '''
+        given:
+        createFile('api/api-jersey/some-extra-source-folder')
 
+        file('build.gradle') << '''
+        subprojects {
+            apply plugin: 'idea'
+            
+            idea {
+                module {
+                    sourceDirs += file('some-extra-source-folder')
+                }
+            }
+        }
+        '''.stripIndent()
+
+        when:
         runTasksSuccessfully('idea')
 
         then:
@@ -588,8 +592,9 @@ class ConjurePluginTest extends IntegrationSpec {
         def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
         def sourcesFolderUrls = module.component.content.sourceFolder.@url
 
-        sourcesFolderUrls.size() == 1
-        sourcesFolderUrls.iterator().next().contains('src/generated/java')
+        sourcesFolderUrls.size() == 2
+        sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
+        sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
     }
 
     @Unroll
