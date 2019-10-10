@@ -45,7 +45,7 @@ public class ConjureGeneratorTask extends SourceTask {
         // main task. Intentionally not using a lambda because this breaks Gradle caching
         doLast(new Action<Task>() {
             @Override
-            public void execute(Task task) {
+            public void execute(Task _task) {
                 compileFiles();
             }
         });
@@ -83,7 +83,7 @@ public class ConjureGeneratorTask extends SourceTask {
      * Where to put the output for the given input source file.
      * This should return a directory that's under {@link #getOutputDirectory()}.
      */
-    protected File outputDirectoryFor(File file) {
+    protected File outputDirectoryFor(File _file) {
         return getOutputDirectory();
     }
 
@@ -116,7 +116,7 @@ public class ConjureGeneratorTask extends SourceTask {
      * What options are required, along with suppliers for obtaining their default values if they were not defined in
      * the {@link #getOptions() options}.
      */
-    protected Map<String, Supplier<Object>> requiredOptions(File file) {
+    protected Map<String, Supplier<Object>> requiredOptions(File _file) {
         return ImmutableMap.of();
     }
 }

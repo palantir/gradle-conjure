@@ -56,7 +56,7 @@ public class ExtractExecutableTask extends Sync {
 
         doFirst(new Action<Task>() {
             @Override
-            public void execute(Task task) {
+            public void execute(Task _task) {
                 Set<String> rootDirectories = new HashSet<>();
                 getProject().tarTree(tarFile.get()).visit(new FileVisitor() {
                     @Override
@@ -71,7 +71,7 @@ public class ExtractExecutableTask extends Sync {
                     }
 
                     @Override
-                    public void visitFile(FileVisitDetails fileDetails) {}
+                    public void visitFile(FileVisitDetails _fileDetails) {}
                 });
                 if (rootDirectories.size() != 1) {
                     throw new GradleException(String.format(
@@ -84,7 +84,7 @@ public class ExtractExecutableTask extends Sync {
 
         doLast(new Action<Task>() {
             @Override
-            public void execute(Task task) {
+            public void execute(Task _task) {
                 getLogger().info("Extracted into {}", getOutputDirectory());
                 // Ensure the executable exists
                 Preconditions.checkState(
