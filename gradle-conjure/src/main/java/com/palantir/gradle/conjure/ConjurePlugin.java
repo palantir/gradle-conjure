@@ -698,7 +698,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         // (see https://github.com/gradle/gradle/issues/5510)
         copyConjureSourcesTask.doFirst(new Action<Task>() {
             @Override
-            public void execute(Task task) {
+            public void execute(Task _task) {
                 GFileUtils.deleteDirectory(buildDir);
             }
         });
