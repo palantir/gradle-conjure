@@ -30,9 +30,8 @@ public class RenderGeneratorOptionsTest {
     public void testBoolean() {
         generatorOptions.setProperty("foo", true);
         generatorOptions.setProperty("bar", false);
-        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of())).containsExactly(
-                "--foo",
-                "--bar=false");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()))
+                .containsExactly("--foo", "--bar=false");
     }
 
     @Test
@@ -43,7 +42,8 @@ public class RenderGeneratorOptionsTest {
                 return "hel lo";
             }
         });
-        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of())).containsExactly("--foo=hel lo");
+        assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()))
+                .containsExactly("--foo=hel lo");
     }
 
     @Test
@@ -60,8 +60,8 @@ public class RenderGeneratorOptionsTest {
                 return null;
             }
         });
-        assertThatNullPointerException().isThrownBy(
-                () -> RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()));
+        assertThatNullPointerException()
+                .isThrownBy(() -> RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()));
     }
 
     @Test

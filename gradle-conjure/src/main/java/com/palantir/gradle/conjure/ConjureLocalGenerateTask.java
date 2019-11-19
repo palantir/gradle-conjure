@@ -25,8 +25,6 @@ public class ConjureLocalGenerateTask extends ConjureGeneratorTask {
     @Override
     protected final File outputDirectoryFor(File file) {
         // Strip extension and version
-        return new File(
-                getOutputDirectory(),
-                file.getName().substring(0, file.getName().lastIndexOf("-")));
+        return new File(getOutputDirectory(), file.getName().substring(0, file.getName().lastIndexOf("-")));
     }
 }

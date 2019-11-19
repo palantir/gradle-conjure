@@ -38,10 +38,8 @@ public class CheckConjureJavaVersions extends DefaultTask {
     @TaskAction
     public final void run() {
         // 1. Figure out what version of conjure-java we resolved
-        VersionNumber conjureJavaVersion = findResolvedVersionOf(
-                getProject(),
-                ConjurePlugin.CONJURE_JAVA,
-                ConjurePlugin.CONJURE_JAVA_BINARY);
+        VersionNumber conjureJavaVersion =
+                findResolvedVersionOf(getProject(), ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
 
         // 2. Ensure in each subproject, the version of conjure-lib in `compile` is the same.
         ConjurePlugin.JAVA_PROJECT_SUFFIXES.stream()
@@ -55,8 +53,7 @@ public class CheckConjureJavaVersions extends DefaultTask {
                     boolean compatible = conjureJavaLibVersion.compareTo(conjureJavaVersion) >= 0;
                     Preconditions.checkState(
                             compatible,
-                            "conjure-lib should be at least as new as the generator:\n"
-                                    + "%s -> %s\n%s -> %s",
+                            "conjure-lib should be at least as new as the generator:\n" + "%s -> %s\n%s -> %s",
                             ConjurePlugin.CONJURE_JAVA_BINARY,
                             conjureJavaVersion,
                             ConjurePlugin.CONJURE_JAVA_LIB_DEP,
@@ -65,18 +62,17 @@ public class CheckConjureJavaVersions extends DefaultTask {
     }
 
     private static VersionNumber findResolvedVersionOf(Project project, String configuration, String moduleId) {
-        ResolutionResult conjureJavaResolutionResult =
-                project.getConfigurations().getByName(configuration).getIncoming().getResolutionResult();
-        Optional<ResolvedComponentResult> component = conjureJavaResolutionResult
-                .getAllComponents()
-                .stream()
-                .filter(c -> c.getModuleVersion() != null
-                        && moduleId.equals(c.getModuleVersion().getModule().toString()))
+        ResolutionResult conjureJavaResolutionResult = project.getConfigurations()
+                .getByName(configuration)
+                .getIncoming()
+                .getResolutionResult();
+        Optional<ResolvedComponentResult> component = conjureJavaResolutionResult.getAllComponents().stream()
+                .filter(c ->
+                        c.getModuleVersion() != null && moduleId.equals(c.getModuleVersion().getModule().toString()))
                 .collect(MoreCollectors.toOptional());
         String version = component
-                .orElseThrow(() -> new RuntimeException(String.format("Expected to find %s in %s",
-                        moduleId,
-                        configuration)))
+                .orElseThrow(
+                        () -> new RuntimeException(String.format("Expected to find %s in %s", moduleId, configuration)))
                 .getModuleVersion()
                 .getVersion();
         return VersionNumber.parse(version);

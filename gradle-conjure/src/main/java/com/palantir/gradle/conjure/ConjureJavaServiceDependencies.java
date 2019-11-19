@@ -36,8 +36,7 @@ final class ConjureJavaServiceDependencies {
      * to produce Jars which the Java generator is not aware of.
      */
     static void configureJavaServiceDependencies(
-            Project project,
-            ConjureProductDependenciesExtension productDependencyExt) {
+            Project project, ConjureProductDependenciesExtension productDependencyExt) {
 
         // HACKHACK Jar does not expose a lazy mechanism for configuring attributes so we have to do it after evaluation
         project.afterEvaluate(p -> p.getTasks().withType(Jar.class, jar -> {

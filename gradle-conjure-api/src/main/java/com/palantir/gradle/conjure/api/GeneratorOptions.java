@@ -28,6 +28,7 @@ public final class GeneratorOptions implements Serializable {
 
     /** Keys must be defined in camelCase. */
     private static Predicate<String> camelCase = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
+
     private final Map<String, Object> storage;
 
     public GeneratorOptions() {
