@@ -1,5 +1,5 @@
 com.fasterxml.jackson.*:* = 2.10.1
-com.google.errorprone:error_prone_annotations = 2.3.3
+com.google.errorprone:error_prone_annotations = 2.3.4
 com.google.guava:guava = 23.6.1-jre
 com.netflix.nebula:nebula-test = 7.6.0
 com.palantir.sls.versions:sls-versions = 0.11.0
