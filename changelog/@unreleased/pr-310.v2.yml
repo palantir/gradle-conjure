@@ -1,19 +1,5 @@
 type: improvement
 improvement:
-  description: |-
-    Set the path sensitivity of ConjureGeneratorTask sources
-
-    This allows the Gradle build cache to function across different
-    machines (or different repo locations on the same file system)
-    when running ConjureGeneratorTasks.
-
-    ## Before this PR
-    Remote Gradle build caching works for compileIr tasks, but not e.g. compileConjureObjects tasks.
-
-    ## After this PR
-    Remote Gradle build caching works for ConjureGeneratorTasks.
-
-    ## Possible downsides?
-    If a custom generator uses the non-relative part of the source path (i.e. the repo location) for something, caching could become inaccurate. This seems unlikely to be something someone would do intentionally. A possible protection against this would be passing a relative path to `outputDirectoryFor` rather than an absolute path. That would protect against `outputDirectoryFor` overrides, though not `compileFiles` overrides.
+  description: Enable Gradle remote build caches for ConjureGeneratorTasks.
   links:
   - https://github.com/palantir/gradle-conjure/pull/310
