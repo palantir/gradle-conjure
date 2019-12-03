@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -49,6 +50,13 @@ public class ConjureGeneratorTask extends SourceTask {
                 compileFiles();
             }
         });
+    }
+
+    // Set the path sensitivity of the sources, which would otherwise default to ABSOLUTE
+    @Override
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public FileTree getSource() {
+        return super.getSource();
     }
 
     public final void setOutputDirectory(File outputDirectory) {
