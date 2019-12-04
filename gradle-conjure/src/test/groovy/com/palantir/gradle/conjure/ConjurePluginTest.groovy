@@ -16,8 +16,10 @@
 
 package com.palantir.gradle.conjure
 
+import java.nio.file.Files
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
+import org.gradle.util.GFileUtils
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
@@ -165,6 +167,27 @@ class ConjurePluginTest extends IntegrationSpec {
         result2.wasUpToDate(":api:api-jersey:compileJava")
         result2.wasUpToDate(":api:compileConjureJersey")
         result2.wasUpToDate(":api:compileConjureObjects")
+    }
+
+    def 'compileIr can get results from the build cache'() {
+        def localBuildCache = Files.createDirectories(projectDir.toPath().resolve("local-build-cache"))
+        settingsFile << """
+        buildCache {
+            local {
+                directory = file("${localBuildCache}")
+                enabled = true
+            }
+        }
+        """.stripIndent()
+        file("gradle.properties") << "\norg.gradle.caching = true\n"
+
+        when:
+        runTasksSuccessfully('compileIr')
+        GFileUtils.deleteDirectory(projectDir.toPath().resolve("api/build").toFile())
+        ExecutionResult result = runTasksSuccessfully('compileIr', '-i')
+
+        then:
+        result.standardOutput.contains "Task :api:compileIr FROM-CACHE"
     }
 
     def 'check code compiles when run in parallel with multiple build targets'() {
