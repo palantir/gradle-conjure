@@ -55,7 +55,7 @@ public class ConjureGeneratorTask extends SourceTask {
     // Set the path sensitivity of the sources, which would otherwise default to ABSOLUTE
     @Override
     @PathSensitive(PathSensitivity.RELATIVE)
-    public FileTree getSource() {
+    public final FileTree getSource() {
         return super.getSource();
     }
 
