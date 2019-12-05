@@ -64,7 +64,7 @@ public final class GeneratorOptions implements Serializable {
 
     private void set(String key, Object value) {
         if (key == null) {
-            throw new NullPointerException("Key cannot be null: " + key);
+            throw new NullPointerException("Key cannot be null");
         }
 
         if (!camelCase.test(key)) {
@@ -81,7 +81,7 @@ public final class GeneratorOptions implements Serializable {
     public GeneratorOptions addFlag(String flag) {
         if (has(flag)) {
             throw new IllegalArgumentException(
-                    String.format("Passed GeneratorOptions already has flag '%s' set: %s", flag, this));
+                    String.format("This GeneratorOptions already has flag '%s' set", flag));
         }
         this.setProperty(flag, true);
         return this;
