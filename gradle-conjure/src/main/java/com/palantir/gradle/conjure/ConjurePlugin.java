@@ -341,6 +341,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", ANNOTATION_API);
+                subproj.getDependencies().add("implementation", "jakarta.validation:jakarta.validation-api");
             });
         }
     }

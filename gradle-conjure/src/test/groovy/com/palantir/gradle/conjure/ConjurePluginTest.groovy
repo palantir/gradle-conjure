@@ -78,6 +78,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
         com.palantir.conjure:conjure = ${TestVersions.CONJURE}
         com.squareup.retrofit2:retrofit = 2.1.0
+        jakarta.validation:jakarta.validation-api = 2.0.2
         javax.ws.rs:javax.ws.rs-api = 2.0.1
         """.stripIndent()
 
