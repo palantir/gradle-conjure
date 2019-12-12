@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Jersey API projects now include a dependency on `jakarta.validation:jakarta.validation-api`.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/322
