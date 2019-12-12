@@ -289,6 +289,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("api", "com.google.guava:guava");
                 subproj.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
                 subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
