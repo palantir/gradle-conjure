@@ -240,7 +240,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
                 subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", "jakarta.annotation:jakarta.annotation-api");
             });
         }
     }
@@ -288,7 +288,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", "jakarta.annotation:jakarta.annotation-api");
             });
         }
     }
@@ -336,8 +336,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("api", "jakarta.ws.rs:jakarta.ws.rs-api");
+                subproj.getDependencies().add("compileOnly", "jakarta.annotation:jakarta.annotation-api");
             });
         }
     }
