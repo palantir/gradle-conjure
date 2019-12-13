@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: Jersey API projects now include a dependency on `jakarta.ws.rs:jakarta.ws.rs-api`
+    instead of `javax.ws.rs:javax.ws.rs-api`.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/325
