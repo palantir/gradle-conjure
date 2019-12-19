@@ -1,0 +1,7 @@
+type: fix
+fix:
+  description: gradle-conjure no longer requires users to provide a version number
+    for `javax.annotation:javax.annotation-api`, instead it will just set up a dependency
+    on latest (1.3.2).  This can still be substituted later with the new jakarta version.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/331
