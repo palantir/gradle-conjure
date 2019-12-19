@@ -95,6 +95,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     /** Configuration where custom generators should be added as dependencies. */
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
+    /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
+    private static final String ANNOTATION_API = "javax.annotation:javax.annotation-api:1.3.2";
 
     @Override
     public void apply(Project project) {
@@ -240,7 +242,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
                 subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
         }
     }
@@ -288,7 +290,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureRetrofit"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
         }
     }
@@ -337,7 +339,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
-                subproj.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api");
+                subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
         }
     }
