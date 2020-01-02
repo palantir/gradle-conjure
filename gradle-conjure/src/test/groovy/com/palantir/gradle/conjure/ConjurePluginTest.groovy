@@ -141,11 +141,14 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully('check')
 
         then:
+        result.wasExecuted(':api:api-objects:compileJava')
+        result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:api-jersey:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(':api:api-retrofit:compileJava')
+        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:api-undertow:compileJava')
         result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(':api:compileConjureObjects')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         fileExists('api/api-objects/.gitignore')
@@ -158,14 +161,24 @@ class ConjurePluginTest extends IntegrationSpec {
 
         then:
         result.wasExecuted(':api:extractConjureJava')
+        result.wasExecuted(':api:api-objects:compileJava')
+        result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:api-jersey:compileJava')
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureObjects')
+        result.wasExecuted(':api:api-retrofit:compileJava')
+        result.wasExecuted(':api:compileConjureRetrofit')
+        result.wasExecuted(':api:api-undertow:compileJava')
+        result.wasExecuted(':api:compileConjureUndertow')
 
         result2.wasUpToDate(':api:extractConjureJava')
-        result2.wasUpToDate(":api:api-jersey:compileJava")
-        result2.wasUpToDate(":api:compileConjureJersey")
-        result2.wasUpToDate(":api:compileConjureObjects")
+        result2.wasUpToDate(':api:api-objects:compileJava')
+        result2.wasUpToDate(':api:compileConjureObjects')
+        result2.wasUpToDate(':api:api-jersey:compileJava')
+        result2.wasUpToDate(':api:compileConjureJersey')
+        result2.wasUpToDate(':api:api-retrofit:compileJava')
+        result2.wasUpToDate(':api:compileConjureRetrofit')
+        result2.wasUpToDate(':api:api-undertow:compileJava')
+        result2.wasUpToDate(':api:compileConjureUndertow')
     }
 
     def 'compileIr can get results from the build cache'() {
