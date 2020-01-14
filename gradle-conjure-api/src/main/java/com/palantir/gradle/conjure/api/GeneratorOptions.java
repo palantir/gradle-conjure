@@ -27,7 +27,9 @@ public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
 
     /** Keys must be defined in camelCase. */
-    private static Predicate<String> camelCase = Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
+    private static Predicate<String> camelCase = Pattern.compile("[a-z][a-zA-Z0-9]*")
+            .asPredicate();
+
     private final Map<String, Object> storage;
 
     public GeneratorOptions() {
@@ -80,8 +82,7 @@ public final class GeneratorOptions implements Serializable {
 
     public GeneratorOptions addFlag(String flag) {
         if (has(flag)) {
-            throw new IllegalArgumentException(
-                    String.format("This GeneratorOptions already has flag '%s' set", flag));
+            throw new IllegalArgumentException(String.format("This GeneratorOptions already has flag '%s' set", flag));
         }
         this.setProperty(flag, true);
         return this;

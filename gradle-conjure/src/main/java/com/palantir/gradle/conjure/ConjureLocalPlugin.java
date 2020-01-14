@@ -42,27 +42,21 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final String JAVA_PROJECT_NAME = "java";
     private static final String PYTHON_PROJECT_NAME = "python";
     private static final String TYPESCRIPT_PROJECT_NAME = "typescript";
-    private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.of(
-            JAVA_PROJECT_NAME,
-            PYTHON_PROJECT_NAME,
-            TYPESCRIPT_PROJECT_NAME);
-    private static final ImmutableSet<String> UNSAFE_JAVA_OPTIONS = ImmutableSet.of(
-            "objects",
-            "retrofit",
-            "jersey",
-            "undertow");
+    private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES =
+            ImmutableSet.of(JAVA_PROJECT_NAME, PYTHON_PROJECT_NAME, TYPESCRIPT_PROJECT_NAME);
+    private static final ImmutableSet<String> UNSAFE_JAVA_OPTIONS =
+            ImmutableSet.of("objects", "retrofit", "jersey", "undertow");
 
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
 
         Configuration conjureIrConfiguration = project.getConfigurations().maybeCreate(CONJURE_CONFIGURATION);
-        Configuration conjureGeneratorsConfiguration = project.getConfigurations()
-                .maybeCreate(
-                        ConjurePlugin.CONJURE_GENERATORS_CONFIGURATION_NAME);
+        Configuration conjureGeneratorsConfiguration =
+                project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_GENERATORS_CONFIGURATION_NAME);
 
-        ConjureExtension extension = project.getExtensions()
-                .create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
+        ConjureExtension extension =
+                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         Task generateConjure = project.getTasks().create("generateConjure", task -> {
             task.setDescription("Generates code for all requested languages (for which there is a subproject) "
@@ -70,26 +64,13 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             task.setGroup(ConjurePlugin.TASK_GROUP);
         });
         setupConjureJava(
-                project,
-                immutableOptionsSupplier(extension::getJava),
-                conjureIrConfiguration,
-                generateConjure);
+                project, immutableOptionsSupplier(extension::getJava), conjureIrConfiguration, generateConjure);
         setupConjurePython(
-                project,
-                immutableOptionsSupplier(extension::getPython),
-                conjureIrConfiguration,
-                generateConjure);
+                project, immutableOptionsSupplier(extension::getPython), conjureIrConfiguration, generateConjure);
         setupConjureTypeScript(
-                project,
-                immutableOptionsSupplier(extension::getTypescript),
-                conjureIrConfiguration,
-                generateConjure);
+                project, immutableOptionsSupplier(extension::getTypescript), conjureIrConfiguration, generateConjure);
         setupGenericConjureProjects(
-                project,
-                extension,
-                conjureIrConfiguration,
-                generateConjure,
-                conjureGeneratorsConfiguration);
+                project, extension, conjureIrConfiguration, generateConjure, conjureGeneratorsConfiguration);
     }
 
     private void setupConjureJava(
@@ -106,20 +87,13 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         File conjureJavaDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_JAVA);
         project.getDependencies().add(ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
         ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
-                project,
-                "extractConjureJava",
-                conjureJavaConfig,
-                conjureJavaDir,
-                "conjure-java");
+                project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(subproj);
 
         Task gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
-                subproj,
-                "gitignoreConjureJava",
-                subproj.getProjectDir(),
-                ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
+                subproj, "gitignoreConjureJava", subproj.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
         project.getTasks().create("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
             task.setDescription("Generates Java bindings for remote Conjure definitions.");
@@ -159,35 +133,34 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             Configuration conjureGeneratorsConfiguration) {
         // Validating that each subproject has a corresponding generator.
         // We do this in afterEvaluate to ensure the configuration is populated.
-        Map<String, Project> genericSubProjects = Maps.filterKeys(
-                project.getChildProjects(),
-                key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(key));
+        Map<String, Project> genericSubProjects =
+                Maps.filterKeys(project.getChildProjects(), key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(key));
         if (genericSubProjects.isEmpty()) {
             return;
         }
 
         project.afterEvaluate(p -> {
-            Map<String, Dependency> generators = conjureGeneratorsConfiguration
-                    .getAllDependencies()
-                    .stream()
-                    .collect(Collectors.toMap(dependency -> {
-                        Preconditions.checkState(dependency.getName()
-                                .startsWith(
-                                        ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX),
-                                "Generators should start with '%s' according to conjure RFC 002, "
-                                        + "but found name: '%s' (%s)",
-                                ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX,
-                                dependency.getName(),
-                                dependency);
-                        return dependency.getName().substring(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX.length());
-                    }, Function.identity()));
+            Map<String, Dependency> generators = conjureGeneratorsConfiguration.getAllDependencies().stream()
+                    .collect(Collectors.toMap(
+                            dependency -> {
+                                Preconditions.checkState(
+                                        dependency.getName().startsWith(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX),
+                                        "Generators should start with '%s' according to conjure RFC 002, "
+                                                + "but found name: '%s' (%s)",
+                                        ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX,
+                                        dependency.getName(),
+                                        dependency);
+                                return dependency
+                                        .getName()
+                                        .substring(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX.length());
+                            },
+                            Function.identity()));
 
             genericSubProjects.forEach((subprojectName, subproject) -> {
                 if (!generators.containsKey(subprojectName)) {
-                    throw new RuntimeException(String.format("Discovered subproject %s without corresponding "
-                            + "generator dependency with name '%s'",
-                            subproject.getPath(),
-                            ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+                    throw new RuntimeException(String.format(
+                            "Discovered subproject %s without corresponding " + "generator dependency with name '%s'",
+                            subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
                 }
             });
         });
@@ -204,14 +177,13 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", subprojectName));
 
-            ConjureLocalGenerateTask conjureLocalGenerateTask = project
-                    .getTasks()
-                    .create(GUtil.toLowerCamelCase("generate " + subprojectName),
+            ConjureLocalGenerateTask conjureLocalGenerateTask = project.getTasks()
+                    .create(
+                            GUtil.toLowerCamelCase("generate " + subprojectName),
                             ConjureLocalGenerateGenericTask.class,
                             task -> {
                                 task.setDescription(String.format(
-                                        "Generates %s files from remote Conjure definitions.",
-                                        subprojectName));
+                                        "Generates %s files from remote Conjure definitions.", subprojectName));
                                 task.setGroup(ConjurePlugin.TASK_GROUP);
                                 task.setSource(conjureIrConfiguration);
                                 task.setExecutablePath(extractConjureGeneratorTask::getExecutable);
@@ -238,11 +210,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         project.getDependencies().add(ConjurePlugin.CONJURE_PYTHON, ConjurePlugin.CONJURE_PYTHON_BINARY);
 
         ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
-                project,
-                "extractConjurePython",
-                conjurePythonConfig,
-                conjurePythonDir,
-                "conjure-python");
+                project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
 
         project.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
             task.setDescription("Generates Python files from remote Conjure definitions.");
@@ -265,14 +233,11 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         if (subproj == null) {
             return;
         }
-        Configuration conjureTypeScriptConfig = project.getConfigurations()
-                .maybeCreate(ConjurePlugin.CONJURE_TYPESCRIPT);
+        Configuration conjureTypeScriptConfig =
+                project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_TYPESCRIPT);
         File conjureTypescriptDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_TYPESCRIPT);
         File srcDirectory = subproj.file("src");
-        project.getDependencies()
-                .add(
-                        ConjurePlugin.CONJURE_TYPESCRIPT,
-                        ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
+        project.getDependencies().add(ConjurePlugin.CONJURE_TYPESCRIPT, ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
 
         ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
                 project,
