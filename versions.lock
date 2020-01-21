@@ -1,18 +1,18 @@
 # Run ./gradlew --write-locks to regenerate this file
-com.fasterxml.jackson.core:jackson-annotations:2.10.2 (2 constraints: bb179c70)
+com.fasterxml.jackson.core:jackson-annotations:2.10.2 (3 constraints: a8282ca7)
 com.fasterxml.jackson.core:jackson-core:2.10.2 (1 constraints: 85122e21)
-com.fasterxml.jackson.core:jackson-databind:2.10.2 (2 constraints: 0316c0e2)
+com.fasterxml.jackson.core:jackson-databind:2.10.2 (1 constraints: 3705313b)
 com.google.code.findbugs:jsr305:3.0.2 (2 constraints: 250fb786)
 com.google.errorprone:error_prone_annotations:2.3.4 (3 constraints: 2320c11d)
 com.google.guava:guava:23.6.1-jre (2 constraints: c913aa68)
 com.google.j2objc:j2objc-annotations:1.1 (1 constraints: b609eba0)
 com.palantir.safe-logging:preconditions:1.4.0 (1 constraints: be1079b2)
-com.palantir.safe-logging:safe-logging:1.11.0 (2 constraints: ec21c0b3)
-com.palantir.sls.versions:sls-versions:0.11.0 (1 constraints: 3405263b)
+com.palantir.safe-logging:safe-logging:1.13.0 (2 constraints: ee21c6b3)
+com.palantir.sls.versions:sls-versions:0.12.0 (1 constraints: 3505293b)
 org.checkerframework:checker-compat-qual:2.0.0 (1 constraints: 140ae5b4)
 org.codehaus.mojo:animal-sniffer-annotations:1.14 (1 constraints: ea09d5aa)
 org.immutables:value:2.8.3 (1 constraints: 0f051036)
-org.slf4j:slf4j-api:1.7.25 (1 constraints: f8107cc3)
+org.slf4j:slf4j-api:1.7.30 (1 constraints: f41079c3)
 
 [Test dependencies]
 cglib:cglib-nodep:3.2.2 (1 constraints: 490ded24)
