@@ -88,16 +88,14 @@ public class ConjureGeneratorTask extends SourceTask {
     }
 
     /**
-     * Where to put the output for the given input source file.
-     * This should return a directory that's under {@link #getOutputDirectory()}.
+     * Where to put the output for the given input source file. This should return a directory that's under
+     * {@link #getOutputDirectory()}.
      */
     protected File outputDirectoryFor(File _file) {
         return getOutputDirectory();
     }
 
-    /**
-     * Entry point for the task.
-     */
+    /** Entry point for the task. */
     public void compileFiles() {
         getSource().getFiles().forEach(file -> {
             GeneratorOptions generatorOptions = getOptions();
