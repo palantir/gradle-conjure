@@ -53,8 +53,7 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
         return new File(getProject().getBuildDir(), "service-dependencies.json");
     }
 
-    final void setConjureServiceDependencies(
-            Supplier<Set<ServiceDependency>> conjureServiceDependencies) {
+    final void setConjureServiceDependencies(Supplier<Set<ServiceDependency>> conjureServiceDependencies) {
         this.conjureServiceDependencies = conjureServiceDependencies;
     }
 
@@ -65,25 +64,30 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
     }
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {
-        Preconditions.checkNotNull(serviceDependency.getProductGroup(),
+        Preconditions.checkNotNull(
+                serviceDependency.getProductGroup(),
                 "productGroup must be specified for a recommended service dependency");
-        Preconditions.checkArgument(GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
+        Preconditions.checkArgument(
+                GROUP_PATTERN.matcher(serviceDependency.getProductGroup()).matches(),
                 "productGroup must be a valid maven group");
-        Preconditions.checkNotNull(serviceDependency.getProductName(),
+        Preconditions.checkNotNull(
+                serviceDependency.getProductName(),
                 "productName must be specified for a recommended service dependency");
-        Preconditions.checkArgument(NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
+        Preconditions.checkArgument(
+                NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
         Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");
         if (!SlsVersion.check(serviceDependency.getMaximumVersion())
-                && !SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion()).isPresent()) {
+                && !SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion())
+                        .isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "
                     + serviceDependency.getMaximumVersion());
         } else if (!SlsVersion.check(serviceDependency.getMinimumVersion())) {
-            throw new IllegalArgumentException("minimumVersion must be valid SLS versions: "
-                    + serviceDependency.getMinimumVersion());
+            throw new IllegalArgumentException(
+                    "minimumVersion must be valid SLS versions: " + serviceDependency.getMinimumVersion());
         } else if (!SlsVersion.check(serviceDependency.getRecommendedVersion())) {
-            throw new IllegalArgumentException("recommendedVersion must be valid SLS versions: "
-                    + serviceDependency.getRecommendedVersion());
+            throw new IllegalArgumentException(
+                    "recommendedVersion must be valid SLS versions: " + serviceDependency.getRecommendedVersion());
         } else if (serviceDependency.getMinimumVersion().equals(serviceDependency.getMaximumVersion())) {
             throw new SafeIllegalArgumentException("minimumVersion and maximumVersion must be different");
         }

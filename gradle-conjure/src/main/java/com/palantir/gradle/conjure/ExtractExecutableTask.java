@@ -76,8 +76,7 @@ public class ExtractExecutableTask extends Sync {
                 if (rootDirectories.size() != 1) {
                     throw new GradleException(String.format(
                             "Expected exactly one root directory in tar '%s', aborting: %s",
-                            tarFile.get(),
-                            rootDirectories));
+                            tarFile.get(), rootDirectories));
                 }
             }
         });
@@ -97,11 +96,7 @@ public class ExtractExecutableTask extends Sync {
     }
 
     public static ExtractExecutableTask createExtractTask(
-            Project project,
-            String taskName,
-            FileCollection archive,
-            File outputDir,
-            String executableName) {
+            Project project, String taskName, FileCollection archive, File outputDir, String executableName) {
         return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(archive);
             task.setOutputDirectory(outputDir);
@@ -128,8 +123,8 @@ public class ExtractExecutableTask extends Sync {
     }
 
     /**
-     * The file name of the executable. This file should exist under {@code <single root directory>/bin} inside the
-     * tar archive.
+     * The file name of the executable. This file should exist under {@code <single root directory>/bin} inside the tar
+     * archive.
      */
     @Input
     public final String getExecutableName() {
@@ -140,9 +135,7 @@ public class ExtractExecutableTask extends Sync {
         this.executableName = executableName;
     }
 
-    /**
-     * The full path to the executable that will be extracted by this task.
-     */
+    /** The full path to the executable that will be extracted by this task. */
     @OutputFile
     final File getExecutable() {
         return new File(getOutputDirectory(), String.format("bin/%s", executableName));
@@ -150,7 +143,8 @@ public class ExtractExecutableTask extends Sync {
 
     private File resolveTarFile() {
         Set<File> resolvedFiles = archive.getFiles();
-        Preconditions.checkState(resolvedFiles.size() == 1,
+        Preconditions.checkState(
+                resolvedFiles.size() == 1,
                 "Expected exactly one dependency for executable '%s', found %s",
                 getExecutableName(),
                 resolvedFiles);

@@ -34,40 +34,40 @@ public final class RenderGeneratorOptions {
 
     /**
      * Renders a {@link GeneratorOptions} to command-line arguments.
+     *
      * @param requiredOptions a map of required options to their default values
      */
-    public static List<String> toArgs(
-            GeneratorOptions options,
-            Map<String, Supplier<Object>> requiredOptions) {
+    public static List<String> toArgs(GeneratorOptions options, Map<String, Supplier<Object>> requiredOptions) {
         Map<String, Object> properties = options.getProperties();
         ImmutableMap.Builder<String, Object> resolvedProperties =
                 ImmutableMap.<String, Object>builder().putAll(properties);
         requiredOptions.forEach((field, defaultSupplierOpt) -> {
             Object defaultValue = defaultSupplierOpt.get();
             if (!properties.containsKey(field)) {
-                log.info("Field '{}' was not defined in options, falling back to default: {}",
-                        field,
-                        defaultValue);
+                log.info("Field '{}' was not defined in options, falling back to default: {}", field, defaultValue);
                 resolvedProperties.put(field, defaultValue);
             } else if (Objects.equals(defaultValue, Objects.toString(properties.get(field)))) {
-                log.warn("Field '{}' was defined in options but its value is the same as the default: {}",
+                log.warn(
+                        "Field '{}' was defined in options but its value is the same as the default: {}",
                         field,
                         defaultValue);
             }
         });
 
-        return resolvedProperties.build().entrySet().stream().map(entry -> {
-            Object value = entry.getValue();
-            if (value == Boolean.TRUE) {
-                return "--" + entry.getKey();
-            }
-            Preconditions.checkArgument(
-                    !entry.getKey().contains("="),
-                    "Conjure generator parameter '%s' cannot contain '='",
-                    entry.getKey());
-            String stringValue = Objects.toString(value);
-            com.palantir.logsafe.Preconditions.checkNotNull(stringValue, "Value cannot be null");
-            return "--" + entry.getKey() + "=" + stringValue;
-        }).collect(Collectors.toList());
+        return resolvedProperties.build().entrySet().stream()
+                .map(entry -> {
+                    Object value = entry.getValue();
+                    if (value == Boolean.TRUE) {
+                        return "--" + entry.getKey();
+                    }
+                    Preconditions.checkArgument(
+                            !entry.getKey().contains("="),
+                            "Conjure generator parameter '%s' cannot contain '='",
+                            entry.getKey());
+                    String stringValue = Objects.toString(value);
+                    com.palantir.logsafe.Preconditions.checkNotNull(stringValue, "Value cannot be null");
+                    return "--" + entry.getKey() + "=" + stringValue;
+                })
+                .collect(Collectors.toList());
     }
 }
