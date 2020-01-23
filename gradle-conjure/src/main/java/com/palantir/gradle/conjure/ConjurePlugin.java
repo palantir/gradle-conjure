@@ -90,6 +90,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
+    private static final String JAVA_OPTIONS_REQUIRE_NON_NULL = "requireNotNullAuthAndBodyParams";
+
     static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
 
     /** Configuration where custom generators should be added as dependencies. */
@@ -341,7 +343,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
                 subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", ANNOTATION_API);
-                subproj.getDependencies().add("implementation", "jakarta.validation:jakarta.validation-api");
+
+                if (optionsSupplier.get().has(JAVA_OPTIONS_REQUIRE_NON_NULL)) {
+                    subproj.getDependencies().add("implementation", "jakarta.validation:jakarta.validation-api");
+                }
             });
         }
     }
