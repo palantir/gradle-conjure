@@ -34,11 +34,13 @@ public final class RenderGeneratorOptions {
 
     /**
      * Renders a {@link GeneratorOptions} to command-line arguments.
-     *
      * @param requiredOptions a map of required options to their default values
      */
     public static List<String> toArgs(GeneratorOptions options, Map<String, Supplier<Object>> requiredOptions) {
-        Map<String, Object> properties = options.getProperties();
+        return toArgs(options.getProperties(), requiredOptions);
+    }
+
+    public static List<String> toArgs(Map<String, Object> properties, Map<String, Supplier<Object>> requiredOptions) {
         ImmutableMap.Builder<String, Object> resolvedProperties =
                 ImmutableMap.<String, Object>builder().putAll(properties);
         requiredOptions.forEach((field, defaultSupplierOpt) -> {
