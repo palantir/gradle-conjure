@@ -78,6 +78,26 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=test.group]"
     }
 
+    def "respects user provided packagePrefix"() {
+        buildFile << """
+        conjure {
+            java {
+                addFlag "objects"
+                packagePrefix = "user.group"
+            }
+        }
+        """.stripIndent()
+        addSubproject("conjure-api")
+
+        when:
+        def result = runTasksSuccessfully(":conjure-api:generateConjure")
+
+        then:
+        result.wasExecuted("extractConjureIr")
+        fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=user.group]"
+    }
+
     def 'check code compiles'() {
         addSubproject("conjure-api")
         buildFile << "conjure { java { addFlag 'objects' } }"

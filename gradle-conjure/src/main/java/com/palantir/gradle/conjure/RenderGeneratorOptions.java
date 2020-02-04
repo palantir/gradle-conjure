@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +58,7 @@ public final class RenderGeneratorOptions {
         });
 
         return resolvedProperties.build().entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getKey))
                 .map(entry -> {
                     Object value = entry.getValue();
                     if (value == Boolean.TRUE) {

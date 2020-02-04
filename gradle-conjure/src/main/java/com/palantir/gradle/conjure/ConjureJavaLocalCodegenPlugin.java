@@ -19,8 +19,9 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.palantir.gradle.conjure.api.ConjureExtension;
-import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.gradle.api.Plugin;
@@ -112,9 +113,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     task.getExecutablePath().set(project.getLayout().file(project.provider(() ->
                             OsUtils.appendDotBatIfWindows(extractJavaTask.getExecutable()))));
                     task.getOptions().set(project.provider(() -> {
-                        GeneratorOptions options = new GeneratorOptions(extension.getJava());
-                        options.setProperty("packagePrefix", project.getGroup().toString());
-                        return options.getProperties();
+                        Map<String, Object> properties =
+                                new HashMap<>(extension.getJava().getProperties());
+                        properties.putIfAbsent(
+                                "packagePrefix", project.getGroup().toString());
+                        return properties;
                     }));
                     task.getOutputDirectory().set(project.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
                     task.dependsOn(extractJavaTask, extractConjureIr, generateGitIgnore);
