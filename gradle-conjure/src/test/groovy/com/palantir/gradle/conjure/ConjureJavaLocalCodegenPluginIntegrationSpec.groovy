@@ -28,7 +28,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         }
         
         allprojects {
-            group = 'test.abc.group'
+            group = 'test.group'
             version = '1.0.0'
         
             repositories {
@@ -73,9 +73,9 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted("extractConjureIr")
         result.wasExecuted("conjure-api:generateConjure")
         fileExists("build/conjure-ir/conjure-api.conjure.json")
-        fileExists('conjure-api/src/generated/java/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running generator with args: [--jersey, --packagePrefix=test.abc.group]"
-        result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=test.abc.group]"
+        fileExists('conjure-api/src/generated/java/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "Running generator with args: [--jersey, --packagePrefix=test.group]"
+        result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=test.group]"
     }
 
     def 'check code compiles'() {
@@ -89,7 +89,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted(':conjure-api:compileJava')
         result.wasExecuted(':conjure-api:generateConjure')
 
-        fileExists('conjure-api/src/generated/java/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/src/generated/java/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
     def 'sets up idea source sets correctly'() {
