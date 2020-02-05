@@ -37,7 +37,7 @@ import org.gradle.api.tasks.TaskProvider;
 public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static final String CONJURE_CONFIGURATION = "conjure";
     private static final Pattern DEFINITION_NAME =
-            Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(.conjure)?.json");
+            Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(\\.conjure)?\\.json");
 
     static final String CONJURE_JAVA = "conjureJava";
     static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
@@ -49,7 +49,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         ConjureExtension extension =
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
-        Configuration conjureIrConfiguration = project.getConfigurations().maybeCreate(CONJURE_CONFIGURATION);
+        Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
         TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
             task.rename(DEFINITION_NAME, "$1.conjure.json");
             task.from(conjureIrConfiguration);
