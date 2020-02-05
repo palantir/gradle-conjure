@@ -56,7 +56,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
         });
 
-        Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
+        Configuration conjureJavaConfig = project.getConfigurations().create(CONJURE_JAVA);
         File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
         project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
         ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
