@@ -75,7 +75,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         // Validating that each subproject has a corresponding definition and vice versa.
         // We do this in afterEvaluate to ensure the configuration is populated.
         project.afterEvaluate(p -> {
-            Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
+            Set<String> apis = conjureIrConfiguration.getIncoming().getDependencies().stream()
                     .map(Dependency::getName)
                     .collect(ImmutableSet.toImmutableSet());
 
