@@ -17,15 +17,19 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,6 +44,8 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -52,6 +58,7 @@ import org.gradle.util.GFileUtils;
 import org.gradle.util.GUtil;
 
 public final class ConjurePlugin implements Plugin<Project> {
+    private static final Logger log = Logging.getLogger(ConjurePlugin.class);
 
     static final String TASK_GROUP = "Conjure";
     static final String TASK_CLEAN = "clean";
@@ -175,6 +182,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (project.findProject(objectsProjectName) != null) {
             project.project(objectsProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaLibraryPlugin.class);
+                ignoreFromCheckUnusedDependencies(subproj);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureObjects", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Java POJOs from your Conjure definitions.");
@@ -216,6 +224,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
             project.project(retrofitProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaLibraryPlugin.class);
+                ignoreFromCheckUnusedDependencies(subproj);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureRetrofit", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
@@ -262,6 +271,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
             project.project(jerseyProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaLibraryPlugin.class);
+                ignoreFromCheckUnusedDependencies(subproj);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureJersey", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Jersey interfaces from your Conjure definitions "
@@ -307,6 +317,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
             project.project(undertowProjectName, subproj -> {
                 subproj.getPluginManager().apply(JavaLibraryPlugin.class);
+                ignoreFromCheckUnusedDependencies(subproj);
                 addGeneratedToMainSourceSet(subproj);
                 project.getTasks().create("compileConjureUndertow", ConjureGeneratorTask.class, task -> {
                     task.setDescription(
@@ -332,6 +343,19 @@ public final class ConjurePlugin implements Plugin<Project> {
                 subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-undertow-lib");
             });
         }
+    }
+
+    private static void ignoreFromCheckUnusedDependencies(Project proj) {
+        proj.getPluginManager().withPlugin("com.palantir.baseline-exact-dependencies", plugin -> {
+            Object task = proj.getTasks().getByName("checkUnusedDependencies");
+            try {
+                Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
+                List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
+                ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
+            }
+        });
     }
 
     private static void setupConjureTypescriptProject(
