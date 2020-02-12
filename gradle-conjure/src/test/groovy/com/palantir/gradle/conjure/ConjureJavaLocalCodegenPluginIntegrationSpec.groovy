@@ -40,7 +40,12 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
                resolutionStrategy {
                    failOnVersionConflict()
                    force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
+                   force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+
+                   force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
+                   force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
+                   force 'com.palantir.safe-logging:safe-logging:1.12.0'
                }
            }
         }

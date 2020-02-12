@@ -105,6 +105,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ExtractExecutableTask extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.addGeneratedToMainSourceSet(project);
+
+        project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
         project.getDependencies().add("compileOnly", ConjurePlugin.ANNOTATION_API);
 
         Task generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
