@@ -284,7 +284,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureJersey"));
                 subproj.getDependencies().add("api", project.findProject(objectsProjectName));
-                subproj.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
+                subproj.getDependencies().add("api", "jakarta.ws.rs:jakarta.ws.rs-api");
                 subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
         }
