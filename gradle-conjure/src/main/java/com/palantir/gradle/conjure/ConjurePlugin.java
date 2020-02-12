@@ -202,7 +202,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
                 subproj.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
-                subproj.getDependencies().add("compileOnly", ANNOTATION_API);
             });
         }
     }
