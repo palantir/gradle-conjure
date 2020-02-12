@@ -474,22 +474,6 @@ class ConjurePluginTest extends IntegrationSpec {
         !result.wasExecuted(':api:compileConjureJersey')
     }
 
-    def 'featureFlag RetrofitCompletableFutures can be enabled'() {
-        file('api/build.gradle') << '''
-        conjure {
-            java {
-                retrofitCompletableFutures = true
-            }
-        }
-        '''.stripIndent()
-
-        when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjureRetrofit')
-
-        then:
-        fileExists('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java')
-        file('api/api-retrofit/src/generated/java/test/test/api/TestServiceFooRetrofit.java').text.contains('CompletableFuture<StringExample>')
-    }
 
     def 'featureFlag UndertowServicePrefix can be enabled'() {
         file('api/build.gradle') << '''
@@ -541,7 +525,8 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasks(':api:compileConjureTypeScript')
 
         then:
-        result.standardOutput.contains("--nodeCompatibleModules --unknownOps=Unknown");
+        result.standardOutput.contains("--nodeCompatibleModules")
+        result.standardOutput.contains("--unknownOps=Unknown")
     }
 
     def 'works with afterEvaluate'() {

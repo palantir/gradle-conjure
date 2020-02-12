@@ -31,7 +31,7 @@ public class RenderGeneratorOptionsTest {
         generatorOptions.setProperty("foo", true);
         generatorOptions.setProperty("bar", false);
         assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of()))
-                .containsExactly("--foo", "--bar=false");
+                .containsExactly("--bar=false", "--foo");
     }
 
     @Test
@@ -68,6 +68,6 @@ public class RenderGeneratorOptionsTest {
     public void testDefault() {
         generatorOptions.setProperty("foo", "bar");
         assertThat(RenderGeneratorOptions.toArgs(generatorOptions, ImmutableMap.of("baz", () -> "yep")))
-                .containsExactly("--foo=bar", "--baz=yep");
+                .containsExactly("--baz=yep", "--foo=bar");
     }
 }

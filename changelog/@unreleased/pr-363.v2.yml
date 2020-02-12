@@ -1,0 +1,6 @@
+type: feature
+feature:
+  description: Add new `conjure-java-local` plugin which allows for first class Java
+    local codegen
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/363
