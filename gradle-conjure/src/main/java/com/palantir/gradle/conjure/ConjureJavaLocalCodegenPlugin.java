@@ -110,8 +110,10 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                 .register("generateConjure", ConjureJavaLocalGeneratorTask.class, task -> {
                     task.setSource(extractConjureIr.map(
                             irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json")));
-                    task.getExecutablePath().set(project.getLayout().file(project.provider(() ->
-                            OsUtils.appendDotBatIfWindows(extractJavaTask.getExecutable()))));
+                    task.getExecutablePath()
+                            .set(project.getLayout()
+                                    .file(project.provider(
+                                            () -> OsUtils.appendDotBatIfWindows(extractJavaTask.getExecutable()))));
                     task.getOptions().set(project.provider(() -> {
                         Map<String, Object> properties =
                                 new HashMap<>(extension.getJava().getProperties());

@@ -467,8 +467,10 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             Task compileIrTask,
             Configuration conjureGeneratorsConfiguration) {
-        Map<String, Project> genericSubProjects = Maps.filterKeys(project.getChildProjects(), key ->
-                !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(extractSubprojectLanguage(project.getName(), key)));
+        Map<String, Project> genericSubProjects = Maps.filterKeys(
+                project.getChildProjects(),
+                key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
+                        extractSubprojectLanguage(project.getName(), key)));
         if (genericSubProjects.isEmpty()) {
             return;
         }

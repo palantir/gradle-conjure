@@ -39,8 +39,10 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
         // Configure publishing
         project.getExtensions().configure(PublishingExtension.class, publishing -> {
             publishing.publications(publications -> {
-                publications.create("conjure", MavenPublication.class, mavenPublication ->
-                        mavenPublication.artifact(compileIr.getOutputFile(), mavenArtifact -> {
+                publications.create(
+                        "conjure",
+                        MavenPublication.class,
+                        mavenPublication -> mavenPublication.artifact(compileIr.getOutputFile(), mavenArtifact -> {
                             mavenArtifact.builtBy(compileIr);
                             mavenArtifact.setExtension("conjure.json");
                         }));
