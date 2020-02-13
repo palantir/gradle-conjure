@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: If `com.palantir.baseline-exact-dependencies` is found, configure its
+    task to ignore `conjure-lib` because it is always added to subprojects by this
+    plugin.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/373
