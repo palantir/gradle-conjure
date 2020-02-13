@@ -104,8 +104,14 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ConjureExtension extension,
             ExtractExecutableTask extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
+        ConjurePlugin.addGeneratedToMainSourceSet(project);
+
+        project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
+        project.getDependencies().add("compileOnly", ConjurePlugin.ANNOTATION_API);
+
         Task generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
+
         TaskProvider<ConjureJavaLocalGeneratorTask> generateJava = project.getTasks()
                 .register("generateConjure", ConjureJavaLocalGeneratorTask.class, task -> {
                     task.setSource(extractConjureIr.map(
@@ -124,6 +130,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     task.getOutputDirectory().set(project.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
                     task.dependsOn(extractJavaTask, extractConjureIr, generateGitIgnore);
                 });
+
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
         ConjurePlugin.applyDependencyForIdeTasks(project, generateJava.get());
     }
