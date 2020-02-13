@@ -22,6 +22,7 @@ import nebula.test.functional.ExecutionResult
 import org.gradle.util.GFileUtils
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
+import spock.util.environment.RestoreSystemProperties
 
 class ConjurePluginTest extends IntegrationSpec {
 
@@ -36,16 +37,16 @@ class ConjurePluginTest extends IntegrationSpec {
         include 'server'
         '''.stripIndent()
 
-        createFile('build.gradle') << '''
+        buildFile << '''
         buildscript {
             repositories {
                 mavenCentral()
-                maven {
-                    url 'https://dl.bintray.com/palantir/releases/'
-                }
+                maven { url 'https://dl.bintray.com/palantir/releases/' }
+                gradlePluginPortal()
             }
             dependencies {
                 classpath 'com.netflix.nebula:nebula-dependency-recommender:5.2.0'
+                classpath 'com.palantir.baseline:gradle-baseline-java:3.4.2'
             }
         }
         allprojects {
@@ -630,6 +631,18 @@ class ConjurePluginTest extends IntegrationSpec {
         sourcesFolderUrls.size() == 2
         sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
         sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
+    }
+
+    @RestoreSystemProperties
+    def 'works with checkUnusedDependencies'() {
+        // Due to errors like 'The configuration :api:api-objects:compileClasspath was resolved without accessing the project in a safe manner.'
+        System.setProperty("ignoreDeprecations", "true")
+        buildFile << """
+            allprojects { apply plugin: 'com.palantir.baseline-exact-dependencies' }
+        """.stripIndent()
+
+        expect:
+        runTasksSuccessfully('checkUnusedDependencies', '--warning-mode=all')
     }
 
     @Unroll
