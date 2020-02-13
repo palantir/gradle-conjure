@@ -46,6 +46,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
                    force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
                    force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
                    force 'com.palantir.safe-logging:safe-logging:1.12.0'
+                   force 'com.palantir.safe-logging:preconditions:1.12.0'
                }
            }
         }
