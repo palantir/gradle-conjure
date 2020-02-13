@@ -635,6 +635,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
     @RestoreSystemProperties
     def 'works with checkUnusedDependencies'() {
+        System.setProperty("ignoreMutableProjectStateWarnings", "true")
         // Due to errors like 'The configuration :api:api-objects:compileClasspath was resolved without accessing the project in a safe manner.'
         System.setProperty("ignoreDeprecations", "true")
         buildFile << """

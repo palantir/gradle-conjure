@@ -351,6 +351,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
                 List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
                 ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
+                // also ignore guava since retrofit adds it...
+                ignoreMethod.invoke(task, "com.google.guava", "guava");
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
             }
