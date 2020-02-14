@@ -66,7 +66,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     public static final String CONJURE_IR = "compileIr";
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES =
-            ImmutableSet.of("objects", "jersey", "retrofit", "undertow", "typescript", "python");
+            ImmutableSet.of("objects", "jersey", "retrofit", "undertow", "dialogue", "typescript", "python");
 
     // configuration names
     static final String CONJURE_COMPILER = "conjureCompiler";
@@ -81,12 +81,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String CONJURE_PYTHON_BINARY = "com.palantir.conjure.python:conjure-python";
 
     // java project constants
+    static final String JAVA_DIALOGUE_SUFFIX = "-dialogue";
     static final String JAVA_OBJECTS_SUFFIX = "-objects";
     static final String JAVA_JERSEY_SUFFIX = "-jersey";
     static final String JAVA_RETROFIT_SUFFIX = "-retrofit";
     static final String JAVA_UNDERTOW_SUFFIX = "-undertow";
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES =
-            ImmutableSet.of(JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
+            ImmutableSet.of(JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
     static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
 
@@ -150,9 +151,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             Task compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt) {
-        Set<String> javaProjectSuffixes =
-                ImmutableSet.of(JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
-        if (javaProjectSuffixes.stream().anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
+        if (JAVA_PROJECT_SUFFIXES.stream()
+                .anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
             Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
             File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
@@ -169,6 +169,52 @@ public final class ConjurePlugin implements Plugin<Project> {
                     project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
             setupConjureUndertowProject(
                     project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+            setupConjureDialogueProject(
+                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+        }
+    }
+
+    private static void setupConjureDialogueProject(
+            Project project,
+            Supplier<GeneratorOptions> optionsSupplier,
+            Task compileConjure,
+            Task compileIrTask,
+            ConjureProductDependenciesExtension productDependencyExt,
+            ExtractExecutableTask extractJavaTask) {
+        String dialogueProjectName = project.getName() + JAVA_DIALOGUE_SUFFIX;
+        if (project.findProject(dialogueProjectName) != null) {
+            String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
+            if (project.findProject(objectsProjectName) == null) {
+                throw new IllegalStateException(
+                        String.format("Cannot enable '%s' without '%s'", dialogueProjectName, objectsProjectName));
+            }
+
+            project.project(dialogueProjectName, subproj -> {
+                subproj.getPluginManager().apply(JavaLibraryPlugin.class);
+                ignoreFromCheckUnusedDependencies(subproj);
+                addGeneratedToMainSourceSet(subproj);
+                project.getTasks().create("compileConjureDialogue", ConjureGeneratorTask.class, task -> {
+                    task.setDescription("Generates Dialogue client interfaces from your Conjure definitions.");
+                    task.setGroup(TASK_GROUP);
+                    task.setExecutablePath(extractJavaTask::getExecutable);
+                    task.setOptions(() -> optionsSupplier.get().addFlag("dialogue"));
+                    task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                    task.setSource(compileIrTask);
+
+                    compileConjure.dependsOn(task);
+                    subproj.getTasks().getByName("compileJava").dependsOn(task);
+                    applyDependencyForIdeTasks(subproj, task);
+                    task.dependsOn(createWriteGitignoreTask(
+                            subproj, "gitignoreConjureDialogue", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
+                    task.dependsOn(extractJavaTask);
+                });
+
+                ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
+                Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
+                cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureDialogue"));
+                subproj.getDependencies().add("api", project.findProject(objectsProjectName));
+                subproj.getDependencies().add("api", "com.palantir.dialogue:dialogue-target");
+            });
         }
     }
 
