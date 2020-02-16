@@ -34,6 +34,7 @@ class ConjurePluginTest extends IntegrationSpec {
         include 'api:api-retrofit'
         include 'api:api-typescript'
         include 'api:api-undertow'
+        include 'api:api-dialogue'
         include 'server'
         '''.stripIndent()
 
@@ -78,6 +79,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
         com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
         com.palantir.conjure:conjure = ${TestVersions.CONJURE}
+        com.palantir.dialogue:* = 0.7.0
         com.squareup.retrofit2:retrofit = 2.1.0
         jakarta.ws.rs:jakarta.ws.rs-api = 2.1.6
         """.stripIndent()
@@ -116,6 +118,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
         result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(':api:compileConjureDialogue')
         result.wasExecuted(':api:compileIr')
 
         // java
@@ -150,6 +153,8 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:api-undertow:compileJava')
         result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(':api:api-dialogue:compileJava')
+        result.wasExecuted(':api:compileConjureDialogue')
 
         fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         fileExists('api/api-objects/.gitignore')
@@ -170,6 +175,8 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:api-undertow:compileJava')
         result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(':api:api-dialogue:compileJava')
+        result.wasExecuted(':api:compileConjureDialogue')
 
         result2.wasUpToDate(':api:extractConjureJava')
         result2.wasUpToDate(':api:api-objects:compileJava')
@@ -180,6 +187,8 @@ class ConjurePluginTest extends IntegrationSpec {
         result2.wasUpToDate(':api:compileConjureRetrofit')
         result2.wasUpToDate(':api:api-undertow:compileJava')
         result2.wasUpToDate(':api:compileConjureUndertow')
+        result2.wasUpToDate(':api:api-dialogue:compileJava')
+        result2.wasUpToDate(':api:compileConjureDialogue')
     }
 
     def 'compileIr can get results from the build cache'() {
@@ -228,11 +237,13 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:cleanCompileConjureObjects')
         result.wasExecuted(':api:cleanCompileConjureRetrofit')
         result.wasExecuted(':api:cleanCompileConjureUndertow')
+        result.wasExecuted(':api:cleanCompileConjureDialogue')
 
         !fileExists('api/api-jersey/src/generated/java')
         !fileExists('api/api-objects/src/generated/java')
         !fileExists('api/api-retrofit/src/generated/java')
         !fileExists('api/api-undertow/src/generated/java')
+        !fileExists('api/api-dialogue/src/generated/java')
     }
 
     def 'compileConjure creates build/conjure for root project'() {
@@ -265,11 +276,13 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasUpToDate(':api:api-retrofit:gitignoreConjureRetrofit')
         result.wasUpToDate(':api:api-typescript:gitignoreConjureTypeScript')
         result.wasUpToDate(':api:api-undertow:gitignoreConjureUndertow')
+        result.wasUpToDate(':api:api-dialogue:gitignoreConjureDialogue')
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')
         result.wasUpToDate(':api:compileConjureTypeScript')
         result.wasUpToDate(':api:compileConjureUndertow')
+        result.wasUpToDate(':api:compileConjureDialogue')
         result.wasUpToDate(':api:copyConjureSourcesIntoBuild')
         result.wasUpToDate(':api:compileIr')
     }
@@ -305,6 +318,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
         result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(':api:compileConjureDialogue')
         result.wasExecuted(':api:copyConjureSourcesIntoBuild')
     }
 

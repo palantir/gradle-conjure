@@ -20,7 +20,7 @@ public final class TestVersions {
     private TestVersions() {}
 
     public static final String CONJURE = "4.6.2";
-    public static final String CONJURE_JAVA = "5.3.0";
+    public static final String CONJURE_JAVA = "5.5.1";
     public static final String CONJURE_PYTHON = "3.11.6";
     public static final String CONJURE_TYPESCRIPT = "3.8.1";
     public static final String CONJURE_POSTMAN = "0.1.2";
