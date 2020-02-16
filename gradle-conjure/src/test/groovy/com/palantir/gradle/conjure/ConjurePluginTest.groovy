@@ -276,7 +276,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasUpToDate(':api:api-retrofit:gitignoreConjureRetrofit')
         result.wasUpToDate(':api:api-typescript:gitignoreConjureTypeScript')
         result.wasUpToDate(':api:api-undertow:gitignoreConjureUndertow')
-        result.wasUpToDate(':api:api-undertow:gitignoreConjureDialogue')
+        result.wasUpToDate(':api:api-dialogue:gitignoreConjureDialogue')
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')
