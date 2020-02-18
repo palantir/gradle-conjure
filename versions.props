@@ -1,7 +1,7 @@
 com.fasterxml.jackson.*:* = 2.10.2
 com.google.errorprone:error_prone_annotations = 2.3.4
 com.google.guava:guava = 23.6.1-jre
-com.netflix.nebula:nebula-test = 7.7.0
+com.netflix.nebula:nebula-test = 7.8.1
 com.palantir.sls.versions:sls-versions = 0.12.0
 com.squareup.okhttp3:mockwebserver = 3.9.1
 commons-io:commons-io = 2.6
