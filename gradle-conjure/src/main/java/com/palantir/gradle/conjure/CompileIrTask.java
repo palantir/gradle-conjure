@@ -17,11 +17,16 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
@@ -35,6 +40,8 @@ public class CompileIrTask extends DefaultTask {
     private File outputFile;
     private Supplier<File> inputDirectory;
     private Supplier<File> executableDir;
+    private final SetProperty<ServiceDependency> productDependencies =
+            getProject().getObjects().setProperty(ServiceDependency.class);
 
     public final void setOutputFile(File outputFile) {
         this.outputFile = outputFile;
@@ -65,6 +72,11 @@ public class CompileIrTask extends DefaultTask {
         return executableDir.get();
     }
 
+    @Input
+    public final SetProperty<ServiceDependency> getProductDependencies() {
+        return productDependencies;
+    }
+
     @TaskAction
     public final void generate() {
         getProject().exec(execSpec -> {
@@ -73,11 +85,22 @@ public class CompileIrTask extends DefaultTask {
                     new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
                     "compile",
                     inputDirectory.get().getAbsolutePath(),
-                    outputFile.getAbsolutePath());
+                    outputFile.getAbsolutePath(),
+                    "--extensions",
+                    getSerializedExtensions());
 
             List<String> args = commandArgsBuilder.build();
             getLogger().info("Running compiler with args: {}", args);
             execSpec.commandLine(args.toArray());
         });
+    }
+
+    private String getSerializedExtensions() {
+        try {
+            return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(ImmutableMap.of(
+                    "product-dependencies", getProductDependencies().get()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to serialize conjure extensions", e);
+        }
     }
 }
