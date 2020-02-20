@@ -98,7 +98,8 @@ public class CompileIrTask extends DefaultTask {
     private String getSerializedExtensions() {
         try {
             return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(ImmutableMap.of(
-                    "product-dependencies", getProductDependencies().get()));
+                    "sls-recommended-product-dependencies",
+                    getProductDependencies().get()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to serialize conjure extensions", e);
         }

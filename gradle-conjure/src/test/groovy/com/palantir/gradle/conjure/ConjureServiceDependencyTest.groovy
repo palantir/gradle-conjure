@@ -144,7 +144,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
 
         then:
         result.standardOutput.find('Running compiler with args: \\[.*, --extensions, '
-                + '\\{"product-dependencies":\\[\\{'
+                + '\\{"sls-recommended-product-dependencies":\\[\\{'
                 + '"product-group":"com.palantir.conjure",'
                 + '"product-name":"conjure",'
                 + '"minimum-version":"1.2.0",'
