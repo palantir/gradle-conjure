@@ -89,7 +89,7 @@ public class CompileIrTask extends DefaultTask {
 
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
-                    "Failed to generate conjure IR. The command %s failed with exit code %d. Output:\n%s",
+                    "Failed to generate conjure IR. The command '%s' failed with exit code %d. Output:\n%s",
                     args, execResult.getExitValue(), output.toString()));
         }
     }
