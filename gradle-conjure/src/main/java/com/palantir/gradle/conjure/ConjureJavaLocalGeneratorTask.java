@@ -93,19 +93,16 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
             // Need to ensure we don't invoke the generator with two flags from GENERATOR_FLAGS
             Map<String, Object> filteredOptions = Maps.filterKeys(
                     generatorOptions, key -> !GENERATOR_FLAGS.contains(key) || generatorFlag.equals(key));
-            getProject().exec(execSpec -> {
-                ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-                commandArgsBuilder.add(
-                        getExecutablePath().getAsFile().get().getAbsolutePath(),
-                        "generate",
-                        definitionFile.getAbsolutePath(),
-                        outputDir.getAbsolutePath());
 
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap());
-                getLogger().info("Running generator with args: {}", additionalArgs);
-                commandArgsBuilder.addAll(additionalArgs);
-                execSpec.commandLine(commandArgsBuilder.build().toArray());
-            });
+            List<String> args = ImmutableList.<String>builder()
+                    .add(getExecutablePath().getAsFile().get().getAbsolutePath())
+                    .add("generate")
+                    .add(definitionFile.getAbsolutePath())
+                    .add(outputDir.getAbsolutePath())
+                    .addAll(RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()))
+                    .build();
+
+            GradleExecUtils.exec(getProject(), "generate " + generatorFlag, args);
         });
     }
 }
