@@ -83,7 +83,7 @@ public class CompileIrTask extends DefaultTask {
         ExecResult execResult = getProject().exec(execSpec -> {
             getLogger().info("Running compiler with args: {}", args);
             execSpec.commandLine(args.toArray());
-            execSpec.isIgnoreExitValue();
+            execSpec.setIgnoreExitValue(true);
             execSpec.setStandardOutput(output);
         });
 
