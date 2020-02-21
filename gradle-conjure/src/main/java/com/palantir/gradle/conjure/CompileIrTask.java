@@ -69,7 +69,7 @@ public class CompileIrTask extends DefaultTask {
 
     @TaskAction
     public final void generate() {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ByteArrayOutputStream error = new ByteArrayOutputStream();
 
         ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
         commandArgsBuilder.add(
@@ -84,13 +84,13 @@ public class CompileIrTask extends DefaultTask {
             getLogger().info("Running compiler with args: {}", args);
             execSpec.commandLine(args.toArray());
             execSpec.setIgnoreExitValue(true);
-            execSpec.setStandardOutput(output);
+            execSpec.setErrorOutput(error);
         });
 
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
                     "Failed to generate conjure IR. The command '%s' failed with exit code %d. Output:\n%s",
-                    args, execResult.getExitValue(), output.toString()));
+                    args, execResult.getExitValue(), error.toString()));
         }
     }
 }
