@@ -41,7 +41,7 @@ final class GradleExecUtils {
 
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
-                    "Failed to '%s'. The command '%s' failed with exit code %d. Output:\n%s",
+                    "Failed to %s. The command '%s' failed with exit code %d. Output:\n%s",
                     failedTo, loggedArgs, execResult.getExitValue(), output.toString()));
         }
     }
