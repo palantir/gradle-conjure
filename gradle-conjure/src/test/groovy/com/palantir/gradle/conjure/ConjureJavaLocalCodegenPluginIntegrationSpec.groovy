@@ -80,8 +80,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted("conjure-api:generateConjure")
         fileExists("build/conjure-ir/conjure-api.conjure.json")
         fileExists('conjure-api/src/generated/java/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running generator with args: [--jersey, --packagePrefix=test.group]"
-        result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=test.group]"
+        result.standardOutput.contains "Running with args: [--jersey, --packagePrefix=test.group]"
+        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=test.group]"
     }
 
     def "respects user provided packagePrefix"() {
@@ -101,7 +101,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         then:
         result.wasExecuted("extractConjureIr")
         fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running generator with args: [--objects, --packagePrefix=user.group]"
+        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=user.group]"
     }
 
     def 'check code compiles'() {
