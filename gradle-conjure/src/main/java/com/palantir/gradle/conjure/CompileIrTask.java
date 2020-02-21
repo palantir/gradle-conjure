@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecResult;
 
 @CacheableTask
 public class CompileIrTask extends DefaultTask {
@@ -67,17 +69,28 @@ public class CompileIrTask extends DefaultTask {
 
     @TaskAction
     public final void generate() {
-        getProject().exec(execSpec -> {
-            ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-            commandArgsBuilder.add(
-                    new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
-                    "compile",
-                    inputDirectory.get().getAbsolutePath(),
-                    outputFile.getAbsolutePath());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            List<String> args = commandArgsBuilder.build();
+        ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
+        commandArgsBuilder.add(
+                new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
+                "compile",
+                inputDirectory.get().getAbsolutePath(),
+                outputFile.getAbsolutePath());
+
+        List<String> args = commandArgsBuilder.build();
+
+        ExecResult execResult = getProject().exec(execSpec -> {
             getLogger().info("Running compiler with args: {}", args);
             execSpec.commandLine(args.toArray());
+            execSpec.isIgnoreExitValue();
+            execSpec.setStandardOutput(output);
         });
+
+        if (execResult.getExitValue() != 0) {
+            throw new RuntimeException(String.format(
+                    "Failed to generate conjure IR. The command %s failed with exit code %d. Output:\n%s",
+                    args, execResult.getExitValue(), output.toString()));
+        }
     }
 }
