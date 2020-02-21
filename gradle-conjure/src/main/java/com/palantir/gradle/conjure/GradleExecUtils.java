@@ -26,14 +26,16 @@ final class GradleExecUtils {
     private GradleExecUtils() {}
 
     static void exec(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        List<String> combinedArgs = ImmutableList.<String>builder()
+                .addAll(unloggedArgs)
+                .addAll(loggedArgs)
+                .build();
+
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         ExecResult execResult = project.exec(execSpec -> {
             project.getLogger().info("Running with args: {}", loggedArgs);
-            execSpec.commandLine(ImmutableList.<String>builder()
-                    .addAll(unloggedArgs)
-                    .addAll(loggedArgs)
-                    .build());
+            execSpec.commandLine(combinedArgs);
             execSpec.setIgnoreExitValue(true);
             execSpec.setStandardOutput(output);
             execSpec.setErrorOutput(output);
@@ -42,7 +44,7 @@ final class GradleExecUtils {
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
                     "Failed to %s. The command '%s' failed with exit code %d. Output:\n%s",
-                    failedTo, loggedArgs, execResult.getExitValue(), output.toString()));
+                    failedTo, combinedArgs, execResult.getExitValue(), output.toString()));
         }
     }
 }

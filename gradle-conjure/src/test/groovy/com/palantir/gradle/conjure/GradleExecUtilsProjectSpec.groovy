@@ -22,17 +22,18 @@ import org.assertj.core.api.Assertions
 class GradleExecUtilsProjectSpec extends ProjectSpec {
     def 'running a program that exits with code 0 does not throw an exception'() {
         expect:
-        GradleExecUtils.exec(project, 'execute', ['sh', '-c', 'exit 0'])
+        GradleExecUtils.exec(project, 'execute', ['sh', '-c'], ['exit 0'])
     }
 
     def 'running a program that exits with a non-zero code throws an exception containing both stdout and stderr'() {
         expect:
-        def args = ['sh', '-c', 'echo foo; echo bar >&2; exit 1']
+        def baseArgs = ['sh', '-c']
+        def extraArgs = ['echo foo; echo bar >&2; exit 1']
 
         Assertions.assertThatExceptionOfType(RuntimeException).isThrownBy {
-            GradleExecUtils.exec(project, 'fail', args)
+            GradleExecUtils.exec(project, 'fail', baseArgs, extraArgs)
         }.withMessageContaining("""
-            Failed to fail. The command '${args}' failed with exit code 1. Output:
+            Failed to fail. The command '${baseArgs + extraArgs}' failed with exit code 1. Output:
             foo
             bar
         """.stripIndent().trim())
