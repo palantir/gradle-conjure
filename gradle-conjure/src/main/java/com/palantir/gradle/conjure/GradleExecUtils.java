@@ -26,6 +26,7 @@ final class GradleExecUtils {
 
     static void exec(Project project, String failedTo, List<String> args) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
+
         ExecResult execResult = project.exec(execSpec -> {
             project.getLogger().info("Running compiler with args: {}", args);
             execSpec.commandLine(args.toArray());
