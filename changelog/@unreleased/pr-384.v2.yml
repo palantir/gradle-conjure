@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Error messages produced by conjure IR compilation will not appear in
+    the exception, so at the top of circle builds.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/384
