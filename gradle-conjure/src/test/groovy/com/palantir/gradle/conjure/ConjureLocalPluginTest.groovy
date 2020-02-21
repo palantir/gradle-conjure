@@ -74,7 +74,7 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
         then:
         result.wasExecuted(":generateJava")
-        result.standardOutput.contains('Running generator with args: [--dialog')
+        result.standardOutput.contains('Running with args: [--dialog')
     }
 
     def "fails to generate java with unsafe options"() {
