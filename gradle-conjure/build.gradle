@@ -24,7 +24,8 @@ dependencies {
     compile project(':gradle-conjure-api')
     compile 'com.google.guava:guava'
     compile 'com.palantir.sls.versions:sls-versions'
-    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
+    compile 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'

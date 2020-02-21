@@ -16,6 +16,8 @@
 
 package com.palantir.gradle.conjure
 
+import java.util.jar.Manifest
+import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 
@@ -139,6 +141,53 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
     }
 
+    def 'embeds product dependencies correctly'() {
+        addSubproject("conjure-api")
+        buildFile << """
+        conjure { java { addFlag 'objects' } }
+        
+        task modifyIr {
+            doFirst {
+                file('build/conjure-ir/conjure-api.conjure.json').text = '''
+                {
+                    "version": "1",
+                    "extensions": {
+                        "recommended-product-dependencies": [{
+                            "product-group": "com.palantir.conjure",
+                            "product-name": "conjure",
+                            "minimum-version": "1.2.0",
+                            "recommended-version": "1.2.0",
+                            "maximum-version": "2.x.x"
+                        }]
+                    }
+                }
+                '''
+            }
+        }
+        
+        modifyIr.mustRunAfter extractConjureIr
+        subprojects {
+            tasks.jar.dependsOn modifyIr
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('jar')
+
+        then:
+        result.wasExecuted(':conjure-api:compileJava')
+        result.wasExecuted(':conjure-api:generateConjure')
+
+        def recommendedProductDependencies = readRecommendedProductDeps(file('conjure-api/build/libs/conjure-api-1.0.0.jar'))
+        recommendedProductDependencies == '{"recommended-product-dependencies":[{' +
+                '"product-group":"com.palantir.conjure",' +
+                '"product-name":"conjure",' +
+                '"minimum-version":"1.2.0",' +
+                '"recommended-version":"1.2.0",' +
+                '"maximum-version":"2.x.x"' +
+                '}]}'
+    }
+
     def "fails if missing corresponding subproject"() {
         when:
         buildFile << """
@@ -170,5 +219,13 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         result.standardError.contains "Generator options must contain at least one of"
+    }
+
+    def readRecommendedProductDeps(File jarFile) {
+        def zf = new ZipFile(jarFile)
+        def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
+        def manifest = new Manifest(zf.getInputStream(manifestEntry))
+        return manifest.getMainAttributes().getValue(
+                ConjureJavaServiceDependencies.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
     }
 }
