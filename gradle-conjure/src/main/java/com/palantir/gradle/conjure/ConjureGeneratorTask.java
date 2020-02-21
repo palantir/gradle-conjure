@@ -98,23 +98,20 @@ public class ConjureGeneratorTask extends SourceTask {
     /** Entry point for the task. */
     public void compileFiles() {
         getSource().getFiles().forEach(file -> {
-            GeneratorOptions generatorOptions = getOptions();
-            getProject().exec(execSpec -> {
-                ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-                File thisOutputDirectory = outputDirectoryFor(file);
-                GFileUtils.deleteDirectory(thisOutputDirectory);
-                getProject().mkdir(thisOutputDirectory);
-                commandArgsBuilder.add(
-                        getExecutablePath().getAbsolutePath(),
-                        "generate",
-                        file.getAbsolutePath(),
-                        thisOutputDirectory.getAbsolutePath());
+            File thisOutputDirectory = outputDirectoryFor(file);
 
-                List<String> additionalArgs = RenderGeneratorOptions.toArgs(generatorOptions, requiredOptions(file));
-                getLogger().info("Running generator with args: {}", additionalArgs);
-                commandArgsBuilder.addAll(additionalArgs);
-                execSpec.commandLine(commandArgsBuilder.build().toArray());
-            });
+            GFileUtils.deleteDirectory(thisOutputDirectory);
+            getProject().mkdir(thisOutputDirectory);
+
+            List<String> args = ImmutableList.<String>builder()
+                    .add(getExecutablePath().getAbsolutePath())
+                    .add("generate")
+                    .add(file.getAbsolutePath())
+                    .add(thisOutputDirectory.getAbsolutePath())
+                    .addAll(RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)))
+                    .build();
+
+            GradleExecUtils.exec(getProject(), "run generator", args);
         });
     }
 
