@@ -108,4 +108,16 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         !fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
         fileExists('api/api-objects/src/generated/java/test/test/api/NewStringExample.java')
     }
+
+    def 'when a file has errors the error is reported in the exception'() {
+        when:
+        file('api/src/main/conjure/bad.yml').text = '''
+            this-is-invalid
+        '''.stripIndent()
+
+        ExecutionResult executionResult = runTasksWithFailure(':api:compileIr')
+
+        then:
+        assert executionResult.failure.cause.cause.message.contains('Cannot construct instance of')
+    }
 }

@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
@@ -79,20 +80,15 @@ public class CompileIrTask extends DefaultTask {
 
     @TaskAction
     public final void generate() {
-        getProject().exec(execSpec -> {
-            ImmutableList.Builder<String> commandArgsBuilder = ImmutableList.builder();
-            commandArgsBuilder.add(
-                    new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
-                    "compile",
-                    inputDirectory.get().getAbsolutePath(),
-                    outputFile.getAbsolutePath(),
-                    "--extensions",
-                    getSerializedExtensions());
+        List<String> args = ImmutableList.of(
+                new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
+                "compile",
+                inputDirectory.get().getAbsolutePath(),
+                outputFile.getAbsolutePath(),
+                "--extensions",
+                getSerializedExtensions());
 
-            List<String> args = commandArgsBuilder.build();
-            getLogger().info("Running compiler with args: {}", args);
-            execSpec.commandLine(args.toArray());
-        });
+        GradleExecUtils.exec(getProject(), "generate conjure IR", Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {
