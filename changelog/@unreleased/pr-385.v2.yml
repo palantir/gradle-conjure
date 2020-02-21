@@ -1,0 +1,6 @@
+type: feature
+feature:
+  description: Embed product dependencies in locally generated Java projects using
+    `"recommended-product-dependencies"` in Conjure IR extensions
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/385
