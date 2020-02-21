@@ -32,10 +32,8 @@ class GradleExecUtilsProjectSpec extends ProjectSpec {
 
         Assertions.assertThatExceptionOfType(RuntimeException).isThrownBy {
             GradleExecUtils.exec(project, 'fail', baseArgs, extraArgs)
-        }.withMessageContaining("""
-            Failed to fail. The command '${baseArgs + extraArgs}' failed with exit code 1. Output:
-            foo
-            bar
-        """.stripIndent().trim())
+        }.withMessageContaining("Failed to fail. The command '${baseArgs + extraArgs}' failed with exit code 1. Output:")
+        .withMessageContaining("foo\n")
+        .withMessageContaining("bar\n")
     }
 }
