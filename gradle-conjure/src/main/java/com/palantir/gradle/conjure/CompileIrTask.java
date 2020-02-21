@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
@@ -73,6 +74,6 @@ public class CompileIrTask extends DefaultTask {
                 inputDirectory.get().getAbsolutePath(),
                 outputFile.getAbsolutePath());
 
-        GradleExecUtils.exec(getProject(), "generate conjure IR", args);
+        GradleExecUtils.exec(getProject(), "generate conjure IR", Collections.emptyList(), args);
     }
 }

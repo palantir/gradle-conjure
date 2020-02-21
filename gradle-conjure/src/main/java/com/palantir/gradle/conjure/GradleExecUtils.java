@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import org.gradle.api.Project;
@@ -24,12 +25,15 @@ import org.gradle.process.ExecResult;
 final class GradleExecUtils {
     private GradleExecUtils() {}
 
-    static void exec(Project project, String failedTo, List<String> args) {
+    static void exec(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         ExecResult execResult = project.exec(execSpec -> {
-            project.getLogger().info("Running with args: {}", args);
-            execSpec.commandLine(args.toArray());
+            project.getLogger().info("Running with args: {}", loggedArgs);
+            execSpec.commandLine(ImmutableList.<String>builder()
+                    .addAll(unloggedArgs)
+                    .addAll(loggedArgs)
+                    .build());
             execSpec.setIgnoreExitValue(true);
             execSpec.setStandardOutput(output);
             execSpec.setErrorOutput(output);
@@ -38,7 +42,7 @@ final class GradleExecUtils {
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
                     "Failed to " + failedTo + ". The command '%s' failed with exit code %d. Output:\n%s",
-                    args,
+                    loggedArgs,
                     execResult.getExitValue(),
                     output.toString()));
         }

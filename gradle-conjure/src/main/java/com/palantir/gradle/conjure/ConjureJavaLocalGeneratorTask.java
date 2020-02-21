@@ -94,15 +94,17 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
             Map<String, Object> filteredOptions = Maps.filterKeys(
                     generatorOptions, key -> !GENERATOR_FLAGS.contains(key) || generatorFlag.equals(key));
 
-            List<String> args = ImmutableList.<String>builder()
-                    .add(getExecutablePath().getAsFile().get().getAbsolutePath())
-                    .add("generate")
-                    .add(definitionFile.getAbsolutePath())
-                    .add(outputDir.getAbsolutePath())
-                    .addAll(RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()))
-                    .build();
+            List<String> generateCommand = ImmutableList.of(
+                    getExecutablePath().getAsFile().get().getAbsolutePath(),
+                    "generate",
+                    definitionFile.getAbsolutePath(),
+                    outputDir.getAbsolutePath());
 
-            GradleExecUtils.exec(getProject(), "generate " + generatorFlag, args);
+            GradleExecUtils.exec(
+                    getProject(),
+                    "generate " + generatorFlag,
+                    generateCommand,
+                    RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
         });
     }
 }
