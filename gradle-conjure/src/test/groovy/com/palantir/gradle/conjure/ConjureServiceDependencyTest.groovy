@@ -127,6 +127,31 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         file('api/build/service-dependencies.json').text.contains('"recommended-version":"1.2.0"')
     }
 
+    def "correctly passes product dependencies to conjure"() {
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:compileConjure')
+
+        then:
+        result.standardOutput.find('Running with args: \\[.*, --extensions, '
+                + '\\{"recommended-product-dependencies":\\[\\{'
+                + '"product-group":"com.palantir.conjure",'
+                + '"product-name":"conjure",'
+                + '"minimum-version":"1.2.0",'
+                + '"maximum-version":"2.x.x",'
+                + '"recommended-version":"1.2.0"\\}]\\}]') != null
+    }
+
     def "correctly passes product dependencies to generators"() {
         file('api/build.gradle') << '''
         serviceDependencies {

@@ -117,7 +117,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         applyDependencyForIdeTasks(project, compileConjure);
 
         Copy copyConjureSourcesTask = getConjureSources(project);
-        Task compileIrTask = createCompileIrTask(project, copyConjureSourcesTask);
+        Task compileIrTask = createCompileIrTask(project, conjureProductDependenciesExtension, copyConjureSourcesTask);
         GenerateConjureServiceDependenciesTask productDependencyTask = project.getTasks()
                 .create("generateConjureServiceDependencies", GenerateConjureServiceDependenciesTask.class, task -> {
                     task.setConjureServiceDependencies(conjureProductDependenciesExtension::getProductDependencies);
@@ -649,7 +649,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         return writeGitignoreTask;
     }
 
-    private static Task createCompileIrTask(Project project, Copy copyConjureSourcesTask) {
+    private static Task createCompileIrTask(
+            Project project, ConjureProductDependenciesExtension pdepsExtension, Copy copyConjureSourcesTask) {
         Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
         File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
         project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
@@ -665,6 +666,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             compileIr.setInputDirectory(copyConjureSourcesTask::getDestinationDir);
             compileIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
             compileIr.setOutputFile(irPath);
+            compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
         });
