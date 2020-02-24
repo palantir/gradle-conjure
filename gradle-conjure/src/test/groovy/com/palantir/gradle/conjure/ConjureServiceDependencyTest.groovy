@@ -143,7 +143,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:compileConjure')
 
         then:
-        result.standardOutput.find('Running compiler with args: \\[.*, --extensions, '
+        result.standardOutput.find('Running with args: \\[.*, --extensions, '
                 + '\\{"recommended-product-dependencies":\\[\\{'
                 + '"product-group":"com.palantir.conjure",'
                 + '"product-name":"conjure",'
