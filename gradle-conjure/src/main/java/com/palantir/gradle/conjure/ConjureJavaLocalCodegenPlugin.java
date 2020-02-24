@@ -16,10 +16,18 @@
 
 package com.palantir.gradle.conjure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.palantir.conjure.java.serialization.ObjectMappers;
 import com.palantir.gradle.conjure.api.ConjureExtension;
+import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
+import com.palantir.gradle.dist.ProductDependency;
+import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
+import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,10 +39,12 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 
 public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
+    private static final ObjectMapper OBJECT_MAPPER = ObjectMappers.newClientObjectMapper();
     private static final String CONJURE_CONFIGURATION = "conjure";
     private static final Pattern DEFINITION_NAME =
             Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(\\.conjure)?\\.json");
@@ -104,6 +114,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ConjureExtension extension,
             ExtractExecutableTask extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
+        project.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
         project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
@@ -112,10 +123,15 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         Task generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
+        Provider<File> conjureIrFile = extractConjureIr.map(
+                irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
+        project.getTasks().named("configureProductDependencies", ConfigureProductDependenciesTask.class, task -> {
+            task.setProductDependencies(conjureIrFile.map(ConjureJavaLocalCodegenPlugin::extractProductDependencies));
+        });
+
         TaskProvider<ConjureJavaLocalGeneratorTask> generateJava = project.getTasks()
                 .register("generateConjure", ConjureJavaLocalGeneratorTask.class, task -> {
-                    task.setSource(extractConjureIr.map(
-                            irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json")));
+                    task.setSource(conjureIrFile);
                     task.getExecutablePath()
                             .set(project.getLayout()
                                     .file(project.provider(
@@ -133,5 +149,18 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
         ConjurePlugin.applyDependencyForIdeTasks(project, generateJava.get());
+    }
+
+    private static Set<ProductDependency> extractProductDependencies(File irFile) {
+        try {
+            MinimalConjureDefinition conjureDefinition =
+                    OBJECT_MAPPER.readValue(irFile, MinimalConjureDefinition.class);
+            return conjureDefinition
+                    .extensions()
+                    .map(MinimalConjureDefinition.Extensions::productDependencies)
+                    .orElseGet(Collections::emptySet);
+        } catch (IOException e) {
+            throw new SafeRuntimeException("Failed to parse conjure definition", e);
+        }
     }
 }

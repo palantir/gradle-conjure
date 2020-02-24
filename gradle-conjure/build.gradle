@@ -21,10 +21,11 @@ apply plugin: 'java-gradle-plugin'
 apply from: "$rootDir/gradle/publish-jar.gradle"
 
 dependencies {
-    compile project(':gradle-conjure-api')
-    compile 'com.google.guava:guava'
-    compile 'com.palantir.sls.versions:sls-versions'
-    compile 'com.fasterxml.jackson.core:jackson-databind'
+    implementation project(':gradle-conjure-api')
+    implementation 'com.google.guava:guava'
+    implementation 'com.palantir.sls.versions:sls-versions'
+    implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
+    implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'
