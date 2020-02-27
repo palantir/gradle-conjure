@@ -91,7 +91,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         conjure {
             java {
                 addFlag "objects"
-                packagePrefix = "user.group"
+                packagePrefix = "user.some-group"
             }
         }
         """.stripIndent()
@@ -102,8 +102,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         result.wasExecuted("extractConjureIr")
-        fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=user.group]"
+        fileExists('conjure-api/src/generated/java/user/somegroup/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=user.somegroup]"
     }
 
     def 'check code compiles'() {
