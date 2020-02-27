@@ -140,7 +140,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                         Map<String, Object> properties =
                                 new HashMap<>(extension.getJava().getProperties());
                         properties.putIfAbsent(
-                                "packagePrefix", project.getGroup().toString());
+                                "packagePrefix",
+                                sanitizePackageName(project.getGroup().toString()));
                         return properties;
                     }));
                     task.getOutputDirectory().set(project.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
@@ -149,6 +150,14 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
         ConjurePlugin.applyDependencyForIdeTasks(project, generateJava.get());
+    }
+
+    /**
+     * Maven groups can have dashes, java packages can't.
+     * https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html.
+     */
+    private static String sanitizePackageName(String group) {
+        return group.replaceAll("-", "");
     }
 
     private static Set<ProductDependency> extractProductDependencies(File irFile) {

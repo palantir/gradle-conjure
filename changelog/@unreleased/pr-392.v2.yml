@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: '`com.palantir.conjure-java-local` sanitises the maven group to ensure
+    the java package prefix still compiles.'
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/392
