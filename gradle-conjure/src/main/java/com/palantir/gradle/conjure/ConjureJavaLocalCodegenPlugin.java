@@ -140,7 +140,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                         Map<String, Object> properties =
                                 new HashMap<>(extension.getJava().getProperties());
                         properties.putIfAbsent(
-                                "packagePrefix", sanitizePackageName(project.getGroup().toString()));
+                                "packagePrefix",
+                                sanitizePackageName(project.getGroup().toString()));
                         return properties;
                     }));
                     task.getOutputDirectory().set(project.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));

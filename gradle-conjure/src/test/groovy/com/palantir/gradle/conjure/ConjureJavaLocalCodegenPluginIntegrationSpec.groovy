@@ -65,6 +65,9 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
 
     def "generates projects"() {
         buildFile << """
+        allprojects {
+            group = 'test.group-with-dashes'
+        }
         conjure {
             java {
                 addFlag "jersey"
@@ -81,9 +84,9 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted("extractConjureIr")
         result.wasExecuted("conjure-api:generateConjure")
         fileExists("build/conjure-ir/conjure-api.conjure.json")
-        fileExists('conjure-api/src/generated/java/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running with args: [--jersey, --packagePrefix=test.group]"
-        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=test.group]"
+        fileExists('conjure-api/src/generated/java/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "Running with args: [--jersey, --packagePrefix=test.groupwithdashes]"
+        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=test.groupwithdashes]"
     }
 
     def "respects user provided packagePrefix"() {
@@ -91,7 +94,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         conjure {
             java {
                 addFlag "objects"
-                packagePrefix = "user.some-group"
+                packagePrefix = "user.group"
             }
         }
         """.stripIndent()
@@ -102,8 +105,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         result.wasExecuted("extractConjureIr")
-        fileExists('conjure-api/src/generated/java/user/somegroup/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=user.somegroup]"
+        fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "Running with args: [--objects, --packagePrefix=user.group]"
     }
 
     def 'check code compiles'() {
