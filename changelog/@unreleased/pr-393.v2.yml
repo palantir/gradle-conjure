@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Use a more robust way to configure the `checkUnusedDependencies` tasks
+    for conjure projects.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/393
