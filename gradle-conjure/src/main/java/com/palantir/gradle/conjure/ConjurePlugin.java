@@ -391,18 +391,30 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void ignoreFromCheckUnusedDependencies(Project proj) {
-        proj.getPluginManager().withPlugin("com.palantir.baseline-exact-dependencies", plugin -> {
-            Object task = proj.getTasks().getByName("checkUnusedDependencies");
+        proj.getPlugins().withId("com.palantir.baseline-exact-dependencies", plugin -> {
+            Class<? extends Task> checkUnusedDependenciesTask;
             try {
-                Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
-                List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
-                ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
-                // also ignore guava since retrofit adds it...
-                ignoreMethod.invoke(task, "com.google.guava", "guava");
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                ClassLoader baselineClassloader = plugin.getClass().getClassLoader();
+                checkUnusedDependenciesTask = (Class<? extends Task>)
+                        baselineClassloader.loadClass("com.palantir.baseline.tasks.CheckUnusedDependenciesTask");
+            } catch (ClassNotFoundException e) {
                 log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
+                return;
             }
+
+            proj.getTasks().withType(checkUnusedDependenciesTask, task -> {
+                try {
+                    Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
+                    List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
+                    ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
+                    // also ignore guava since retrofit adds it...
+                    ignoreMethod.invoke(task, "com.google.guava", "guava");
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
+                }
+            });
         });
     }
 
