@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: '`com.palantir.conjure-java-local` is resilient to GCV and BOMs'
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/398

@@ -37,7 +37,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Copy;
@@ -54,7 +54,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getPlugins().apply(BasePlugin.class);
+        project.getPlugins().apply(JavaBasePlugin.class);
 
         ConjureExtension extension =
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
@@ -85,7 +85,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         // Validating that each subproject has a corresponding definition and vice versa.
         // We do this in afterEvaluate to ensure the configuration is populated.
         project.afterEvaluate(p -> {
-            Set<String> apis = conjureIrConfiguration.getIncoming().getDependencies().stream()
+            Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
                     .map(Dependency::getName)
                     .collect(ImmutableSet.toImmutableSet());
 
