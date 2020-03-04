@@ -98,7 +98,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
     /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
-    static final String ANNOTATION_API = "javax.annotation:javax.annotation-api:1.3.2";
+    static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
     @Override
     public void apply(Project project) {
