@@ -31,6 +31,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
@@ -50,9 +51,9 @@ public class ExtractExecutableTask extends Sync {
         Supplier<File> tarFile = Suppliers.memoize(this::resolveTarFile);
 
         // Configure the spec lazily
-        from((Callable) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
+        from((Callable<FileTree>) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
         eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
-        into((Callable) this::getOutputDirectory); // will get lazily resolved
+        into((Callable<File>) this::getOutputDirectory); // will get lazily resolved
 
         doFirst(new Action<Task>() {
             @Override
