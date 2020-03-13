@@ -105,6 +105,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.getChildProjects().forEach((name, subproject) -> {
             subproject.getPluginManager().apply(JavaLibraryPlugin.class);
+            subproject.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
             createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
         });
     }
@@ -114,7 +115,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ConjureExtension extension,
             ExtractExecutableTask extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
-        project.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
         project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");

@@ -16,19 +16,16 @@
 
 package com.palantir.gradle.conjure;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.ServiceDependency;
+import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
+import com.palantir.gradle.dist.ProductDependency;
+import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.gradle.api.Project;
-import org.gradle.jvm.tasks.Jar;
-import org.immutables.value.Value;
-import org.immutables.value.Value.Parameter;
 
 final class ConjureJavaServiceDependencies {
-    public static final String SLS_RECOMMENDED_PRODUCT_DEPENDENCIES = "Sls-Recommended-Product-Dependencies";
-
     private ConjureJavaServiceDependencies() {}
 
     /*
@@ -37,28 +34,21 @@ final class ConjureJavaServiceDependencies {
      */
     static void configureJavaServiceDependencies(
             Project project, ConjureProductDependenciesExtension productDependencyExt) {
-
-        // HACKHACK Jar does not expose a lazy mechanism for configuring attributes so we have to do it after evaluation
-        project.afterEvaluate(p -> p.getTasks().withType(Jar.class, jar -> {
-            Set<ServiceDependency> productDependencies = productDependencyExt.getProductDependencies();
-
-            try {
-                jar.getManifest()
-                        .getAttributes()
-                        .putIfAbsent(
-                                SLS_RECOMMENDED_PRODUCT_DEPENDENCIES,
-                                GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(
-                                        ImmutableRecommendedProductDependencies.of(productDependencies)));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }));
+        project.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
+        project.getTasks().named("configureProductDependencies", ConfigureProductDependenciesTask.class, task -> {
+            task.setProductDependencies(
+                    project.provider(() -> convertDependencies(productDependencyExt.getProductDependencies())));
+        });
     }
 
-    @Value.Immutable
-    interface RecommendedProductDependencies {
-        @Parameter
-        @JsonProperty("recommended-product-dependencies")
-        Set<ServiceDependency> recommendedProductDependencies();
+    private static Set<ProductDependency> convertDependencies(Set<ServiceDependency> serviceDependencies) {
+        return serviceDependencies.stream()
+                .map(serviceDependency -> new ProductDependency(
+                        serviceDependency.getProductGroup(),
+                        serviceDependency.getProductName(),
+                        serviceDependency.getMinimumVersion(),
+                        serviceDependency.getMaximumVersion(),
+                        serviceDependency.getRecommendedVersion()))
+                .collect(Collectors.toSet());
     }
 }
