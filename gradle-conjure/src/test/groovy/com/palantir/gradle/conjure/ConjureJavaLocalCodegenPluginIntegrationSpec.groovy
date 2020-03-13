@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.dist.RecommendedProductDependencies
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
@@ -229,6 +230,6 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
-                ConjureJavaServiceDependencies.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
+                RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
     }
 }
