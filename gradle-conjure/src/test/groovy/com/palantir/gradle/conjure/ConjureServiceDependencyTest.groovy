@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.dist.RecommendedProductDependencies
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
@@ -214,8 +215,8 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 '"product-group":"com.palantir.conjure",' +
                 '"product-name":"conjure",' +
                 '"minimum-version":"1.2.0",' +
-                '"maximum-version":"2.x.x",' +
-                '"recommended-version":"1.2.0"}]}'
+                '"recommended-version":"1.2.0",' +
+                '"maximum-version":"2.x.x"}]}'
     }
 
     def "fails on absent fields"() {
@@ -273,6 +274,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
-                ConjureJavaServiceDependencies.SLS_RECOMMENDED_PRODUCT_DEPENDENCIES)
+                RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
     }
 }
