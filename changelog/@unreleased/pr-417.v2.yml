@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Expose `rawIr` task which produces the raw IR without any extensions.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/417

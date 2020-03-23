@@ -42,7 +42,7 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
                 publications.create(
                         "conjure",
                         MavenPublication.class,
-                        mavenPublication -> mavenPublication.artifact(compileIr.getOutputFile(), mavenArtifact -> {
+                        mavenPublication -> mavenPublication.artifact(compileIr.getOutputIrFile(), mavenArtifact -> {
                             mavenArtifact.builtBy(compileIr);
                             mavenArtifact.setExtension("conjure.json");
                         }));

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
@@ -37,24 +38,41 @@ import org.gradle.api.tasks.TaskAction;
 @CacheableTask
 public class CompileIrTask extends DefaultTask {
     private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
+    private final RegularFileProperty outputIrFile = getProject().getObjects().fileProperty();
 
-    private File outputFile;
     private Supplier<File> inputDirectory;
     private Supplier<File> executableDir;
     private final SetProperty<ServiceDependency> productDependencies =
             getProject().getObjects().setProperty(ServiceDependency.class);
 
+    /**
+     * Eagerly set where to output the generated IR.
+     *
+     * @deprecated Use {@link #getOutputIrFile()} instead.
+     */
+    @Deprecated
     public final void setOutputFile(File outputFile) {
-        this.outputFile = outputFile;
+        outputIrFile.set(outputFile);
+    }
+
+    /**
+     * Eagerly get where to output the generated IR.
+     *
+     * @deprecated Use {@link #getOutputIrFile()} instead.
+     */
+    @Deprecated
+    public final File getOutputFile() {
+        return outputIrFile.getAsFile().get();
+    }
+
+    @OutputFile
+    @PathSensitive(PathSensitivity.NONE)
+    public final RegularFileProperty getOutputIrFile() {
+        return outputIrFile;
     }
 
     public final void setInputDirectory(Supplier<File> inputDirectory) {
         this.inputDirectory = inputDirectory;
-    }
-
-    @OutputFile
-    public final File getOutputFile() {
-        return outputFile;
     }
 
     @InputDirectory
@@ -84,7 +102,7 @@ public class CompileIrTask extends DefaultTask {
                 new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
                 "compile",
                 inputDirectory.get().getAbsolutePath(),
-                outputFile.getAbsolutePath(),
+                outputIrFile.get().getAsFile().getAbsolutePath(),
                 "--extensions",
                 getSerializedExtensions());
 
