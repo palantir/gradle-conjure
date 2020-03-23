@@ -66,6 +66,7 @@ public class CompileIrTask extends DefaultTask {
     }
 
     @OutputFile
+    @PathSensitive(PathSensitivity.NONE)
     public final RegularFileProperty getOutputIrFile() {
         return outputIrFile;
     }
