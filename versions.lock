@@ -24,7 +24,7 @@ org.slf4j:slf4j-api:1.7.30 (1 constraints: f41079c3)
 
 [Test dependencies]
 cglib:cglib-nodep:3.2.2 (1 constraints: 490ded24)
-com.netflix.nebula:nebula-test:7.8.5 (1 constraints: 16052b36)
+com.netflix.nebula:nebula-test:7.8.6 (1 constraints: 17052c36)
 com.squareup.okhttp3:mockwebserver:3.9.1 (1 constraints: 0f051636)
 com.squareup.okhttp3:okhttp:3.14.1 (2 constraints: 76145989)
 com.squareup.okio:okio:1.17.2 (1 constraints: 850cc309)
