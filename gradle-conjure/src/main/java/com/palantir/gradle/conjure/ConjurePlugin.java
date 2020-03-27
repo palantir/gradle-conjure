@@ -464,7 +464,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 String npmCommand = OsUtils.NPM_COMMAND_NAME;
                 Task installTypeScriptDependencies = project.getTasks()
                         .create("installTypeScriptDependencies", Exec.class, task -> {
-                            task.commandLine(npmCommand, "install", "--no-package-lock");
+                            task.commandLine(npmCommand, "install", "--no-package-lock", "--no-production");
                             task.workingDir(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
                             task.getInputs().file(new File(srcDirectory, "package.json"));

@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Always specify the `--no-production` flag when installing dependencies
+    to ignore `NODE_ENV` and ensure that dev dependencies such as TypeScript are installed
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/426
