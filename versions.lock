@@ -19,7 +19,7 @@ com.palantir.sls-packaging:gradle-recommended-product-dependencies:4.11.2 (1 con
 com.palantir.sls.versions:sls-versions:0.12.1 (2 constraints: b6204b28)
 org.checkerframework:checker-compat-qual:2.0.0 (1 constraints: 140ae5b4)
 org.codehaus.mojo:animal-sniffer-annotations:1.14 (1 constraints: ea09d5aa)
-org.immutables:value:2.8.7 (1 constraints: 13051436)
+org.immutables:value:2.8.8 (1 constraints: 14051536)
 org.slf4j:slf4j-api:1.7.30 (1 constraints: f41079c3)
 
 [Test dependencies]
@@ -32,7 +32,7 @@ commons-io:commons-io:2.6 (2 constraints: 961167e3)
 junit:junit:4.13 (3 constraints: e720c04c)
 net.bytebuddy:byte-buddy:1.10.5 (1 constraints: 410b37de)
 net.bytebuddy:byte-buddy-agent:1.10.5 (1 constraints: 410b37de)
-org.assertj:assertj-core:3.16.0 (1 constraints: 3c05473b)
+org.assertj:assertj-core:3.16.1 (1 constraints: 3d05483b)
 org.bouncycastle:bcprov-jdk15on:1.50 (1 constraints: 070f005e)
 org.hamcrest:hamcrest-core:1.3 (1 constraints: cc05fe3f)
 org.mockito:mockito-core:3.3.3 (1 constraints: 0b050636)
