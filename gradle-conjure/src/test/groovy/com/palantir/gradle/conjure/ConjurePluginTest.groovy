@@ -142,12 +142,9 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'check code compiles'() {
         when:
-        ExecutionResult result = runTasks(':api:api-dialogue:dependencies', 'check', '-s')
-        println result.standardOutput
-        println result.standardError
+        ExecutionResult result = runTasksSuccessfully(':api:api-dialogue:dependencies', 'check', '-s')
 
         then:
-        result.success
         result.wasExecuted(':api:api-objects:compileJava')
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:api-jersey:compileJava')
