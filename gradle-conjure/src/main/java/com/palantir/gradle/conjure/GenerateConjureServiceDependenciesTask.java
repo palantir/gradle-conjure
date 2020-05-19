@@ -77,18 +77,22 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
                 NAME_PATTERN.matcher(serviceDependency.getProductName()).matches(),
                 "productName must be a valid maven name");
         Preconditions.checkNotNull(serviceDependency.getMinimumVersion(), "minimum version must be specified");
-        if (!SlsVersion.check(serviceDependency.getMaximumVersion())
-                && !SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion())
-                        .isPresent()) {
+        Preconditions.checkNotNull(serviceDependency.getMaximumVersion(), "maximum version must be specified");
+        if (!SlsVersionMatcher.safeValueOf(serviceDependency.getMaximumVersion())
+                .isPresent()) {
             throw new IllegalArgumentException("maximumVersion must be valid SLS version or version matcher: "
                     + serviceDependency.getMaximumVersion());
-        } else if (!SlsVersion.check(serviceDependency.getMinimumVersion())) {
+        }
+        if (!SlsVersion.check(serviceDependency.getMinimumVersion())) {
             throw new IllegalArgumentException(
-                    "minimumVersion must be valid SLS versions: " + serviceDependency.getMinimumVersion());
-        } else if (!SlsVersion.check(serviceDependency.getRecommendedVersion())) {
+                    "minimumVersion must be valid SLS version: " + serviceDependency.getMinimumVersion());
+        }
+        if (serviceDependency.getRecommendedVersion() != null
+                && !SlsVersion.check(serviceDependency.getRecommendedVersion())) {
             throw new IllegalArgumentException(
-                    "recommendedVersion must be valid SLS versions: " + serviceDependency.getRecommendedVersion());
-        } else if (serviceDependency.getMinimumVersion().equals(serviceDependency.getMaximumVersion())) {
+                    "recommendedVersion must be valid SLS version: " + serviceDependency.getRecommendedVersion());
+        }
+        if (serviceDependency.getMinimumVersion().equals(serviceDependency.getMaximumVersion())) {
             throw new SafeIllegalArgumentException("minimumVersion and maximumVersion must be different");
         }
     }
