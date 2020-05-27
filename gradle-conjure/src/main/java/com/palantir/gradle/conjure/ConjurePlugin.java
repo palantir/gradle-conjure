@@ -487,7 +487,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(compileTypeScript);
                 });
                 subproj.afterEvaluate(
-                        p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishTypeScript));
+                        _p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishTypeScript));
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureTypeScript"));
             });
@@ -645,7 +645,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
                     module.getGeneratedSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
-        project.getPlugins().withType(EclipsePlugin.class, plugin -> {
+        project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
             Task task = project.getTasks().findByName("eclipseClasspath");
             if (task != null) {
                 task.dependsOn(compileConjure);

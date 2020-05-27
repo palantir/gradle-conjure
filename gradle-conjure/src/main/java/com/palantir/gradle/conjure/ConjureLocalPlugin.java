@@ -139,7 +139,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             return;
         }
 
-        project.afterEvaluate(p -> {
+        project.afterEvaluate(_p -> {
             Map<String, Dependency> generators = conjureGeneratorsConfiguration.getAllDependencies().stream()
                     .collect(Collectors.toMap(
                             dependency -> {

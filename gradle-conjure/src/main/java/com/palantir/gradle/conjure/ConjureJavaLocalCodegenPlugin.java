@@ -84,7 +84,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         // Validating that each subproject has a corresponding definition and vice versa.
         // We do this in afterEvaluate to ensure the configuration is populated.
-        project.afterEvaluate(p -> {
+        project.afterEvaluate(_p -> {
             Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
                     .map(Dependency::getName)
                     .collect(ImmutableSet.toImmutableSet());
@@ -103,7 +103,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             }
         });
 
-        project.getChildProjects().forEach((name, subproject) -> {
+        project.getChildProjects().forEach((_name, subproject) -> {
             subproject.getPluginManager().apply(JavaLibraryPlugin.class);
             subproject.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
             createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
