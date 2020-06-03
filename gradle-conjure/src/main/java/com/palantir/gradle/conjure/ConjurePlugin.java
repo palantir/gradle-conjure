@@ -160,9 +160,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
-            Task checkVersions = project.getTasks().create("checkConjureJavaVersions", CheckConjureJavaVersions.class);
-            extractJavaTask.dependsOn(checkVersions);
-
             setupConjureObjectsProject(project, optionsSupplier, compileConjure, compileIrTask, extractJavaTask);
             setupConjureRetrofitProject(
                     project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
