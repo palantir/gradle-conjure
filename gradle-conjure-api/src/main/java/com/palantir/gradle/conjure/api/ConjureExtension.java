@@ -30,22 +30,23 @@ public class ConjureExtension {
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
-    public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure closure) {
+    public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
         closure.setDelegate(typescriptOptions);
         closure.call();
     }
 
-    public final void java(@DelegatesTo(GeneratorOptions.class) Closure closure) {
+    public final void java(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
         closure.setDelegate(javaOptions);
         closure.call();
     }
 
-    public final void python(@DelegatesTo(GeneratorOptions.class) Closure closure) {
+    public final void python(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
         closure.setDelegate(pythonOptions);
         closure.call();
     }
 
-    public final void options(String generator, @DelegatesTo(GeneratorOptions.class) Closure closure) {
+    public final void options(
+            String generator, @DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
         closure.setDelegate(getGenericOptions(generator));
         closure.call();
     }
@@ -63,6 +64,6 @@ public class ConjureExtension {
     }
 
     public final GeneratorOptions getGenericOptions(String generator) {
-        return genericOptions.computeIfAbsent(generator, g -> new GeneratorOptions());
+        return genericOptions.computeIfAbsent(generator, _g -> new GeneratorOptions());
     }
 }

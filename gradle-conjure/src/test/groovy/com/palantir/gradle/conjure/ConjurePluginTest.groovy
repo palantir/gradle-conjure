@@ -79,7 +79,7 @@ class ConjurePluginTest extends IntegrationSpec {
         com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
         com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
         com.palantir.conjure:conjure = ${TestVersions.CONJURE}
-        com.palantir.dialogue:* = 0.7.0
+        com.palantir.dialogue:* = 1.50.0
         com.squareup.retrofit2:retrofit = 2.1.0
         jakarta.ws.rs:jakarta.ws.rs-api = 2.1.6
         """.stripIndent()
@@ -142,7 +142,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'check code compiles'() {
         when:
-        ExecutionResult result = runTasksSuccessfully('check')
+        ExecutionResult result = runTasksSuccessfully(':api:api-dialogue:dependencies', 'check', '-s')
 
         then:
         result.wasExecuted(':api:api-objects:compileJava')

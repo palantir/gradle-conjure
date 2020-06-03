@@ -1,0 +1,7 @@
+type: fix
+fix:
+  description: Generated `*-dialogue` projects now depend on dialogue-target 1.45.0
+    by default rather than requiring users to supply a version. Users can still upgrade
+    this if they choose in versions.props.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/420

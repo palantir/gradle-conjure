@@ -31,7 +31,7 @@ public class ConjureProductDependenciesExtension {
         return productDependencies;
     }
 
-    public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure closure) {
+    public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure<ServiceDependency> closure) {
         ServiceDependency serviceDependency = new ServiceDependency();
         closure.setDelegate(serviceDependency);
         closure.call();
