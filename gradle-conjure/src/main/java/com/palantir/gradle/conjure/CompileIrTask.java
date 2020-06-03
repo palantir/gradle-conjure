@@ -30,6 +30,7 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -61,6 +62,7 @@ public class CompileIrTask extends DefaultTask {
      * @deprecated Use {@link #getOutputIrFile()} instead.
      */
     @Deprecated
+    @Internal
     public final File getOutputFile() {
         return outputIrFile.getAsFile().get();
     }
