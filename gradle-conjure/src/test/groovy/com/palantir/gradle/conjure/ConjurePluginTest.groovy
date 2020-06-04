@@ -213,7 +213,6 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'check code compiles when run in parallel with multiple build targets'() {
         when:
-        System.setProperty("ignoreDeprecations", "true")
         System.setProperty("ignoreMutableProjectStateWarnings", "true")
         ExecutionResult result = runTasksSuccessfully('--parallel', 'check', 'tasks')
 
@@ -631,8 +630,6 @@ class ConjurePluginTest extends IntegrationSpec {
 
     @RestoreSystemProperties
     def 'works with checkUnusedDependencies'() {
-        // Due to errors like 'The configuration :api:api-objects:compileClasspath was resolved without accessing the project in a safe manner.'
-        System.setProperty("ignoreDeprecations", "true")
         System.setProperty("ignoreMutableProjectStateWarnings", "true")
         buildFile << """
             allprojects { apply plugin: 'com.palantir.baseline-exact-dependencies' }

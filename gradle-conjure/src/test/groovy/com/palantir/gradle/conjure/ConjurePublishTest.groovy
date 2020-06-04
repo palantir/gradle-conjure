@@ -27,8 +27,6 @@ class ConjurePublishTest extends IntegrationSpec {
 
     def 'simple example'() {
         setup:
-        // Nebula tests fails if any deprecation warnings are emitted
-        System.setProperty("ignoreDeprecations", "true")
         buildFile << """
             repositories {
                 mavenCentral()
