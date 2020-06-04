@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Handle applying gradle-conjure to the root
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/477

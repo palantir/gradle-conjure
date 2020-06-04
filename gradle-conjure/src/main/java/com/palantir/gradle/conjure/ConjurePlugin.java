@@ -160,9 +160,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
                     project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
 
-            Task checkVersions = project.getTasks().create("checkConjureJavaVersions", CheckConjureJavaVersions.class);
-            extractJavaTask.dependsOn(checkVersions);
-
             setupConjureObjectsProject(project, optionsSupplier, compileConjure, compileIrTask, extractJavaTask);
             setupConjureRetrofitProject(
                     project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
@@ -558,8 +555,9 @@ public final class ConjurePlugin implements Plugin<Project> {
             Configuration conjureGeneratorsConfiguration) {
         Map<String, Project> genericSubProjects = Maps.filterKeys(
                 project.getChildProjects(),
-                key -> !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                        extractSubprojectLanguage(project.getName(), key)));
+                childProjectName -> childProjectName.startsWith(project.getName())
+                        && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
+                                extractSubprojectLanguage(project.getName(), childProjectName)));
         if (genericSubProjects.isEmpty()) {
             return;
         }
