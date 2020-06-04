@@ -32,7 +32,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         include 'server'
         '''.stripIndent()
 
-        createFile('build.gradle') << '''
+        createFile('build.gradle') << """
         buildscript {
             repositories {
                 mavenCentral()
@@ -40,45 +40,28 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                     url 'https://dl.bintray.com/palantir/releases/'
                 }
             }
-
-            dependencies {
-                classpath 'com.netflix.nebula:nebula-dependency-recommender:5.2.0'
-            }
         }
+        
         allprojects {
             version '0.1.0'
             group 'com.palantir.conjure.test'
 
             repositories {
                 mavenCentral()
-                maven {
-                    url 'https://dl.bintray.com/palantir/releases/'
-                }
+                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
-            apply plugin: 'nebula.dependency-recommender'
-
-            dependencyRecommendations {
-                strategy OverrideTransitives
-                propertiesFile file: project.rootProject.file('versions.props')
-            }
-
             configurations.all {
-                resolutionStrategy {
-                    failOnVersionConflict()
-                }
-            }
+               resolutionStrategy {
+                   force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                   force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
+               }
+           }
         }
-        '''.stripIndent()
+        """.stripIndent()
 
         createFile('api/build.gradle') << '''
         apply plugin: 'com.palantir.conjure'
         '''.stripIndent()
-
-        createFile('versions.props') << """
-        com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
-        com.palantir.conjure:conjure = ${TestVersions.CONJURE}
-        """.stripIndent()
 
         createFile('api/src/main/conjure/api.yml') << '''
         types:
