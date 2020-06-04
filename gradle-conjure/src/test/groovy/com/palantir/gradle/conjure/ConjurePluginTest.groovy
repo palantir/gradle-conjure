@@ -47,7 +47,7 @@ class ConjurePluginTest extends IntegrationSpec {
                 gradlePluginPortal()
             }
             dependencies {
-                classpath 'com.palantir.baseline:gradle-baseline-java:3.4.2'
+                classpath 'com.palantir.baseline:gradle-baseline-java:3.23.0'
             }
         }
         
