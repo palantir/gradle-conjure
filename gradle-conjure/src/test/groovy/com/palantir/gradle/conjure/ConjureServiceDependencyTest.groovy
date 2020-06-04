@@ -29,14 +29,11 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         addSubproject('api:api-jersey')
         addSubproject('api:api-typescript')
 
-        buildFile << '''
+        buildFile << """
         buildscript {
             repositories {
                 mavenCentral()
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
-            }
-            dependencies {
-                classpath 'com.netflix.nebula:nebula-dependency-recommender:5.2.0'
             }
         }
         
@@ -48,24 +45,16 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 mavenCentral()
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
-            
-            apply plugin: 'nebula.dependency-recommender'
-
-            dependencyRecommendations {
-                strategy OverrideTransitives
-                propertiesFile file: project.rootProject.file('versions.props')
-            }
+            configurations.all {
+                resolutionStrategy {
+                    force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                    force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
+                }
+            }   
         }
-        '''.stripIndent()
-
-        createFile('versions.props') << """
-        com.fasterxml.jackson.*:* = 2.6.7
-        com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
-        com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
-        com.palantir.conjure:conjure = ${TestVersions.CONJURE}
-        com.squareup.retrofit2:retrofit = 2.1.0
-        jakarta.ws.rs:jakarta.ws.rs-api = 2.1.6
         """.stripIndent()
 
         createFile('api/build.gradle') << '''

@@ -83,17 +83,6 @@ class ConjurePluginTest extends IntegrationSpec {
         apply plugin: 'com.palantir.conjure'
         '''.stripIndent()
 
-        createFile('versions.props') << """
-        com.fasterxml.jackson.*:* = 2.6.7
-        com.google.guava:guava = 18.0
-        com.palantir.conjure.typescript:conjure-typescript = ${TestVersions.CONJURE_TYPESCRIPT}
-        com.palantir.conjure.java:* = ${TestVersions.CONJURE_JAVA}
-        com.palantir.conjure:conjure = ${TestVersions.CONJURE}
-        com.palantir.dialogue:* = 1.50.0
-        com.squareup.retrofit2:retrofit = 2.1.0
-        jakarta.ws.rs:jakarta.ws.rs-api = 2.1.6
-        """.stripIndent()
-
         createFile('api/src/main/conjure/api.yml') << '''
         types:
           definitions:
