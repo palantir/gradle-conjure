@@ -20,7 +20,6 @@ import java.nio.file.Files
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import org.gradle.util.GFileUtils
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
@@ -339,61 +338,6 @@ class ConjurePluginTest extends IntegrationSpec {
 
         then:
         !fileExists('api/build/conjure/todelete.yml')
-    }
-
-    @Ignore // Don't think this test is worth it
-    def 'check publication'() {
-        System.setProperty("ignoreMutableProjectStateWarnings", "true")
-        file('build.gradle') << '''
-        buildscript {
-            repositories {
-                mavenCentral()
-                maven {
-                    url 'https://plugins.gradle.org/m2/'
-                }
-            }
-            dependencies {
-                classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
-            }
-        }
-        '''.stripIndent()
-
-        file('api/build.gradle') << '''
-        subprojects {
-            apply plugin: 'nebula.maven-base-publish'
-            apply plugin: 'nebula.maven-resolved-dependencies'
-            apply plugin: 'nebula.javadoc-jar'
-            apply plugin: 'nebula.source-jar'
-        }
-        '''.stripIndent()
-
-        file('server/build.gradle') << '''
-        apply plugin: 'java'
-        apply plugin: 'nebula.maven-base-publish'
-        apply plugin: 'nebula.maven-resolved-dependencies'
-        apply plugin: 'nebula.javadoc-jar'
-        apply plugin: 'nebula.source-jar'
-
-        dependencies {
-            compile project(':api:api-jersey')
-            compile project(':api:api-retrofit') // safe to include both this and jersey, if necessary
-        }
-        '''.stripIndent()
-
-        when:
-        ExecutionResult result = runTasksSuccessfully('--parallel', 'publishToMavenLocal')
-
-        then:
-        result.wasExecuted(':api:api-jersey:compileJava')
-        result.wasExecuted(':api:compileConjureJersey')
-
-        new File(System.getProperty('user.home') + '/.m2/repository/com/palantir/conjure/test/').exists()
-        new File(System.getProperty('user.home') +
-                '/.m2/repository/com/palantir/conjure/test/api-jersey/0.1.0/api-jersey-0.1.0.pom').exists()
-        new File(System.getProperty('user.home') +
-                '/.m2/repository/com/palantir/conjure/test/server/0.1.0/server-0.1.0.pom').exists()
-        new File(System.getProperty('user.home') +
-                '/.m2/repository/com/palantir/conjure/test/server/0.1.0/server-0.1.0.pom').text.contains('>api-jersey<')
     }
 
     def 'copies conjure imports into build directory and provides imports to conjure compiler'() {
