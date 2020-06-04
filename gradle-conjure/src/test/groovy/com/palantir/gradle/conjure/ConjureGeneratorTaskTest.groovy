@@ -21,24 +21,22 @@ import nebula.test.functional.ExecutionResult
 
 class ConjureGeneratorTaskTest extends IntegrationSpec {
     def setup() {
-        createFile('settings.gradle') << '''
+        createFile('settings.gradle') << """
         include 'api'
         include 'api:api-objects'
-        '''.stripIndent()
+        """.stripIndent()
 
-        createFile('build.gradle') << '''
+        createFile('build.gradle') << """
         allprojects {
             version '0.1.0'
             group 'com.palantir.conjure.test'
 
             repositories {
                 mavenCentral()
-                maven {
-                    url 'https://dl.bintray.com/palantir/releases/'
-                }
+                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
         }
-        '''.stripIndent()
+        """.stripIndent()
 
         createFile('api/build.gradle') << """
         apply plugin: 'com.palantir.conjure'
@@ -50,7 +48,7 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         subprojects {
             pluginManager.withPlugin 'java', {
                 dependencies {
-                    compile 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
+                    implementation 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
                 }
             }
         }
