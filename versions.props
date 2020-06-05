@@ -10,7 +10,7 @@ org.assertj:* = 3.16.1
 org.immutables:value = 2.8.8
 org.mockito:mockito-core = 3.3.3
 org.spockframework:* = 1.2-groovy-2.4
-com.palantir.sls-packaging:* = 4.13.0
+com.palantir.sls-packaging:* = 4.13.1
 com.palantir.conjure.java.runtime:* = 6.0.0
 
 
