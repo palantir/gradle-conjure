@@ -473,6 +473,26 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.commandLine(npmCommand, "run-script", "build");
                     task.workingDir(srcDirectory);
                     task.dependsOn(installTypeScriptDependencies);
+                    task.getInputs()
+                            .files(subproj.fileTree(srcDirectory)
+                                    .matching(filterable -> filterable.include(file -> {
+                                        String path = file.getPath();
+                                        if (file.isDirectory() || path.equals("tsconfig.json")) {
+                                            return true;
+                                        }
+                                        // Include .ts files inside src/ and .d.ts files inside node_modules
+                                        return path.endsWith(".ts")
+                                                && (path.endsWith(".d.ts") == path.startsWith("node_modules"));
+                                    })));
+                    task.getOutputs()
+                            .files(subproj.fileTree(srcDirectory)
+                                    .matching(filterable -> filterable.include(file -> {
+                                        String path = file.getPath();
+                                        if (path.startsWith("node_modules/")) {
+                                            return false;
+                                        }
+                                        return file.isDirectory() || path.endsWith(".d.ts") || path.endsWith(".js");
+                                    })));
                 });
                 Task publishTypeScript = project.getTasks().create("publishTypeScript", Exec.class, task -> {
                     task.setDescription("Runs `npm publish` to publish a TypeScript package "
