@@ -76,7 +76,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
         Provider<Directory> irDir = project.getLayout().getBuildDirectory().dir("conjure-ir");
 
         project.getTasks().register("rawIr", CompileIrTask.class, rawIr -> {
-            rawIr.getInputDir().set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
+            rawIr.setInputDirectory(copyConjureSourcesTask.map(Copy::getDestinationDir)::get);
             rawIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
             rawIr.getOutputIrFile().set(irDir.map(dir -> dir.file("rawIr.conjure.json")));
             rawIr.dependsOn(copyConjureSourcesTask);
@@ -87,7 +87,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(ConjureBasePlugin.TASK_GROUP);
 
-            compileIr.getInputDir().set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
+            compileIr.setInputDirectory(copyConjureSourcesTask.map(Copy::getDestinationDir)::get);
             compileIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
             compileIr.getOutputIrFile().set(irDir.map(dir -> dir.file(project.getName() + ".conjure.json")));
             compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
@@ -97,7 +97,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     }
 
     private static TaskProvider<Copy> createCopyConjureSourceTask(Project project, SourceDirectorySet sourceset) {
-        Provider<Directory> buildDir = project.getLayout().getBuildDirectory().dir("conjure");
+        File buildDir = new File(project.getBuildDir(), "conjure");
         TaskProvider<Copy> copyConjureSourcesTask = project.getTasks()
                 .register("copyConjureSourcesIntoBuild", Copy.class, task -> {
                     task.into(buildDir).from(sourceset);
@@ -107,7 +107,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                     task.doFirst(new Action<Task>() {
                         @Override
                         public void execute(Task _task) {
-                            GFileUtils.deleteDirectory(buildDir.get().getAsFile());
+                            GFileUtils.deleteDirectory(buildDir);
                         }
                     });
                 });
