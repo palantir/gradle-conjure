@@ -113,9 +113,8 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                 });
 
         project.getTasks()
-                .named(LifecycleBasePlugin.CLEAN_TASK_NAME)
-                .configure(cleanTask ->
-                        cleanTask.dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild")));
+                .getByName(LifecycleBasePlugin.CLEAN_TASK_NAME)
+                .dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild"));
 
         return copyConjureSourcesTask;
     }
