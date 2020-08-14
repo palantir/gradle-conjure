@@ -1,5 +1,5 @@
 # Run ./gradlew --write-locks to regenerate this file
-com.fasterxml.jackson.core:jackson-annotations:2.11.2 (4 constraints: 183f44e9)
+com.fasterxml.jackson.core:jackson-annotations:2.11.2 (4 constraints: 183f46e9)
 com.fasterxml.jackson.core:jackson-core:2.11.2 (7 constraints: fa9c2eb1)
 com.fasterxml.jackson.core:jackson-databind:2.11.2 (8 constraints: 70c2a158)
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.2 (1 constraints: 7b1c94a4)
@@ -16,7 +16,7 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:6.3.0 (1 co
 com.palantir.safe-logging:preconditions:1.13.0 (3 constraints: b948d474)
 com.palantir.safe-logging:safe-logging:1.13.0 (2 constraints: 1e22f6cd)
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:4.16.3 (1 constraints: 4005503b)
-com.palantir.sls.versions:sls-versions:0.12.1 (2 constraints: b6204b28)
+com.palantir.sls.versions:sls-versions:0.12.2 (2 constraints: b7209828)
 org.checkerframework:checker-compat-qual:2.0.0 (1 constraints: 140ae5b4)
 org.codehaus.mojo:animal-sniffer-annotations:1.14 (1 constraints: ea09d5aa)
 org.immutables:value:2.8.8 (1 constraints: 14051536)
