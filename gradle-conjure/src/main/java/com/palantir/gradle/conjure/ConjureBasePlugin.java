@@ -94,7 +94,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
-            
+
             project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
                 conf.setCanBeResolved(false);
             });
