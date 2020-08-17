@@ -37,6 +37,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     static final String COMPILE_IR_TASK = "compileIr";
     static final String SERVICE_DEPENDENCIES_TASK = "generateConjureServiceDependencies";
 
+    static final String CONJURE_IR_CONFIGURATION = "conjureIr";
     static final String CONJURE_COMPILER = "conjureCompiler";
     static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
 
@@ -93,6 +94,11 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
+            
+            project.getConfigurations().maybeCreate(CONJURE_IR_CONFIGURATION);
+            project.artifacts(artifactHandler -> {
+                artifactHandler.add(CONJURE_IR_CONFIGURATION, compileIr.getOutputIrFile());
+            });
         });
     }
 
