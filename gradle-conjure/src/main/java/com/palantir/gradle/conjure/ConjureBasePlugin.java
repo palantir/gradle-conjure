@@ -95,9 +95,12 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
             
-            project.getConfigurations().maybeCreate(CONJURE_IR_CONFIGURATION);
+            project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
+                conf.setCanBeResolved(false);
+            });
             project.artifacts(artifactHandler -> {
-                artifactHandler.add(CONJURE_IR_CONFIGURATION, compileIr.getOutputIrFile());
+                artifactHandler.add(
+                        CONJURE_IR_CONFIGURATION, compileIr.getOutputIrFile(), artifact -> artifact.builtBy(compileIr));
             });
         });
     }
