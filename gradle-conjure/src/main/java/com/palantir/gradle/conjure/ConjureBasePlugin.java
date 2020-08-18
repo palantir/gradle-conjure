@@ -24,6 +24,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
@@ -36,6 +37,8 @@ import org.gradle.util.GFileUtils;
 public final class ConjureBasePlugin implements Plugin<Project> {
     static final String COMPILE_IR_TASK = "compileIr";
     static final String SERVICE_DEPENDENCIES_TASK = "generateConjureServiceDependencies";
+
+    static final Attribute<String> API_ATTRIBUTE = Attribute.of("com.palantir.api.type", String.class);
 
     static final String CONJURE_IR_CONFIGURATION = "conjureIr";
     static final String CONJURE_COMPILER = "conjureCompiler";
@@ -97,6 +100,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
             project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
                 conf.setCanBeResolved(false);
+                conf.attributes(attributeContainer -> attributeContainer.attribute(API_ATTRIBUTE, "conjure"));
             });
             project.artifacts(artifactHandler -> {
                 artifactHandler.add(
