@@ -19,7 +19,7 @@ package com.palantir.gradle.conjure;
 public final class TestVersions {
     private TestVersions() {}
 
-    public static final String CONJURE = "4.11.1";
+    public static final String CONJURE = "4.11.2";
     public static final String CONJURE_JAVA = "5.17.0";
     public static final String CONJURE_PYTHON = "3.11.6";
     public static final String CONJURE_TYPESCRIPT = "3.8.1";
