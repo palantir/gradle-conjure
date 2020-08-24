@@ -24,6 +24,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
@@ -37,6 +38,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     static final String COMPILE_IR_TASK = "compileIr";
     static final String SERVICE_DEPENDENCIES_TASK = "generateConjureServiceDependencies";
 
+    static final String CONJURE_IR_CONFIGURATION = "conjureIr";
     static final String CONJURE_COMPILER = "conjureCompiler";
     static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
 
@@ -50,8 +52,10 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
-        createIrTasks(project, conjureProductDependenciesExtension, copyConjureSourcesTask);
+        TaskProvider<CompileIrTask> compileIr =
+                createIrTasks(project, conjureProductDependenciesExtension, copyConjureSourcesTask);
         createServiceDependenciesTask(project, conjureProductDependenciesExtension);
+        createOutgoingConfiguration(project, compileIr);
     }
 
     private static SourceDirectorySet createConjureSourceSet(Project project) {
@@ -63,7 +67,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
         return conjureSourceSet;
     }
 
-    private static void createIrTasks(
+    private static TaskProvider<CompileIrTask> createIrTasks(
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
             TaskProvider<Copy> copyConjureSourcesTask) {
@@ -83,7 +87,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             rawIr.dependsOn(extractCompilerTask);
         });
 
-        project.getTasks().register(COMPILE_IR_TASK, CompileIrTask.class, compileIr -> {
+        return project.getTasks().register(COMPILE_IR_TASK, CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(ConjureBasePlugin.TASK_GROUP);
 
@@ -94,6 +98,21 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
         });
+    }
+
+    private static void createOutgoingConfiguration(Project project, TaskProvider<CompileIrTask> compileIr) {
+        Configuration conjureIr = project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
+            conf.setCanBeResolved(false);
+            conf.setCanBeConsumed(true);
+            conf.setVisible(true);
+            conf.getAttributes()
+                    .attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "conjure"));
+        });
+        project.getArtifacts()
+                .add(
+                        conjureIr.getName(),
+                        compileIr.flatMap(CompileIrTask::getOutputIrFile),
+                        artifact -> artifact.builtBy(compileIr));
     }
 
     private static TaskProvider<Copy> createCopyConjureSourceTask(Project project, SourceDirectorySet sourceset) {

@@ -1,0 +1,6 @@
+type: feature
+feature:
+  description: Expose consumable configuration with `Usage` `conjure` that contains
+    the complete IR of the conjure project
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/572

@@ -105,4 +105,32 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         then:
         result.standardOutput.contains "Task :compileIr FROM-CACHE"
     }
+
+    def 'conjure project produces consumable configuration'() {
+        when:
+        addSubproject("conjure-api", "apply plugin: 'java'")
+        file('conjure-api/src/main/conjure/api.yml') << API_YML
+
+        addSubproject("api-consumer", '''
+        configurations {
+            irConsumer {
+                attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.class, "conjure"));
+            }
+        }
+
+        dependencies {
+            irConsumer project(':conjure-api')
+        }
+        
+        task getIr(type: Copy) {
+            from configurations.irConsumer
+            into "${project.buildDir}/all-ir"
+        }
+        '''.stripIndent())
+
+        then:
+        def result = runTasksSuccessfully('getIr')
+        result.wasExecuted(':conjure-api:compileIr')
+        file("build/all-ir/conjure-api.conjure.json")
+    }
 }
