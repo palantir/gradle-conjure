@@ -105,7 +105,7 @@ public class CompileIrTask extends DefaultTask {
                 inputDirectory.get().getAbsolutePath(),
                 outputIrFile.get().getAsFile().getAbsolutePath(),
                 "--extensions",
-                getSerializedExtensions());
+                OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
 
         GradleExecUtils.exec(getProject(), "generate conjure IR", Collections.emptyList(), args);
     }

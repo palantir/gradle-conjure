@@ -32,6 +32,10 @@ final class OsUtils {
         return new File(appendDotBatIfWindows(executable.getPath()));
     }
 
+    static String escapeAndWrapArgIfWindows(String argument) {
+        return Os.isFamily(Os.FAMILY_WINDOWS) ? ("\"" + argument.replaceAll("\"", "\"\"") + "\"") : argument;
+    }
+
     private static String appendIfWindows(String toAppend, String value) {
         return value + (Os.isFamily(Os.FAMILY_WINDOWS) ? toAppend : "");
     }
