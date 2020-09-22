@@ -1,5 +1,5 @@
 type: fix
-feature:
+fix:
   description: Gradle was unable to build the Conjure IR file due to invalid escaping of the command line options. This
   PR ensures that the CLI options are escaped when running on Windows systems.
   links:
