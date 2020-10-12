@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
@@ -25,8 +26,10 @@ import org.gradle.process.ExecResult;
 final class GradleExecUtils {
     private GradleExecUtils() {}
 
-    static void exec(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+    static void exec(
+            Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
         List<String> combinedArgs = ImmutableList.<String>builder()
+                .add(project.getRootProject().relativePath(executable))
                 .addAll(unloggedArgs)
                 .addAll(loggedArgs)
                 .build();

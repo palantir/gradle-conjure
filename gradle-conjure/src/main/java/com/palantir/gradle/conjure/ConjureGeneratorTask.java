@@ -103,15 +103,13 @@ public class ConjureGeneratorTask extends SourceTask {
             GFileUtils.deleteDirectory(thisOutputDirectory);
             getProject().mkdir(thisOutputDirectory);
 
-            List<String> generateCommand = ImmutableList.of(
-                    getExecutablePath().getAbsolutePath(),
-                    "generate",
-                    file.getAbsolutePath(),
-                    thisOutputDirectory.getAbsolutePath());
+            List<String> generateCommand =
+                    ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 
             GradleExecUtils.exec(
                     getProject(),
                     "run generator",
+                    getExecutablePath(),
                     generateCommand,
                     RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
         });

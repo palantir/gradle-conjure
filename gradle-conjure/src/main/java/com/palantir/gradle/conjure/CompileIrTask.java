@@ -99,15 +99,15 @@ public class CompileIrTask extends DefaultTask {
 
     @TaskAction
     public final void generate() {
+        File executable = new File(executableDir.get(), EXECUTABLE);
         List<String> args = ImmutableList.of(
-                new File(executableDir.get(), EXECUTABLE).getAbsolutePath(),
                 "compile",
                 inputDirectory.get().getAbsolutePath(),
                 outputIrFile.get().getAsFile().getAbsolutePath(),
                 "--extensions",
                 OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
 
-        GradleExecUtils.exec(getProject(), "generate conjure IR", Collections.emptyList(), args);
+        GradleExecUtils.exec(getProject(), "generate conjure IR", executable, Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {
