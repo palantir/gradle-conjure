@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 
@@ -36,13 +37,28 @@ final class GradleExecUtils {
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-        ExecResult execResult = project.exec(execSpec -> {
-            project.getLogger().info("Running with args: {}", loggedArgs);
-            execSpec.commandLine(combinedArgs);
-            execSpec.setIgnoreExitValue(true);
-            execSpec.setStandardOutput(output);
-            execSpec.setErrorOutput(output);
-        });
+        ExecResult execResult;
+        Optional<ReverseEngineerJavaStartScript.StartScriptInfo> maybeJava =
+                ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
+        if (maybeJava.isPresent()) {
+            ReverseEngineerJavaStartScript.StartScriptInfo startScriptInfo = maybeJava.get();
+            execResult = project.javaexec(spec -> {
+                project.getLogger().info("Running java process with args: {}", loggedArgs);
+                spec.classpath(startScriptInfo.classpath());
+                spec.setMain(startScriptInfo.mainClass());
+                spec.setIgnoreExitValue(true);
+                spec.setStandardOutput(output);
+                spec.setErrorOutput(output);
+            });
+        } else {
+            execResult = project.exec(execSpec -> {
+                project.getLogger().info("Running with args: {}", loggedArgs);
+                execSpec.commandLine(combinedArgs);
+                execSpec.setIgnoreExitValue(true);
+                execSpec.setStandardOutput(output);
+                execSpec.setErrorOutput(output);
+            });
+        }
 
         if (execResult.getExitValue() != 0) {
             throw new RuntimeException(String.format(
