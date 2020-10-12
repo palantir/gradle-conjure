@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Conjure IR is now exposed on a configuration tagged with attribute
+    of type Usage with name `com.palantir.conjure`
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/617
