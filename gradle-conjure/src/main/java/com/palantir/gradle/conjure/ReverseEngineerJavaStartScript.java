@@ -42,7 +42,7 @@ import org.immutables.value.Value;
  * This class attempts to magically reverse engineer the start script and extract the classpath and main class, in
  * order to bypass this start script.
  */
-final class ReverseEngineerGradleStartScript {
+final class ReverseEngineerJavaStartScript {
 
     /** To match stuff like {@code CLASSPATH=$APP_HOME/lib/conjure-4.13.0.jar:$APP_HOME/lib/conjure}. */
     private static final Pattern CLASSPATH_REGEX = Pattern.compile("CLASSPATH=([^\n]*)\n");
@@ -74,8 +74,8 @@ final class ReverseEngineerGradleStartScript {
         if (!classpathMatcher.find()) {
             return Optional.empty();
         }
-        List<File> classpath = Splitter.on(':')
-                .splitToStream(classpathMatcher.group(1))
+        // can't use splitToStream because repos often have old guava on the buildscript classpath
+        List<File> classpath = Splitter.on(':').splitToList(classpathMatcher.group(1)).stream()
                 .map(s -> s.replace("$APP_HOME/", ""))
                 .map(s -> appHome.resolve(s).toFile())
                 .collect(Collectors.toList());

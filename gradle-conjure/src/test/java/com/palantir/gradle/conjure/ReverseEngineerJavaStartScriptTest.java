@@ -21,18 +21,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Paths;
 import org.junit.Test;
 
-public class ReverseEngineerGradleStartScriptTest {
+public class ReverseEngineerJavaStartScriptTest {
 
     @Test
     public void dont_freak_out_with_windows_files() {
-        assertThat(ReverseEngineerGradleStartScript.maybeParseStartScript(
+        assertThat(ReverseEngineerJavaStartScript.maybeParseStartScript(
                         Paths.get("/Volumes/git/log-receiver/log-receiver-api/build/conjureCompiler/bin/conjure.bat")))
                 .isEmpty();
     }
 
     @Test
     public void real_thingy() {
-        assertThat(ReverseEngineerGradleStartScript.maybeParseStartScript(
+        assertThat(ReverseEngineerJavaStartScript.maybeParseStartScript(
                         Paths.get("/Volumes/git/log-receiver/log-receiver-api/build/conjureCompiler/bin/conjure")))
                 .hasValueSatisfying(info -> {
                     assertThat(info.mainClass()).isEqualTo("com.palantir.conjure.cli.ConjureCli");
