@@ -120,7 +120,7 @@ final class GradleExecUtils {
 
     public static final class PluginClassLoader extends URLClassLoader {
         public PluginClassLoader(URL[] jars) {
-            super(jars, null, null);
+            super(jars, ClassLoader.getSystemClassLoader());
         }
     }
 
