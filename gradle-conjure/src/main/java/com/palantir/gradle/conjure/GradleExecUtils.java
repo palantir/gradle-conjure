@@ -22,7 +22,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessControlException;
@@ -34,6 +33,7 @@ import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Optional;
 import java.util.PropertyPermission;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 
@@ -42,11 +42,13 @@ final class GradleExecUtils {
 
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
+
+        // We run java things *in-process* to save ~1sec JVM startup time (helpful if there are 100 conjure projects)
         Optional<ReverseEngineerJavaStartScript.StartScriptInfo> maybeJava =
                 ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
-            project.getLogger().info("Running java process with args: {}", loggedArgs);
+            project.getLogger().info("Running in-process java with args: {}", loggedArgs);
 
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .addAll(unloggedArgs)
@@ -57,14 +59,13 @@ final class GradleExecUtils {
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            ExecResult execResult;
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .add(project.getRootProject().relativePath(executable))
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
                     .build();
 
-            execResult = project.exec(execSpec -> {
+            ExecResult execResult = project.exec(execSpec -> {
                 project.getLogger().info("Running with args: {}", loggedArgs);
                 execSpec.commandLine(combinedArgs);
                 execSpec.setIgnoreExitValue(true);
@@ -83,19 +84,8 @@ final class GradleExecUtils {
     private static void runJavaCodeInProcess(
             String failedTo, List<String> combinedArgs, ReverseEngineerJavaStartScript.StartScriptInfo info) {
 
-        URL[] jarUrls = info.classpath().stream()
-                .map(f -> {
-                    try {
-                        return f.toURI().toURL();
-                    } catch (MalformedURLException e1) {
-                        throw new RuntimeException(e1);
-                    }
-                })
-                .toArray(URL[]::new);
-
-        PluginClassLoader classLoader = new PluginClassLoader(jarUrls);
-        Policy.setPolicy(new SandboxSecurityPolicy());
-        System.setSecurityManager(new SecurityManager());
+        SandboxClassLoader classLoader = new SandboxClassLoader(info.classpathUrls());
+        SandboxSecurityPolicy.installForThisJvm();
 
         try {
             Class<?> mainClass = classLoader.loadClass(info.mainClass());
@@ -110,6 +100,7 @@ final class GradleExecUtils {
                     && e.getCause()
                             .getMessage()
                             .equals("access denied (\"java.lang.RuntimePermission\" \"exitVM.0\")")) {
+                // we don't want generators to call System.exit(0) and terminate the entire Gradle daemon!
                 return;
             }
 
@@ -118,40 +109,61 @@ final class GradleExecUtils {
         }
     }
 
-    public static final class PluginClassLoader extends URLClassLoader {
-        public PluginClassLoader(URL[] jars) {
+    private static final class SandboxClassLoader extends URLClassLoader {
+        SandboxClassLoader(URL[] jars) {
             super(jars, ClassLoader.getSystemClassLoader());
         }
     }
 
-    public static final class SandboxSecurityPolicy extends Policy {
+    /**
+     * The {@link java.security.Policy} is set globally for the entire JVM, so we set it once and need to make sure
+     * the calling thread still has sensible permissions, while the sandbox thread is locked down.
+     */
+    private static final class SandboxSecurityPolicy extends Policy {
+        private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
+        private static final PermissionCollection ALLOW_ALL = allowAll();
 
-        @Override
-        public PermissionCollection getPermissions(ProtectionDomain domain) {
-            if (isPlugin(domain)) {
-                return pluginPermissions();
-            } else {
-                return applicationPermissions();
+        private final PermissionCollection sandboxPerms;
+
+        private SandboxSecurityPolicy(PermissionCollection sandboxPerms) {
+            this.sandboxPerms = sandboxPerms;
+        }
+
+        static void installForThisJvm() {
+            if (INSTALLED.compareAndSet(false, true)) {
+                Permissions lockedDownPerms = new Permissions();
+
+                // we're not really defending against adversarial conjure-generators here, I just don't want them
+                // to call System.exit and kill the current gradle process!
+                lockedDownPerms.add(new PropertyPermission("*", "read"));
+                lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
+                lockedDownPerms.add(new RuntimePermission("getClassLoader"));
+                lockedDownPerms.add(new RuntimePermission("getenv.*"));
+                lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
+                lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
+
+                Policy.setPolicy(new SandboxSecurityPolicy(lockedDownPerms));
+                if (System.getSecurityManager() == null) {
+                    // necessary otherwise our fancy new policy will never be checked
+                    System.setSecurityManager(new SecurityManager());
+                }
             }
         }
 
-        private static boolean isPlugin(ProtectionDomain domain) {
-            return domain.getClassLoader() instanceof PluginClassLoader;
+        @Override
+        public PermissionCollection getPermissions(ProtectionDomain domain) {
+            if (isSandboxThread(domain)) {
+                return sandboxPerms;
+            } else {
+                return ALLOW_ALL;
+            }
         }
 
-        private static PermissionCollection pluginPermissions() {
-            // No permissions
-            Permissions permissions = new Permissions();
-            permissions.add(new PropertyPermission("*", "read"));
-            permissions.add(new RuntimePermission("accessDeclaredMembers"));
-            permissions.add(new RuntimePermission("getClassLoader"));
-            permissions.add(new RuntimePermission("getenv.*"));
-            permissions.add(new ReflectPermission("suppressAccessChecks"));
-            permissions.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
-            return permissions;
+        private static boolean isSandboxThread(ProtectionDomain domain) {
+            return domain.getClassLoader() instanceof SandboxClassLoader;
         }
 
-        private static PermissionCollection applicationPermissions() {
+        private static PermissionCollection allowAll() {
             Permissions permissions = new Permissions();
             permissions.add(new AllPermission());
             return permissions;

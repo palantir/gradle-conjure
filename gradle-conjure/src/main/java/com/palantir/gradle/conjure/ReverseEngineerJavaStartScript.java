@@ -24,6 +24,8 @@ import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +54,8 @@ final class ReverseEngineerJavaStartScript {
      * com.palantir.conjure.cli.ConjureCli "$APP_ARGS"}.
      */
     private static final Pattern MAIN_CLASS_REGEX = Pattern.compile("-classpath [^ ]+ ([a-zA-Z\\.]+)");
+
+    private ReverseEngineerJavaStartScript() {}
 
     static Optional<StartScriptInfo> maybeParseStartScript(Path script) {
         Optional<String> maybeString = readFileToString(script);
@@ -117,5 +121,18 @@ final class ReverseEngineerJavaStartScript {
         List<File> classpath();
 
         String mainClass();
+
+        @Value.Auxiliary
+        default URL[] classpathUrls() {
+            return classpath().stream()
+                    .map(f -> {
+                        try {
+                            return f.toURI().toURL();
+                        } catch (MalformedURLException e1) {
+                            throw new RuntimeException(e1);
+                        }
+                    })
+                    .toArray(URL[]::new);
+        }
     }
 }
