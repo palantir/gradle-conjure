@@ -19,8 +19,10 @@ package com.palantir.gradle.conjure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore // will write a real one if we run with this approach
 public class ReverseEngineerJavaStartScriptTest {
 
     @Test
