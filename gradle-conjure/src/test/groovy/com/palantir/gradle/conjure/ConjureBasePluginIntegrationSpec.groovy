@@ -109,28 +109,43 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
     def 'conjure project produces consumable configuration'() {
         when:
         addSubproject("conjure-api", "apply plugin: 'java'")
+        file('conjure-api/src/main/java/Test.java') << """
+        class Test {}
+        """.stripIndent()
         file('conjure-api/src/main/conjure/api.yml') << API_YML
 
         addSubproject("api-consumer", '''
+        apply plugin: 'java-library'
+ 
         configurations {
             irConsumer {
-                attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.class, "conjure"));
+                attributes.attribute(
+                    Attribute.of('com.palantir.conjure', Usage.class),
+                    project.objects.named(Usage.class, "conjure"));
             }
         }
 
         dependencies {
+            implementation project(':conjure-api')
             irConsumer project(':conjure-api')
         }
-        
+ 
         task getIr(type: Copy) {
             from configurations.irConsumer
             into "${project.buildDir}/all-ir"
         }
+ 
+        task getJava(type: Copy) {
+            from configurations.runtimeClasspath
+            into "${project.buildDir}/all-java"
+        }
         '''.stripIndent())
 
         then:
-        def result = runTasksSuccessfully('getIr')
+        def result = runTasksSuccessfully('getIr', 'getJava')
         result.wasExecuted(':conjure-api:compileIr')
+        result.wasExecuted(':conjure-api:compileJava')
         file("build/all-ir/conjure-api.conjure.json")
+        file("build/all-java/conjure-api-0.1.0.jar")
     }
 }
