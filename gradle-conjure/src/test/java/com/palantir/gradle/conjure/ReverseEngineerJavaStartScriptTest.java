@@ -18,26 +18,29 @@ package com.palantir.gradle.conjure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.nio.file.Paths;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore // will write a real one if we run with this approach
 public class ReverseEngineerJavaStartScriptTest {
 
     @Test
     public void dont_freak_out_with_windows_files() {
         assertThat(ReverseEngineerJavaStartScript.maybeParseStartScript(
-                        Paths.get("/Volumes/git/log-receiver/log-receiver-api/build/conjureCompiler/bin/conjure.bat")))
+                        Paths.get("src/test/resources/bin/start-script.bat")))
                 .isEmpty();
     }
 
     @Test
     public void real_thingy() {
         assertThat(ReverseEngineerJavaStartScript.maybeParseStartScript(
-                        Paths.get("/Volumes/git/log-receiver/log-receiver-api/build/conjureCompiler/bin/conjure")))
+                        Paths.get("src/test/resources/bin/start-script")))
                 .hasValueSatisfying(info -> {
                     assertThat(info.mainClass()).isEqualTo("com.palantir.conjure.cli.ConjureCli");
+                    assertThat(info.classpath())
+                            .containsExactly(
+                                    new File("src/test/resources/lib/foo-4.14.1.jar"),
+                                    new File("src/test/resources/lib/bar-4.14.1.jar"));
                 });
     }
 }
