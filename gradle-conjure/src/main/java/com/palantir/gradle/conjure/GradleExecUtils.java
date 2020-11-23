@@ -138,6 +138,7 @@ final class GradleExecUtils {
                 lockedDownPerms.add(new PropertyPermission("*", "read"));
                 lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
                 lockedDownPerms.add(new RuntimePermission("getClassLoader"));
+                lockedDownPerms.add(new RuntimePermission("setContextClassLoader")); // necessary for tests
                 lockedDownPerms.add(new RuntimePermission("getenv.*"));
                 lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
                 lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
