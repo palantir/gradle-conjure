@@ -24,6 +24,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.SourceDirectorySet;
@@ -35,6 +36,8 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GFileUtils;
 
 public final class ConjureBasePlugin implements Plugin<Project> {
+    static final Attribute<Usage> CONJURE_USAGE = Attribute.of("com.palantir.conjure", Usage.class);
+
     static final String COMPILE_IR_TASK = "compileIr";
     static final String SERVICE_DEPENDENCIES_TASK = "generateConjureServiceDependencies";
 
@@ -105,8 +108,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             conf.setCanBeResolved(false);
             conf.setCanBeConsumed(true);
             conf.setVisible(true);
-            conf.getAttributes()
-                    .attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "conjure"));
+            conf.getAttributes().attribute(CONJURE_USAGE, project.getObjects().named(Usage.class, "conjure"));
         });
         project.getArtifacts()
                 .add(
