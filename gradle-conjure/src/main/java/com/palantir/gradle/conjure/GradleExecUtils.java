@@ -16,9 +16,6 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -125,23 +122,23 @@ final class GradleExecUtils {
     }
 
     private static final class SandboxClassLoader extends URLClassLoader {
-        @SuppressWarnings("BanGuavaCaches") // not worth a full caffeine dep
-        private static final LoadingCache<List<File>, SandboxClassLoader> CACHE = CacheBuilder.newBuilder()
-                .maximumSize(100)
-                .weakValues()
-                .build(new CacheLoader<List<File>, SandboxClassLoader>() {
-                    @Override
-                    public SandboxClassLoader load(List<File> jars) {
-                        return new SandboxClassLoader(jars);
-                    }
-                });
+        // @SuppressWarnings("BanGuavaCaches") // not worth a full caffeine dep
+        // private static final LoadingCache<List<File>, SandboxClassLoader> CACHE = CacheBuilder.newBuilder()
+        //         .maximumSize(100)
+        //         .weakValues()
+        //         .build(new CacheLoader<List<File>, SandboxClassLoader>() {
+        //             @Override
+        //             public SandboxClassLoader load(List<File> jars) {
+        //                 return new SandboxClassLoader(jars);
+        //             }
+        //         });
 
         private SandboxClassLoader(List<File> jars) {
             super(toUrls(jars), ClassLoader.getSystemClassLoader());
         }
 
         static SandboxClassLoader get(List<File> jars) {
-            return CACHE.getUnchecked(jars);
+            return new SandboxClassLoader(jars);
         }
 
         private static URL[] toUrls(List<File> jars) {
