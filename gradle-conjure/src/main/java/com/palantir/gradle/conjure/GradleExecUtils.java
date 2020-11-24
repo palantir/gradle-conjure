@@ -104,6 +104,15 @@ final class GradleExecUtils {
                 return;
             }
 
+            if (e.getCause() instanceof AccessControlException
+                    && e.getCause()
+                            .getMessage()
+                            .equals("access denied (\"java.lang.RuntimePermission\" \"exitVM.1\")")) {
+                // the error message from a generator attempting to call exit 1 looks pretty gross
+                throw new RuntimeException(String.format(
+                        "Failed to %s. The command '%s' exited 1 (see logs above).", failedTo, combinedArgs));
+            }
+
             throw new RuntimeException(
                     String.format("Failed to %s. The command '%s' failed.", failedTo, combinedArgs), e);
         }

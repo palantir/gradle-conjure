@@ -116,6 +116,6 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         ExecutionResult executionResult = runTasksWithFailure(':api:compileIr')
 
         then:
-        assert executionResult.failure.cause.cause.message.contains('Cannot construct instance of')
+        executionResult.getStandardError().contains('Cannot construct instance of')
     }
 }
