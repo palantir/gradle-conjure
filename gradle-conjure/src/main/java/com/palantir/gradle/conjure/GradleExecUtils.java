@@ -36,10 +36,11 @@ import java.util.Optional;
 import java.util.PropertyPermission;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class GradleExecUtils {
-
-    private GradleExecUtils() {}
+    private static final Logger log = LoggerFactory.getLogger(GradleExecUtils.class);
 
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
@@ -51,52 +52,54 @@ final class GradleExecUtils {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
             project.getLogger().info("Running in-process java with args: {}", loggedArgs);
 
-            List<String> combinedArgs = ImmutableList.<String>builder()
-                    .addAll(unloggedArgs)
-                    .addAll(loggedArgs)
-                    .build();
-            runJavaCodeInProcess(failedTo, combinedArgs, info);
-        } else {
+            PreventSystemExitSecurityPolicy.installForThisJvm();
+            SandboxClassLoader classLoader = SandboxClassLoader.get(info.classpath());
 
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
+            if (mainMethod.isPresent()) {
+                List<String> combinedArgs = ImmutableList.<String>builder()
+                        .addAll(unloggedArgs)
+                        .addAll(loggedArgs)
+                        .build();
 
-            List<String> combinedArgs = ImmutableList.<String>builder()
-                    .add(executable.getAbsolutePath())
-                    .addAll(unloggedArgs)
-                    .addAll(loggedArgs)
-                    .build();
-
-            ExecResult execResult = project.exec(execSpec -> {
-                project.getLogger().info("Running with args: {}", loggedArgs);
-                execSpec.commandLine(combinedArgs);
-                execSpec.setIgnoreExitValue(true);
-                execSpec.setStandardOutput(output);
-                execSpec.setErrorOutput(output);
-            });
-
-            if (execResult.getExitValue() != 0) {
-                throw new RuntimeException(String.format(
-                        "Failed to %s. The command '%s' failed with exit code %d. Output:\n%s",
-                        failedTo, combinedArgs, execResult.getExitValue(), output.toString()));
+                runJavaCodeInProcess(failedTo, combinedArgs, mainMethod.get());
+                return;
             }
+        }
+
+        execNormally(project, failedTo, executable, unloggedArgs, loggedArgs);
+    }
+
+    private static void execNormally(
+            Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        List<String> combinedArgs = ImmutableList.<String>builder()
+                .add(executable.getAbsolutePath())
+                .addAll(unloggedArgs)
+                .addAll(loggedArgs)
+                .build();
+
+        ExecResult execResult = project.exec(execSpec -> {
+            project.getLogger().info("Running with args: {}", loggedArgs);
+            execSpec.commandLine(combinedArgs);
+            execSpec.setIgnoreExitValue(true);
+            execSpec.setStandardOutput(output);
+            execSpec.setErrorOutput(output);
+        });
+
+        if (execResult.getExitValue() != 0) {
+            throw new RuntimeException(String.format(
+                    "Failed to %s. The command '%s' failed with exit code %d. Output:\n%s",
+                    failedTo, combinedArgs, execResult.getExitValue(), output.toString()));
         }
     }
 
-    private static void runJavaCodeInProcess(
-            String failedTo, List<String> combinedArgs, ReverseEngineerJavaStartScript.StartScriptInfo info) {
-
-        SandboxClassLoader classLoader = SandboxClassLoader.get(info.classpath());
-        PreventSystemExitSecurityPolicy.installForThisJvm();
-
+    private static void runJavaCodeInProcess(String failedTo, List<String> combinedArgs, Method mainMethod) {
         try {
-            Class<?> mainClass = classLoader.loadClass(info.mainClass());
-            Method mainMethod = mainClass.getMethod("main", String[].class);
             String[] args = combinedArgs.toArray(new String[] {});
             mainMethod.invoke(null, new Object[] {args});
-        } catch (NoSuchMethodException
-                | ClassNotFoundException
-                | IllegalAccessException
-                | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             if (e.getCause() instanceof AccessControlException
                     && e.getCause()
                             .getMessage()
@@ -120,18 +123,17 @@ final class GradleExecUtils {
         }
     }
 
-    private static final class SandboxClassLoader extends URLClassLoader {
-        // @SuppressWarnings("BanGuavaCaches") // not worth a full caffeine dep
-        // private static final LoadingCache<List<File>, SandboxClassLoader> CACHE = CacheBuilder.newBuilder()
-        //         .maximumSize(100)
-        //         .weakValues()
-        //         .build(new CacheLoader<List<File>, SandboxClassLoader>() {
-        //             @Override
-        //             public SandboxClassLoader load(List<File> jars) {
-        //                 return new SandboxClassLoader(jars);
-        //             }
-        //         });
+    private static Optional<Method> getMainMethod(SandboxClassLoader classLoader, String mainClassName) {
+        try {
+            final Class<?> mainClass = classLoader.loadClass(mainClassName);
+            return Optional.of(mainClass.getMethod("main", String[].class));
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            log.warn("Failed too get main method {}", mainClassName, e);
+            return Optional.empty();
+        }
+    }
 
+    private static final class SandboxClassLoader extends URLClassLoader {
         private SandboxClassLoader(List<File> jars) {
             super(toUrls(jars), ClassLoader.getSystemClassLoader());
         }
@@ -161,7 +163,6 @@ final class GradleExecUtils {
      * to call System.exit and kill the current gradle process.
      */
     private static final class PreventSystemExitSecurityPolicy extends Policy {
-        // private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
         private static final PreventSystemExitSecurityPolicy INSTANCE = new PreventSystemExitSecurityPolicy();
 
         private static final PermissionCollection ALLOW_ALL = allowAll();
@@ -170,10 +171,7 @@ final class GradleExecUtils {
         private PreventSystemExitSecurityPolicy() {}
 
         static void installForThisJvm() {
-            // if (INSTALLED.compareAndSet(false, true)) {
-            // we just assume that nobody else will overwrite the Policy!
             Policy.setPolicy(INSTANCE);
-            // }
             if (System.getSecurityManager() == null) {
                 // necessary otherwise our fancy new policy will never be checked
                 System.setSecurityManager(new SecurityManager());
@@ -217,4 +215,6 @@ final class GradleExecUtils {
             return permissions;
         }
     }
+
+    private GradleExecUtils() {}
 }
