@@ -131,6 +131,7 @@ final class GradleExecUtils {
         @SuppressWarnings("BanGuavaCaches") // not worth a full caffeine dep
         private static final LoadingCache<List<File>, SandboxClassLoader> CACHE = CacheBuilder.newBuilder()
                 .maximumSize(100)
+                .weakValues()
                 .build(new CacheLoader<List<File>, SandboxClassLoader>() {
                     @Override
                     public SandboxClassLoader load(List<File> jars) {
