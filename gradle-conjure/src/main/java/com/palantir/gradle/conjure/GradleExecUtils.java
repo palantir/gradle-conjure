@@ -34,7 +34,6 @@ import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Optional;
 import java.util.PropertyPermission;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 
@@ -162,7 +161,7 @@ final class GradleExecUtils {
      * to call System.exit and kill the current gradle process.
      */
     private static final class PreventSystemExitSecurityPolicy extends Policy {
-        private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
+        // private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
         private static final PreventSystemExitSecurityPolicy INSTANCE = new PreventSystemExitSecurityPolicy();
 
         private static final PermissionCollection ALLOW_ALL = allowAll();
@@ -171,13 +170,13 @@ final class GradleExecUtils {
         private PreventSystemExitSecurityPolicy() {}
 
         static void installForThisJvm() {
-            if (INSTALLED.compareAndSet(false, true)) {
-                // we just assume that nobody else will overwrite the Policy!
-                Policy.setPolicy(INSTANCE);
-                if (System.getSecurityManager() == null) {
-                    // necessary otherwise our fancy new policy will never be checked
-                    System.setSecurityManager(new SecurityManager());
-                }
+            // if (INSTALLED.compareAndSet(false, true)) {
+            // we just assume that nobody else will overwrite the Policy!
+            Policy.setPolicy(INSTANCE);
+            // }
+            if (System.getSecurityManager() == null) {
+                // necessary otherwise our fancy new policy will never be checked
+                System.setSecurityManager(new SecurityManager());
             }
         }
 
