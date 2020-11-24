@@ -64,7 +64,7 @@ final class GradleExecUtils {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
             List<String> combinedArgs = ImmutableList.<String>builder()
-                    .add(project.getRootProject().relativePath(executable))
+                    .add(executable.getAbsolutePath())
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
                     .build();
@@ -114,7 +114,8 @@ final class GradleExecUtils {
                             .equals("access denied (\"java.lang.RuntimePermission\" \"exitVM.1\")")) {
                 // the error message from a generator attempting to call exit 1 looks pretty gross
                 throw new RuntimeException(String.format(
-                        "Failed to %s. The command '%s' exited 1 (see logs above).", failedTo, combinedArgs));
+                        "Failed to %s. The command '%s' failed with exit code 1. Output above.",
+                        failedTo, combinedArgs));
             }
 
             throw new RuntimeException(
