@@ -24,8 +24,6 @@ import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,12 +35,15 @@ import java.util.stream.Collectors;
 import org.immutables.value.Value;
 
 /**
- * Conjure RFC 002 mandates that a conjure generator named 'foo' should be laid out with a start script at
+ * Conjure RFC 002 requires that a conjure generator named 'foo' should be laid out with a start script at
  * `foo-1.2.3/bin/foo`.  Given that a decent number of generators are implemented in java, the overhead of
  * starting up a whole JVM via this 'foo' start script can be significant enough to be worth optimizing.
+ * Additionally, it's well known that JVMs run quite slowly during the first few seconds of their lifetime
+ * as they might still be running 'interpreted' versions of many common classes (e.g. Map, ArrayList).
  *
- * This class attempts to magically reverse engineer the start script and extract the classpath and main class, in
- * order to bypass this start script.
+ * This class attempts to reverse engineer the start script and extract the classpath and main class, in
+ * order to bypass this start script. By extracting the relevant info and running in-process, we don't incur the
+ * slowness of a cold started JVM.
  */
 final class ReverseEngineerJavaStartScript {
 
@@ -54,8 +55,6 @@ final class ReverseEngineerJavaStartScript {
      * com.palantir.conjure.cli.ConjureCli "$APP_ARGS"}.
      */
     private static final Pattern MAIN_CLASS_REGEX = Pattern.compile("-classpath [^ ]+ ([a-zA-Z\\.]+)");
-
-    private ReverseEngineerJavaStartScript() {}
 
     static Optional<StartScriptInfo> maybeParseStartScript(Path script) {
         Optional<String> maybeString = readFileToString(script);
@@ -121,18 +120,7 @@ final class ReverseEngineerJavaStartScript {
         List<File> classpath();
 
         String mainClass();
-
-        @Value.Auxiliary
-        default URL[] classpathUrls() {
-            return classpath().stream()
-                    .map(f -> {
-                        try {
-                            return f.toURI().toURL();
-                        } catch (MalformedURLException e1) {
-                            throw new RuntimeException(e1);
-                        }
-                    })
-                    .toArray(URL[]::new);
-        }
     }
+
+    private ReverseEngineerJavaStartScript() {}
 }

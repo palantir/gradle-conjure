@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessControlException;
@@ -31,13 +32,16 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.PropertyPermission;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 
 final class GradleExecUtils {
+
     private GradleExecUtils() {}
 
     static void exec(
@@ -84,8 +88,8 @@ final class GradleExecUtils {
     private static void runJavaCodeInProcess(
             String failedTo, List<String> combinedArgs, ReverseEngineerJavaStartScript.StartScriptInfo info) {
 
-        SandboxClassLoader classLoader = new SandboxClassLoader(info.classpathUrls());
-        SandboxSecurityPolicy.installForThisJvm();
+        SandboxClassLoader classLoader = SandboxClassLoader.get(info.classpath());
+        PreventSystemExitSecurityPolicy.installForThisJvm();
 
         try {
             Class<?> mainClass = classLoader.loadClass(info.mainClass());
@@ -119,45 +123,72 @@ final class GradleExecUtils {
     }
 
     private static final class SandboxClassLoader extends URLClassLoader {
-        SandboxClassLoader(URL[] jars) {
-            super(jars, ClassLoader.getSystemClassLoader());
+        private static final Map<List<File>, SandboxClassLoader> memoizedClassloaders = new ConcurrentHashMap<>();
+
+        private SandboxClassLoader(List<File> jars) {
+            super(toUrls(jars), ClassLoader.getSystemClassLoader());
+        }
+
+        static SandboxClassLoader get(List<File> jars) {
+            return memoizedClassloaders.computeIfAbsent(jars, SandboxClassLoader::new);
+        }
+
+        private static URL[] toUrls(List<File> jars) {
+            return jars.stream()
+                    .map(f -> {
+                        try {
+                            return f.toURI().toURL();
+                        } catch (MalformedURLException e1) {
+                            throw new RuntimeException(e1);
+                        }
+                    })
+                    .toArray(URL[]::new);
         }
     }
 
     /**
      * The {@link java.security.Policy} is set globally for the entire JVM, so we set it once and need to make sure
-     * the calling thread still has sensible permissions, while the sandbox thread is locked down.
+     * the calling thread is unconstrained, while the sandbox thread is unable to kill the entire process.
+     *
+     * We're not really defending against adversarial conjure-generators here, I just don't want them
+     * to call System.exit and kill the current gradle process.
      */
-    private static final class SandboxSecurityPolicy extends Policy {
+    private static final class PreventSystemExitSecurityPolicy extends Policy {
         private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
+        private static final PreventSystemExitSecurityPolicy INSTANCE = new PreventSystemExitSecurityPolicy();
+
         private static final PermissionCollection ALLOW_ALL = allowAll();
+        private static final PermissionCollection sandboxPerms = lockedDownPerms();
 
-        private final PermissionCollection sandboxPerms;
-
-        private SandboxSecurityPolicy(PermissionCollection sandboxPerms) {
-            this.sandboxPerms = sandboxPerms;
-        }
+        private PreventSystemExitSecurityPolicy() {}
 
         static void installForThisJvm() {
             if (INSTALLED.compareAndSet(false, true)) {
-                Permissions lockedDownPerms = new Permissions();
-
-                // we're not really defending against adversarial conjure-generators here, I just don't want them
-                // to call System.exit and kill the current gradle process!
-                lockedDownPerms.add(new PropertyPermission("*", "read"));
-                lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
-                lockedDownPerms.add(new RuntimePermission("getClassLoader"));
-                lockedDownPerms.add(new RuntimePermission("setContextClassLoader")); // necessary for tests
-                lockedDownPerms.add(new RuntimePermission("getenv.*"));
-                lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
-                lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
-
-                Policy.setPolicy(new SandboxSecurityPolicy(lockedDownPerms));
+                // we just assume that nobody else will overwrite the Policy!
+                Policy.setPolicy(INSTANCE);
                 if (System.getSecurityManager() == null) {
                     // necessary otherwise our fancy new policy will never be checked
                     System.setSecurityManager(new SecurityManager());
                 }
             }
+        }
+
+        private static Permissions lockedDownPerms() {
+            Permissions lockedDownPerms = new Permissions();
+
+            lockedDownPerms.add(new PropertyPermission("*", "read"));
+            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
+            lockedDownPerms.add(new RuntimePermission("getClassLoader"));
+            lockedDownPerms.add(new RuntimePermission("getenv.*"));
+            lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
+            lockedDownPerms.add(new RuntimePermission("modifyThread"));
+            lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
+
+            // necessary for nebula tests
+            lockedDownPerms.add(new RuntimePermission("setContextClassLoader"));
+            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
+
+            return lockedDownPerms;
         }
 
         @Override
