@@ -24,6 +24,7 @@ import nebula.test.IntegrationSpec
 class ConjureServiceDependencyTest extends IntegrationSpec {
 
     def setup() {
+        System.setSecurityManager(null)
         addSubproject('api')
         addSubproject('api:api-objects')
         addSubproject('api:api-jersey')
