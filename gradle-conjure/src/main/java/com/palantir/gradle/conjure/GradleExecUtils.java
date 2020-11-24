@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FilePermission;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
@@ -48,6 +49,8 @@ final class GradleExecUtils {
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
 
         // We run java things *in-process* to save ~1sec JVM startup time (helpful if there are 100 conjure projects)
+        // and run using already optimized JVM classes rather than go through a cold start interpreted mode over and
+        // over again.
         Optional<ReverseEngineerJavaStartScript.StartScriptInfo> maybeJava =
                 ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
@@ -167,29 +170,12 @@ final class GradleExecUtils {
             if (INSTALLED.compareAndSet(false, true)) {
                 // we just assume that nobody else will overwrite the Policy!
                 Policy.setPolicy(INSTANCE);
+
+                // necessary otherwise our fancy new policy will never be checked
                 if (System.getSecurityManager() == null) {
-                    // necessary otherwise our fancy new policy will never be checked
                     System.setSecurityManager(new SecurityManager());
                 }
             }
-        }
-
-        private static Permissions lockedDownPerms() {
-            Permissions lockedDownPerms = new Permissions();
-
-            lockedDownPerms.add(new PropertyPermission("*", "read"));
-            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
-            lockedDownPerms.add(new RuntimePermission("getClassLoader"));
-            lockedDownPerms.add(new RuntimePermission("getenv.*"));
-            lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
-            lockedDownPerms.add(new RuntimePermission("modifyThread"));
-            lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
-
-            // necessary for nebula tests
-            lockedDownPerms.add(new RuntimePermission("setContextClassLoader"));
-            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
-
-            return lockedDownPerms;
         }
 
         @Override
@@ -203,6 +189,20 @@ final class GradleExecUtils {
 
         private static boolean isSandboxThread(ProtectionDomain domain) {
             return domain.getClassLoader() instanceof SandboxClassLoader;
+        }
+
+        private static Permissions lockedDownPerms() {
+            Permissions lockedDownPerms = new Permissions();
+
+            lockedDownPerms.add(new PropertyPermission("*", "read"));
+            lockedDownPerms.add(new FilePermission("<<ALL FILES>>", "read,write"));
+            lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
+            lockedDownPerms.add(new RuntimePermission("getenv.*"));
+            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
+            lockedDownPerms.add(new RuntimePermission("getClassLoader"));
+            lockedDownPerms.add(new RuntimePermission("modifyThread"));
+
+            return lockedDownPerms;
         }
 
         private static PermissionCollection allowAll() {
