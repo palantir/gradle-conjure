@@ -16,6 +16,9 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,10 +36,8 @@ import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.PropertyPermission;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
@@ -127,14 +128,22 @@ final class GradleExecUtils {
     }
 
     private static final class SandboxClassLoader extends URLClassLoader {
-        private static final Map<List<File>, SandboxClassLoader> memoizedClassloaders = new ConcurrentHashMap<>();
+        @SuppressWarnings("BanGuavaCaches") // not worth a full caffeine dep
+        private static final LoadingCache<List<File>, SandboxClassLoader> CACHE = CacheBuilder.newBuilder()
+                .maximumSize(100)
+                .build(new CacheLoader<List<File>, SandboxClassLoader>() {
+                    @Override
+                    public SandboxClassLoader load(List<File> jars) {
+                        return new SandboxClassLoader(jars);
+                    }
+                });
 
         private SandboxClassLoader(List<File> jars) {
             super(toUrls(jars), ClassLoader.getSystemClassLoader());
         }
 
         static SandboxClassLoader get(List<File> jars) {
-            return memoizedClassloaders.computeIfAbsent(jars, SandboxClassLoader::new);
+            return CACHE.getUnchecked(jars);
         }
 
         private static URL[] toUrls(List<File> jars) {
