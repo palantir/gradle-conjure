@@ -52,7 +52,7 @@ final class GradleExecUtils {
             project.getLogger().info("Running in-process java with args: {}", loggedArgs);
 
             try (URLClassLoader classLoader =
-                    new URLClassLoader(info.classpathUrls(), GradleExecUtils.class.getClassLoader())) {
+                    new ChildFirstUrlClassLoader(info.classpathUrls(), GradleExecUtils.class.getClassLoader())) {
                 Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
                 if (mainMethod.isPresent()) {
                     List<String> combinedArgs = ImmutableList.<String>builder()
