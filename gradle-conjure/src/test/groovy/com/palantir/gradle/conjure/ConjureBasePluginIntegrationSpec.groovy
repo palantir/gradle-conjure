@@ -33,7 +33,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
     """.stripIndent()
 
     def setup() {
-        System.setSecurityManager(null)
         buildFile << """
         allprojects {
             ${applyPlugin(ConjureBasePlugin)}

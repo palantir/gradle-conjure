@@ -24,6 +24,8 @@ import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -118,6 +120,19 @@ final class ReverseEngineerJavaStartScript {
     @Value.Immutable
     interface StartScriptInfo {
         List<File> classpath();
+
+        @Value.Derived
+        default URL[] classpathUrls() {
+            return classpath().stream()
+                    .map(file -> {
+                        try {
+                            return file.toURI().toURL();
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toArray(URL[]::new);
+        }
 
         String mainClass();
     }

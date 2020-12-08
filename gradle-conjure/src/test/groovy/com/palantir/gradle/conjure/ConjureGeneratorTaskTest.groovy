@@ -21,7 +21,6 @@ import nebula.test.functional.ExecutionResult
 
 class ConjureGeneratorTaskTest extends IntegrationSpec {
     def setup() {
-        System.setSecurityManager(null)
         createFile('settings.gradle') << """
         include 'api'
         include 'api:api-objects'

@@ -16,24 +16,23 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ReflectPermission;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessControlException;
-import java.security.AllPermission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.security.Policy;
-import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Optional;
-import java.util.PropertyPermission;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.ClassFileVersion;
+import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
+import net.bytebuddy.asm.MemberSubstitution;
+import net.bytebuddy.dynamic.ClassFileLocator;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.pool.TypePool;
 import org.gradle.api.Project;
 import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
@@ -52,18 +51,20 @@ final class GradleExecUtils {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
             project.getLogger().info("Running in-process java with args: {}", loggedArgs);
 
-            PreventSystemExitSecurityPolicy.installForThisJvm();
-            SandboxClassLoader classLoader = SandboxClassLoader.get(info.classpath());
+            try (URLClassLoader classLoader =
+                    new URLClassLoader(info.classpathUrls(), GradleExecUtils.class.getClassLoader())) {
+                Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
+                if (mainMethod.isPresent()) {
+                    List<String> combinedArgs = ImmutableList.<String>builder()
+                            .addAll(unloggedArgs)
+                            .addAll(loggedArgs)
+                            .build();
 
-            Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
-            if (mainMethod.isPresent()) {
-                List<String> combinedArgs = ImmutableList.<String>builder()
-                        .addAll(unloggedArgs)
-                        .addAll(loggedArgs)
-                        .build();
-
-                runJavaCodeInProcess(failedTo, combinedArgs, mainMethod.get());
-                return;
+                    runJavaCodeInProcess(failedTo, combinedArgs, mainMethod.get());
+                    return;
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -99,120 +100,45 @@ final class GradleExecUtils {
         try {
             String[] args = combinedArgs.toArray(new String[] {});
             mainMethod.invoke(null, new Object[] {args});
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            if (e.getCause() instanceof AccessControlException
-                    && e.getCause()
-                            .getMessage()
-                            .equals("access denied (\"java.lang.RuntimePermission\" \"exitVM.0\")")) {
-                // we don't want generators to call System.exit(0) and terminate the entire Gradle daemon!
-                return;
-            }
-
-            if (e.getCause() instanceof AccessControlException
-                    && e.getCause()
-                            .getMessage()
-                            .equals("access denied (\"java.lang.RuntimePermission\" \"exitVM.1\")")) {
+        } catch (Throwable t) {
+            Throwable rootCause = Throwables.getRootCause(t);
+            if (rootCause instanceof GradleExecStubs.ExitInvoked) {
+                int exitStatus = ((GradleExecStubs.ExitInvoked) rootCause).getExitStatus();
+                if (exitStatus == 0) {
+                    // Exit status zero, we're good to go!
+                    return;
+                }
                 // the error message from a generator attempting to call exit 1 looks pretty gross
                 throw new RuntimeException(String.format(
                         "Failed to %s. The command '%s' failed with exit code 1. Output above.",
                         failedTo, combinedArgs));
             }
-
             throw new RuntimeException(
-                    String.format("Failed to %s. The command '%s' failed.", failedTo, combinedArgs), e);
+                    String.format("Failed to %s. The command '%s' failed.", failedTo, combinedArgs), t);
         }
     }
 
-    private static Optional<Method> getMainMethod(SandboxClassLoader classLoader, String mainClassName) {
+    private static Optional<Method> getMainMethod(URLClassLoader classLoader, String mainClassName) {
         try {
-            final Class<?> mainClass = classLoader.loadClass(mainClassName);
+            ClassFileLocator locator = new ClassFileLocator.ForUrl(classLoader.getURLs());
+            TypePool typePool = TypePool.ClassLoading.of(classLoader);
+            Class<?> mainClass = new ByteBuddy(ClassFileVersion.ofThisVm(ClassFileVersion.JAVA_V8))
+                    .redefine(typePool.describe(mainClassName).resolve(), locator)
+                    .name(mainClassName + "RedefinedForGradleConjure")
+                    .visit(new ForDeclaredMethods()
+                            .invokable(
+                                    ElementMatchers.any(),
+                                    MemberSubstitution.relaxed()
+                                            .method(ElementMatchers.is(System.class.getMethod("exit", int.class)))
+                                            .replaceWith(GradleExecStubs.getStubMethod())))
+                    .make(typePool)
+                    .load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
+
             return Optional.of(mainClass.getMethod("main", String[].class));
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             log.warn("Failed too get main method {}", mainClassName, e);
             return Optional.empty();
-        }
-    }
-
-    private static final class SandboxClassLoader extends URLClassLoader {
-        private SandboxClassLoader(List<File> jars) {
-            super(toUrls(jars), ClassLoader.getSystemClassLoader());
-        }
-
-        static SandboxClassLoader get(List<File> jars) {
-            return new SandboxClassLoader(jars);
-        }
-
-        private static URL[] toUrls(List<File> jars) {
-            return jars.stream()
-                    .map(f -> {
-                        try {
-                            return f.toURI().toURL();
-                        } catch (MalformedURLException e1) {
-                            throw new RuntimeException(e1);
-                        }
-                    })
-                    .toArray(URL[]::new);
-        }
-    }
-
-    /**
-     * The {@link java.security.Policy} is set globally for the entire JVM, so we set it once and need to make sure
-     * the calling thread is unconstrained, while the sandbox thread is unable to kill the entire process.
-     *
-     * We're not really defending against adversarial conjure-generators here, I just don't want them
-     * to call System.exit and kill the current gradle process.
-     */
-    private static final class PreventSystemExitSecurityPolicy extends Policy {
-        private static final PreventSystemExitSecurityPolicy INSTANCE = new PreventSystemExitSecurityPolicy();
-
-        private static final PermissionCollection ALLOW_ALL = allowAll();
-        private static final PermissionCollection sandboxPerms = lockedDownPerms();
-
-        private PreventSystemExitSecurityPolicy() {}
-
-        static void installForThisJvm() {
-            Policy.setPolicy(INSTANCE);
-            if (System.getSecurityManager() == null) {
-                // necessary otherwise our fancy new policy will never be checked
-                System.setSecurityManager(new SecurityManager());
-            }
-        }
-
-        private static Permissions lockedDownPerms() {
-            Permissions lockedDownPerms = new Permissions();
-
-            lockedDownPerms.add(new PropertyPermission("*", "read"));
-            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
-            lockedDownPerms.add(new RuntimePermission("getClassLoader"));
-            lockedDownPerms.add(new RuntimePermission("getenv.*"));
-            lockedDownPerms.add(new ReflectPermission("suppressAccessChecks"));
-            lockedDownPerms.add(new RuntimePermission("modifyThread"));
-            lockedDownPerms.add(new java.io.FilePermission("<<ALL FILES>>", "read,write"));
-
-            // necessary for nebula tests
-            lockedDownPerms.add(new RuntimePermission("setContextClassLoader"));
-            lockedDownPerms.add(new RuntimePermission("accessDeclaredMembers"));
-
-            return lockedDownPerms;
-        }
-
-        @Override
-        public PermissionCollection getPermissions(ProtectionDomain domain) {
-            if (isSandboxThread(domain)) {
-                return sandboxPerms;
-            } else {
-                return ALLOW_ALL;
-            }
-        }
-
-        private static boolean isSandboxThread(ProtectionDomain domain) {
-            return domain.getClassLoader() instanceof SandboxClassLoader;
-        }
-
-        private static PermissionCollection allowAll() {
-            Permissions permissions = new Permissions();
-            permissions.add(new AllPermission());
-            return permissions;
         }
     }
 
