@@ -29,12 +29,20 @@ import java.util.Vector;
 @SuppressWarnings("JdkObsolete") // Enumeration
 final class ChildFirstUrlClassLoader extends URLClassLoader {
 
-    public ChildFirstUrlClassLoader(URL[] urls, ClassLoader parent) {
+    ChildFirstUrlClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        // Quick check for jvm types
+        if (name.startsWith("java.")
+                || name.startsWith("sun.")
+                || name.startsWith("jdk.")
+                || name.startsWith("org.openjdk.")) {
+            return super.loadClass(name, resolve);
+        }
+
         Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass == null) {
             try {
