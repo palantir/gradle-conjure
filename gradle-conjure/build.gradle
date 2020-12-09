@@ -26,6 +26,7 @@ dependencies {
     implementation 'com.palantir.sls.versions:sls-versions'
     implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
     implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
+    implementation 'org.apache.commons:commons-compress'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'

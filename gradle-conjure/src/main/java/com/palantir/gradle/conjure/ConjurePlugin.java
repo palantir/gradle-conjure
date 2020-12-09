@@ -33,12 +33,18 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ArtifactView;
+import org.gradle.api.artifacts.ArtifactView.ViewConfiguration;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.transform.TransformParameters.None;
+import org.gradle.api.artifacts.transform.TransformSpec;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -54,6 +60,8 @@ import org.gradle.util.GUtil;
 
 public final class ConjurePlugin implements Plugin<Project> {
     private static final Logger log = Logging.getLogger(ConjurePlugin.class);
+
+    private static final Attribute<String> ARTIFACT_TYPE = Attribute.of("artifactType", String.class);
 
     static final String TASK_GROUP = "Conjure";
     static final String TASK_CLEAN = "clean";
@@ -147,20 +155,36 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (JAVA_PROJECT_SUFFIXES.stream()
                 .anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
             Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
-            File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
+            conjureJavaConfig.getAttributes().attribute(ARTIFACT_TYPE, "tgz");
             project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
-            ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
-                    project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+            project.getDependencies().registerTransform(ExtractExecutable.class, new Action<TransformSpec<None>>() {
+                @Override
+                public void execute(TransformSpec<None> spec) {
+                    spec.getFrom().attribute(ARTIFACT_TYPE, "tgz");
+                    spec.getTo().attribute(ARTIFACT_TYPE, "directory");
+                }
+            });
+            ArtifactView view = conjureJavaConfig.getIncoming().artifactView(DirectoryViewAction.INSTANCE);
 
-            setupConjureObjectsProject(project, optionsSupplier, compileConjure, compileIrTask, extractJavaTask);
+            String executable = "bin/conjure-java";
+            setupConjureObjectsProject(project, optionsSupplier, compileConjure, compileIrTask, view, executable);
             setupConjureRetrofitProject(
-                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, view, executable);
             setupConjureJerseyProject(
-                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, view, executable);
             setupConjureUndertowProject(
-                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, view, executable);
             setupConjureDialogueProject(
-                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, extractJavaTask);
+                    project, optionsSupplier, compileConjure, compileIrTask, productDependencyExt, view, executable);
+        }
+    }
+
+    enum DirectoryViewAction implements Action<ViewConfiguration> {
+        INSTANCE;
+
+        @Override
+        public void execute(ViewConfiguration viewConfiguration) {
+            viewConfiguration.getAttributes().attribute(ARTIFACT_TYPE, "directory");
         }
     }
 
@@ -170,7 +194,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
-            ExtractExecutableTask extractJavaTask) {
+            ArtifactView view,
+            String executable) {
         String dialogueProjectName = project.getName() + JAVA_DIALOGUE_SUFFIX;
         if (project.findProject(dialogueProjectName) == null) {
             return;
@@ -188,7 +213,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             project.getTasks().create("compileConjureDialogue", ConjureGeneratorTask.class, task -> {
                 task.setDescription("Generates Dialogue client interfaces from your Conjure definitions.");
                 task.setGroup(TASK_GROUP);
-                task.setExecutablePath(extractJavaTask::getExecutable);
+                task.setExecutablePath(
+                        () -> new File(view.getArtifacts().getArtifactFiles().getSingleFile(), executable));
                 task.setOptions(() -> optionsSupplier.get().addFlag("dialogue"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                 task.setSource(compileIrTask);
@@ -198,7 +224,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, task);
                 task.dependsOn(createWriteGitignoreTask(
                         subproj, "gitignoreConjureDialogue", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
-                task.dependsOn(extractJavaTask);
             });
 
             ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
@@ -214,7 +239,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Supplier<GeneratorOptions> optionsSupplier,
             Task compileConjure,
             TaskProvider<?> compileIrTask,
-            ExtractExecutableTask extractJavaTask) {
+            ArtifactView view,
+            String executable) {
         String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
         if (project.findProject(objectsProjectName) != null) {
             project.project(objectsProjectName, subproj -> {
@@ -224,7 +250,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project.getTasks().create("compileConjureObjects", ConjureGeneratorTask.class, task -> {
                     task.setDescription("Generates Java POJOs from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask::getExecutable);
+                    task.setExecutablePath(() ->
+                            new File(view.getArtifacts().getArtifactFiles().getSingleFile(), executable));
                     task.setOptions(() -> optionsSupplier.get().addFlag("objects"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
@@ -234,7 +261,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     applyDependencyForIdeTasks(subproj, task);
                     task.dependsOn(createWriteGitignoreTask(
                             subproj, "gitignoreConjureObjects", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
-                    task.dependsOn(extractJavaTask);
                 });
                 Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
                 cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureObjects"));
@@ -249,7 +275,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
-            ExtractExecutableTask extractJavaTask) {
+            ArtifactView view,
+            String executable) {
         String retrofitProjectName = project.getName() + JAVA_RETROFIT_SUFFIX;
         if (project.findProject(retrofitProjectName) == null) {
             return;
@@ -269,7 +296,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.setDescription(
                         "Generates Retrofit interfaces for use on the client-side from your Conjure definitions.");
                 task.setGroup(TASK_GROUP);
-                task.setExecutablePath(extractJavaTask::getExecutable);
+                task.setExecutablePath(
+                        () -> new File(view.getArtifacts().getArtifactFiles().getSingleFile(), executable));
                 task.setOptions(() -> optionsSupplier.get().addFlag("retrofit"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                 task.setSource(compileIrTask);
@@ -279,7 +307,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, task);
                 task.dependsOn(createWriteGitignoreTask(
                         subproj, "gitignoreConjureRetrofit", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
-                task.dependsOn(extractJavaTask);
             });
 
             ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
@@ -298,7 +325,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
-            ExtractExecutableTask extractJavaTask) {
+            ArtifactView view,
+            String executable) {
         String jerseyProjectName = project.getName() + JAVA_JERSEY_SUFFIX;
         if (project.findProject(jerseyProjectName) == null) {
             return;
@@ -318,7 +346,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.setDescription("Generates Jersey interfaces from your Conjure definitions "
                         + "(for use on both the client-side and server-side).");
                 task.setGroup(TASK_GROUP);
-                task.setExecutablePath(extractJavaTask::getExecutable);
+                task.setExecutablePath(
+                        () -> new File(view.getArtifacts().getArtifactFiles().getSingleFile(), executable));
                 task.setOptions(() -> optionsSupplier.get().addFlag("jersey"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                 task.setSource(compileIrTask);
@@ -328,7 +357,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 applyDependencyForIdeTasks(subproj, task);
                 task.dependsOn(createWriteGitignoreTask(
                         subproj, "gitignoreConjureJersey", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
-                task.dependsOn(extractJavaTask);
             });
 
             ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
@@ -346,7 +374,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
-            ExtractExecutableTask extractJavaTask) {
+            ArtifactView view,
+            String executable) {
         String undertowProjectName = project.getName() + JAVA_UNDERTOW_SUFFIX;
         if (project.findProject(undertowProjectName) != null) {
             String objectsProjectName = project.getName() + JAVA_OBJECTS_SUFFIX;
@@ -363,7 +392,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription(
                             "Generates Undertow server interfaces and handlers from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.setExecutablePath(extractJavaTask::getExecutable);
+                    task.setExecutablePath(() ->
+                            new File(view.getArtifacts().getArtifactFiles().getSingleFile(), executable));
                     task.setOptions(() -> optionsSupplier.get().addFlag("undertow"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                     task.setSource(compileIrTask);
@@ -373,7 +403,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     applyDependencyForIdeTasks(subproj, task);
                     task.dependsOn(createWriteGitignoreTask(
                             subproj, "gitignoreConjureUndertow", subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS));
-                    task.dependsOn(extractJavaTask);
                 });
 
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);

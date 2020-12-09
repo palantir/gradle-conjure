@@ -6,6 +6,7 @@ com.palantir.sls.versions:sls-versions = 0.13.0
 com.squareup.okhttp3:mockwebserver = 3.9.1
 commons-io:commons-io = 2.8.0
 junit:junit = 4.13.1
+org.apache.commons:commons-compress = 1.20
 org.assertj:* = 3.18.1
 org.immutables:value = 2.8.8
 org.mockito:mockito-core = 3.6.28
