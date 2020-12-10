@@ -47,7 +47,7 @@ public abstract class ExtractExecutable implements TransformAction<TransformPara
     public abstract Provider<FileSystemLocation> getInputArtifact();
 
     @Override
-    public void transform(TransformOutputs outputs) {
+    public final void transform(TransformOutputs outputs) {
         File tarFile = getInputArtifact().get().getAsFile();
         Preconditions.checkState(tarFile.isFile(), "Expected a file: %s", tarFile);
         File outputRoot = outputs.dir("conjure-executable");
