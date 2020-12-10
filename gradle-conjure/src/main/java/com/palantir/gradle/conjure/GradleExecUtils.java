@@ -27,7 +27,6 @@ final class GradleExecUtils {
 
     static void exec(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
         List<String> combinedArgs = ImmutableList.<String>builder()
-                .add("sh")
                 .addAll(unloggedArgs)
                 .addAll(loggedArgs)
                 .build();

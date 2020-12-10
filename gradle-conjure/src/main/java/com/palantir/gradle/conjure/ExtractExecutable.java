@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.tools.ant.taskdefs.condition.Os;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.transform.CacheableTransform;
 import org.gradle.api.artifacts.transform.InputArtifact;
@@ -41,6 +42,11 @@ import org.gradle.api.tasks.PathSensitivity;
 
 @CacheableTransform
 public abstract class ExtractExecutable implements TransformAction<TransformParameters.None> {
+
+    // https://www.gnu.org/software/tar/manual/html_node/Standard.html
+    private static final int TUEXEC = 00100;
+    private static final int TGEXEC = 00010;
+    private static final int TOEXEC = 00001;
 
     @InputArtifact
     @PathSensitive(PathSensitivity.NAME_ONLY)
@@ -82,6 +88,14 @@ public abstract class ExtractExecutable implements TransformAction<TransformPara
                 if (!parentDirectory.isDirectory()) {
                     Preconditions.checkState(
                             parentDirectory.mkdirs(), "Failed to create directory '%s'", parentDirectory);
+                }
+
+                int mode = entry.getMode();
+                if (!Os.isFamily(Os.FAMILY_WINDOWS) && (mode & (TUEXEC | TGEXEC | TOEXEC)) != 0) {
+                    Preconditions.checkState(
+                            outputLocation.createNewFile(), "Failed to create file: '%s'", outputLocation);
+                    Preconditions.checkState(
+                            outputLocation.setExecutable(true), "Failed to set executable: '%s'", outputLocation);
                 }
                 try (OutputStream outputStream = new FileOutputStream(outputLocation)) {
                     ByteStreams.copy(tarInputStream, outputStream);
