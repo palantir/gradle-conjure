@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: gradle-conjure now detects when a generator is actually written in
+    java and allows it to run in a special sandboxed in-process classloader, avoiding
+    the cost of starting up a new JVM.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/618
