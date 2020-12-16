@@ -49,9 +49,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static final Pattern DEFINITION_NAME =
             Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(\\.conjure)?\\.json");
 
-    static final String CONJURE_JAVA = "conjureJava";
-    static final String CONJURE_JAVA_BINARY = "com.palantir.conjure.java:conjure-java";
-
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(JavaBasePlugin.class);
@@ -66,11 +63,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
         });
 
-        Configuration conjureJavaConfig = project.getConfigurations().create(CONJURE_JAVA);
-        File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
-        project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
-        ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
-                project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+        ExtractExecutableTask extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
         setupSubprojects(project, extension, extractJavaTask, extractConjureIr, conjureIrConfiguration);
     }

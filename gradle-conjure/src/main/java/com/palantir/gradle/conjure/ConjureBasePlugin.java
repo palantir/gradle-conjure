@@ -42,8 +42,6 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     static final String SERVICE_DEPENDENCIES_TASK = "generateConjureServiceDependencies";
 
     static final String CONJURE_IR_CONFIGURATION = "conjureIr";
-    static final String CONJURE_COMPILER = "conjureCompiler";
-    static final String CONJURE_COMPILER_BINARY = "com.palantir.conjure:conjure";
 
     static final String TASK_GROUP = "Conjure";
 
@@ -74,11 +72,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
             TaskProvider<Copy> copyConjureSourcesTask) {
-        Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
-        File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
-        project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
-        ExtractExecutableTask extractCompilerTask = ExtractExecutableTask.createExtractTask(
-                project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
+        ExtractExecutableTask extractCompilerTask = ExtractConjurePlugin.applyConjureCompiler(project);
 
         Provider<Directory> irDir = project.getLayout().getBuildDirectory().dir("conjure-ir");
 

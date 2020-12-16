@@ -83,11 +83,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             return;
         }
 
-        Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_JAVA);
-        File conjureJavaDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_JAVA);
-        project.getDependencies().add(ConjurePlugin.CONJURE_JAVA, ConjurePlugin.CONJURE_JAVA_BINARY);
-        ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
-                project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+        ExtractExecutableTask extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(subproj);
@@ -204,13 +200,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         if (subproj == null) {
             return;
         }
-        Configuration conjurePythonConfig = project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_PYTHON);
 
-        File conjurePythonDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_PYTHON);
-        project.getDependencies().add(ConjurePlugin.CONJURE_PYTHON, ConjurePlugin.CONJURE_PYTHON_BINARY);
-
-        ExtractExecutableTask extractConjurePythonTask = ExtractExecutableTask.createExtractTask(
-                project, "extractConjurePython", conjurePythonConfig, conjurePythonDir, "conjure-python");
+        ExtractExecutableTask extractConjurePythonTask = ExtractConjurePlugin.applyConjurePython(project);
 
         project.getTasks().create("generatePython", ConjureLocalGenerateTask.class, task -> {
             task.setDescription("Generates Python files from remote Conjure definitions.");
@@ -233,18 +224,9 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         if (subproj == null) {
             return;
         }
-        Configuration conjureTypeScriptConfig =
-                project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_TYPESCRIPT);
-        File conjureTypescriptDir = new File(project.getBuildDir(), ConjurePlugin.CONJURE_TYPESCRIPT);
         File srcDirectory = subproj.file("src");
-        project.getDependencies().add(ConjurePlugin.CONJURE_TYPESCRIPT, ConjurePlugin.CONJURE_TYPESCRIPT_BINARY);
 
-        ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
-                project,
-                "extractConjureTypeScript",
-                conjureTypeScriptConfig,
-                conjureTypescriptDir,
-                "conjure-typescript");
+        ExtractExecutableTask extractConjureTypeScriptTask = ExtractConjurePlugin.applyConjureTypeScript(project);
 
         project.getTasks().create("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
             task.setDescription("Generate Typescript bindings from remote Conjure definitions.");

@@ -163,7 +163,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result2 = runTasksSuccessfully('check')
 
         then:
-        result.wasExecuted(':api:extractConjureJava')
+        result.wasExecuted(':extractConjureJava')
         result.wasExecuted(':api:api-objects:compileJava')
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:api-jersey:compileJava')
@@ -175,7 +175,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:api-dialogue:compileJava')
         result.wasExecuted(':api:compileConjureDialogue')
 
-        result2.wasUpToDate(':api:extractConjureJava')
+        result2.wasUpToDate(':extractConjureJava')
         result2.wasUpToDate(':api:api-objects:compileJava')
         result2.wasUpToDate(':api:compileConjureObjects')
         result2.wasUpToDate(':api:api-jersey:compileJava')
