@@ -35,15 +35,19 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
                 mavenCentral()
                 maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
+            configurations {
+                conjureCompiler
+                conjureJava
+            }
+            dependencies {
+                conjureCompiler 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                conjureJava 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
+            }
         }
         """.stripIndent()
 
         createFile('api/build.gradle') << """
         apply plugin: 'com.palantir.conjure'
-        dependencies {
-            conjureCompiler 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
-            conjureJava 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
-        }
 
         subprojects {
             pluginManager.withPlugin 'java', {

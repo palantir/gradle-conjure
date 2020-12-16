@@ -108,7 +108,7 @@ public class ExtractExecutableTask extends Sync {
     }
 
     public static synchronized ExtractExecutableTask getOrCreateExtractTaskOnRootProject(
-            Project input, String taskName, String executableName, String configurationName, String dependency) {
+            Project input, String taskName, String executableName, String configurationName, Object dependency) {
         Project rootProject = input.getRootProject();
         TaskContainer tasks = rootProject.getTasks();
         Task existing = tasks.findByName(taskName);
