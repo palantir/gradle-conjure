@@ -30,7 +30,6 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileVisitDetails;
@@ -41,7 +40,6 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.Sync;
-import org.gradle.api.tasks.TaskContainer;
 
 public class ExtractExecutableTask extends Sync {
     private FileCollection archive;
@@ -105,20 +103,6 @@ public class ExtractExecutableTask extends Sync {
             task.setOutputDirectory(outputDir);
             task.setExecutableName(executableName);
         });
-    }
-
-    public static synchronized ExtractExecutableTask getOrCreateExtractTaskOnRootProject(
-            Project input, String taskName, String executableName, String configurationName, Object dependency) {
-        Project rootProject = input.getRootProject();
-        TaskContainer tasks = rootProject.getTasks();
-        Task existing = tasks.findByName(taskName);
-        if (existing != null) {
-            return (ExtractExecutableTask) existing;
-        }
-        Configuration configuration = rootProject.getConfigurations().maybeCreate(configurationName);
-        File outputDir = new File(rootProject.getBuildDir(), configurationName);
-        rootProject.getDependencies().add(configurationName, dependency);
-        return createExtractTask(rootProject, taskName, configuration, outputDir, executableName);
     }
 
     @InputFiles
