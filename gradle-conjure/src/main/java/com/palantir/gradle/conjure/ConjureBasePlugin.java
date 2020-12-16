@@ -74,11 +74,8 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
             TaskProvider<Copy> copyConjureSourcesTask) {
-        Configuration conjureCompilerConfig = project.getConfigurations().maybeCreate(CONJURE_COMPILER);
-        File conjureCompilerDir = new File(project.getBuildDir(), CONJURE_COMPILER);
-        project.getDependencies().add(CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
-        ExtractExecutableTask extractCompilerTask = ExtractExecutableTask.createExtractTask(
-                project, "extractConjure", conjureCompilerConfig, conjureCompilerDir, "conjure");
+        ExtractExecutableTask extractCompilerTask = ExtractExecutableTask.getOrCreateExtractTaskOnRootProject(
+                project, "extractConjure", "conjure", CONJURE_COMPILER, CONJURE_COMPILER_BINARY);
 
         Provider<Directory> irDir = project.getLayout().getBuildDirectory().dir("conjure-ir");
 

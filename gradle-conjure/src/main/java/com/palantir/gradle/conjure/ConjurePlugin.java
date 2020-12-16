@@ -146,11 +146,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             ConjureProductDependenciesExtension productDependencyExt) {
         if (JAVA_PROJECT_SUFFIXES.stream()
                 .anyMatch(suffix -> project.findProject(project.getName() + suffix) != null)) {
-            Configuration conjureJavaConfig = project.getConfigurations().maybeCreate(CONJURE_JAVA);
-            File conjureJavaDir = new File(project.getBuildDir(), CONJURE_JAVA);
-            project.getDependencies().add(CONJURE_JAVA, CONJURE_JAVA_BINARY);
-            ExtractExecutableTask extractJavaTask = ExtractExecutableTask.createExtractTask(
-                    project, "extractConjureJava", conjureJavaConfig, conjureJavaDir, "conjure-java");
+            ExtractExecutableTask extractJavaTask = ExtractExecutableTask.getOrCreateExtractTaskOnRootProject(
+                    project, "extractConjureJava", "conjure-java", CONJURE_JAVA, CONJURE_JAVA_BINARY);
 
             setupConjureObjectsProject(project, optionsSupplier, compileConjure, compileIrTask, extractJavaTask);
             setupConjureRetrofitProject(
@@ -420,19 +417,16 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask) {
         String typescriptProjectName = project.getName() + "-typescript";
         if (project.findProject(typescriptProjectName) != null) {
-            Configuration conjureTypeScriptConfig = project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
             project.project(typescriptProjectName, subproj -> {
                 applyDependencyForIdeTasks(subproj, compileConjure);
-                File conjureTypescriptDir = new File(project.getBuildDir(), CONJURE_TYPESCRIPT);
                 File srcDirectory = subproj.file("src");
-                project.getDependencies().add("conjureTypeScript", CONJURE_TYPESCRIPT_BINARY);
-
-                ExtractExecutableTask extractConjureTypeScriptTask = ExtractExecutableTask.createExtractTask(
-                        project,
-                        "extractConjureTypeScript",
-                        conjureTypeScriptConfig,
-                        conjureTypescriptDir,
-                        "conjure-typescript");
+                ExtractExecutableTask extractConjureTypeScriptTask =
+                        ExtractExecutableTask.getOrCreateExtractTaskOnRootProject(
+                                project,
+                                "extractConjureTypeScript",
+                                "conjure-typescript",
+                                CONJURE_TYPESCRIPT,
+                                CONJURE_TYPESCRIPT_BINARY);
                 Task compileConjureTypeScript = project.getTasks()
                         .create("compileConjureTypeScript", CompileConjureTypeScriptTask.class, task -> {
                             task.setDescription("Generates TypeScript files and a package.json from your "
@@ -572,9 +566,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             },
                             Function.identity()));
 
-            genericSubProjects.entrySet().forEach(entry -> {
-                String subprojectName = entry.getKey();
-                Project subproject = entry.getValue();
+            genericSubProjects.forEach((subprojectName, subproject) -> {
                 String conjureLanguage = extractSubprojectLanguage(p.getName(), subprojectName);
                 if (!FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(conjureLanguage)
                         && !generators.containsKey(conjureLanguage)) {
@@ -585,9 +577,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             });
         });
 
-        genericSubProjects.entrySet().forEach(e -> {
-            String subprojectName = e.getKey();
-            Project subproject = e.getValue();
+        genericSubProjects.forEach((subprojectName, subproject) -> {
             String conjureLanguage = extractSubprojectLanguage(project.getName(), subprojectName);
 
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
