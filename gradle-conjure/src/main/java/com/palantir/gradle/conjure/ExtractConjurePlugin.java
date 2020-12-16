@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import java.io.File;
+import java.util.Objects;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -65,7 +66,14 @@ abstract class ExtractConjurePlugin implements Plugin<Project> {
     }
 
     static ExtractExecutableTask applyConjureTypeScript(Project project) {
-        return applyAndGet(project, ExtractConjureTypeScriptPlugin.class, ExtractConjureTypeScriptPlugin.TASK_NAME);
+        ExtractExecutableTask result =
+                applyAndGet(project, ExtractConjureTypeScriptPlugin.class, ExtractConjureTypeScriptPlugin.TASK_NAME);
+        // Preserve the conjureTypescript configuration so publishing works
+        if (!Objects.equals(project, project.getRootProject())) {
+            project.getConfigurations().maybeCreate(CONJURE_TYPESCRIPT);
+            project.getDependencies().add(CONJURE_TYPESCRIPT, CONJURE_TYPESCRIPT_BINARY);
+        }
+        return result;
     }
 
     static ExtractExecutableTask applyConjurePython(Project project) {
