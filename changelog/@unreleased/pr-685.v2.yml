@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Conjure generators run in-process reuse classloaders between runs
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/685
