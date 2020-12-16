@@ -13,6 +13,7 @@ org.spockframework:* = 1.2-groovy-2.4
 com.palantir.sls-packaging:* = 4.24.1
 com.palantir.conjure.java.runtime:* = 6.9.4
 net.bytebuddy:byte-buddy = 1.10.18
+com.github.ben-manes.caffeine:caffeine = 2.8.8
 
 
 # Resolve conflicts

@@ -16,13 +16,18 @@
 
 package com.palantir.gradle.conjure;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.palantir.logsafe.Preconditions;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import net.bytebuddy.ByteBuddy;
@@ -40,35 +45,133 @@ import org.slf4j.LoggerFactory;
 
 final class GradleExecUtils {
     private static final Logger log = LoggerFactory.getLogger(GradleExecUtils.class);
+    private static final LoadingCache<File, ConjureRunner> runnerCache = Caffeine.newBuilder()
+            .maximumSize(5)
+            .expireAfterAccess(Duration.ofHours(1))
+            .removalListener((RemovalListener<File, ConjureRunner>) (_key, value, _cause) -> {
+                if (value != null) {
+                    value.release();
+                }
+            })
+            .build(GradleExecUtils::createNewRunner);
 
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
+        getRunner(executable).invoke(project, failedTo, unloggedArgs, loggedArgs);
+    }
 
-        // We run java things *in-process* to save ~1sec JVM startup time (helpful if there are 100 conjure projects)
+    private static ConjureRunner getRunner(File executable) {
+        File key = executable.getAbsoluteFile();
+        while (true) {
+            ConjureRunner conjureRunner = runnerCache.get(key);
+            if (conjureRunner.isValid()) {
+                return conjureRunner;
+
+            } else {
+                // try again
+                runnerCache.invalidate(key);
+            }
+        }
+    }
+
+    private static ConjureRunner createNewRunner(File executable) throws IOException {
+        Preconditions.checkArgument(executable.isAbsolute(), "File must be absolute");
         Optional<ReverseEngineerJavaStartScript.StartScriptInfo> maybeJava =
                 ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
-            project.getLogger().info("Running in-process java with args: {}", loggedArgs);
-
-            try (URLClassLoader classLoader =
-                    new ChildFirstUrlClassLoader(info.classpathUrls(), GradleExecUtils.class.getClassLoader())) {
+            boolean classLoaderMustBeClosed = true;
+            URLClassLoader classLoader =
+                    new ChildFirstUrlClassLoader(info.classpathUrls(), GradleExecUtils.class.getClassLoader());
+            try {
                 Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
                 if (mainMethod.isPresent()) {
-                    List<String> combinedArgs = ImmutableList.<String>builder()
-                            .addAll(unloggedArgs)
-                            .addAll(loggedArgs)
-                            .build();
-
-                    runJavaCodeInProcess(failedTo, combinedArgs, mainMethod.get());
-                    return;
+                    classLoaderMustBeClosed = false;
+                    return new InProcessConjureRunner(executable, mainMethod.get(), classLoader);
                 }
+            } finally {
+                if (classLoaderMustBeClosed) {
+                    classLoader.close();
+                }
+            }
+        }
+        return new ExternalProcessConjureRunner(executable);
+    }
+
+    interface ConjureRunner {
+        boolean isValid();
+
+        void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
+
+        void release();
+    }
+
+    private static final class ExternalProcessConjureRunner implements ConjureRunner {
+
+        private final File executable;
+
+        ExternalProcessConjureRunner(File executable) {
+            this.executable = executable;
+        }
+
+        @Override
+        public boolean isValid() {
+            // always valid
+            return true;
+        }
+
+        @Override
+        public void release() {
+            // nop
+        }
+
+        @Override
+        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+            execNormally(project, failedTo, executable, unloggedArgs, loggedArgs);
+        }
+    }
+
+    // We run java things *in-process* to save JVM startup time and reuse JIT optimization (helpful if there are 100
+    // conjure projects)
+    private static final class InProcessConjureRunner implements ConjureRunner {
+
+        private final File executable;
+        private final long executableLastModifiedTime;
+        private final Method mainMethod;
+        private final URLClassLoader classLoader;
+
+        InProcessConjureRunner(File executable, Method mainMethod, URLClassLoader classLoader) {
+            this.executable = executable;
+            this.mainMethod = mainMethod;
+            this.classLoader = classLoader;
+            this.executableLastModifiedTime = executable.lastModified();
+        }
+
+        @Override
+        public boolean isValid() {
+            // If the file has been modified, this data is no longer valid;
+            return executableLastModifiedTime == executable.lastModified();
+        }
+
+        @Override
+        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+            project.getLogger().info("Running in-process java with args: {}", loggedArgs);
+            List<String> combinedArgs = ImmutableList.<String>builder()
+                    .addAll(unloggedArgs)
+                    .addAll(loggedArgs)
+                    .build();
+
+            runJavaCodeInProcess(failedTo, combinedArgs, mainMethod);
+        }
+
+        @Override
+        public void release() {
+            try {
+                classLoader.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        execNormally(project, failedTo, executable, unloggedArgs, loggedArgs);
     }
 
     private static void execNormally(
