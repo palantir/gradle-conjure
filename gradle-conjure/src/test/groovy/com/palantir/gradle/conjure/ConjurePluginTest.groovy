@@ -572,6 +572,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.success
 
         where:
-        version << ['6.1', '6.2', '6.4', '6.5', '6.6', '6.7']
+        version << ['6.1', '6.7']
     }
 }
