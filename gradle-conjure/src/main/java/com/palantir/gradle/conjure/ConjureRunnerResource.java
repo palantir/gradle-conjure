@@ -20,7 +20,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.palantir.gradle.conjure.ConjureRunnerResource.Params;
 import com.palantir.gradle.conjure.ReverseEngineerJavaStartScript.StartScriptInfo;
-import com.palantir.logsafe.Preconditions;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -63,7 +62,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     }
 
     final void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-        Preconditions.checkState(delegate.isValid(), "ConjureRunner instance is no longer valid");
         delegate.invoke(project, failedTo, unloggedArgs, loggedArgs);
     }
 
@@ -78,7 +76,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     }
 
     private static ConjureRunner createNewRunner(File executable) throws IOException {
-        Preconditions.checkArgument(executable.isAbsolute(), "File must be absolute");
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
