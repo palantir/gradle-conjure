@@ -30,6 +30,8 @@ final class GradleExecUtils {
         project.getGradle()
                 .getSharedServices()
                 .registerIfAbsent(
+                        // Executable name must be part of the cache key, the spec parameters
+                        // are not taken into account at all for caching.
                         "conjure-runner-" + executable,
                         ConjureRunnerResource.class,
                         new Action<BuildServiceSpec<Params>>() {
