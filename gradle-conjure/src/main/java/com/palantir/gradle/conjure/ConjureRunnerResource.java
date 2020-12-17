@@ -73,7 +73,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     }
 
     interface ConjureRunner extends Closeable {
-        boolean isValid();
 
         void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
@@ -134,12 +133,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         }
 
         @Override
-        public boolean isValid() {
-            // always valid
-            return true;
-        }
-
-        @Override
         public void close() {
             // nop
         }
@@ -178,7 +171,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     private static final class InProcessConjureRunner implements ConjureRunner {
 
         private final File executable;
-        private final long executableLastModifiedTime;
         private final Method mainMethod;
         private final URLClassLoader classLoader;
 
@@ -186,13 +178,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             this.executable = executable;
             this.mainMethod = mainMethod;
             this.classLoader = classLoader;
-            this.executableLastModifiedTime = executable.lastModified();
-        }
-
-        @Override
-        public boolean isValid() {
-            // If the file has been modified, this data is no longer valid;
-            return executableLastModifiedTime == executable.lastModified();
         }
 
         @Override
