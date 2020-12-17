@@ -27,7 +27,6 @@ dependencies {
     implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
     implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
     implementation 'net.bytebuddy:byte-buddy'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'
