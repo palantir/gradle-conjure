@@ -1,0 +1,6 @@
+type: break
+break:
+  description: Conjure generators run in-process reuse classloaders between runs.
+    Note that the plugin now requires Gradle 6.X (previously it worked on Gradle 5.X)
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/685
