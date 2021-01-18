@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Handle derived projects being at same level as conjure api project
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/710
