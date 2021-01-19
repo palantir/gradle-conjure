@@ -645,14 +645,6 @@ class ConjurePluginTest extends IntegrationSpec {
         version << ['6.1']
     }
 
-    /**
-     * Modify the location of derived projects in the settings file if necessary
-     */
-    private void updateSettings(String prefix) {
-        def settingsFile = file('settings.gradle')
-        settingsFile.text = settingsFile.text.replaceAll('api:', "${prefix}:")
-    }
-
     private String prefixPath(String prefix, String path) {
         return addPrefix(prefix, path, '/')
     }

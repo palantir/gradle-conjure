@@ -83,6 +83,9 @@ public final class ConjurePlugin implements Plugin<Project> {
     /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
     static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
+    /** Property to tell plugin to look for derived projects at same level as the api project rather than as child projects */
+    static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "conjureUseFlatProjectStructure";
+
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
@@ -647,15 +650,14 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static Project findDerivedProject(Project project, String projectName) {
-        Project derivedProject = project.findProject(projectName);
-        if (derivedProject != null) {
-            return derivedProject;
+        boolean useFlatProjectStructure = project.hasProperty(USE_FLAT_PROJECT_STRUCTURE_PROPERTY);
+        if (!useFlatProjectStructure) {
+            return project.findProject(projectName);
+        } else {
+            if (project.getParent() == null) {
+                return null;
+            }
+            return project.getParent().findProject(projectName);
         }
-
-        if (project.getParent() == null) {
-            return null;
-        }
-
-        return project.getParent().findProject(projectName);
     }
 }
