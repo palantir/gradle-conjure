@@ -23,6 +23,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
+@Unroll
 class ConjurePluginTest extends IntegrationSpec {
 
     def setup() {
@@ -104,8 +105,7 @@ class ConjurePluginTest extends IntegrationSpec {
         file("gradle.properties") << "org.gradle.daemon=false"
     }
 
-    @Unroll
-    def 'compileConjure generates code and ir in #location projects'() {
+    def 'compileConjure generates code and ir: #location'() {
         setup:
         updateSettings(prefix)
 
@@ -146,8 +146,7 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    @Unroll
-    def 'check code compiles in #location projects'() {
+    def 'check code compiles: #location'() {
         setup:
         updateSettings(prefix)
 
@@ -175,38 +174,45 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    def 'check cache is used'() {
+    def 'check cache is used: #location'() {
+        setup:
+        updateSettings(prefix)
+
         when:
         ExecutionResult result = runTasksSuccessfully('check')
         ExecutionResult result2 = runTasksSuccessfully('check')
 
         then:
         result.wasExecuted(':extractConjureJava')
-        result.wasExecuted(':api:api-objects:compileJava')
+        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
         result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:api-jersey:compileJava')
+        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:api-retrofit:compileJava')
+        result.wasExecuted(prefixProject(prefix, 'api-retrofit:compileJava'))
         result.wasExecuted(':api:compileConjureRetrofit')
-        result.wasExecuted(':api:api-undertow:compileJava')
+        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
         result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(':api:api-dialogue:compileJava')
+        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
         result.wasExecuted(':api:compileConjureDialogue')
 
         result2.wasUpToDate(':extractConjureJava')
-        result2.wasUpToDate(':api:api-objects:compileJava')
+        result2.wasUpToDate(prefixProject(prefix, 'api-objects:compileJava'))
         result2.wasUpToDate(':api:compileConjureObjects')
-        result2.wasUpToDate(':api:api-jersey:compileJava')
+        result2.wasUpToDate(prefixProject(prefix, 'api-jersey:compileJava'))
         result2.wasUpToDate(':api:compileConjureJersey')
-        result2.wasUpToDate(':api:api-retrofit:compileJava')
+        result2.wasUpToDate(prefixProject(prefix, 'api-retrofit:compileJava'))
         result2.wasUpToDate(':api:compileConjureRetrofit')
-        result2.wasUpToDate(':api:api-undertow:compileJava')
+        result2.wasUpToDate(prefixProject(prefix, 'api-undertow:compileJava'))
         result2.wasUpToDate(':api:compileConjureUndertow')
-        result2.wasUpToDate(':api:api-dialogue:compileJava')
+        result2.wasUpToDate(prefixProject(prefix, 'api-dialogue:compileJava'))
         result2.wasUpToDate(':api:compileConjureDialogue')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    @Unroll
     def 'check code compiles when run in parallel with multiple build targets: #location'() {
         setup:
         updateSettings(prefix)
@@ -229,7 +235,6 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    @Unroll
     def 'clean cleans up src/generated/java: #location'() {
         setup:
         updateSettings(prefix)
@@ -276,7 +281,6 @@ class ConjurePluginTest extends IntegrationSpec {
         !fileExists('api/build/conjure')
     }
 
-    @Unroll
     def 'compileConjure does not run tasks if up to date: #location'() {
         setup:
         updateSettings(prefix)
@@ -307,7 +311,6 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    @Unroll
     def 'compileConjure does run tasks if not up to date: #location'() {
         setup:
         updateSettings(prefix)
@@ -371,7 +374,6 @@ class ConjurePluginTest extends IntegrationSpec {
         !fileExists('api/build/conjure/todelete.yml')
     }
 
-    @Unroll
     def 'copies conjure imports into build directory and provides imports to conjure compiler: #location'() {
         setup:
         updateSettings(prefix)
@@ -440,7 +442,6 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    @Unroll
     def 'omitting a project from settings is sufficient to disable: #location'() {
         setup:
         file('settings.gradle').text = '''
@@ -467,21 +468,27 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    def 'including only the jersey project throws because objects project is missing'() {
+    def 'including only the jersey project throws because objects project is missing: #location'() {
         given:
         file('settings.gradle').text = '''
         include 'api'
         include 'api:api-jersey'
         '''.stripIndent()
+        updateSettings(prefix)
 
         when:
         ExecutionResult result = runTasksWithFailure(':api:compileConjure')
 
         then:
         !result.wasExecuted(':api:compileConjureJersey')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'featureFlag UndertowServicePrefix can be enabled'() {
+    def 'featureFlag UndertowServicePrefix can be enabled: #location'() {
         file('api/build.gradle') << '''
         conjure {
             java {
@@ -489,15 +496,21 @@ class ConjurePluginTest extends IntegrationSpec {
             }
         }
         '''.stripIndent()
+        updateSettings(prefix)
 
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileConjureUndertow')
 
         then:
-        fileExists('api/api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java')
+        fileExists(prefixPath(prefix, 'api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java'))
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'typescript extension is respected'() {
+    def 'typescript extension is respected: #location'() {
         file('api/build.gradle') << '''
         conjure {
             typescript {
@@ -507,17 +520,23 @@ class ConjurePluginTest extends IntegrationSpec {
             }
         }
         '''.stripIndent()
+        updateSettings(prefix)
 
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileConjureTypeScript')
 
         then:
-        file('api/api-typescript/src/package.json').text.contains('"name": "foo"')
-        file('api/api-typescript/src/package.json').text.contains('"version": "0.0.0"')
-        file('api/api-typescript/src/tsconfig.json').text.contains('"module": "commonjs"')
+        file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"name": "foo"')
+        file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"version": "0.0.0"')
+        file(prefixPath(prefix, 'api-typescript/src/tsconfig.json')).text.contains('"module": "commonjs"')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'passes additional option when running compile task'() {
+    def 'passes additional option when running compile task: #location'() {
         file('api/build.gradle') << '''
         conjure {
             typescript {
@@ -526,6 +545,7 @@ class ConjurePluginTest extends IntegrationSpec {
             }
         }
         '''.stripIndent()
+        updateSettings(prefix)
 
         when:
         ExecutionResult result = runTasks(':api:compileConjureTypeScript')
@@ -533,9 +553,14 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         result.standardOutput.contains("--nodeCompatibleModules")
         result.standardOutput.contains("--unknownOps=Unknown")
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'works with afterEvaluate'() {
+    def 'works with afterEvaluate: #location'() {
         file('build.gradle') << '''
             allprojects {
                 afterEvaluate { p ->
@@ -545,6 +570,7 @@ class ConjurePluginTest extends IntegrationSpec {
                 }
             }
         '''.stripIndent()
+        updateSettings(prefix)
 
         when:
         // doesn't matter what task is run, just need to trigger project evaluation
@@ -552,9 +578,14 @@ class ConjurePluginTest extends IntegrationSpec {
 
         then:
         result.success
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'supports generic generators'() {
+    def 'supports generic generators: #location'() {
         addSubproject(':api:api-postman')
         file('api/build.gradle') << """
         dependencies {
@@ -568,17 +599,23 @@ class ConjurePluginTest extends IntegrationSpec {
             }
         }
         """.stripIndent()
+        updateSettings(prefix)
 
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
 
         then:
         result.wasExecuted(':api:compileConjurePostman')
-        fileExists('api/api-postman/src/api.postman_collection.json')
-        file('api/api-postman/src/api.postman_collection.json').text.contains('"version" : "1.0.0"')
+        fileExists(prefixPath(prefix, 'api-postman/src/api.postman_collection.json'))
+        file(prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).text.contains('"version" : "1.0.0"')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
-    def 'generic setup is a no-op if there no generic subprojects'() {
+    def 'generic setup is a no-op if there no generic subprojects: #location'() {
         given:
         file('api/build.gradle') << """
         dependencies {
@@ -586,9 +623,15 @@ class ConjurePluginTest extends IntegrationSpec {
             conjureGenerators 'com.google.guava:guava'
         }
         """.stripIndent()
+        updateSettings(prefix)
 
         expect:
         runTasksSuccessfully('compileConjure')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
     }
 
     def 'sets up idea source sets correctly'() {
@@ -631,7 +674,6 @@ class ConjurePluginTest extends IntegrationSpec {
         runTasksSuccessfully('checkUnusedDependencies', '--warning-mode=all')
     }
 
-    @Unroll
     @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
         when:
