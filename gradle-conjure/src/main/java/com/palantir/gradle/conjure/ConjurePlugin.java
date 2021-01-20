@@ -554,7 +554,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         && !generators.containsKey(conjureLanguage)) {
                     throw new RuntimeException(String.format(
                             "Discovered subproject %s without corresponding generator dependency with name '%s'",
-                            subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+                            subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + conjureLanguage));
                 }
             });
         });
