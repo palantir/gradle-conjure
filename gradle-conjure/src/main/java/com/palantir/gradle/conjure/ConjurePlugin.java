@@ -26,6 +26,8 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +85,11 @@ public final class ConjurePlugin implements Plugin<Project> {
     /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
     static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
-    /** Property to tell plugin to look for derived projects at same level as the api project rather than as child projects */
+    /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "conjureUseFlatProjectStructure";
+
+    /** Tells plugin the names of generic generator derived projects when in flat mode. */
+    static final String GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY = "conjureGenericGeneratorLanguageNames";
 
     @Override
     public void apply(Project project) {
@@ -521,11 +526,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task compileConjure,
             TaskProvider<?> compileIrTask,
             Configuration conjureGeneratorsConfiguration) {
-        Map<String, Project> genericSubProjects = Maps.filterKeys(
-                project.getChildProjects(),
-                childProjectName -> childProjectName.startsWith(project.getName())
-                        && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                                extractSubprojectLanguage(project.getName(), childProjectName)));
+        Map<String, Project> genericSubProjects = findGenericDerivedProjects(project);
         if (genericSubProjects.isEmpty()) {
             return;
         }
@@ -552,7 +553,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 if (!FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(conjureLanguage)
                         && !generators.containsKey(conjureLanguage)) {
                     throw new RuntimeException(String.format(
-                            "Discovered subproject %s without corresponding " + "generator dependency with name '%s'",
+                            "Discovered subproject %s without corresponding generator dependency with name '%s'",
                             subproject.getPath(), ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
                 }
             });
@@ -584,6 +585,36 @@ public final class ConjurePlugin implements Plugin<Project> {
             });
             compileConjure.dependsOn(conjureLocalGenerateTask);
         });
+    }
+
+    /**
+     * Locates projects either as child projects or as peer projects whose names match the patterns given by
+     * the GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY property.
+     */
+    private static Map<String, Project> findGenericDerivedProjects(Project project) {
+        Map<String, Project> genericSubProjects = Collections.emptyMap();
+        String projectName = project.getName();
+
+        boolean useFlatProjectStructure = project.hasProperty(USE_FLAT_PROJECT_STRUCTURE_PROPERTY);
+        if (!useFlatProjectStructure) {
+            genericSubProjects = Maps.filterKeys(project.getChildProjects(), childProjectName -> {
+                return childProjectName.startsWith(projectName)
+                        && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
+                                extractSubprojectLanguage(projectName, childProjectName));
+            });
+        } else {
+            if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
+                String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
+                List<String> genericLanguages = Arrays.asList(names.split(",\\s*"));
+                genericSubProjects = genericLanguages.stream()
+                        .map(language -> projectName + "-" + language)
+                        .filter(derivedProjectName -> derivedProjectExists(project, derivedProjectName))
+                        .map(derivedProjectName -> findDerivedProject(project, derivedProjectName))
+                        .collect(Collectors.toMap(Project::getName, derivedProject -> derivedProject));
+            }
+        }
+
+        return genericSubProjects;
     }
 
     static void addGeneratedToMainSourceSet(Project subproj) {

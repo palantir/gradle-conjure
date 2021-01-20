@@ -586,19 +586,27 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     def 'supports generic generators: #location'() {
-        addSubproject(':api:api-postman')
-        file('api/build.gradle') << """
-        dependencies {
-            conjureGenerators 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
-        }
+        setup:
+        addSubproject('api:api-postman')
 
-        conjure {
-            options "postman", {
-                productName = project.name
-                productVersion = '1.0.0'
+        def apiProjectFile = file('api/build.gradle')
+        apiProjectFile.text = """
+            //this property is ignored in "sub" mode
+            project.ext.conjureGenericGeneratorLanguageNames='postman'
+
+            $apiProjectFile.text
+
+            dependencies {
+                conjureGenerators 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
             }
-        }
-        """.stripIndent()
+    
+            conjure {
+                options "postman", {
+                    productName = project.name
+                    productVersion = '1.0.0'
+                }
+            }
+            """.stripIndent()
         updateSettings(prefix)
 
         when:
@@ -685,6 +693,21 @@ class ConjurePluginTest extends IntegrationSpec {
 
         where:
         version << ['6.1']
+    }
+
+    /**
+     * Modify the location of derived projects if necessary
+     */
+    private void updateSettings(String prefix) {
+        if (prefix != 'api') {
+            def settingsFile = file('settings.gradle')
+            settingsFile.text = settingsFile.text.replaceAll('api:', "${prefix}:")
+
+            def apiProjectFile = file('api/build.gradle')
+            apiProjectFile.text = '''
+            project.ext.conjureUseFlatProjectStructure=true
+            ''' + apiProjectFile.text
+        }
     }
 
     private String prefixPath(String prefix, String path) {
