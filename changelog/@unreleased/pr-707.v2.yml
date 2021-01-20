@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: "Allow derived projects to be at peer level to api project\n\n## Before this PR\nWe have a very large project with multiple conjure apis. Unfortunately, we have a build tooling that requires a flat project structure, so cannot use the gradle plugin directly.\n\nThis PR should replace \nhttps://github.com/palantir/gradle-conjure/pull/706\n\nIt's the same code, but not pushing from a fork to fix circle issues\n\n## After this PR\nDerived projects can be on the same level as the api project\n\n## Possible downsides?\n<!-- Please describe any way users could be negatively affected by this PR. -->"
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/707
