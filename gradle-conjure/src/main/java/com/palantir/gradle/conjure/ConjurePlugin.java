@@ -86,10 +86,10 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
     /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
-    static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "conjureUseFlatProjectStructure";
+    static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
 
     /** Tells plugin the names of generic generator derived projects when in flat mode. */
-    static final String GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY = "conjureGenericGeneratorLanguageNames";
+    static final String GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY = "com.palantir.conjure.generator_language_names";
 
     @Override
     public void apply(Project project) {
@@ -592,29 +592,26 @@ public final class ConjurePlugin implements Plugin<Project> {
      * the GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY property.
      */
     private static Map<String, Project> findGenericDerivedProjects(Project project) {
-        Map<String, Project> genericSubProjects = Collections.emptyMap();
         String projectName = project.getName();
 
         boolean useFlatProjectStructure = project.hasProperty(USE_FLAT_PROJECT_STRUCTURE_PROPERTY);
         if (!useFlatProjectStructure) {
-            genericSubProjects = Maps.filterKeys(project.getChildProjects(), childProjectName -> {
+            return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
                                 extractSubprojectLanguage(projectName, childProjectName));
             });
-        } else {
-            if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
-                String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
-                List<String> genericLanguages = Arrays.asList(names.split(",\\s*"));
-                genericSubProjects = genericLanguages.stream()
-                        .map(language -> projectName + "-" + language)
-                        .filter(derivedProjectName -> derivedProjectExists(project, derivedProjectName))
-                        .map(derivedProjectName -> findDerivedProject(project, derivedProjectName))
-                        .collect(Collectors.toMap(Project::getName, derivedProject -> derivedProject));
-            }
+        } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
+            String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
+            List<String> genericLanguages = Arrays.asList(names.split(",\\s*"));
+            return genericLanguages.stream()
+                    .map(language -> projectName + "-" + language)
+                    .filter(derivedProjectName -> derivedProjectExists(project, derivedProjectName))
+                    .map(derivedProjectName -> findDerivedProject(project, derivedProjectName))
+                    .collect(Collectors.toMap(Project::getName, derivedProject -> derivedProject));
         }
 
-        return genericSubProjects;
+        return Collections.emptyMap();
     }
 
     static void addGeneratedToMainSourceSet(Project subproj) {
@@ -685,10 +682,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (!useFlatProjectStructure) {
             return project.findProject(projectName);
         } else {
-            if (project.getParent() == null) {
-                return null;
-            }
-            return project.getParent().findProject(projectName);
+            return project.getRootProject().findProject(projectName);
         }
     }
 }

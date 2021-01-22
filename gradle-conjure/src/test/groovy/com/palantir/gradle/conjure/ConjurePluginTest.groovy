@@ -592,7 +592,7 @@ class ConjurePluginTest extends IntegrationSpec {
         def apiProjectFile = file('api/build.gradle')
         apiProjectFile.text = """
             //this property is ignored in "sub" mode
-            project.ext.conjureGenericGeneratorLanguageNames='postman'
+            project.ext['com.palantir.conjure.generator_language_names']='postman'
 
             $apiProjectFile.text
 
@@ -705,7 +705,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
             def apiProjectFile = file('api/build.gradle')
             apiProjectFile.text = '''
-            project.ext.conjureUseFlatProjectStructure=true
+            project.ext['com.palantir.conjure.use_flat_project_structure']=true
             ''' + apiProjectFile.text
         }
     }
