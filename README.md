@@ -6,7 +6,7 @@
 
 _Gradle Conjure is a build tool which allows defining and generating code for Conjure APIs in Java projects._
 
-## Overview
+## Overvie
 
 gradle-conjure is a set of Gradle plugins which allow you to define and consume Conjure-defined APIs easily.
 
