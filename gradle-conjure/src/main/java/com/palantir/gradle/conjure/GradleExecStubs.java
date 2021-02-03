@@ -16,11 +16,13 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.errorprone.annotations.DoNotCall;
 import java.lang.reflect.Method;
 
-/** Stubs used for System.exit method replacmeent. */
+/** Stubs used for System.exit method replacement. */
 public final class GradleExecStubs {
 
+    @DoNotCall
     @SuppressWarnings("ThrowError")
     public static void exitStub(int status) {
         throw new ExitInvoked(status);
