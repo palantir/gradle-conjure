@@ -199,7 +199,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task cleanTask = project.getTasks().findByName(TASK_CLEAN);
             cleanTask.dependsOn(project.getTasks().findByName("cleanCompileConjureDialogue"));
             subproj.getDependencies().add("api", findDerivedProject(project, objectsProjectName));
-            subproj.getDependencies().add("api", "com.palantir.dialogue:dialogue-target:1.50.0");
+            subproj.getDependencies().add("api", "com.palantir.dialogue:dialogue-target");
         });
     }
 
