@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Remove hard-coded version from dependency
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/714
