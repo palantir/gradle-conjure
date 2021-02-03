@@ -18,7 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
@@ -39,7 +39,7 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
     private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
     public static final ObjectMapper jsonMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+            .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 
     private Supplier<Set<ServiceDependency>> conjureServiceDependencies;
 
