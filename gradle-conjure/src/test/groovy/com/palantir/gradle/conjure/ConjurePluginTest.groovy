@@ -214,6 +214,26 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
+    def 'check gitignore not updated if exists: #location'() {
+        setup:
+        updateSettings(prefix)
+        file(prefixPath(prefix, 'api-objects/.gitignore')).text = 'do not touch existing file'
+
+        when:
+        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+
+        then:
+        result.wasExecuted(':api:compileConjure')
+        result.wasExecuted(':api:compileConjureObjects')
+
+        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['do not touch existing file']
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
     def 'check code compiles when run in parallel with multiple build targets: #location'() {
         setup:
         updateSettings(prefix)

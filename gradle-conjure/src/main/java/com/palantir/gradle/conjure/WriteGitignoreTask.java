@@ -50,8 +50,9 @@ public class WriteGitignoreTask extends DefaultTask {
 
     @TaskAction
     public final void compileFiles() throws IOException {
-        Files.createDirectories(outputFile.getParent());
-
-        Files.write(outputFile, contents.getBytes(StandardCharsets.UTF_8));
+        if (!Files.exists(outputFile)) {
+            Files.createDirectories(outputFile.getParent());
+            Files.write(outputFile, contents.getBytes(StandardCharsets.UTF_8));
+        }
     }
 }
