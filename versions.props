@@ -5,14 +5,14 @@ com.netflix.nebula:nebula-test = 7.10.2
 com.palantir.sls.versions:sls-versions = 0.13.2
 com.squareup.okhttp3:mockwebserver = 3.9.1
 commons-io:commons-io = 2.8.0
-junit:junit = 4.13.1
+junit:junit = 4.13.2
 org.assertj:* = 3.19.0
 org.immutables:value = 2.8.8
-org.mockito:mockito-core = 3.7.7
+org.mockito:mockito-core = 3.8.0
 org.spockframework:* = 1.2-groovy-2.4
-com.palantir.sls-packaging:* = 4.26.0
-com.palantir.conjure.java.runtime:* = 6.12.0
-net.bytebuddy:byte-buddy = 1.10.20
+com.palantir.sls-packaging:* = 4.30.0
+com.palantir.conjure.java.runtime:* = 6.13.0
+net.bytebuddy:byte-buddy = 1.10.21
 
 
 # Resolve conflicts
