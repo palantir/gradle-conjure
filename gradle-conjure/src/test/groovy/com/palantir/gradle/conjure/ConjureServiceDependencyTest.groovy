@@ -33,7 +33,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         buildscript {
             repositories {
                 mavenCentral()
-                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
         }
         
@@ -43,7 +42,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
 
             repositories {
                 mavenCentral()
-                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
             configurations.all {
                 resolutionStrategy {
