@@ -41,6 +41,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
 
             repositories {
                 mavenCentral()
+                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
 
             configurations.all {
@@ -103,47 +104,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
 
         then:
         result.standardOutput.contains "Task :compileIr FROM-CACHE"
-    }
-
-    def 'correctly renders IR with extensions'() {
-        setup:
-        file('src/main/conjure/api.yml') << API_YML
-
-        buildFile << """
-            @groovy.transform.Canonical
-            class SomeDataClass implements Serializable {
-                String group
-                String name
-                String version
-            }
-            compileIr {
-                def complexObject = new SomeDataClass(group:'group', name:'name', version:'1.0.0')
-                conjureExtensions = [key1:'stringValue', key2:complexObject]
-            }
-        """.stripIndent()
-
-        when:
-        def result1 = runTasksSuccessfully('compileIr')
-
-        then:
-        result1.wasExecuted('compileIr')
-        def actual = new File(projectDir,'build/conjure-ir/correctly-renders-IR-with-extensions.conjure.json')
-        actual.exists()
-
-        def expected = '''
-  "extensions" : {
-    "key1" : "stringValue",
-    "key2" : {
-      "group" : "group",
-      "name" : "name",
-      "version" : "1.0.0",
-      "original-class-name" : "SomeDataClass",
-      "content-hash" : "de9b15b6540097656b202e4c0a897745"
-    },
-    "recommended-product-dependencies" : [ ]
-  }
-        '''.trim()
-        actual.text.contains(expected)
     }
 
     def 'conjure project produces consumable configuration'() {
