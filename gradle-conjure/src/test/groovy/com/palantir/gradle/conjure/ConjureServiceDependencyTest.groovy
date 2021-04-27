@@ -17,10 +17,9 @@
 package com.palantir.gradle.conjure
 
 import com.palantir.gradle.dist.RecommendedProductDependencies
-import nebula.test.IntegrationSpec
-
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
+import nebula.test.IntegrationSpec
 
 class ConjureServiceDependencyTest extends IntegrationSpec {
 
