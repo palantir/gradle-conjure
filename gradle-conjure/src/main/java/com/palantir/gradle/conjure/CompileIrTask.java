@@ -17,7 +17,6 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
@@ -144,7 +143,8 @@ public class CompileIrTask extends DefaultTask {
                         extensionsFile.getAsFile().get(), Map.class);
             }
             extData.putAll(getConjureExtensions().get());
-            extData.put("recommended-product-dependencies", getProductDependencies().get());
+            extData.put(
+                    "recommended-product-dependencies", getProductDependencies().get());
             return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(extData);
         } catch (IOException e) {
             throw new RuntimeException("Failed to serialize conjure extensions", e);
