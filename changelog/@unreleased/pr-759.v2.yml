@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Allow extensions to be set on CompileIrTask
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/759
