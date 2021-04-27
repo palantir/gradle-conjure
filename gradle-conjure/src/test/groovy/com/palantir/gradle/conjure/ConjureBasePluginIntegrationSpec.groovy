@@ -140,7 +140,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         actual.contains('"recommended-product-dependencies" : [ ]')
     }
 
-
     def 'renders extensions from file'() {
         setup:
         file('src/main/conjure/api.yml') << API_YML
@@ -181,6 +180,44 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         actual.contains('"key2" : {')
         actual.contains('"group" : "group"')
         actual.contains('"listkey" : [ {')
+        actual.contains('"recommended-product-dependencies" : [ ]')
+    }
+
+    def 'renders extensions from large file'() {
+        setup:
+        file('src/main/conjure/api.yml') << API_YML
+        StringBuilder fileContents = new StringBuilder();
+        fileContents.append('''
+            {"intkey":123, 
+             "stringkey":"foo",
+             "key_to_override": "override_value",
+             "listkey":[
+             '''.stripIndent())
+        (1..100000).each {
+            fileContents.append("{\"group\":\"group$it\", \"name\":\"name$it\", \"version\":\"$it.0.0\"}")
+            if (it<100000) {
+                fileContents.append(",")
+            }
+            fileContents.append("\n")
+        }
+        fileContents.append(']}')
+        file('extensions.json') << fileContents.toString()
+
+        buildFile << """
+            compileIr {
+                extensionsFile = file('extensions.json')
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasksSuccessfully('compileIr')
+
+        then:
+        result1.wasExecuted('compileIr')
+        def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-large-file.conjure.json')
+        actualFile.exists()
+        def actual = actualFile.text
+        actual.contains('"version" : "100000.0.0"')
         actual.contains('"recommended-product-dependencies" : [ ]')
     }
 
