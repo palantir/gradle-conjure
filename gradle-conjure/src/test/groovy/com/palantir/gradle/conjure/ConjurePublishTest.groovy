@@ -30,9 +30,6 @@ class ConjurePublishTest extends IntegrationSpec {
         buildFile << """
             repositories {
                 mavenCentral()
-                maven {
-                    url 'https://dl.bintray.com/palantir/releases/'
-                }
             }
 
             apply plugin: 'com.palantir.conjure-publish'
