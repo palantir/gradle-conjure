@@ -34,6 +34,7 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
@@ -52,6 +53,7 @@ public class CompileIrTask extends DefaultTask {
             getProject().getObjects().setProperty(ServiceDependency.class);
     private final MapProperty<String, Serializable> conjureExtensions =
             getProject().getObjects().mapProperty(String.class, Serializable.class);
+    private final RegularFileProperty extensionsFile = getProject().getObjects().fileProperty();
 
     public CompileIrTask() {
         conjureExtensions.convention(new HashMap<>());
@@ -114,6 +116,13 @@ public class CompileIrTask extends DefaultTask {
         return conjureExtensions;
     }
 
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public final RegularFileProperty getExtensionsFile() {
+        return extensionsFile;
+    }
+
     @TaskAction
     public final void generate() {
         File executable = new File(executableDir.get(), EXECUTABLE);
@@ -129,14 +138,14 @@ public class CompileIrTask extends DefaultTask {
 
     private String getSerializedExtensions() {
         try {
-            Map<Object, Object> data = ImmutableMap.builderWithExpectedSize(
-                            getConjureExtensions().get().size() + 1)
-                    .putAll(getConjureExtensions().get())
-                    .put(
-                            "recommended-product-dependencies",
-                            getProductDependencies().get())
-                    .build();
-            return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(data);
+            Map<Object, Object> extData = new HashMap<>();
+            if (extensionsFile.isPresent()) {
+                extData = GenerateConjureServiceDependenciesTask.jsonMapper.readValue(
+                        extensionsFile.getAsFile().get(), Map.class);
+            }
+            extData.putAll(getConjureExtensions().get());
+            extData.put("recommended-product-dependencies", getProductDependencies().get());
+            return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(extData);
         } catch (IOException e) {
             throw new RuntimeException("Failed to serialize conjure extensions", e);
         }
