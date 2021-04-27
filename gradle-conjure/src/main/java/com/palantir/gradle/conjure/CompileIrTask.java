@@ -17,20 +17,25 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -45,6 +50,13 @@ public class CompileIrTask extends DefaultTask {
     private Supplier<File> executableDir;
     private final SetProperty<ServiceDependency> productDependencies =
             getProject().getObjects().setProperty(ServiceDependency.class);
+    private final MapProperty<String, Serializable> conjureExtensions =
+            getProject().getObjects().mapProperty(String.class, Serializable.class);
+    private final RegularFileProperty extensionsFile = getProject().getObjects().fileProperty();
+
+    public CompileIrTask() {
+        conjureExtensions.convention(new HashMap<>());
+    }
 
     /**
      * Eagerly set where to output the generated IR.
@@ -97,6 +109,19 @@ public class CompileIrTask extends DefaultTask {
         return productDependencies;
     }
 
+    @Input
+    @Optional
+    public final MapProperty<String, Serializable> getConjureExtensions() {
+        return conjureExtensions;
+    }
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public final RegularFileProperty getExtensionsFile() {
+        return extensionsFile;
+    }
+
     @TaskAction
     public final void generate() {
         File executable = new File(executableDir.get(), EXECUTABLE);
@@ -112,8 +137,15 @@ public class CompileIrTask extends DefaultTask {
 
     private String getSerializedExtensions() {
         try {
-            return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(ImmutableMap.of(
-                    "recommended-product-dependencies", getProductDependencies().get()));
+            Map<Object, Object> extData = new HashMap<>();
+            if (extensionsFile.isPresent()) {
+                extData = GenerateConjureServiceDependenciesTask.jsonMapper.readValue(
+                        extensionsFile.getAsFile().get(), Map.class);
+            }
+            extData.putAll(getConjureExtensions().get());
+            extData.put(
+                    "recommended-product-dependencies", getProductDependencies().get());
+            return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(extData);
         } catch (IOException e) {
             throw new RuntimeException("Failed to serialize conjure extensions", e);
         }

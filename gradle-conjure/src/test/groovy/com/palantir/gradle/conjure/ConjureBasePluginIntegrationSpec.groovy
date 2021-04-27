@@ -106,6 +106,121 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         result.standardOutput.contains "Task :compileIr FROM-CACHE"
     }
 
+    def 'renders IR with extensions'() {
+        setup:
+        file('src/main/conjure/api.yml') << API_YML
+
+        buildFile << """
+            @groovy.transform.Canonical
+            class SomeDataClass implements Serializable {
+                String group
+                String name
+                String version
+            }
+            compileIr {
+                def complexObject = new SomeDataClass(group:'group', name:'name', version:'1.0.0')
+                conjureExtensions = [key1:'stringValue', key2:complexObject]
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasksSuccessfully('compileIr')
+
+        then:
+        result1.wasExecuted('compileIr')
+        def actualFile = new File(projectDir,'build/conjure-ir/renders-IR-with-extensions.conjure.json')
+        actualFile.exists()
+
+        // Check that a few of the lines are there.
+        // Checking for the whole contents and getting spacing right is fragile
+        def actual = actualFile.text
+        actual.contains('"key1" : "stringValue"')
+        actual.contains('"key2" : {')
+        actual.contains('"group" : "group"')
+        actual.contains('"recommended-product-dependencies" : [ ]')
+    }
+
+    def 'renders extensions from file'() {
+        setup:
+        file('src/main/conjure/api.yml') << API_YML
+        file('extensions.json') << '''
+            {"intkey":123, 
+             "stringkey":"foo",
+             "key_to_override": "override_value",
+             "listkey":[
+                {"group":"group", "name":"name", "version":"1.0.0"}, 
+                {"group":"group2", "name":"name2", "version":"1.0.0"}
+                ]
+             }
+        '''.stripIndent()
+
+        buildFile << """
+            @groovy.transform.Canonical
+            class SomeDataClass implements Serializable {
+                String group
+                String name
+                String version
+            }
+            compileIr {
+                def complexObject = new SomeDataClass(group:'group', name:'name', version:'1.0.0')
+                conjureExtensions = [key_to_override:'stringValue', key2:complexObject]
+                extensionsFile = file('extensions.json')
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasksSuccessfully('compileIr')
+
+        then:
+        result1.wasExecuted('compileIr')
+        def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-file.conjure.json')
+        actualFile.exists()
+        def actual = actualFile.text
+        actual.contains('"key_to_override" : "stringValue"')
+        actual.contains('"key2" : {')
+        actual.contains('"group" : "group"')
+        actual.contains('"listkey" : [ {')
+        actual.contains('"recommended-product-dependencies" : [ ]')
+    }
+
+    def 'renders extensions from large file'() {
+        setup:
+        file('src/main/conjure/api.yml') << API_YML
+        StringBuilder fileContents = new StringBuilder();
+        fileContents.append('''
+            {"intkey":123, 
+             "stringkey":"foo",
+             "key_to_override": "override_value",
+             "listkey":[
+             '''.stripIndent())
+        (1..100000).each {
+            fileContents.append("{\"group\":\"group$it\", \"name\":\"name$it\", \"version\":\"$it.0.0\"}")
+            if (it<100000) {
+                fileContents.append(",")
+            }
+            fileContents.append("\n")
+        }
+        fileContents.append(']}')
+        file('extensions.json') << fileContents.toString()
+
+        buildFile << """
+            compileIr {
+                extensionsFile = file('extensions.json')
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasksSuccessfully('compileIr')
+
+        then:
+        result1.wasExecuted('compileIr')
+        def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-large-file.conjure.json')
+        actualFile.exists()
+        def actual = actualFile.text
+        actual.contains('"version" : "100000.0.0"')
+        actual.contains('"recommended-product-dependencies" : [ ]')
+    }
+
     def 'conjure project produces consumable configuration'() {
         when:
         addSubproject("conjure-api", "apply plugin: 'java'")
