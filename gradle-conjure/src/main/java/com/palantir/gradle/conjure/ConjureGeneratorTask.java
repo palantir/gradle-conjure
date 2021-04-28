@@ -20,15 +20,20 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
+import org.gradle.api.GradleException;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -39,6 +44,7 @@ import org.gradle.util.GFileUtils;
 public class ConjureGeneratorTask extends SourceTask {
     private Supplier<File> executablePathSupplier;
     private File outputDirectory;
+    private File irOutputDirectory;
     private Supplier<GeneratorOptions> options;
 
     public ConjureGeneratorTask() {
@@ -82,6 +88,16 @@ public class ConjureGeneratorTask extends SourceTask {
         this.options = options;
     }
 
+    @OutputDirectory
+    @Optional
+    public final File getIrOutputDirectory() {
+        return irOutputDirectory;
+    }
+
+    public final void setIrOutputDirectory(File irOutputDirectory) {
+        this.irOutputDirectory = irOutputDirectory;
+    }
+
     @Input
     public final GeneratorOptions getOptions() {
         return this.options.get();
@@ -112,6 +128,15 @@ public class ConjureGeneratorTask extends SourceTask {
                     getExecutablePath(),
                     generateCommand,
                     RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
+
+            if (irOutputDirectory != null) {
+                File copied = new File(irOutputDirectory, file.getName());
+                try {
+                    Files.copy(file.toPath(), copied.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new GradleException("Error copying source file: " + file, e);
+                }
+            }
         });
     }
 

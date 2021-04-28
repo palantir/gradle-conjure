@@ -127,7 +127,12 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
         fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
-        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['/src/generated/java/']
+        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['/src/generated/java/', '/src/generated/resources/']
+        fileExists(prefixPath(prefix, 'api-retrofit/src/generated/resources/api.conjure.json'))
+        fileExists(prefixPath(prefix, 'api-dialogue/src/generated/resources/api.conjure.json'))
+        fileExists(prefixPath(prefix, 'api-objects/src/generated/resources/api.conjure.json'))
+        fileExists(prefixPath(prefix, 'api-jersey/src/generated/resources/api.conjure.json'))
+        fileExists(prefixPath(prefix, 'api-undertow/src/generated/resources/api.conjure.json'))
 
         // typescript
         fileExists(prefixPath(prefix, 'api-typescript/src/api/index.ts'))
@@ -242,6 +247,20 @@ class ConjurePluginTest extends IntegrationSpec {
 
         when:
         runTasksSuccessfully('compileJava')
+
+        then:
+        fileExists(prefixPath(prefix, 'api-jersey/src/generated/java'))
+        fileExists(prefixPath(prefix, 'api-objects/src/generated/java'))
+        fileExists(prefixPath(prefix, 'api-retrofit/src/generated/java'))
+        fileExists(prefixPath(prefix, 'api-undertow/src/generated/java'))
+        fileExists(prefixPath(prefix, 'api-dialogue/src/generated/java'))
+        fileExists(prefixPath(prefix, 'api-jersey/src/generated/resources'))
+        fileExists(prefixPath(prefix, 'api-objects/src/generated/resources'))
+        fileExists(prefixPath(prefix, 'api-retrofit/src/generated/resources'))
+        fileExists(prefixPath(prefix, 'api-undertow/src/generated/resources'))
+        fileExists(prefixPath(prefix, 'api-dialogue/src/generated/resources'))
+
+        when:
         ExecutionResult result = runTasksSuccessfully('clean')
 
         then:
@@ -256,6 +275,11 @@ class ConjurePluginTest extends IntegrationSpec {
         !fileExists(prefixPath(prefix, 'api-retrofit/src/generated/java'))
         !fileExists(prefixPath(prefix, 'api-undertow/src/generated/java'))
         !fileExists(prefixPath(prefix, 'api-dialogue/src/generated/java'))
+        !fileExists(prefixPath(prefix, 'api-jersey/src/generated/resources'))
+        !fileExists(prefixPath(prefix, 'api-objects/src/generated/resources'))
+        !fileExists(prefixPath(prefix, 'api-retrofit/src/generated/resources'))
+        !fileExists(prefixPath(prefix, 'api-undertow/src/generated/resources'))
+        !fileExists(prefixPath(prefix, 'api-dialogue/src/generated/resources'))
 
         where:
         location   | prefix
@@ -667,7 +691,7 @@ class ConjurePluginTest extends IntegrationSpec {
         def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
         def sourcesFolderUrls = module.component.content.sourceFolder.@url
 
-        sourcesFolderUrls.size() == 2
+        sourcesFolderUrls.size() == 3
         sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
         sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
     }

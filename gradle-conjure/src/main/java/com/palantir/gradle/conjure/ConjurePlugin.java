@@ -48,6 +48,7 @@ import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Exec;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
@@ -74,7 +75,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES =
             ImmutableSet.of(JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+    static final String JAVA_GENERATED_RESOURCES_DIRNAME = "src/generated/resources";
+    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n/src/generated/resources/\n";
 
     static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
 
@@ -185,6 +187,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.setExecutablePath(extractJavaTask::getExecutable);
                 task.setOptions(() -> optionsSupplier.get().addFlag("dialogue"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                task.setIrOutputDirectory(subproj.file(JAVA_GENERATED_RESOURCES_DIRNAME));
                 task.setSource(compileIrTask);
 
                 compileConjure.dependsOn(task);
@@ -221,6 +224,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setExecutablePath(extractJavaTask::getExecutable);
                     task.setOptions(() -> optionsSupplier.get().addFlag("objects"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                    task.setIrOutputDirectory(subproj.file(JAVA_GENERATED_RESOURCES_DIRNAME));
                     task.setSource(compileIrTask);
 
                     compileConjure.dependsOn(task);
@@ -266,6 +270,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.setExecutablePath(extractJavaTask::getExecutable);
                 task.setOptions(() -> optionsSupplier.get().addFlag("retrofit"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                task.setIrOutputDirectory(subproj.file(JAVA_GENERATED_RESOURCES_DIRNAME));
                 task.setSource(compileIrTask);
 
                 compileConjure.dependsOn(task);
@@ -314,6 +319,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 task.setExecutablePath(extractJavaTask::getExecutable);
                 task.setOptions(() -> optionsSupplier.get().addFlag("jersey"));
                 task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                task.setIrOutputDirectory(subproj.file(JAVA_GENERATED_RESOURCES_DIRNAME));
                 task.setSource(compileIrTask);
 
                 compileConjure.dependsOn(task);
@@ -359,6 +365,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setExecutablePath(extractJavaTask::getExecutable);
                     task.setOptions(() -> optionsSupplier.get().addFlag("undertow"));
                     task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                    task.setIrOutputDirectory(subproj.file(JAVA_GENERATED_RESOURCES_DIRNAME));
                     task.setSource(compileIrTask);
 
                     compileConjure.dependsOn(task);
@@ -616,7 +623,9 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static void addGeneratedToMainSourceSet(Project subproj) {
         JavaPluginConvention javaPlugin = subproj.getConvention().findPlugin(JavaPluginConvention.class);
-        javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
+        SourceSet sourceSet = javaPlugin.getSourceSets().getByName("main");
+        sourceSet.getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
+        sourceSet.getResources().srcDir(subproj.files(JAVA_GENERATED_RESOURCES_DIRNAME));
     }
 
     static void applyDependencyForIdeTasks(Project project, Task compileConjure) {
