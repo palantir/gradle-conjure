@@ -33,7 +33,6 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
 
             repositories {
                 mavenCentral()
-                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
             configurations {
                 conjureCompiler

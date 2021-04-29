@@ -42,7 +42,6 @@ class ConjurePluginTest extends IntegrationSpec {
         buildscript {
             repositories {
                 mavenCentral()
-                maven { url 'https://dl.bintray.com/palantir/releases/' }
                 gradlePluginPortal()
             }
             dependencies {
@@ -56,7 +55,6 @@ class ConjurePluginTest extends IntegrationSpec {
 
             repositories {
                 mavenCentral()
-                maven { url 'https://dl.bintray.com/palantir/releases/' }
             }
 
             configurations.all {
