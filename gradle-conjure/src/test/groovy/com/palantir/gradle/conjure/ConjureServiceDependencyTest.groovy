@@ -17,6 +17,8 @@
 package com.palantir.gradle.conjure
 
 import com.palantir.gradle.dist.RecommendedProductDependencies
+
+import java.util.jar.Attributes
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
@@ -256,11 +258,73 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         runTasksWithFailure(':api:generateConjureServiceDependencies')
     }
 
-    def readRecommendedProductDeps(File jarFile) {
+    def "no endpoint versions attribute if no min versions configured"() {
+        setup:
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+
+        then:
+        Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
+        attributes.containsKey(name(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY))
+        !attributes.containsKey(name(EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY))
+    }
+
+    def "endpoint information written if configured"() {
+        setup:
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        endpointVersions {
+            endpointVersion {
+                httpPath = "/post"
+                httpMethod = "POST"
+                minVersion = "0.1.0"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+
+        then:
+        result.wasExecuted(':api:api-jersey:configureEndpointMinimumVersions')
+        Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
+        def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
+        //check to make sure we didn't stomp over the recommended-product-dependencies
+        recommendedDeps.contains('"recommended-product-dependencies"')
+        def endpointVersions = attributes.getValue(EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
+        endpointVersions == '[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]'
+    }
+
+    Attributes getAttributes(File jarFile) {
         def zf = new ZipFile(jarFile)
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
-        return manifest.getMainAttributes().getValue(
-                RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
+        return manifest.getMainAttributes()
+    }
+
+    private Attributes.Name name(String name) {
+        new Attributes.Name(name)
+    }
+
+    def readRecommendedProductDeps(File jarFile) {
+        return getAttributes(jarFile).getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
     }
 }

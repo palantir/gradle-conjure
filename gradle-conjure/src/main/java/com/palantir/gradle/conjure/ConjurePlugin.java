@@ -154,6 +154,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         ExtractExecutableTask extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
+        EndpointMinimumVersionsExtension minimumVersionsExtension = project.getExtensions()
+                .create(
+                        EndpointMinimumVersionsExtension.EXTENSION_NAME,
+                        EndpointMinimumVersionsExtension.class,
+                        project);
+
         Map<String, Consumer<Project>> configs = ImmutableMap.<String, Consumer<Project>>builder()
                 .put(JAVA_OBJECTS_SUFFIX, (Consumer<Project>) ConjurePlugin::setupObjectsProject)
                 .put(JAVA_DIALOGUE_SUFFIX, (Consumer<Project>) ConjurePlugin::setupDialogueProject)
@@ -179,6 +185,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileIrTask,
                 productDependencyExt,
                 extractJavaTask,
+                minimumVersionsExtension,
                 config));
     }
 
@@ -190,6 +197,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             ExtractExecutableTask extractJavaTask,
+            EndpointMinimumVersionsExtension minimumVersionsExtension,
             Consumer<Project> extraConfig) {
         String projectName = getDerivedProjectName(parentProject, projectSuffix);
         if (!derivedProjectExists(parentProject, projectName)) {
@@ -229,6 +237,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             cleanTask.dependsOn(parentProject.getTasks().findByName("cleanCompileConjure" + upperSuffix));
             if (isNotObjectsProject) {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
+                configureEndpointMinimumVersions(subproj, minimumVersionsExtension);
                 subproj.getDependencies().add("api", findDerivedProject(parentProject, objectsProjectName));
             }
             if (extraConfig != null) {
@@ -574,5 +583,17 @@ public final class ConjurePlugin implements Plugin<Project> {
         } else {
             return project.getRootProject().findProject(projectName);
         }
+    }
+
+    private static void configureEndpointMinimumVersions(
+            Project project, EndpointMinimumVersionsExtension minimumVersionsExtension) {
+        project.getPluginManager().apply(EndpointMinimumVersionsPlugin.class);
+        project.getTasks()
+                .named(
+                        EndpointMinimumVersionsPlugin.CONFIGURE_ENDPOINT_MINIMUM_VERSIONS_TASK,
+                        ConfigureEndpointMinimumVersionsTask.class,
+                        task -> {
+                            task.getVersions().set(minimumVersionsExtension.getEndpointVersions());
+                        });
     }
 }
