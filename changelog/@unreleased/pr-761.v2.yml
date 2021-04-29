@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Unified init code, with consumer passed in for the couple lines of customization for each.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/761
