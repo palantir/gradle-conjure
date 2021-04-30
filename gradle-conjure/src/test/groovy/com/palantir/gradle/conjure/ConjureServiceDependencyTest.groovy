@@ -310,7 +310,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         //check to make sure we didn't stomp over the recommended-product-dependencies
         recommendedDeps.contains('"recommended-product-dependencies"')
         def endpointVersions = attributes.getValue(EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
-        endpointVersions == '[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]'
+        endpointVersions == '{"endpoint-minimum-versions":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]}'
     }
 
     Attributes getAttributes(File jarFile) {
