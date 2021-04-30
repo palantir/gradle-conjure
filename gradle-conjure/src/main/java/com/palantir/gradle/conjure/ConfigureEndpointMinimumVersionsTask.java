@@ -21,21 +21,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
 import com.palantir.logsafe.Preconditions;
-import java.util.Set;
+import java.util.List;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.java.archives.Manifest;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.provider.SetProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.Jar;
 
 public class ConfigureEndpointMinimumVersionsTask extends DefaultTask {
-    private final SetProperty<EndpointMinimumVersion> endpointVersions =
-            getProject().getObjects().setProperty(EndpointMinimumVersion.class);
+    private final ListProperty<EndpointMinimumVersion> endpointVersions =
+            getProject().getObjects().listProperty(EndpointMinimumVersion.class);
 
     public ConfigureEndpointMinimumVersionsTask() {
         setDescription("Configures the 'jar' task to write the endpoint minimum versions into its manifest");
@@ -58,11 +58,11 @@ public class ConfigureEndpointMinimumVersionsTask extends DefaultTask {
     }
 
     @Input
-    public final SetProperty<EndpointMinimumVersion> getVersions() {
+    public final ListProperty<EndpointMinimumVersion> getVersions() {
         return endpointVersions;
     }
 
-    private Manifest createManifest(Project project, Set<EndpointMinimumVersion> versions) {
+    private Manifest createManifest(Project project, List<EndpointMinimumVersion> versions) {
         JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
         return javaConvention.manifest(manifest -> {
             String minVersionsString;
