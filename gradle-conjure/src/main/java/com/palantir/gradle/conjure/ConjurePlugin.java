@@ -51,9 +51,11 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
@@ -237,12 +239,30 @@ public final class ConjurePlugin implements Plugin<Project> {
             cleanTask.dependsOn(parentProject.getTasks().findByName("cleanCompileConjure" + upperSuffix));
             if (isNotObjectsProject) {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
-                configureEndpointMinimumVersions(subproj, minimumVersionsExtension);
+                configureEndpointMinimumVersionTask(subproj, minimumVersionsExtension);
                 subproj.getDependencies().add("api", findDerivedProject(parentProject, objectsProjectName));
             }
             if (extraConfig != null) {
                 extraConfig.accept(subproj);
             }
+        });
+    }
+
+    private static void configureEndpointMinimumVersionTask(Project project, EndpointMinimumVersionsExtension ext) {
+        project.getPluginManager().withPlugin("java", _plugin -> {
+            TaskProvider<ConfigureEndpointMinimumVersionsTask> configureEndpointVersionsTask = project.getTasks()
+                    .register(
+                            "configureEndpointMinimumVersions",
+                            ConfigureEndpointMinimumVersionsTask.class,
+                            cmt -> cmt.getVersions().set(ext.getEndpointVersions()));
+
+            // Ensure that the jar task depends on this wiring task
+            project.getTasks()
+                    .withType(Jar.class)
+                    .named(JavaPlugin.JAR_TASK_NAME)
+                    .configure(jar -> {
+                        jar.dependsOn(configureEndpointVersionsTask);
+                    });
         });
     }
 
@@ -583,17 +603,5 @@ public final class ConjurePlugin implements Plugin<Project> {
         } else {
             return project.getRootProject().findProject(projectName);
         }
-    }
-
-    private static void configureEndpointMinimumVersions(
-            Project project, EndpointMinimumVersionsExtension minimumVersionsExtension) {
-        project.getPluginManager().apply(EndpointMinimumVersionsPlugin.class);
-        project.getTasks()
-                .named(
-                        EndpointMinimumVersionsPlugin.CONFIGURE_ENDPOINT_MINIMUM_VERSIONS_TASK,
-                        ConfigureEndpointMinimumVersionsTask.class,
-                        task -> {
-                            task.getVersions().set(minimumVersionsExtension.getEndpointVersions());
-                        });
     }
 }
