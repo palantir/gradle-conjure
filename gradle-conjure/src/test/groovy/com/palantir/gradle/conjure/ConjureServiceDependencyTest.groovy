@@ -203,7 +203,8 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 '"product-name":"conjure",' +
                 '"minimum-version":"1.2.0",' +
                 '"recommended-version":"1.2.0",' +
-                '"maximum-version":"2.x.x"}]}'
+                '"maximum-version":"2.x.x",' +
+                '"optional":false}]}'
     }
 
     def "fails on absent fields"() {
