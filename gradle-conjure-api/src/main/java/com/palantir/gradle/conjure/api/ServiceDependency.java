@@ -37,6 +37,9 @@ public final class ServiceDependency implements Serializable {
     @JsonProperty("recommended-version")
     private String recommendedVersion;
 
+    @JsonProperty("optional")
+    private boolean optional = false;
+
     public String getProductGroup() {
         return productGroup;
     }
@@ -77,6 +80,14 @@ public final class ServiceDependency implements Serializable {
         this.recommendedVersion = recommendedVersion;
     }
 
+    public boolean getOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -90,11 +101,12 @@ public final class ServiceDependency implements Serializable {
                 && Objects.equals(productName, that.productName)
                 && Objects.equals(minimumVersion, that.minimumVersion)
                 && Objects.equals(maximumVersion, that.maximumVersion)
-                && Objects.equals(recommendedVersion, that.recommendedVersion);
+                && Objects.equals(recommendedVersion, that.recommendedVersion)
+                && optional == that.optional;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productGroup, productName, minimumVersion, maximumVersion, recommendedVersion);
+        return Objects.hash(productGroup, productName, minimumVersion, maximumVersion, recommendedVersion, optional);
     }
 }

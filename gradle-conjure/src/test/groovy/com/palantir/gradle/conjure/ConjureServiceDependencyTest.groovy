@@ -137,7 +137,8 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 + '"product-name":"conjure",'
                 + '"minimum-version":"1.2.0",'
                 + '"maximum-version":"2.x.x",'
-                + '"recommended-version":"1.2.0"\\}]\\}]') != null
+                + '"recommended-version":"1.2.0",'
+                + '"optional":false\\}]\\}]') != null
     }
 
     def "correctly passes product dependencies to generators"() {
@@ -189,6 +190,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 minimumVersion = "1.2.0"
                 recommendedVersion = "1.2.0"
                 maximumVersion = "2.x.x"
+                optional = false
             }
         }
         '''.stripIndent()
@@ -205,6 +207,66 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 '"recommended-version":"1.2.0",' +
                 '"maximum-version":"2.x.x",' +
                 '"optional":false}]}'
+    }
+
+    def "correctly configures manifest for java jersey with two optional dependencies"() {
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+                optional = true
+            }
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure-variant"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+                optional = true
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+
+        then:
+        !result.wasExecuted(':api:generateConjureServiceDependencies')
+        def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
+        recommendedDeps == '{"recommended-product-dependencies":[{' +
+                '"product-group":"com.palantir.conjure",' +
+                '"product-name":"conjure",' +
+                '"minimum-version":"1.2.0",' +
+                '"recommended-version":"1.2.0",' +
+                '"maximum-version":"2.x.x",' +
+                '"optional":true},' +
+                '{"product-group":"com.palantir.conjure",' +
+                '"product-name":"conjure-variant",' +
+                '"minimum-version":"1.2.0",' +
+                '"recommended-version":"1.2.0",' +
+                '"maximum-version":"2.x.x",' +
+                '"optional":true}' +
+                ']}'
+    }
+
+    def "fails on a single optional dependency"() {
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+                optional = true
+            }
+        }
+        '''.stripIndent()
+        expect:
+        runTasksWithFailure(':api:api-jersey:Jar')
     }
 
     def "fails on absent fields"() {
