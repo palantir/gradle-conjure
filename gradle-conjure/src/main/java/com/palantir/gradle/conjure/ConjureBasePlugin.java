@@ -16,7 +16,6 @@
 
 package com.palantir.gradle.conjure;
 
-import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import java.io.File;
 import java.util.Collections;
 import org.gradle.api.Action;
@@ -49,7 +48,10 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
         ConjureProductDependenciesExtension conjureProductDependenciesExtension = project.getExtensions()
-                .create(ConjureProductDependenciesExtension.EXTENSION_NAME, ConjureProductDependenciesExtension.class);
+                .create(
+                        ConjureProductDependenciesExtension.EXTENSION_NAME,
+                        ConjureProductDependenciesExtension.class,
+                        project);
 
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
