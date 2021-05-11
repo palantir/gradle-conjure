@@ -277,7 +277,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         then:
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         attributes.containsKey(name(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY))
-        !attributes.containsKey(name(EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY))
+        !attributes.containsKey(name(ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY))
     }
 
     def "endpoint information written if configured"() {
@@ -291,8 +291,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 recommendedVersion = "1.2.0"
                 maximumVersion = "2.x.x"
             }
-        }
-        endpointVersions {
             endpointVersion {
                 httpPath = "/post"
                 httpMethod = "POST"
@@ -309,7 +307,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies
         recommendedDeps.contains('"recommended-product-dependencies"')
-        def endpointVersions = attributes.getValue(EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
+        def endpointVersions = attributes.getValue(ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
         endpointVersions == '{"endpoint-minimum-versions":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]}'
     }
 

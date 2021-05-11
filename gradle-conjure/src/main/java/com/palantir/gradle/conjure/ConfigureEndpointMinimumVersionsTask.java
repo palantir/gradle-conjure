@@ -75,7 +75,7 @@ public class ConfigureEndpointMinimumVersionsTask extends DefaultTask {
                 throw new GradleException("Couldn't serialize endpoint minimum versions as string", e);
             }
             manifest.attributes(ImmutableMap.of(
-                    EndpointMinimumVersionsExtension.ENDPOINT_VERSIONS_MANIFEST_KEY, minVersionsString));
+                    ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY, minVersionsString));
         });
     }
 }

@@ -16,7 +16,6 @@
 
 package com.palantir.gradle.conjure;
 
-import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
 import com.palantir.gradle.dist.ProductDependency;
@@ -24,6 +23,9 @@ import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.tasks.TaskProvider;
+import org.gradle.jvm.tasks.Jar;
 
 final class ConjureJavaServiceDependencies {
     private ConjureJavaServiceDependencies() {}
@@ -38,6 +40,22 @@ final class ConjureJavaServiceDependencies {
         project.getTasks().named("configureProductDependencies", ConfigureProductDependenciesTask.class, task -> {
             task.setProductDependencies(
                     project.provider(() -> convertDependencies(productDependencyExt.getProductDependencies())));
+        });
+
+        project.getPluginManager().withPlugin("java", _plugin -> {
+            TaskProvider<ConfigureEndpointMinimumVersionsTask> configureEndpointVersionsTask = project.getTasks()
+                    .register(
+                            "configureEndpointMinimumVersions",
+                            ConfigureEndpointMinimumVersionsTask.class,
+                            cmt -> cmt.getVersions().set(productDependencyExt.getEndpointVersions()));
+
+            // Ensure that the jar task depends on this wiring task
+            project.getTasks()
+                    .withType(Jar.class)
+                    .named(JavaPlugin.JAR_TASK_NAME)
+                    .configure(jar -> {
+                        jar.dependsOn(configureEndpointVersionsTask);
+                    });
         });
     }
 

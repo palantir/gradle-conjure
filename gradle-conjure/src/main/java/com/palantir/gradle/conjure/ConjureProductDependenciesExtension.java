@@ -17,26 +17,42 @@
 package com.palantir.gradle.conjure;
 
 import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
+import com.palantir.gradle.conjure.api.ServiceDependency;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+import java.util.HashSet;
+import java.util.Set;
 import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.util.ConfigureUtil;
 
-public class EndpointMinimumVersionsExtension {
-    public static final String EXTENSION_NAME = "endpointVersions";
+public class ConjureProductDependenciesExtension {
+
+    public static final String EXTENSION_NAME = "serviceDependencies";
     public static final String ENDPOINT_VERSIONS_MANIFEST_KEY = "Endpoint-Minimum-Versions";
 
+    private final Set<ServiceDependency> productDependencies = new HashSet<>();
     private final SetProperty<EndpointMinimumVersion> endpointVersions;
     private final ProviderFactory providerFactory;
 
     @Inject
-    public EndpointMinimumVersionsExtension(Project project) {
+    public ConjureProductDependenciesExtension(Project project) {
         this.endpointVersions =
                 project.getObjects().setProperty(EndpointMinimumVersion.class).empty();
         this.providerFactory = project.getProviders();
+    }
+
+    public final Set<ServiceDependency> getProductDependencies() {
+        return productDependencies;
+    }
+
+    public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure<ServiceDependency> closure) {
+        ServiceDependency serviceDependency = new ServiceDependency();
+        closure.setDelegate(serviceDependency);
+        closure.call();
+        productDependencies.add(serviceDependency);
     }
 
     public final void endpointVersion(@DelegatesTo(EndpointMinimumVersion.class) Closure<?> closure) {
