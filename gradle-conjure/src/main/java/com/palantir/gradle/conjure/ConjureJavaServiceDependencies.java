@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.collect.Iterables;
 import com.palantir.gradle.conjure.api.ServiceDependency;
 import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
 import com.palantir.gradle.dist.ProductDependency;
