@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Bumped gradle-recommended-product-dependencies version to 5.1.0
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/767

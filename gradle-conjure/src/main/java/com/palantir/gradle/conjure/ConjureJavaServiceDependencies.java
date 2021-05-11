@@ -20,6 +20,7 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
 import com.palantir.gradle.dist.ProductDependency;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
+import com.palantir.logsafe.Preconditions;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.api.Project;
@@ -60,13 +61,21 @@ final class ConjureJavaServiceDependencies {
     }
 
     private static Set<ProductDependency> convertDependencies(Set<ServiceDependency> serviceDependencies) {
+        // See https://github.com/palantir/gradle-conjure/pull/769
+        // We currently don't know of any valid use-case in which it would be correct to declare a single, optional
+        // service dependency, so the intent of this is to protect against accidental misconfiguration e.g.
+        Preconditions.checkArgument(
+                serviceDependencies.size() != 1
+                        || !Iterables.getOnlyElement(serviceDependencies).getOptional(),
+                "a single optional service dependency is not supported");
         return serviceDependencies.stream()
                 .map(serviceDependency -> new ProductDependency(
                         serviceDependency.getProductGroup(),
                         serviceDependency.getProductName(),
                         serviceDependency.getMinimumVersion(),
                         serviceDependency.getMaximumVersion(),
-                        serviceDependency.getRecommendedVersion()))
+                        serviceDependency.getRecommendedVersion(),
+                        serviceDependency.getOptional()))
                 .collect(Collectors.toSet());
     }
 }
