@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.palantir.gradle.conjure;
+package com.palantir.gradle.conjure.api;
 
-import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
-import com.palantir.gradle.conjure.api.ServiceDependency;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.HashSet;

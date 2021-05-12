@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Move ConjureProductDependenciesExtension back to api package
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/772

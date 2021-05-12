@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
 import com.palantir.logsafe.Preconditions;
 import java.util.List;
