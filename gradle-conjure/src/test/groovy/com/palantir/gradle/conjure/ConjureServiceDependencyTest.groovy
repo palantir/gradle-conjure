@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure
 
 import com.palantir.gradle.dist.RecommendedProductDependencies
+import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 
 import java.util.jar.Attributes
 import java.util.jar.Manifest

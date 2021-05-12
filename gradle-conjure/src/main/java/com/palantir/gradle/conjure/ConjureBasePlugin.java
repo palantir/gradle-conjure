@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure;
 
+import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import java.io.File;
 import java.util.Collections;
 import org.gradle.api.Action;

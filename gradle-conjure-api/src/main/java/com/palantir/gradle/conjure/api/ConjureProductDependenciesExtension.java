@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.palantir.gradle.conjure;
+package com.palantir.gradle.conjure.api;
 
-import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
-import com.palantir.gradle.conjure.api.ServiceDependency;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.HashSet;
@@ -44,10 +42,6 @@ public class ConjureProductDependenciesExtension {
         this.providerFactory = project.getProviders();
     }
 
-    public final Set<ServiceDependency> getProductDependencies() {
-        return productDependencies;
-    }
-
     public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure<ServiceDependency> closure) {
         ServiceDependency serviceDependency = new ServiceDependency();
         closure.setDelegate(serviceDependency);
@@ -61,6 +55,10 @@ public class ConjureProductDependenciesExtension {
             ConfigureUtil.configureUsing(closure).execute(emv);
             return emv;
         }));
+    }
+
+    public final Set<ServiceDependency> getProductDependencies() {
+        return productDependencies;
     }
 
     public final SetProperty<EndpointMinimumVersion> getEndpointVersions() {
