@@ -18,5 +18,6 @@ apply plugin: 'com.palantir.external-publish-jar'
 
 dependencies {
     compile localGroovy()
+    compile gradleApi()
     compile 'com.fasterxml.jackson.core:jackson-annotations'
 }
