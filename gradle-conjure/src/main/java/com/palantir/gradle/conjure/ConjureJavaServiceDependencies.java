@@ -19,8 +19,8 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.Iterables;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.ServiceDependency;
-import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
 import com.palantir.gradle.dist.ProductDependency;
+import com.palantir.gradle.dist.RecommendedProductDependenciesExtension;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import com.palantir.logsafe.Preconditions;
 import java.util.Set;
@@ -40,10 +40,11 @@ final class ConjureJavaServiceDependencies {
     static void configureJavaServiceDependencies(
             Project project, ConjureProductDependenciesExtension productDependencyExt) {
         project.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
-        project.getTasks().named("configureProductDependencies", ConfigureProductDependenciesTask.class, task -> {
-            task.setProductDependencies(
-                    project.provider(() -> convertDependencies(productDependencyExt.getProductDependencies())));
-        });
+        RecommendedProductDependenciesExtension ext =
+                project.getExtensions().getByType(RecommendedProductDependenciesExtension.class);
+
+        ext.getRecommendedProductDependenciesProvider()
+                .set(project.provider(() -> convertDependencies(productDependencyExt.getProductDependencies())));
 
         project.getPluginManager().withPlugin("java", _plugin -> {
             TaskProvider<ConfigureEndpointMinimumVersionsTask> configureEndpointVersionsTask = project.getTasks()
