@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: set recommended deps via the extension rather than tasks
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/794
