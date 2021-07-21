@@ -20,7 +20,7 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:7.10.0 (1 c
 com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:7.10.0 (1 constraints: 3a054d3b)
 com.palantir.safe-logging:preconditions:1.16.0 (3 constraints: bf48e476)
 com.palantir.safe-logging:safe-logging:1.16.0 (2 constraints: 232295ce)
-com.palantir.sls-packaging:gradle-recommended-product-dependencies:6.3.0 (1 constraints: 0b051236)
+com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.0.0 (1 constraints: 09050e36)
 com.palantir.sls.versions:sls-versions:1.0.0 (2 constraints: 502057f3)
 joda-time:joda-time:2.10.8 (1 constraints: 2e16acf1)
 net.bytebuddy:byte-buddy:1.11.8 (2 constraints: 7c1073cb)
