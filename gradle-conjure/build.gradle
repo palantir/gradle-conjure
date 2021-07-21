@@ -36,6 +36,10 @@ dependencies {
     testCompile 'com.squareup.okhttp3:mockwebserver'
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine', {
+        because 'allows JUnit 3 and JUnit 4 tests to run'
+    }
 }
 
 gradlePlugin {
