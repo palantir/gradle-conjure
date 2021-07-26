@@ -23,6 +23,8 @@ import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
 import java.util.Set;
 import org.immutables.value.Value;
 
+// Automatically suppressed to unblock enforcement in new code
+@SuppressWarnings("ImmutablesStyle")
 @Value.Immutable
 @Value.Style(jdkOnly = true)
 @JsonSerialize(as = ImmutableEndpointMinimumVersions.class)
