@@ -1,18 +1,18 @@
 com.fasterxml.jackson.*:* = 2.11.3
-com.google.errorprone:error_prone_annotations = 2.6.0
+com.google.errorprone:error_prone_annotations = 2.8.0
 com.google.guava:guava = 30.1.1-jre
-com.netflix.nebula:nebula-test = 8.1.0
-com.palantir.sls.versions:sls-versions = 0.14.0
+com.netflix.nebula:nebula-test = 8.2.0
+com.palantir.sls.versions:sls-versions = 1.0.0
 com.squareup.okhttp3:mockwebserver = 3.9.1
-commons-io:commons-io = 2.8.0
+commons-io:commons-io = 2.11.0
 junit:junit = 4.13.2
-org.assertj:* = 3.19.0
+org.assertj:* = 3.20.2
 org.immutables:value = 2.8.8
-org.mockito:mockito-core = 3.9.0
+org.mockito:mockito-core = 3.11.2
 org.spockframework:* = 1.2-groovy-2.4
-com.palantir.sls-packaging:* = 5.1.0
-com.palantir.conjure.java.runtime:* = 6.12.0
-net.bytebuddy:byte-buddy = 1.10.22
+com.palantir.sls-packaging:* = 7.1.0
+com.palantir.conjure.java.runtime:* = 7.11.0
+net.bytebuddy:byte-buddy = 1.11.8
 
 
 # Resolve conflicts

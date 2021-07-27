@@ -30,6 +30,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         addSubproject('api')
         addSubproject('api:api-objects')
         addSubproject('api:api-jersey')
+        addSubproject('api:api-undertow')
         addSubproject('api:api-typescript')
 
         buildFile << """
@@ -164,7 +165,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         file('api/api-typescript/src/package.json').text.contains('sls')
     }
 
-    def "does not pass product dependencies to java objects"() {
+    def "does not pass product dependencies to java objects or undertow"() {
          file('api/build.gradle') << '''
         serviceDependencies {
             serviceDependency {
@@ -178,10 +179,13 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         '''.stripIndent()
         when:
         def result = runTasksSuccessfully(':api:api-objects:Jar')
+        def result2 = runTasksSuccessfully(':api:api-undertow:Jar')
 
         then:
         !result.wasExecuted(':api:generateConjureServiceDependencies')
+        !result2.wasExecuted(':api:generateConjureServiceDependencies')
         readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar')) == null
+        readRecommendedProductDeps(file('api/api-undertow/build/libs/api-undertow-0.1.0.jar')) == null
     }
 
     def "correctly configures manifest for java jersey"() {

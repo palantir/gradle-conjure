@@ -228,8 +228,10 @@ public final class ConjurePlugin implements Plugin<Project> {
             Task cleanTask = parentProject.getTasks().findByName(TASK_CLEAN);
             cleanTask.dependsOn(parentProject.getTasks().findByName("cleanCompileConjure" + upperSuffix));
             if (isNotObjectsProject) {
-                ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
                 subproj.getDependencies().add("api", findDerivedProject(parentProject, objectsProjectName));
+            }
+            if (shouldConfigureJavaServices(subproj)) {
+                ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
             }
             if (extraConfig != null) {
                 extraConfig.accept(subproj);
@@ -243,6 +245,15 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static String getDerivedProjectName(Project parent, String suffix) {
         return parent.getName() + "-" + suffix;
+    }
+
+    /**
+     * Objects projects and server-side only projects (i.e. undertow) should not have the recommended dependencies
+     * configured.
+     */
+    private static boolean shouldConfigureJavaServices(Project project) {
+        String projectName = project.getName();
+        return !(projectName.endsWith(JAVA_OBJECTS_SUFFIX) || projectName.endsWith(JAVA_UNDERTOW_SUFFIX));
     }
 
     private static void setupObjectsProject(Project project) {
@@ -341,6 +352,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.commandLine(npmCommand, "run-script", "build");
                     task.workingDir(srcDirectory);
                     task.dependsOn(installTypeScriptDependencies);
+                    task.getOutputs().dir(srcDirectory);
                 });
                 Task publishTypeScript = project.getTasks().create("publishTypeScript", Exec.class, task -> {
                     task.setDescription("Runs `npm publish` to publish a TypeScript package "
