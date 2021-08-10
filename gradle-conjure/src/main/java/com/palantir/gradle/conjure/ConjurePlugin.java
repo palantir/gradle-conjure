@@ -208,6 +208,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             subproj.getPluginManager().apply(JavaLibraryPlugin.class);
             ignoreFromCheckUnusedDependencies(subproj);
             addGeneratedToMainSourceSet(subproj);
+            enforceNoExistingMainSourceSet(subproj);
             parentProject.getTasks().create("compileConjure" + upperSuffix, ConjureGeneratorTask.class, task -> {
                 task.setDescription(
                         String.format("Generates %s interfaces from your Conjure definitions.", upperSuffix));
@@ -514,6 +515,23 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
 
         return Collections.emptyMap();
+    }
+
+    static void enforceNoExistingMainSourceSet(Project subproj) {
+        subproj.afterEvaluate(p -> {
+            JavaPluginConvention javaPlugin = p.getConvention().findPlugin(JavaPluginConvention.class);
+            javaPlugin
+                    .getSourceSets()
+                    .getByName("main")
+                    .getJava()
+                    .getSourceDirectories()
+                    .forEach(dir -> {
+                        if (!dir.equals(p.file(JAVA_GENERATED_SOURCE_DIRNAME)) && dir.exists()) {
+                            throw new IllegalStateException(String.format(
+                                    "Non-generated source directories not allowed in generated projects: '%s' ", dir));
+                        }
+                    });
+        });
     }
 
     static void addGeneratedToMainSourceSet(Project subproj) {

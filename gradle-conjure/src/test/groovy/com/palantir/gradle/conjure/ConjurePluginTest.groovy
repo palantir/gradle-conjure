@@ -16,7 +16,6 @@
 
 package com.palantir.gradle.conjure
 
-
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import spock.lang.IgnoreIf
@@ -260,6 +259,19 @@ class ConjurePluginTest extends IntegrationSpec {
         'sub'      | 'api'
         'peer'     | ''
     }
+
+    def 'disallows sourcesets other than src/generated/java'() {
+        setup:
+        createFile('api/api-dialogue/src/main/java/com/palantir/gotham/RandoEndpoint.java')
+
+        when:
+        ExecutionResult result = runTasks(':api-dialogue:compileJava')
+
+        then:
+        Throwable ex = result.getFailure()
+        ex.cause.cause.message.contains("Non-generated source directories not allowed")
+    }
+
 
     def 'compileConjure creates build/conjure for root project'() {
         when:
