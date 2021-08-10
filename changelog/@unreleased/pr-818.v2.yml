@@ -1,0 +1,20 @@
+type: improvement
+improvement:
+  description: |-
+    Disallow non-generated dirs in main sourcesets
+
+    ## Before this PR
+    The conjure-consumer dependency scanning strategy relies on annotations
+    in Generated Java code to determine minimum service dependencies. This does
+    not work for any non-generated code.
+
+    To prevent unexpected problems, all non-generated code must be excluded
+    from the Conjure generated Javaprojects.
+
+    ## After this PR
+    Gradle will error out whenever it finds a non-generated source directory in any of the Java (e.g. objects, dialogue) generated subprojects
+
+    ## Possible downsides?
+    Users must move non generated code outside of the generated subprojects if they want to continue using gradle-conjure
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/818
