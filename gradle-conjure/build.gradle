@@ -31,11 +31,11 @@ dependencies {
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'
 
-    testCompile gradleTestKit()
-    testCompile 'com.netflix.nebula:nebula-test'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation gradleTestKit()
+    testImplementation 'com.netflix.nebula:nebula-test'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
 }
 
 gradlePlugin {

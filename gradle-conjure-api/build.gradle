@@ -18,7 +18,7 @@ apply plugin: 'com.palantir.external-publish-jar'
 apply plugin: 'com.palantir.revapi'
 
 dependencies {
-    compile localGroovy()
-    compile gradleApi()
-    compile 'com.fasterxml.jackson.core:jackson-annotations'
+    api localGroovy()
+    api gradleApi()
+    api 'com.fasterxml.jackson.core:jackson-annotations'
 }
