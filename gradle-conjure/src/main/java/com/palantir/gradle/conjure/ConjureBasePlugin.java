@@ -32,7 +32,6 @@ import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GFileUtils;
 
 public final class ConjureBasePlugin implements Plugin<Project> {
@@ -130,9 +129,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                     });
                 });
 
-        project.getTasks()
-                .getByName(LifecycleBasePlugin.CLEAN_TASK_NAME)
-                .dependsOn(project.getTasks().findByName("cleanCopyConjureSourcesIntoBuild"));
+        ConjurePlugin.registerClean(project, "cleanCopyConjureSourcesIntoBuild");
 
         return copyConjureSourcesTask;
     }

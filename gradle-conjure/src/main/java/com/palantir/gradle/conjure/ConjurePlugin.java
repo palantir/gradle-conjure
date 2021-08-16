@@ -44,6 +44,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
@@ -54,6 +55,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
@@ -63,7 +65,6 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static final Logger log = Logging.getLogger(ConjurePlugin.class);
 
     static final String TASK_GROUP = "Conjure";
-    static final String TASK_CLEAN = "clean";
 
     public static final String CONJURE_IR = ConjureBasePlugin.COMPILE_IR_TASK;
 
@@ -220,7 +221,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                         task.setOutputDirectory(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
                         task.setSource(compileIrTask);
 
-                        subproj.getTasks().getByName("compileJava").dependsOn(task);
                         task.dependsOn(createWriteGitignoreTask(
                                 subproj,
                                 "gitignoreConjure" + upperSuffix,
@@ -228,11 +228,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 JAVA_GITIGNORE_CONTENTS));
                         task.dependsOn(extractJavaTask);
                     });
+            subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
             applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
             compileConjure.configure(t -> t.dependsOn(conjureGeneratorTask));
 
-            Task cleanTask = parentProject.getTasks().findByName(TASK_CLEAN);
-            cleanTask.dependsOn(parentProject.getTasks().findByName("cleanCompileConjure" + upperSuffix));
+            registerClean(parentProject, "cleanCompileConjure" + upperSuffix);
             if (isNotObjectsProject) {
                 subproj.getDependencies().add("api", findDerivedProject(parentProject, objectsProjectName));
             }
@@ -242,6 +242,14 @@ public final class ConjurePlugin implements Plugin<Project> {
             if (extraConfig != null) {
                 extraConfig.accept(subproj);
             }
+        });
+    }
+
+    static void registerClean(Project project, String cleanerTaskName) {
+        TaskProvider<Task> cleanTask = project.getTasks().named(LifecycleBasePlugin.CLEAN_TASK_NAME);
+        TaskProvider<Task> cleanerTask = project.getTasks().named(cleanerTaskName);
+        cleanTask.configure(t -> {
+            t.dependsOn(cleanerTask);
         });
     }
 
@@ -376,11 +384,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     subproj.getTasks().named("publish").configure(t -> t.dependsOn(publishTypeScript));
                 });
             });
-            TaskProvider<Task> cleanCompileConjureTypeScript =
-                    project.getTasks().named("cleanCompileConjureTypeScript");
-            project.getTasks().named(TASK_CLEAN).configure(t -> {
-                t.dependsOn(cleanCompileConjureTypeScript);
-            });
+            registerClean(project, "cleanCompileConjureTypeScript");
         }
     }
 
@@ -433,10 +437,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.dependsOn(compileConjurePython);
                 });
             });
-            TaskProvider<Task> cleanCompileConjurePython = project.getTasks().named("cleanCompileConjurePython");
-            project.getTasks().named(TASK_CLEAN).configure(t -> {
-                t.dependsOn(cleanCompileConjurePython);
-            });
+            registerClean(project, "cleanCompileConjurePython");
         }
     }
 
@@ -543,9 +544,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static void applyDependencyForIdeTasks(Project project, TaskProvider<?> compileConjure) {
         project.getPlugins().withType(IdeaPlugin.class, plugin -> {
-            Task task = project.getTasks().findByName("ideaModule");
-            if (task != null) {
-                task.dependsOn(compileConjure);
+            // root project does not have the ideaModule task.  There is unfortunately no
+            // safe way to check for existence with the task avoidance APIs
+            try {
+                project.getTasks().named("ideaModule").configure(t -> t.dependsOn(compileConjure));
+            } catch (UnknownDomainObjectException e) {
+                project.getLogger().debug("Project does not have ideaModule task.", e);
             }
 
             IdeaModule module = plugin.getModel().getModule();

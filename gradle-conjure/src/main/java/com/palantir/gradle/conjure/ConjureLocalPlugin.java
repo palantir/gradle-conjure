@@ -111,15 +111,14 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     task.setOutputDirectory(subproj.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
 
                     generateConjure.dependsOn(task);
-                    subproj.getTasks().getByName("compileJava").dependsOn(task);
 
                     task.dependsOn(gitignoreConjureJava);
                     task.dependsOn(extractJavaTask);
 
-                    Task cleanTask = project.getTasks().findByName(ConjurePlugin.TASK_CLEAN);
-                    cleanTask.dependsOn(project.getTasks().findByName("cleanGenerateJava"));
                     subproj.getDependencies().add("api", subproj);
                 });
+        subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(generateJava));
+        ConjurePlugin.registerClean(project, "cleanGenerateJava");
         ConjurePlugin.applyDependencyForIdeTasks(subproj, generateJava);
     }
 
