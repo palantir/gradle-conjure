@@ -372,8 +372,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });
-                subproj.afterEvaluate(
-                        _p -> subproj.getTasks().maybeCreate("publish").dependsOn(publishTypeScript));
+                subproj.getPluginManager().withPlugin("maven-publish", _packagingPlugin -> {
+                    subproj.getTasks().named("publish").configure(t -> t.dependsOn(publishTypeScript));
+                });
             });
             TaskProvider<Task> cleanCompileConjureTypeScript =
                     project.getTasks().named("cleanCompileConjureTypeScript");
