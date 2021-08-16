@@ -20,9 +20,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileTree;
@@ -33,7 +36,6 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
-import org.gradle.util.GFileUtils;
 
 @CacheableTask
 public class ConjureGeneratorTask extends SourceTask {
@@ -100,7 +102,12 @@ public class ConjureGeneratorTask extends SourceTask {
         getSource().getFiles().forEach(file -> {
             File thisOutputDirectory = outputDirectoryFor(file);
 
-            GFileUtils.deleteDirectory(thisOutputDirectory);
+            try {
+                FileUtils.deleteDirectory(thisOutputDirectory);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
             getProject().mkdir(thisOutputDirectory);
 
             List<String> generateCommand =

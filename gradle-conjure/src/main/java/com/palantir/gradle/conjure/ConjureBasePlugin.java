@@ -18,7 +18,10 @@ package com.palantir.gradle.conjure;
 
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -33,7 +36,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.util.GFileUtils;
 
 public final class ConjureBasePlugin implements Plugin<Project> {
     static final Attribute<Usage> CONJURE_USAGE = Attribute.of("com.palantir.conjure", Usage.class);
@@ -125,7 +127,11 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                     task.doFirst(new Action<Task>() {
                         @Override
                         public void execute(Task _task) {
-                            GFileUtils.deleteDirectory(buildDir);
+                            try {
+                                FileUtils.deleteDirectory(buildDir);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
                         }
                     });
                 });

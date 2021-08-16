@@ -28,7 +28,6 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.java.archives.Manifest;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -63,8 +62,11 @@ public class ConfigureEndpointMinimumVersionsTask extends DefaultTask {
         return endpointVersions;
     }
 
+    // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
+    @SuppressWarnings("deprecation")
     private Manifest createManifest(Project project, List<EndpointMinimumVersion> versions) {
-        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+        org.gradle.api.plugins.JavaPluginConvention javaConvention =
+                project.getConvention().getPlugin(org.gradle.api.plugins.JavaPluginConvention.class);
         return javaConvention.manifest(manifest -> {
             String minVersionsString;
             try {

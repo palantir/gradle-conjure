@@ -21,9 +21,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
@@ -36,7 +39,6 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.GFileUtils;
 
 @CacheableTask
 public class ConjureJavaLocalGeneratorTask extends SourceTask {
@@ -82,7 +84,13 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
         File definitionFile = getSource().getFiles().iterator().next();
 
         File outputDir = outputDirectory.getAsFile().get();
-        GFileUtils.deleteDirectory(outputDir);
+
+        try {
+            FileUtils.deleteDirectory(outputDir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
         getProject().mkdir(outputDir);
 
         GENERATOR_FLAGS.forEach(generatorFlag -> {

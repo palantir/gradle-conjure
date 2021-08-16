@@ -19,7 +19,7 @@ package com.palantir.gradle.conjure
 import java.nio.file.Files
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
-import org.gradle.util.GFileUtils
+import org.apache.commons.io.FileUtils
 
 class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
     private static final String API_YML = """
@@ -98,7 +98,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         runTasksSuccessfully('compileIr')
-        GFileUtils.deleteDirectory(projectDir.toPath().resolve("build").toFile())
+        FileUtils.deleteDirectory(projectDir.toPath().resolve("build").toFile())
         ExecutionResult result = runTasksSuccessfully('compileIr', '-i')
 
         then:
