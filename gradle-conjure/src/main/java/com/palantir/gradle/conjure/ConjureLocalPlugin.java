@@ -34,6 +34,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.util.GUtil;
 
 public final class ConjureLocalPlugin implements Plugin<Project> {
@@ -88,37 +89,38 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
         ConjurePlugin.addGeneratedToMainSourceSet(subproj);
 
-        Task gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
+        TaskProvider<WriteGitignoreTask> gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
                 subproj, "gitignoreConjureJava", subproj.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
-        project.getTasks().create("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
-            task.setDescription("Generates Java bindings for remote Conjure definitions.");
-            task.setGroup(ConjurePlugin.TASK_GROUP);
-            // TODO(forozco): Automatically pass which category of code to generate
-            task.setOptions(() -> {
-                GeneratorOptions generatorOptions = optionsSupplier.get();
-                Preconditions.checkArgument(
-                        UNSAFE_JAVA_OPTIONS.stream().noneMatch(generatorOptions::has),
-                        "Unable to generate Java bindings since unsafe options were provided",
-                        generatorOptions.getProperties());
+        TaskProvider<ConjureLocalGenerateGenericTask> generateJava = project.getTasks()
+                .register("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
+                    task.setDescription("Generates Java bindings for remote Conjure definitions.");
+                    task.setGroup(ConjurePlugin.TASK_GROUP);
+                    // TODO(forozco): Automatically pass which category of code to generate
+                    task.setOptions(() -> {
+                        GeneratorOptions generatorOptions = optionsSupplier.get();
+                        Preconditions.checkArgument(
+                                UNSAFE_JAVA_OPTIONS.stream().noneMatch(generatorOptions::has),
+                                "Unable to generate Java bindings since unsafe options were provided",
+                                generatorOptions.getProperties());
 
-                return generatorOptions;
-            });
-            task.setSource(conjureIrConfiguration);
-            task.setExecutablePath(extractJavaTask::getExecutable);
-            task.setOutputDirectory(subproj.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
+                        return generatorOptions;
+                    });
+                    task.setSource(conjureIrConfiguration);
+                    task.setExecutablePath(extractJavaTask::getExecutable);
+                    task.setOutputDirectory(subproj.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
 
-            generateConjure.dependsOn(task);
-            subproj.getTasks().getByName("compileJava").dependsOn(task);
+                    generateConjure.dependsOn(task);
+                    subproj.getTasks().getByName("compileJava").dependsOn(task);
 
-            ConjurePlugin.applyDependencyForIdeTasks(subproj, task);
-            task.dependsOn(gitignoreConjureJava);
-            task.dependsOn(extractJavaTask);
+                    task.dependsOn(gitignoreConjureJava);
+                    task.dependsOn(extractJavaTask);
 
-            Task cleanTask = project.getTasks().findByName(ConjurePlugin.TASK_CLEAN);
-            cleanTask.dependsOn(project.getTasks().findByName("cleanGenerateJava"));
-            subproj.getDependencies().add("api", subproj);
-        });
+                    Task cleanTask = project.getTasks().findByName(ConjurePlugin.TASK_CLEAN);
+                    cleanTask.dependsOn(project.getTasks().findByName("cleanGenerateJava"));
+                    subproj.getDependencies().add("api", subproj);
+                });
+        ConjurePlugin.applyDependencyForIdeTasks(subproj, generateJava);
     }
 
     private void setupGenericConjureProjects(
