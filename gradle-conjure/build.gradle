@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
     implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
     implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
     implementation 'net.bytebuddy:byte-buddy'
 
     annotationProcessor 'org.immutables:value'

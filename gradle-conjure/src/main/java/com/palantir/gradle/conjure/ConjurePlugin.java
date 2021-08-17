@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -468,12 +469,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
             ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
-                    "extractConjure" + conjureLanguage.toUpperCase(Locale.ROOT),
+                    "extractConjure" + StringUtils.capitalize(conjureLanguage),
                     matchingGeneratorDeps,
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", conjureLanguage));
 
-            String taskName = "compileConjure" + conjureLanguage.toUpperCase(Locale.ROOT);
+            String taskName = "compileConjure" + StringUtils.capitalize(conjureLanguage);
             Task conjureLocalGenerateTask = project.getTasks().create(taskName, ConjureGeneratorTask.class, task -> {
                 task.setDescription(String.format("Generates %s files from your Conjure definition.", conjureLanguage));
                 task.setGroup(ConjurePlugin.TASK_GROUP);

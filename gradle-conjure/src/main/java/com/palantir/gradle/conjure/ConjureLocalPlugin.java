@@ -22,11 +22,11 @@ import com.google.common.collect.Maps;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -168,14 +168,14 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
             ExtractExecutableTask extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
-                    "extractConjure" + subprojectName.toUpperCase(Locale.ROOT),
+                    "extractConjure" + StringUtils.capitalize(subprojectName),
                     matchingGeneratorDeps,
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", subprojectName));
 
             ConjureLocalGenerateTask conjureLocalGenerateTask = project.getTasks()
                     .create(
-                            "generate" + subprojectName.toUpperCase(Locale.ROOT),
+                            "generate" + StringUtils.capitalize(subprojectName),
                             ConjureLocalGenerateGenericTask.class,
                             task -> {
                                 task.setDescription(String.format(
