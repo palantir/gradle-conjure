@@ -53,7 +53,9 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
+import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
@@ -232,7 +234,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
             compileConjure.configure(t -> t.dependsOn(conjureGeneratorTask));
 
-            registerClean(parentProject, "cleanCompileConjure" + upperSuffix);
+            registerClean(parentProject, conjureGeneratorTask);
             if (isNotObjectsProject) {
                 subproj.getDependencies().add("api", findDerivedProject(parentProject, objectsProjectName));
             }
@@ -245,9 +247,13 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    static void registerClean(Project project, String cleanerTaskName) {
+    static void registerClean(Project project, TaskProvider<? extends Task> creatorTask) {
+        String cleanTaskName = "clean" + getUppercaseSuffix(creatorTask.getName());
         TaskProvider<Task> cleanTask = project.getTasks().named(LifecycleBasePlugin.CLEAN_TASK_NAME);
-        TaskProvider<Task> cleanerTask = project.getTasks().named(cleanerTaskName);
+        // This replicates what the built in gradle CleanRule does, but using task-avoidance APIs
+        TaskProvider<Delete> cleanerTask = project.getTasks().register(cleanTaskName, Delete.class, t -> {
+            t.delete(creatorTask.map(Task::getOutputs).map(TaskOutputs::getFiles));
+        });
         cleanTask.configure(t -> {
             t.dependsOn(cleanerTask);
         });
@@ -350,6 +356,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(productDependencyTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjureTypeScript));
+                registerClean(project, compileConjureTypeScript);
 
                 String npmCommand = OsUtils.NPM_COMMAND_NAME;
                 TaskProvider<Exec> installTypeScriptDependencies = project.getTasks()
@@ -382,7 +389,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 linkPublish(subproj, publishTypeScript);
             });
-            registerClean(project, "cleanCompileConjureTypeScript");
         }
     }
 
@@ -454,8 +460,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.workingDir(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                 });
+                registerClean(project, compileConjurePython);
             });
-            registerClean(project, "cleanCompileConjurePython");
         }
     }
 

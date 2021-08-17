@@ -129,7 +129,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                     });
                 });
 
-        ConjurePlugin.registerClean(project, "cleanCopyConjureSourcesIntoBuild");
+        ConjurePlugin.registerClean(project, copyConjureSourcesTask);
 
         return copyConjureSourcesTask;
     }

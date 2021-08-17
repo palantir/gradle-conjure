@@ -118,7 +118,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         generateConjure.configure(t -> t.dependsOn(generateJava));
 
         subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(generateJava));
-        ConjurePlugin.registerClean(project, "cleanGenerateJava");
+        ConjurePlugin.registerClean(project, generateJava);
         ConjurePlugin.applyDependencyForIdeTasks(subproj, generateJava);
     }
 
