@@ -380,12 +380,30 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });
-                subproj.getPluginManager().withPlugin("maven-publish", _packagingPlugin -> {
-                    subproj.getTasks().named("publish").configure(t -> t.dependsOn(publishTypeScript));
-                });
+                linkPublish(subproj, publishTypeScript);
             });
             registerClean(project, "cleanCompileConjureTypeScript");
         }
+    }
+
+    private static void linkPublish(Project project, TaskProvider<?> depTask) {
+        // this is the cleanest and most common way to link to the publish task.
+        project.getPluginManager().withPlugin("maven-publish", _packagingPlugin -> {
+            project.getTasks().named("publish").configure(t -> t.dependsOn(depTask));
+        });
+        // In case the regular plugin is not applied, register a sub-publish task
+        project.afterEvaluate(p -> {
+            if (!p.getPluginManager().hasPlugin("maven-publish")) {
+                TaskProvider<Task> publishProvider;
+                try {
+                    publishProvider = p.getTasks().named("publish");
+                } catch (UnknownDomainObjectException e) {
+                    p.getLogger().debug("Manually creating publish task", e);
+                    publishProvider = p.getTasks().register("publish");
+                }
+                publishProvider.configure(t -> t.dependsOn(depTask));
+            }
+        });
     }
 
     private static void setupConjurePythonProject(
