@@ -19,9 +19,7 @@ package com.palantir.gradle.conjure;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
-import org.gradle.api.UnknownTaskException;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
@@ -49,10 +47,11 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
                 publications.create(
                         "conjure",
                         MavenPublication.class,
-                        mavenPublication -> mavenPublication.artifact(finalCompileIr.flatMap(CompileIrTask::getOutputIrFile), mavenArtifact -> {
-                            mavenArtifact.builtBy(finalCompileIr);
-                            mavenArtifact.setExtension("conjure.json");
-                        }));
+                        mavenPublication -> mavenPublication.artifact(
+                                finalCompileIr.flatMap(CompileIrTask::getOutputIrFile), mavenArtifact -> {
+                                    mavenArtifact.builtBy(finalCompileIr);
+                                    mavenArtifact.setExtension("conjure.json");
+                                }));
             });
         });
     }
