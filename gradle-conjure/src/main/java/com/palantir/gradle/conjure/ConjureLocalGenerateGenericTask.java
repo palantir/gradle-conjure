@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
+public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
     private static final Pattern PATTERN =
             Pattern.compile("^(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-g[a-f0-9]+)?)(?:.conjure)?.json$");

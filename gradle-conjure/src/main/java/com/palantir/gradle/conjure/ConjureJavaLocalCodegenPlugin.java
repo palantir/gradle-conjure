@@ -62,7 +62,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
         });
 
-        ExtractExecutableTask extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
+        TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
         setupSubprojects(project, extension, extractJavaTask, extractConjureIr, conjureIrConfiguration);
     }
@@ -70,7 +70,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static void setupSubprojects(
             Project project,
             ConjureExtension extension,
-            ExtractExecutableTask extractJavaTask,
+            TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr,
             Configuration conjureIrConfiguration) {
 
@@ -105,7 +105,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static void createGenerateTask(
             Project project,
             ConjureExtension extension,
-            ExtractExecutableTask extractJavaTask,
+            TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
@@ -127,8 +127,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     task.setSource(conjureIrFile);
                     task.getExecutablePath()
                             .set(project.getLayout()
-                                    .file(project.provider(
-                                            () -> OsUtils.appendDotBatIfWindows(extractJavaTask.getExecutable()))));
+                                    .file(extractJavaTask.map(t -> OsUtils.appendDotBatIfWindows(
+                                            t.getExecutable().getAsFile().get()))));
                     task.getOptions().set(project.provider(() -> {
                         Map<String, Object> properties =
                                 new HashMap<>(extension.getJava().getProperties());

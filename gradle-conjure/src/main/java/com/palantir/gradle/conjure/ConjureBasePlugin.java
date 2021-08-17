@@ -74,13 +74,13 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
             TaskProvider<Copy> copyConjureSourcesTask) {
-        ExtractExecutableTask extractCompilerTask = ExtractConjurePlugin.applyConjureCompiler(project);
+        TaskProvider<ExtractExecutableTask> extractCompilerTask = ExtractConjurePlugin.applyConjureCompiler(project);
 
         Provider<Directory> irDir = project.getLayout().getBuildDirectory().dir("conjure-ir");
 
         project.getTasks().register("rawIr", CompileIrTask.class, rawIr -> {
-            rawIr.setInputDirectory(copyConjureSourcesTask.map(Copy::getDestinationDir)::get);
-            rawIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
+            rawIr.getInputDirectory().set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
+            rawIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             rawIr.getOutputIrFile().set(irDir.map(dir -> dir.file("rawIr.conjure.json")));
             rawIr.dependsOn(copyConjureSourcesTask);
             rawIr.dependsOn(extractCompilerTask);
@@ -90,8 +90,10 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(ConjureBasePlugin.TASK_GROUP);
 
-            compileIr.setInputDirectory(copyConjureSourcesTask.map(Copy::getDestinationDir)::get);
-            compileIr.setExecutableDir(extractCompilerTask::getOutputDirectory);
+            compileIr
+                    .getInputDirectory()
+                    .set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
+            compileIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             compileIr.getOutputIrFile().set(irDir.map(dir -> dir.file(project.getName() + ".conjure.json")));
             compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
             compileIr.dependsOn(copyConjureSourcesTask);

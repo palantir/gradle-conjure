@@ -21,6 +21,7 @@ import java.util.Objects;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.tasks.TaskProvider;
 
 abstract class ExtractConjurePlugin implements Plugin<Project> {
 
@@ -57,16 +58,16 @@ abstract class ExtractConjurePlugin implements Plugin<Project> {
         ExtractExecutableTask.createExtractTask(project, taskName, configuration, outputDir, executableName);
     }
 
-    static ExtractExecutableTask applyConjureCompiler(Project project) {
+    static TaskProvider<ExtractExecutableTask> applyConjureCompiler(Project project) {
         return applyAndGet(project, ExtractConjureCompilerPlugin.class, ExtractConjureCompilerPlugin.TASK_NAME);
     }
 
-    static ExtractExecutableTask applyConjureJava(Project project) {
+    static TaskProvider<ExtractExecutableTask> applyConjureJava(Project project) {
         return applyAndGet(project, ExtractConjureJavaPlugin.class, ExtractConjureJavaPlugin.TASK_NAME);
     }
 
-    static ExtractExecutableTask applyConjureTypeScript(Project project) {
-        ExtractExecutableTask result =
+    static TaskProvider<ExtractExecutableTask> applyConjureTypeScript(Project project) {
+        TaskProvider<ExtractExecutableTask> result =
                 applyAndGet(project, ExtractConjureTypeScriptPlugin.class, ExtractConjureTypeScriptPlugin.TASK_NAME);
         // Preserve the conjureTypescript configuration so publishing works
         if (!Objects.equals(project, project.getRootProject())) {
@@ -76,15 +77,15 @@ abstract class ExtractConjurePlugin implements Plugin<Project> {
         return result;
     }
 
-    static ExtractExecutableTask applyConjurePython(Project project) {
+    static TaskProvider<ExtractExecutableTask> applyConjurePython(Project project) {
         return applyAndGet(project, ExtractConjurePythonPlugin.class, ExtractConjurePythonPlugin.TASK_NAME);
     }
 
-    private static ExtractExecutableTask applyAndGet(
+    private static TaskProvider<ExtractExecutableTask> applyAndGet(
             Project provided, Class<? extends Plugin<? extends Project>> plugin, String name) {
         Project project = provided.getRootProject();
         project.getPluginManager().apply(plugin);
-        return (ExtractExecutableTask) project.getTasks().getByName(name);
+        return project.getTasks().named(name, ExtractExecutableTask.class);
     }
 
     static final class ExtractConjureCompilerPlugin extends ExtractConjurePlugin {

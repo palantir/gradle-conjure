@@ -30,21 +30,23 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.file.RelativePath;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.Sync;
+import org.gradle.api.tasks.TaskProvider;
 
-public class ExtractExecutableTask extends Sync {
+public abstract class ExtractExecutableTask extends Sync {
     private FileCollection archive;
-    private File outputDirectory;
-    private String executableName;
 
     public ExtractExecutableTask() {
         // Memoize this because we are re-using it in the doLast action.
@@ -53,7 +55,9 @@ public class ExtractExecutableTask extends Sync {
         // Configure the spec lazily
         from((Callable<FileTree>) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
         eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
-        into((Callable<File>) this::getOutputDirectory); // will get lazily resolved
+        into(getOutputDirectory()); // will get lazily resolved
+
+        getExecutable().convention(getOutputDirectory().file(getExecutableName().map(s -> String.format("bin/%s", s))));
 
         doFirst(new Action<Task>() {
             @Override
@@ -88,7 +92,7 @@ public class ExtractExecutableTask extends Sync {
                 getLogger().info("Extracted into {}", getOutputDirectory());
                 // Ensure the executable exists
                 Preconditions.checkState(
-                        Files.exists(getExecutable().toPath()),
+                        Files.exists(getExecutable().getAsFile().get().toPath()),
                         "Couldn't find expected file after extracting archive %s: %s",
                         tarFile.get(),
                         getExecutable());
@@ -96,12 +100,12 @@ public class ExtractExecutableTask extends Sync {
         });
     }
 
-    public static ExtractExecutableTask createExtractTask(
+    public static TaskProvider<ExtractExecutableTask> createExtractTask(
             Project project, String taskName, FileCollection archive, File outputDir, String executableName) {
-        return project.getTasks().create(taskName, ExtractExecutableTask.class, task -> {
+        return project.getTasks().register(taskName, ExtractExecutableTask.class, task -> {
             task.setArchive(archive);
-            task.setOutputDirectory(outputDir);
-            task.setExecutableName(executableName);
+            task.getOutputDirectory().set(outputDir);
+            task.getExecutableName().set(executableName);
         });
     }
 
@@ -115,32 +119,18 @@ public class ExtractExecutableTask extends Sync {
     }
 
     @OutputDirectory
-    public final File getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    final void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
-    }
+    public abstract DirectoryProperty getOutputDirectory();
 
     /**
      * The file name of the executable. This file should exist under {@code <single root directory>/bin} inside the tar
      * archive.
      */
     @Input
-    public final String getExecutableName() {
-        return executableName;
-    }
-
-    public final void setExecutableName(String executableName) {
-        this.executableName = executableName;
-    }
+    public abstract Property<String> getExecutableName();
 
     /** The full path to the executable that will be extracted by this task. */
     @OutputFile
-    final File getExecutable() {
-        return new File(getOutputDirectory(), String.format("bin/%s", executableName));
-    }
+    abstract RegularFileProperty getExecutable();
 
     private File resolveTarFile() {
         Set<File> resolvedFiles = archive.getFiles();
