@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.SetProperty;
@@ -42,20 +42,11 @@ import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
-public class CompileIrTask extends DefaultTask {
+public abstract class CompileIrTask extends DefaultTask {
     private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
-    private final RegularFileProperty outputIrFile = getProject().getObjects().fileProperty();
-
-    private Supplier<File> inputDirectory;
-    private Supplier<File> executableDir;
-    private final SetProperty<ServiceDependency> productDependencies =
-            getProject().getObjects().setProperty(ServiceDependency.class);
-    private final MapProperty<String, Serializable> conjureExtensions =
-            getProject().getObjects().mapProperty(String.class, Serializable.class);
-    private final RegularFileProperty extensionsFile = getProject().getObjects().fileProperty();
 
     public CompileIrTask() {
-        conjureExtensions.convention(new HashMap<>());
+        getConjureExtensions().convention(new HashMap<>());
     }
 
     /**
@@ -65,7 +56,7 @@ public class CompileIrTask extends DefaultTask {
      */
     @Deprecated
     public final void setOutputFile(File outputFile) {
-        outputIrFile.set(outputFile);
+        getOutputIrFile().set(outputFile);
     }
 
     /**
@@ -76,59 +67,39 @@ public class CompileIrTask extends DefaultTask {
     @Deprecated
     @Internal
     public final File getOutputFile() {
-        return outputIrFile.getAsFile().get();
+        return getOutputIrFile().getAsFile().get();
     }
 
     @OutputFile
-    public final RegularFileProperty getOutputIrFile() {
-        return outputIrFile;
-    }
-
-    public final void setInputDirectory(Supplier<File> inputDirectory) {
-        this.inputDirectory = inputDirectory;
-    }
+    public abstract RegularFileProperty getOutputIrFile();
 
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    public final File getInputDirectory() {
-        return inputDirectory.get();
-    }
-
-    public final void setExecutableDir(Supplier<File> executableDir) {
-        this.executableDir = executableDir;
-    }
+    public abstract DirectoryProperty getInputDirectory();
 
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
-    public final File getExecutableDir() {
-        return executableDir.get();
-    }
+    public abstract DirectoryProperty getExecutableDir();
 
     @Input
-    public final SetProperty<ServiceDependency> getProductDependencies() {
-        return productDependencies;
-    }
+    public abstract SetProperty<ServiceDependency> getProductDependencies();
 
     @Input
     @Optional
-    public final MapProperty<String, Serializable> getConjureExtensions() {
-        return conjureExtensions;
-    }
+    public abstract MapProperty<String, Serializable> getConjureExtensions();
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    public final RegularFileProperty getExtensionsFile() {
-        return extensionsFile;
-    }
+    public abstract RegularFileProperty getExtensionsFile();
 
     @TaskAction
     public final void generate() {
-        File executable = new File(executableDir.get(), EXECUTABLE);
+        File executable = new File(getExecutableDir().getAsFile().get(), EXECUTABLE);
         List<String> args = ImmutableList.of(
                 "compile",
-                inputDirectory.get().getAbsolutePath(),
-                outputIrFile.get().getAsFile().getAbsolutePath(),
+                getInputDirectory().get().getAsFile().getAbsolutePath(),
+                getOutputIrFile().get().getAsFile().getAbsolutePath(),
                 "--extensions",
                 OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
 
@@ -138,9 +109,9 @@ public class CompileIrTask extends DefaultTask {
     private String getSerializedExtensions() {
         try {
             Map<Object, Object> extData = new HashMap<>();
-            if (extensionsFile.isPresent()) {
+            if (getExtensionsFile().isPresent()) {
                 extData = GenerateConjureServiceDependenciesTask.jsonMapper.readValue(
-                        extensionsFile.getAsFile().get(), Map.class);
+                        getExtensionsFile().getAsFile().get(), Map.class);
             }
             extData.putAll(getConjureExtensions().get());
             extData.put(

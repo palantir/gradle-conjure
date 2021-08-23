@@ -24,6 +24,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
@@ -32,16 +33,12 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 
 @CacheableTask
-public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
-    private final Property<String> packageName = getProject().getObjects().property(String.class);
-    private final Property<String> packageVersion = getProject().getObjects().property(String.class);
-
-    private File productDependencyFile;
-
+public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     public CompileConjureTypeScriptTask() {
         Project project = getProject();
-        packageName.set(getProject().provider(project::getName));
-        packageVersion.set(getProject().provider(() -> project.getVersion().toString()));
+        getPackageName().convention(getProject().provider(project::getName));
+        getPackageVersion()
+                .convention(getProject().provider(() -> project.getVersion().toString()));
         doFirst(new Action<Task>() {
             @Override
             public void execute(Task task) {
@@ -55,32 +52,22 @@ public class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
 
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
-    public final File getProductDependencyFile() {
-        return productDependencyFile;
-    }
-
-    public final void setProductDependencyFile(File productDependencyFile) {
-        this.productDependencyFile = productDependencyFile;
-    }
+    public abstract RegularFileProperty getProductDependencyFile();
 
     @Input
-    public final Property<String> getPackageName() {
-        return packageName;
-    }
+    public abstract Property<String> getPackageName();
 
     @Input
-    public final Property<String> getPackageVersion() {
-        return packageVersion;
-    }
+    public abstract Property<String> getPackageVersion();
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {
         return ImmutableMap.of(
                 "packageName",
-                packageName::get,
+                getPackageName()::get,
                 "packageVersion",
-                packageVersion::get,
+                getPackageVersion()::get,
                 "productDependencies",
-                () -> getProductDependencyFile().getAbsolutePath());
+                () -> getProductDependencyFile().getAsFile().get().getAbsolutePath());
     }
 }

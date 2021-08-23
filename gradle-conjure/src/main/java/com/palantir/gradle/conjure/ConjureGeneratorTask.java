@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -36,9 +38,7 @@ import org.gradle.api.tasks.SourceTask;
 import org.gradle.util.GFileUtils;
 
 @CacheableTask
-public class ConjureGeneratorTask extends SourceTask {
-    private Supplier<File> executablePathSupplier;
-    private File outputDirectory;
+public abstract class ConjureGeneratorTask extends SourceTask {
     private Supplier<GeneratorOptions> options;
 
     public ConjureGeneratorTask() {
@@ -59,24 +59,12 @@ public class ConjureGeneratorTask extends SourceTask {
         return super.getSource();
     }
 
-    public final void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
-    }
-
     @OutputDirectory
-    public final File getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    final void setExecutablePath(Supplier<File> executablePath) {
-        this.executablePathSupplier = executablePath;
-    }
+    public abstract DirectoryProperty getOutputDirectory();
 
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
-    public final File getExecutablePath() {
-        return OsUtils.appendDotBatIfWindows(executablePathSupplier.get());
-    }
+    public abstract RegularFileProperty getExecutablePath();
 
     public final void setOptions(Supplier<GeneratorOptions> options) {
         this.options = options;
@@ -92,7 +80,7 @@ public class ConjureGeneratorTask extends SourceTask {
      * {@link #getOutputDirectory()}.
      */
     protected File outputDirectoryFor(File _file) {
-        return getOutputDirectory();
+        return getOutputDirectory().getAsFile().get();
     }
 
     /** Entry point for the task. */
@@ -109,7 +97,7 @@ public class ConjureGeneratorTask extends SourceTask {
             GradleExecUtils.exec(
                     getProject(),
                     "run generator",
-                    getExecutablePath(),
+                    OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile()),
                     generateCommand,
                     RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
         });
