@@ -45,7 +45,7 @@ import org.gradle.api.tasks.TaskAction;
 public abstract class CompileIrTask extends DefaultTask {
     private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
 
-    protected CompileIrTask() {
+    public CompileIrTask() {
         getConjureExtensions().convention(new HashMap<>());
     }
 

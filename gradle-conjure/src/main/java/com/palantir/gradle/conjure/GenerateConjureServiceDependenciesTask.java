@@ -43,7 +43,7 @@ public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask
 
     private Supplier<Set<ServiceDependency>> conjureServiceDependencies;
 
-    protected GenerateConjureServiceDependenciesTask() {
+    public GenerateConjureServiceDependenciesTask() {
         getOutputFile().convention(getProject().getLayout().getBuildDirectory().file("service-dependencies.json"));
     }
 
