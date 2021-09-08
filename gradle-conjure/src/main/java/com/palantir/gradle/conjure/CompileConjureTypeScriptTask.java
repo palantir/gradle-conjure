@@ -34,7 +34,7 @@ import org.gradle.api.tasks.PathSensitivity;
 
 @CacheableTask
 public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
-    public CompileConjureTypeScriptTask() {
+    protected CompileConjureTypeScriptTask() {
         Project project = getProject();
         getPackageName().convention(getProject().provider(project::getName));
         getPackageVersion()

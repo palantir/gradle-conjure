@@ -48,7 +48,7 @@ import org.gradle.api.tasks.TaskProvider;
 public abstract class ExtractExecutableTask extends Sync {
     private FileCollection archive;
 
-    public ExtractExecutableTask() {
+    protected ExtractExecutableTask() {
         // Memoize this because we are re-using it in the doLast action.
         Supplier<File> tarFile = Suppliers.memoize(this::resolveTarFile);
 

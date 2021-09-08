@@ -41,7 +41,7 @@ import org.gradle.util.GFileUtils;
 public abstract class ConjureGeneratorTask extends SourceTask {
     private Supplier<GeneratorOptions> options;
 
-    public ConjureGeneratorTask() {
+    protected ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
         // main task. Intentionally not using a lambda because this breaks Gradle caching
         doLast(new Action<Task>() {
