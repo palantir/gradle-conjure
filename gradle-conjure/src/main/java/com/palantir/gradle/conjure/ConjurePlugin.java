@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -52,7 +53,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskOutputs;
@@ -61,7 +61,6 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
-import org.gradle.util.GUtil;
 
 public final class ConjurePlugin implements Plugin<Project> {
     private static final Logger log = Logging.getLogger(ConjurePlugin.class);
@@ -517,12 +516,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
-                    GUtil.toLowerCamelCase("extractConjure " + conjureLanguage),
+                    "extractConjure" + StringUtils.capitalize(conjureLanguage),
                     matchingGeneratorDeps,
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", conjureLanguage));
 
-            String taskName = GUtil.toLowerCamelCase("compile conjure " + conjureLanguage);
+            String taskName = "compileConjure" + StringUtils.capitalize(conjureLanguage);
             TaskProvider<ConjureGeneratorTask> conjureLocalGenerateTask = project.getTasks()
                     .register(taskName, ConjureGeneratorTask.class, task -> {
                         task.setDescription(
@@ -566,8 +565,11 @@ public final class ConjurePlugin implements Plugin<Project> {
         return Collections.emptyMap();
     }
 
+    // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
+    @SuppressWarnings("deprecation")
     static void addGeneratedToMainSourceSet(Project subproj) {
-        JavaPluginConvention javaPlugin = subproj.getConvention().findPlugin(JavaPluginConvention.class);
+        org.gradle.api.plugins.JavaPluginConvention javaPlugin =
+                subproj.getConvention().findPlugin(org.gradle.api.plugins.JavaPluginConvention.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
     }
 

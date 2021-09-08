@@ -26,16 +26,18 @@ dependencies {
     implementation 'com.palantir.sls.versions:sls-versions'
     implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
     implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
+    implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
     implementation 'net.bytebuddy:byte-buddy'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'
 
-    testCompile gradleTestKit()
-    testCompile 'com.netflix.nebula:nebula-test'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation gradleTestKit()
+    testImplementation 'com.netflix.nebula:nebula-test'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
 }
 
 gradlePlugin {

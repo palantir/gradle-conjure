@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -35,7 +36,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.util.GUtil;
 
 public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final String CONJURE_CONFIGURATION = "conjure";
@@ -169,14 +169,14 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
-                    GUtil.toLowerCamelCase("extractConjure " + subprojectName),
+                    "extractConjure" + StringUtils.capitalize(subprojectName),
                     matchingGeneratorDeps,
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", subprojectName));
 
             TaskProvider<ConjureLocalGenerateGenericTask> conjureLocalGenerateTask = project.getTasks()
                     .register(
-                            GUtil.toLowerCamelCase("generate " + subprojectName),
+                            "generate" + StringUtils.capitalize(subprojectName),
                             ConjureLocalGenerateGenericTask.class,
                             task -> {
                                 task.setDescription(String.format(
