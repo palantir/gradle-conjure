@@ -51,5 +51,7 @@ idea {
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
         check('Slf4jLogsafeArgs', CheckSeverity.OFF)
+        // Abstract Gradle tasks actually need a public constructor
+        check('PublicConstructorForAbstractClass', CheckSeverity.OFF)
     }
 }
