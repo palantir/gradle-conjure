@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.plugins.JavaBasePlugin;
@@ -63,7 +62,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
         });
 
-        ExtractExecutableTask extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
+        TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
         setupSubprojects(project, extension, extractJavaTask, extractConjureIr, conjureIrConfiguration);
     }
@@ -71,7 +70,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static void setupSubprojects(
             Project project,
             ConjureExtension extension,
-            ExtractExecutableTask extractJavaTask,
+            TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr,
             Configuration conjureIrConfiguration) {
 
@@ -106,14 +105,14 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static void createGenerateTask(
             Project project,
             ConjureExtension extension,
-            ExtractExecutableTask extractJavaTask,
+            TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
         project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
         project.getDependencies().add("compileOnly", ConjurePlugin.ANNOTATION_API);
 
-        Task generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
+        TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
         Provider<File> conjureIrFile = extractConjureIr.map(
@@ -128,8 +127,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     task.setSource(conjureIrFile);
                     task.getExecutablePath()
                             .set(project.getLayout()
-                                    .file(project.provider(
-                                            () -> OsUtils.appendDotBatIfWindows(extractJavaTask.getExecutable()))));
+                                    .file(extractJavaTask.map(t -> OsUtils.appendDotBatIfWindows(
+                                            t.getExecutable().getAsFile().get()))));
                     task.getOptions().set(project.provider(() -> {
                         Map<String, Object> properties =
                                 new HashMap<>(extension.getJava().getProperties());
@@ -143,7 +142,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                 });
 
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
-        ConjurePlugin.applyDependencyForIdeTasks(project, generateJava.get());
+        ConjurePlugin.applyDependencyForIdeTasks(project, generateJava);
     }
 
     /**

@@ -28,7 +28,7 @@ import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 
 @CacheableTask
-public class CompileConjurePythonTask extends ConjureGeneratorTask {
+public abstract class CompileConjurePythonTask extends ConjureGeneratorTask {
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {

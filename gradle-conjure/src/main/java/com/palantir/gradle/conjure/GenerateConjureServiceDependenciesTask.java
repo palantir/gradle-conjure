@@ -24,17 +24,17 @@ import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import com.palantir.sls.versions.SlsVersion;
 import com.palantir.sls.versions.SlsVersionMatcher;
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-public class GenerateConjureServiceDependenciesTask extends DefaultTask {
+public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask {
     private static final Pattern GROUP_PATTERN = Pattern.compile("^[^:@?\\s]+");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
     public static final ObjectMapper jsonMapper = new ObjectMapper()
@@ -43,15 +43,17 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
 
     private Supplier<Set<ServiceDependency>> conjureServiceDependencies;
 
+    public GenerateConjureServiceDependenciesTask() {
+        getOutputFile().convention(getProject().getLayout().getBuildDirectory().file("service-dependencies.json"));
+    }
+
     @Input
     public final Set<ServiceDependency> getConjureServiceDependencies() {
         return conjureServiceDependencies.get();
     }
 
     @OutputFile
-    public final File getOutputFile() {
-        return new File(getProject().getBuildDir(), "service-dependencies.json");
-    }
+    public abstract RegularFileProperty getOutputFile();
 
     final void setConjureServiceDependencies(Supplier<Set<ServiceDependency>> conjureServiceDependencies) {
         this.conjureServiceDependencies = conjureServiceDependencies;
@@ -60,7 +62,7 @@ public class GenerateConjureServiceDependenciesTask extends DefaultTask {
     @TaskAction
     public final void generateConjureServiceDependencies() throws IOException {
         getConjureServiceDependencies().forEach(GenerateConjureServiceDependenciesTask::validateServiceDependency);
-        jsonMapper.writeValue(getOutputFile(), getConjureServiceDependencies());
+        jsonMapper.writeValue(getOutputFile().getAsFile().get(), getConjureServiceDependencies());
     }
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {

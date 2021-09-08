@@ -19,9 +19,11 @@ package com.palantir.gradle.conjure;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
+import org.gradle.api.tasks.TaskProvider;
 
 public final class ConjurePublishPlugin implements Plugin<Project> {
 
@@ -31,10 +33,7 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
         project.getPluginManager().apply(MavenPublishPlugin.class);
         project.getPluginManager().apply(ConjurePlugin.class);
 
-        CompileIrTask compileIr = (CompileIrTask) project.getTasks().findByName(ConjurePlugin.CONJURE_IR);
-        if (compileIr == null) {
-            throw new GradleException("Unable to find compileIr task");
-        }
+        TaskProvider<CompileIrTask> compileIr = getCompileIrTask(project);
 
         // Configure publishing
         project.getExtensions().configure(PublishingExtension.class, publishing -> {
@@ -42,11 +41,22 @@ public final class ConjurePublishPlugin implements Plugin<Project> {
                 publications.create(
                         "conjure",
                         MavenPublication.class,
-                        mavenPublication -> mavenPublication.artifact(compileIr.getOutputIrFile(), mavenArtifact -> {
-                            mavenArtifact.builtBy(compileIr);
-                            mavenArtifact.setExtension("conjure.json");
-                        }));
+                        mavenPublication -> mavenPublication.artifact(
+                                compileIr.flatMap(CompileIrTask::getOutputIrFile), mavenArtifact -> {
+                                    mavenArtifact.builtBy(compileIr);
+                                    mavenArtifact.setExtension("conjure.json");
+                                }));
             });
         });
+    }
+
+    private TaskProvider<CompileIrTask> getCompileIrTask(Project project) {
+        TaskProvider<CompileIrTask> compileIr = null;
+        try {
+            compileIr = project.getTasks().named(ConjurePlugin.CONJURE_IR, CompileIrTask.class);
+        } catch (UnknownDomainObjectException e) {
+            throw new GradleException("Unable to find compileIr task", e);
+        }
+        return compileIr;
     }
 }
