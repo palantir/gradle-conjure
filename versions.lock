@@ -27,7 +27,7 @@ com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.6.0 (1 cons
 com.palantir.sls.versions:sls-versions:1.2.0 (2 constraints: 5420f9f3)
 commons-io:commons-io:2.11.0 (1 constraints: 3605323b)
 joda-time:joda-time:2.10.8 (1 constraints: 2e16acf1)
-net.bytebuddy:byte-buddy:1.11.16 (3 constraints: 3a1ee1a5)
+net.bytebuddy:byte-buddy:1.11.17 (3 constraints: 3b1e2ca6)
 org.apache.commons:commons-lang3:3.12.0 (1 constraints: 38053b3b)
 org.checkerframework:checker-qual:3.8.0 (1 constraints: 1d0a02b5)
 org.immutables:value:2.8.8 (1 constraints: 14051536)
