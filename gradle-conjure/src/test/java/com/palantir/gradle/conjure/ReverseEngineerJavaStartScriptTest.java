@@ -43,4 +43,17 @@ public class ReverseEngineerJavaStartScriptTest {
                                     new File("src/test/resources/lib/bar-4.14.1.jar"));
                 });
     }
+
+    @Test
+    public void test_gradle_7_format() {
+        assertThat(ReverseEngineerJavaStartScript.maybeParseStartScript(
+                        Paths.get("src/test/resources/bin/start-script-gradle-7")))
+                .hasValueSatisfying(info -> {
+                    assertThat(info.mainClass()).isEqualTo("com.palantir.conjure.cli.ConjureCli");
+                    assertThat(info.classpath())
+                            .containsExactly(
+                                    new File("src/test/resources/lib/foo-4.14.1.jar"),
+                                    new File("src/test/resources/lib/bar-4.14.1.jar"));
+                });
+    }
 }
