@@ -56,7 +56,7 @@ final class ReverseEngineerJavaStartScript {
      * To match the line {@code eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $CONJURE_OPTS -classpath "\"$CLASSPATH\""
      * com.palantir.conjure.cli.ConjureCli "$APP_ARGS"}.
      */
-    private static final Pattern MAIN_CLASS_REGEX = Pattern.compile("-classpath [^ ]+ ([a-zA-Z\\.]+)");
+    private static final Pattern MAIN_CLASS_REGEX = Pattern.compile("-classpath [^ ]+ (?:\\\\\n)? *([a-zA-Z\\.]+)");
 
     static Optional<StartScriptInfo> maybeParseStartScript(Path script) {
         Optional<String> maybeString = readFileToString(script);
@@ -66,7 +66,7 @@ final class ReverseEngineerJavaStartScript {
         String contents = maybeString.get();
         Path appHome = script.getParent().getParent();
 
-        if (contents.startsWith("#!/usr/bin/env")) {
+        if (contents.startsWith("#!/usr/bin/env") || contents.startsWith("#!/bin/sh")) {
             return maybeParseUnixStartScript(appHome, contents);
         } else {
             return Optional.empty();
