@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RenderGeneratorOptionsTest {
     private final GeneratorOptions generatorOptions = new GeneratorOptions();
