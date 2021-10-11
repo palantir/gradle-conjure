@@ -137,7 +137,7 @@ conjure {
 }
 
 dependencies {
-    conjure 'com.palantir.deployability:alertmanager-sidecar-api@conjure.json'
+    conjure 'com.company.product:some-api@conjure.json'
 }
 
 subprojects {
