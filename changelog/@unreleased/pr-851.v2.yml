@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: deprecated EndpointMinimumVersion and relevant classes, and create new one with max version fields.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/851

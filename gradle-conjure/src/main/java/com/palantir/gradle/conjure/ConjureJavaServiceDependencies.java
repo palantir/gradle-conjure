@@ -47,10 +47,10 @@ final class ConjureJavaServiceDependencies {
                 .set(project.provider(() -> convertDependencies(productDependencyExt.getProductDependencies())));
 
         project.getPluginManager().withPlugin("java", _plugin -> {
-            TaskProvider<ConfigureEndpointMinimumVersionsTask> configureEndpointVersionsTask = project.getTasks()
+            TaskProvider<ConfigureEndpointVersionBoundsTask> configureEndpointVersionsTask = project.getTasks()
                     .register(
-                            "configureEndpointMinimumVersions",
-                            ConfigureEndpointMinimumVersionsTask.class,
+                            "configureEndpointVersionBounds",
+                            ConfigureEndpointVersionBoundsTask.class,
                             cmt -> cmt.getVersions().set(productDependencyExt.getEndpointVersions()));
 
             // Ensure that the jar task depends on this wiring task
