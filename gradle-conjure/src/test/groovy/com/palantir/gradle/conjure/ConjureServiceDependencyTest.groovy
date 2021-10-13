@@ -363,6 +363,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 httpPath = "/post"
                 httpMethod = "POST"
                 minVersion = "0.1.0"
+                maxVersion = "1.2.0"
             }
         }
         '''.stripIndent()
@@ -370,13 +371,43 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         def result = runTasksSuccessfully(':api:api-jersey:Jar')
 
         then:
-        result.wasExecuted(':api:api-jersey:configureEndpointMinimumVersions')
+        result.wasExecuted(':api:api-jersey:configureEndpointVersionBounds')
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies
         recommendedDeps.contains('"recommended-product-dependencies"')
         def endpointVersions = attributes.getValue(ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
-        endpointVersions == '{"endpoint-minimum-versions":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]}'
+        endpointVersions == '{"endpoint-version-bounds":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0","max-version":"1.2.0"}]}'
+    }
+
+    def "default maximum endpoint information written if missing"() {
+        setup:
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+            }
+            endpointVersion {
+                httpPath = "/post"
+                httpMethod = "POST"
+                minVersion = "0.1.0"
+            }
+        }
+        '''.stripIndent()
+        when:
+        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+
+        then:
+        result.wasExecuted(':api:api-jersey:configureEndpointVersionBounds')
+        Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
+        def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
+        //check to make sure we didn't stomp over the recommended-product-dependencies
+        recommendedDeps.contains('"recommended-product-dependencies"')
+        def endpointVersions = attributes.getValue(ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
+        endpointVersions == '{"endpoint-version-bounds":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0","max-version":"x.x.x"}]}'
     }
 
     Attributes getAttributes(File jarFile) {
