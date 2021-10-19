@@ -70,9 +70,9 @@ public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
         return javaConvention.manifest(manifest -> {
             String minVersionsString;
             try {
-                EndpointVersionBounds emvs =
+                EndpointVersionBounds evbs =
                         EndpointVersionBounds.builder().versionBounds(versions).build();
-                minVersionsString = new ObjectMapper().writeValueAsString(emvs);
+                minVersionsString = new ObjectMapper().writeValueAsString(evbs);
             } catch (JsonProcessingException e) {
                 throw new GradleException("Couldn't serialize endpoint minimum versions as string", e);
             }

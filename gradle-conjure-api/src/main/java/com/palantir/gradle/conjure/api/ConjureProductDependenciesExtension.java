@@ -56,9 +56,9 @@ public class ConjureProductDependenciesExtension {
 
     public final void endpointVersion(@DelegatesTo(EndpointVersionBound.class) Closure<?> closure) {
         endpointVersions.add(providerFactory.provider(() -> {
-            EndpointVersionBound emv = new EndpointVersionBound();
-            project.configure(emv, closure);
-            return emv;
+            EndpointVersionBound evb = new EndpointVersionBound();
+            project.configure(evb, closure);
+            return evb;
         }));
     }
 
