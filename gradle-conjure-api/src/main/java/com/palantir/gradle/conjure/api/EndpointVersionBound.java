@@ -20,11 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Deprecated
-/**
- * @deprecated  As of release 5.13.0, replaced by {@link #EndpointVersionBound}
- */
-public final class EndpointMinimumVersion implements Serializable {
+public final class EndpointVersionBound implements Serializable {
 
     @JsonProperty("http-path")
     private String httpPath;
@@ -34,6 +30,9 @@ public final class EndpointMinimumVersion implements Serializable {
 
     @JsonProperty("min-version")
     private String minVersion;
+
+    @JsonProperty("max-version")
+    private String maxVersion = "x.x.x";
 
     public String getHttpPath() {
         return httpPath;
@@ -59,6 +58,18 @@ public final class EndpointMinimumVersion implements Serializable {
         this.minVersion = minVersion;
     }
 
+    public String getMaxVersion() {
+        if (maxVersion != null) {
+            return maxVersion;
+        } else {
+            return "x.x.x";
+        }
+    }
+
+    public void setMaxVersion(String maxVersion) {
+        this.maxVersion = maxVersion;
+    }
+
     @Override
     public boolean equals(Object source) {
         if (this == source) {
@@ -67,14 +78,15 @@ public final class EndpointMinimumVersion implements Serializable {
         if (source == null || getClass() != source.getClass()) {
             return false;
         }
-        EndpointMinimumVersion that = (EndpointMinimumVersion) source;
+        EndpointVersionBound that = (EndpointVersionBound) source;
         return Objects.equals(httpPath, that.httpPath)
                 && Objects.equals(httpMethod, that.httpMethod)
-                && Objects.equals(minVersion, that.minVersion);
+                && Objects.equals(minVersion, that.minVersion)
+                && Objects.equals(maxVersion, that.maxVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(httpPath, httpMethod, minVersion);
+        return Objects.hash(httpPath, httpMethod, minVersion, maxVersion);
     }
 }

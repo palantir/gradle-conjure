@@ -19,7 +19,7 @@ package com.palantir.gradle.conjure;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.palantir.gradle.conjure.api.EndpointMinimumVersion;
+import com.palantir.gradle.conjure.api.EndpointVersionBound;
 import java.util.Set;
 import org.immutables.value.Value;
 
@@ -27,19 +27,15 @@ import org.immutables.value.Value;
 @SuppressWarnings("ImmutablesStyle")
 @Value.Immutable
 @Value.Style(jdkOnly = true)
-@JsonSerialize(as = ImmutableEndpointMinimumVersions.class)
-@JsonDeserialize(as = ImmutableEndpointMinimumVersions.class)
-@Deprecated
-/**
- * @deprecated  As of release 5.13.0, replaced by {@link #EndpointVersionBounds}
- */
-public interface EndpointMinimumVersions {
-    @JsonProperty("endpoint-minimum-versions")
-    Set<EndpointMinimumVersion> minimumVersions();
+@JsonSerialize(as = ImmutableEndpointVersionBounds.class)
+@JsonDeserialize(as = ImmutableEndpointVersionBounds.class)
+public interface EndpointVersionBounds {
+    @JsonProperty("endpoint-version-bounds")
+    Set<EndpointVersionBound> versionBounds();
 
     static Builder builder() {
         return new Builder();
     }
 
-    final class Builder extends ImmutableEndpointMinimumVersions.Builder {}
+    final class Builder extends ImmutableEndpointVersionBounds.Builder {}
 }
