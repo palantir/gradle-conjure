@@ -20,10 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Deprecated
-/**
- * @deprecated  As of release 5.13.0, replaced by {@link #EndpointVersionBound}
- */
 public final class EndpointMinimumVersion implements Serializable {
 
     @JsonProperty("http-path")

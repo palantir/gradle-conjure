@@ -29,10 +29,6 @@ import org.immutables.value.Value;
 @Value.Style(jdkOnly = true)
 @JsonSerialize(as = ImmutableEndpointMinimumVersions.class)
 @JsonDeserialize(as = ImmutableEndpointMinimumVersions.class)
-@Deprecated
-/**
- * @deprecated  As of release 5.13.0, replaced by {@link #EndpointVersionBounds}
- */
 public interface EndpointMinimumVersions {
     @JsonProperty("endpoint-minimum-versions")
     Set<EndpointMinimumVersion> minimumVersions();

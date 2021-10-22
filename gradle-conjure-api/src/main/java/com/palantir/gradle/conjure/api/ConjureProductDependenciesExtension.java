@@ -28,18 +28,18 @@ import org.gradle.api.provider.SetProperty;
 public class ConjureProductDependenciesExtension {
 
     public static final String EXTENSION_NAME = "serviceDependencies";
-    public static final String ENDPOINT_VERSIONS_MANIFEST_KEY = "Endpoint-Version-Bounds";
+    public static final String ENDPOINT_VERSIONS_MANIFEST_KEY = "Endpoint-Minimum-Versions";
 
     private final Project project;
     private final Set<ServiceDependency> productDependencies = new HashSet<>();
-    private final SetProperty<EndpointVersionBound> endpointVersions;
+    private final SetProperty<EndpointMinimumVersion> endpointVersions;
     private final ProviderFactory providerFactory;
 
     @Inject
     public ConjureProductDependenciesExtension(Project project) {
         this.project = project;
         this.endpointVersions =
-                project.getObjects().setProperty(EndpointVersionBound.class).empty();
+                project.getObjects().setProperty(EndpointMinimumVersion.class).empty();
         this.providerFactory = project.getProviders();
     }
 
@@ -54,15 +54,15 @@ public class ConjureProductDependenciesExtension {
         productDependencies.add(serviceDependency);
     }
 
-    public final void endpointVersion(@DelegatesTo(EndpointVersionBound.class) Closure<?> closure) {
+    public final void endpointVersion(@DelegatesTo(EndpointMinimumVersion.class) Closure<?> closure) {
         endpointVersions.add(providerFactory.provider(() -> {
-            EndpointVersionBound evb = new EndpointVersionBound();
-            project.configure(evb, closure);
-            return evb;
+            EndpointMinimumVersion emv = new EndpointMinimumVersion();
+            project.configure(emv, closure);
+            return emv;
         }));
     }
 
-    public final SetProperty<EndpointVersionBound> getEndpointVersions() {
+    public final SetProperty<EndpointMinimumVersion> getEndpointVersions() {
         return endpointVersions;
     }
 }
