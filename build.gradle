@@ -57,7 +57,7 @@ subprojects {
     sourceCompatibility = 1.8
 
     tasks.withType(JavaCompile) {
-        options.compilerArgs += ['-Xlint:deprecation']
+        options.compilerArgs += ['-Werror', '-Xlint:-deprecation']
         options.errorprone {
             check("PreferSafeLoggableExceptions", CheckSeverity.OFF)
         }
