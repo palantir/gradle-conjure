@@ -22,3 +22,4 @@ acceptedBreaks:
       new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointMinimumVersion>\
         \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
       justification: "Revert changes made in 5.13.0"
+  "5.15.0": {}
