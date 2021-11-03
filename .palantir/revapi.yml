@@ -23,3 +23,20 @@ acceptedBreaks:
         \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
       justification: "Revert changes made in 5.13.0"
   "5.15.0": {}
+  "5.16.0":
+    com.palantir.gradle.conjure:gradle-conjure-api:
+    - code: "java.class.defaultSerializationChanged"
+      old: "class com.palantir.gradle.conjure.api.EndpointVersionBound"
+      new: "class com.palantir.gradle.conjure.api.EndpointVersionBound"
+      justification: "Set max version to optional instead of default value of x.x.x.\
+        \ Not currently used."
+    - code: "java.method.parameterTypeChanged"
+      old: "parameter void com.palantir.gradle.conjure.api.EndpointVersionBound::setMaxVersion(===java.lang.String===)"
+      new: "parameter void com.palantir.gradle.conjure.api.EndpointVersionBound::setMaxVersion(===java.util.Optional<java.lang.String>===)"
+      justification: "Set max version to optional instead of default value of x.x.x.\
+        \ Not currently used."
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
+      new: "method java.util.Optional<java.lang.String> com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
+      justification: "Set max version to optional instead of default value of x.x.x.\
+        \ Not currently used."
