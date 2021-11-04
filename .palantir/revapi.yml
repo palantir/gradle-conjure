@@ -40,3 +40,13 @@ acceptedBreaks:
       new: "method java.util.Optional<java.lang.String> com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
       justification: "Set max version to optional instead of default value of x.x.x.\
         \ Not currently used."
+  "5.17.0":
+    com.palantir.gradle.conjure:gradle-conjure-api:
+    - code: "java.method.parameterTypeChanged"
+      old: "parameter void com.palantir.gradle.conjure.api.EndpointVersionBound::setMaxVersion(===java.util.Optional<java.lang.String>===)"
+      new: "parameter void com.palantir.gradle.conjure.api.EndpointVersionBound::setMaxVersion(===java.lang.String===)"
+      justification: "Reverting a change."
+    - code: "java.method.returnTypeChanged"
+      old: "method java.util.Optional<java.lang.String> com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
+      new: "method java.lang.String com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
+      justification: "Reverting a change."
