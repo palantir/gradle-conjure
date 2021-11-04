@@ -1,0 +1,5 @@
+type: fix
+improvement:
+  description: revert optional max version change
+  links:
+    - https://github.com/palantir/gradle-conjure/pull/879

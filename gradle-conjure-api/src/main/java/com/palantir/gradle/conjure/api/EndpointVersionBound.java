@@ -19,7 +19,6 @@ package com.palantir.gradle.conjure.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Optional;
 
 public final class EndpointVersionBound implements Serializable {
 
@@ -33,7 +32,7 @@ public final class EndpointVersionBound implements Serializable {
     private String minVersion;
 
     @JsonProperty("max-version")
-    private Optional<String> maxVersion;
+    private String maxVersion;
 
     public String getHttpPath() {
         return httpPath;
@@ -59,15 +58,15 @@ public final class EndpointVersionBound implements Serializable {
         this.minVersion = minVersion;
     }
 
-    public Optional<String> getMaxVersion() {
+    public String getMaxVersion() {
         if (maxVersion != null) {
             return maxVersion;
         } else {
-            return Optional.empty();
+            return "x.x.x";
         }
     }
 
-    public void setMaxVersion(Optional<String> maxVersion) {
+    public void setMaxVersion(String maxVersion) {
         this.maxVersion = maxVersion;
     }
 
