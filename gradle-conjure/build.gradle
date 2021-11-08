@@ -59,12 +59,3 @@ tasks.withType(JavaCompile).configureEach {
         check('PublicConstructorForAbstractClass', CheckSeverity.OFF)
     }
 }
-
-test {
-    description = "Runs JUnit 4 tests."
-    useJUnit()
-    scanForTestClasses = false
-    include(["**/*Tests.class", "**/*Test.class"])
-    exclude(["**/testng/**/*.*", "**/jupiter/**/*.*"])
-    reports.junitXml.destination = file("$buildDir/test-results")
-}
