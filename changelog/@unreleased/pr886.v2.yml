@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Upgrade baseline
+  links:
+    - https://github.com/palantir/gradle-conjure/pull/885

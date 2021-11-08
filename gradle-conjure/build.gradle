@@ -38,6 +38,8 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
 gradlePlugin {
@@ -56,4 +58,13 @@ tasks.withType(JavaCompile).configureEach {
         // Abstract Gradle tasks actually need a public constructor
         check('PublicConstructorForAbstractClass', CheckSeverity.OFF)
     }
+}
+
+test {
+    description = "Runs JUnit 4 tests."
+    useJUnit()
+    scanForTestClasses = false
+    include(["**/*Tests.class", "**/*Test.class"])
+    exclude(["**/testng/**/*.*", "**/jupiter/**/*.*"])
+    reports.junitXml.destination = file("$buildDir/test-results")
 }
