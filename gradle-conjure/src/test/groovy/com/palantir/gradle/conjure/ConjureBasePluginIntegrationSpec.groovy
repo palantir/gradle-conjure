@@ -110,7 +110,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         buildFile << """
-            @groovy.transform.Canonical
             class SomeDataClass implements Serializable {
                 String group
                 String name
@@ -154,7 +153,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         buildFile << """
-            @groovy.transform.Canonical
             class SomeDataClass implements Serializable {
                 String group
                 String name
