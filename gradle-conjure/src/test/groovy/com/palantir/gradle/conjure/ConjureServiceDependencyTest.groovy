@@ -380,7 +380,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         endpointVersions == '{"endpoint-version-bounds":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0","max-version":"1.2.0"}]}'
     }
 
-    def "default maximum endpoint information written if missing"() {
+    def "nullable endpoint maximum version bound"() {
         setup:
         file('api/build.gradle') << '''
         serviceDependencies {
@@ -408,7 +408,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         //check to make sure we didn't stomp over the recommended-product-dependencies
         recommendedDeps.contains('"recommended-product-dependencies"')
         def endpointVersions = attributes.getValue(ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY)
-        endpointVersions == '{"endpoint-version-bounds":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0","max-version":"x.x.x"}]}'
+        endpointVersions == '{"endpoint-version-bounds":[{"http-path":"/post","http-method":"POST","min-version":"0.1.0"}]}'
     }
 
     Attributes getAttributes(File jarFile) {

@@ -18,6 +18,7 @@ package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.EndpointVersionBound;
@@ -68,16 +69,17 @@ public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
         org.gradle.api.plugins.JavaPluginConvention javaConvention =
                 project.getConvention().getPlugin(org.gradle.api.plugins.JavaPluginConvention.class);
         return javaConvention.manifest(manifest -> {
-            String minVersionsString;
+            String versionBoundsString;
             try {
                 EndpointVersionBounds evbs =
                         EndpointVersionBounds.builder().versionBounds(versions).build();
-                minVersionsString = new ObjectMapper().writeValueAsString(evbs);
+                versionBoundsString =
+                        new ObjectMapper().registerModule(new Jdk8Module()).writeValueAsString(evbs);
             } catch (JsonProcessingException e) {
-                throw new GradleException("Couldn't serialize endpoint minimum versions as string", e);
+                throw new GradleException("Couldn't serialize endpoint version bounds as string", e);
             }
             manifest.attributes(ImmutableMap.of(
-                    ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY, minVersionsString));
+                    ConjureProductDependenciesExtension.ENDPOINT_VERSIONS_MANIFEST_KEY, versionBoundsString));
         });
     }
 }
