@@ -75,7 +75,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
 
-    static ConjureRunner createNewRunner(File executable) throws IOException {
+    private static ConjureRunner createNewRunner(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
