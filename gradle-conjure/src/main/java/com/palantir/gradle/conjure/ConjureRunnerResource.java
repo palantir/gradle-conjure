@@ -18,7 +18,6 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.palantir.gradle.conjure.ConjureRunnerResource.Params;
 import com.palantir.gradle.conjure.ReverseEngineerJavaStartScript.StartScriptInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -37,28 +36,22 @@ import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
 import org.gradle.api.Project;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.services.BuildService;
-import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PublicConstructorForAbstractClass")
-public abstract class ConjureRunnerResource implements BuildService<Params>, Closeable {
+public class ConjureRunnerResource implements Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
 
-    public interface Params extends BuildServiceParameters {
-
-        RegularFileProperty getExecutable();
-    }
-
     private final ConjureRunner delegate;
 
-    public ConjureRunnerResource() throws IOException {
-        this.delegate =
-                createNewRunner(getParameters().getExecutable().getAsFile().get());
+    public ConjureRunnerResource(File executable) {
+        try {
+            this.delegate = createNewRunner(executable);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     final void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {

@@ -16,32 +16,27 @@
 
 package com.palantir.gradle.conjure;
 
-import com.palantir.gradle.conjure.ConjureRunnerResource.Params;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.io.File;
 import java.util.List;
-import org.gradle.api.Action;
+import java.util.concurrent.ExecutionException;
 import org.gradle.api.Project;
-import org.gradle.api.services.BuildServiceSpec;
 
 final class GradleExecUtils {
 
+    static final LoadingCache<File, ConjureRunnerResource> runners = CacheBuilder.newBuilder()
+            .build(CacheLoader.from(ConjureRunnerResource::new));
+
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
-        project.getGradle()
-                .getSharedServices()
-                .registerIfAbsent(
-                        // Executable name must be the cache key, neither the spec parameters
-                        // nor the class are taken into account for caching.
-                        "conjure-runner-" + executable,
-                        ConjureRunnerResource.class,
-                        new Action<BuildServiceSpec<Params>>() {
-                            @Override
-                            public void execute(BuildServiceSpec<Params> spec) {
-                                spec.getParameters().getExecutable().set(executable);
-                            }
-                        })
-                .get()
-                .invoke(project, failedTo, unloggedArgs, loggedArgs);
+        try {
+            runners.get(executable)
+                    .invoke(project, failedTo, unloggedArgs, loggedArgs);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private GradleExecUtils() {}
