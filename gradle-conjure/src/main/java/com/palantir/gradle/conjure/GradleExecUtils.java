@@ -16,26 +16,19 @@
 
 package com.palantir.gradle.conjure;
 
-import com.github.benmanes.caffeine.cache.CacheLoader;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.gradle.api.Project;
 
 final class GradleExecUtils {
 
-    static final LoadingCache<File, ConjureRunnerResource> runners = Caffeine.newBuilder()
-            .build(new CacheLoader<File, ConjureRunnerResource>() {
-                @Override
-                public ConjureRunnerResource load(File key) {
-                    return new ConjureRunnerResource(key);
-                }
-            });
+    static final ConcurrentHashMap<File, ConjureRunnerResource> runners = new ConcurrentHashMap<>();
 
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
-        runners.get(executable).invoke(project, failedTo, unloggedArgs, loggedArgs);
+        runners.computeIfAbsent(executable, ConjureRunnerResource::new)
+                .invoke(project, failedTo, unloggedArgs, loggedArgs);
     }
 
     private GradleExecUtils() {}
