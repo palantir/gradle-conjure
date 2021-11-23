@@ -16,27 +16,26 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.gradle.api.Project;
 
 final class GradleExecUtils {
 
-    static final LoadingCache<File, ConjureRunnerResource> runners = CacheBuilder.newBuilder()
-            .build(CacheLoader.from(ConjureRunnerResource::new));
+    static final LoadingCache<File, ConjureRunnerResource> runners = Caffeine.newBuilder()
+            .build(new CacheLoader<File, ConjureRunnerResource>() {
+                @Override
+                public ConjureRunnerResource load(File key) {
+                    return new ConjureRunnerResource(key);
+                }
+            });
 
     static void exec(
             Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
-        try {
-            runners.get(executable)
-                    .invoke(project, failedTo, unloggedArgs, loggedArgs);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        runners.get(executable).invoke(project, failedTo, unloggedArgs, loggedArgs);
     }
 
     private GradleExecUtils() {}
