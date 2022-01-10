@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import net.bytebuddy.ByteBuddy;
@@ -158,7 +159,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             if (exitValue != 0) {
                 throw new RuntimeException(String.format(
                         "Failed to %s. The command '%s' failed with exit code %d. Output:\n%s",
-                        failedTo, combinedArgs, exitValue, output.toString()));
+                        failedTo, combinedArgs, exitValue, output.toString(StandardCharsets.UTF_8)));
             }
         }
     }
