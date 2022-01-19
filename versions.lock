@@ -30,7 +30,7 @@ joda-time:joda-time:2.10.13 (3 constraints: a24f3409)
 net.bytebuddy:byte-buddy:1.12.7 (3 constraints: dc1d187b)
 org.apache.commons:commons-lang3:3.12.0 (1 constraints: 38053b3b)
 org.checkerframework:checker-qual:3.19.0 (3 constraints: 6843ff06)
-org.immutables:value:2.8.8 (4 constraints: a84eeaf3)
+org.immutables:value:2.9.0 (4 constraints: a14e66ee)
 org.slf4j:slf4j-api:1.7.32 (4 constraints: 5b5aa7f8)
 
 [Test dependencies]
