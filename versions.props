@@ -1,5 +1,5 @@
 com.fasterxml.jackson.*:* = 2.11.3
-com.google.errorprone:error_prone_annotations = 2.10.0
+com.google.errorprone:error_prone_annotations = 2.11.0
 com.google.guava:guava = 31.0.1-jre
 com.netflix.nebula:nebula-test = 10.0.0
 com.palantir.sls.versions:sls-versions = 1.4.0
@@ -13,7 +13,7 @@ org.junit.jupiter:* = 5.8.2
 org.junit.vintage:* = 5.8.2
 org.mockito:* = 4.3.1
 org.spockframework:* = 2.0-groovy-3.0
-com.palantir.sls-packaging:* = 7.14.0
+com.palantir.sls-packaging:* = 7.15.0
 com.palantir.conjure.java.runtime:* = 7.24.0
 net.bytebuddy:byte-buddy = 1.12.7
 
