@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -612,18 +613,21 @@ public final class ConjurePlugin implements Plugin<Project> {
                     eclipse.jdt(jdt -> {
                         jdt.file(file -> {
                             file.withProperties(properties -> {
-                                properties.put(
-                                        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation", "ignore");
-                                properties.put(
-                                        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation",
-                                        "disabled");
-                                properties.put("org.eclipse.jdt.core.compiler.problem.unusedPrivateMember", "ignore");
+                                configureEclipseJdt(properties);
                             });
                         });
                     });
                 }
             });
         });
+    }
+
+    private static void configureEclipseJdt(Properties properties) {
+        properties.put("org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation", "ignore");
+        properties.put(
+                "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation",
+                "disabled");
+        properties.put("org.eclipse.jdt.core.compiler.problem.unusedPrivateMember", "ignore");
     }
 
     private static <T> Set<T> mutableSetWithExtraEntry(Set<T> set, T extraItem) {
