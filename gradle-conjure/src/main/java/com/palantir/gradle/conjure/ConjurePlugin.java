@@ -59,6 +59,7 @@ import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
+import org.gradle.plugins.ide.eclipse.model.EclipseModel;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
@@ -243,6 +244,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             if (extraConfig != null) {
                 extraConfig.accept(subproj);
             }
+
+            suppressIdeWarnings(subproj);
         });
     }
 
@@ -597,6 +600,29 @@ public final class ConjurePlugin implements Plugin<Project> {
             if (task != null) {
                 task.dependsOn(compileConjure);
             }
+        });
+    }
+
+    private static void suppressIdeWarnings(Project project) {
+        // We do this in afterEvaluate because gradle-baseline will overwrite settings otherwise.
+        project.afterEvaluate(p -> {
+            p.getPlugins().withType(EclipsePlugin.class, _plugin -> {
+                EclipseModel eclipse = (EclipseModel) p.getExtensions().findByName("eclipse");
+                if (eclipse != null) {
+                    eclipse.jdt(jdt -> {
+                        jdt.file(file -> {
+                            file.withProperties(properties -> {
+                                properties.put(
+                                        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation", "ignore");
+                                properties.put(
+                                        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation",
+                                        "disabled");
+                                properties.put("org.eclipse.jdt.core.compiler.problem.unusedPrivateMember", "ignore");
+                            });
+                        });
+                    });
+                }
+            });
         });
     }
 
