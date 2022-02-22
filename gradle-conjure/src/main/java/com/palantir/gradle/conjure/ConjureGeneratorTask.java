@@ -19,9 +19,12 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.function.Supplier;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.DirectoryProperty;
@@ -94,9 +97,15 @@ public abstract class ConjureGeneratorTask extends SourceTask {
             processWorkerSpec.getForkOptions().setEnvironment(environment);
         });
         for (File sourceFile : getSource().getFiles()) {
+            File thisOutputDirectory = outputDirectoryFor(sourceFile);
+            try {
+                FileUtils.deleteDirectory(thisOutputDirectory);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
             workQueue.submit(GenerateConjure.class, generateConjureParams -> {
                 generateConjureParams.getInputFile().set(sourceFile);
-                generateConjureParams.getOutputDir().set(outputDirectoryFor(sourceFile));
+                generateConjureParams.getOutputDir().set(thisOutputDirectory);
                 generateConjureParams
                         .getExecutableFile()
                         .set(getExecutablePath().get().getAsFile());

@@ -148,6 +148,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     .addAll(loggedArgs)
                     .build();
             ExecResult execResult = execOperations.exec(execSpec -> {
+                log.info("Running with args: {}", loggedArgs);
                 execSpec.commandLine(combinedArgs);
                 execSpec.setIgnoreExitValue(true);
                 execSpec.setStandardOutput(output);
@@ -185,6 +186,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
                     .build();
+            log.info("Running in-process java with args: {}", loggedArgs);
 
             try {
                 String[] args = combinedArgs.toArray(new String[] {});

@@ -84,6 +84,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted("conjure-api:generateConjure")
         fileExists("build/conjure-ir/conjure-api.conjure.json")
         fileExists('conjure-api/src/generated/java/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "with args: [--jersey, --packagePrefix=test.groupwithdashes]"
+        result.standardOutput.contains "with args: [--objects, --packagePrefix=test.groupwithdashes]"
     }
 
     def "respects user provided packagePrefix"() {
@@ -103,6 +105,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         then:
         result.wasExecuted("extractConjureIr")
         fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        result.standardOutput.contains "with args: [--objects, --packagePrefix=user.group]"
     }
 
     def 'check code compiles'() {

@@ -20,9 +20,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.Map;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
@@ -35,7 +38,6 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
@@ -48,10 +50,6 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
     private final DirectoryProperty outputDirectory = getProject().getObjects().directoryProperty();
     private final MapProperty<String, Object> options =
             getProject().getObjects().mapProperty(String.class, Object.class);
-
-    @Inject
-    @SuppressWarnings("JavaxInjectOnAbstractMethod")
-    public abstract ExecOperations getExecOperations();
 
     @Inject
     @SuppressWarnings("JavaxInjectOnAbstractMethod")
@@ -96,6 +94,11 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
         WorkQueue workQueue = getWorkerExecutor().processIsolation(processWorkerSpec -> {
             processWorkerSpec.getForkOptions().setEnvironment(environment);
         });
+        try {
+            FileUtils.deleteDirectory(outputDir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         GENERATOR_FLAGS.forEach(generatorFlag -> {
             if (!generatorOptions.containsKey(generatorFlag)) {
                 return;
