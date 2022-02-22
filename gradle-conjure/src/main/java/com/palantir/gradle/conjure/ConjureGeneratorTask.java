@@ -16,16 +16,12 @@
 
 package com.palantir.gradle.conjure;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.apache.commons.io.FileUtils;
+import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.DirectoryProperty;
@@ -38,6 +34,8 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
+import org.gradle.workers.WorkQueue;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public abstract class ConjureGeneratorTask extends SourceTask {
@@ -68,6 +66,10 @@ public abstract class ConjureGeneratorTask extends SourceTask {
     @PathSensitive(PathSensitivity.NONE)
     public abstract RegularFileProperty getExecutablePath();
 
+    @Inject
+    @SuppressWarnings("JavaxInjectOnAbstractMethod")
+    protected abstract WorkerExecutor getWorkerExecutor();
+
     public final void setOptions(Supplier<GeneratorOptions> options) {
         this.options = options;
     }
@@ -87,27 +89,19 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
     /** Entry point for the task. */
     public void compileFiles() {
-        getSource().getFiles().forEach(file -> {
-            File thisOutputDirectory = outputDirectoryFor(file);
-
-            try {
-                FileUtils.deleteDirectory(thisOutputDirectory);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-
-            getProject().mkdir(thisOutputDirectory);
-
-            List<String> generateCommand =
-                    ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
-
-            GradleExecUtils.exec(
-                    getProject(),
-                    "run generator",
-                    OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile()),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
-        });
+        WorkQueue workQueue = getWorkerExecutor().processIsolation();
+        for (File sourceFile : getSource().getFiles()) {
+            workQueue.submit(GenerateConjure.class, generateConjureParams -> {
+                generateConjureParams.getInputFile().set(sourceFile);
+                generateConjureParams.getOutputDir().set(outputDirectoryFor(sourceFile));
+                generateConjureParams
+                        .getExecutableFile()
+                        .set(getExecutablePath().get().getAsFile());
+                generateConjureParams
+                        .getRenderedOptions()
+                        .set(RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(sourceFile)));
+            });
+        }
     }
 
     /**

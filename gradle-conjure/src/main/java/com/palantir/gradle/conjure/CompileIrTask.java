@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
@@ -40,6 +41,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 
 @CacheableTask
 public abstract class CompileIrTask extends DefaultTask {
@@ -93,6 +95,10 @@ public abstract class CompileIrTask extends DefaultTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     public abstract RegularFileProperty getExtensionsFile();
 
+    @Inject
+    @SuppressWarnings("JavaxInjectOnAbstractMethod")
+    public abstract ExecOperations getExecOperations();
+
     @TaskAction
     public final void generate() {
         File executable = new File(getExecutableDir().getAsFile().get(), EXECUTABLE);
@@ -103,7 +109,7 @@ public abstract class CompileIrTask extends DefaultTask {
                 "--extensions",
                 OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
 
-        GradleExecUtils.exec(getProject(), "generate conjure IR", executable, Collections.emptyList(), args);
+        GradleExecUtils.exec(getExecOperations(), "generate conjure IR", executable, Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {

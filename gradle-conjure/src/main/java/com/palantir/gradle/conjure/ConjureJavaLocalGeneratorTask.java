@@ -17,16 +17,12 @@
 package com.palantir.gradle.conjure;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
+import javax.inject.Inject;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
@@ -39,9 +35,12 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkQueue;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
-public class ConjureJavaLocalGeneratorTask extends SourceTask {
+public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
     private static final ImmutableSet<String> GENERATOR_FLAGS =
             ImmutableSet.of("objects", "jersey", "undertow", "dialogue");
 
@@ -49,6 +48,14 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
     private final DirectoryProperty outputDirectory = getProject().getObjects().directoryProperty();
     private final MapProperty<String, Object> options =
             getProject().getObjects().mapProperty(String.class, Object.class);
+
+    @Inject
+    @SuppressWarnings("JavaxInjectOnAbstractMethod")
+    public abstract ExecOperations getExecOperations();
+
+    @Inject
+    @SuppressWarnings("JavaxInjectOnAbstractMethod")
+    protected abstract WorkerExecutor getWorkerExecutor();
 
     // Set the path sensitivity of the sources, which would otherwise default to ABSOLUTE
     @Override
@@ -85,14 +92,7 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
 
         File outputDir = outputDirectory.getAsFile().get();
 
-        try {
-            FileUtils.deleteDirectory(outputDir);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        getProject().mkdir(outputDir);
-
+        WorkQueue workQueue = getWorkerExecutor().processIsolation();
         GENERATOR_FLAGS.forEach(generatorFlag -> {
             if (!generatorOptions.containsKey(generatorFlag)) {
                 return;
@@ -102,15 +102,17 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
             Map<String, Object> filteredOptions = Maps.filterKeys(
                     generatorOptions, key -> !GENERATOR_FLAGS.contains(key) || generatorFlag.equals(key));
 
-            List<String> generateCommand =
-                    ImmutableList.of("generate", definitionFile.getAbsolutePath(), outputDir.getAbsolutePath());
-
-            GradleExecUtils.exec(
-                    getProject(),
-                    "generate " + generatorFlag,
-                    getExecutablePath().getAsFile().get(),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
+            workQueue.submit(GenerateConjure.class, generateConjureParams -> {
+                generateConjureParams
+                        .getExecutableFile()
+                        .set(getExecutablePath().getAsFile().get());
+                generateConjureParams.getInputFile().set(definitionFile);
+                generateConjureParams.getAction().set("generate " + generatorFlag);
+                generateConjureParams.getOutputDir().set(outputDir);
+                generateConjureParams
+                        .getRenderedOptions()
+                        .set(RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
+            });
         });
     }
 }

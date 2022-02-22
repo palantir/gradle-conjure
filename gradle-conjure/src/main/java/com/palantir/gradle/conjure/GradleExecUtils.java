@@ -19,14 +19,18 @@ package com.palantir.gradle.conjure;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.gradle.api.Project;
+import org.gradle.process.ExecOperations;
 
 final class GradleExecUtils {
 
     static void exec(
-            Project project, String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
+            ExecOperations execOperations,
+            String failedTo,
+            File executable,
+            List<String> unloggedArgs,
+            List<String> loggedArgs) {
         try (ConjureRunnerResource.ConjureRunner runner = ConjureRunnerResource.createNewRunner(executable)) {
-            runner.invoke(project, failedTo, unloggedArgs, loggedArgs);
+            runner.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

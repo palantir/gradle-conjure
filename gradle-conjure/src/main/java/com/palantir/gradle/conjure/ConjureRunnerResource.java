@@ -37,10 +37,10 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
-import org.gradle.api.Project;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +62,9 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                 createNewRunner(getParameters().getExecutable().getAsFile().get());
     }
 
-    final void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-        delegate.invoke(project, failedTo, unloggedArgs, loggedArgs);
+    final void invoke(
+            ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        delegate.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
     }
 
     @Override
@@ -73,11 +74,12 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
 
     interface ConjureRunner extends Closeable {
 
-        void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
+        void invoke(ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
 
     static ConjureRunner createNewRunner(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
+
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
             boolean classLoaderMustBeClosed = true;
@@ -136,7 +138,8 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         }
 
         @Override
-        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        public void invoke(
+                ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
             List<String> combinedArgs = ImmutableList.<String>builder()
@@ -144,15 +147,12 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
                     .build();
-
-            ExecResult execResult = project.exec(execSpec -> {
-                project.getLogger().info("Running with args: {}", loggedArgs);
+            ExecResult execResult = execOperations.exec(execSpec -> {
                 execSpec.commandLine(combinedArgs);
                 execSpec.setIgnoreExitValue(true);
                 execSpec.setStandardOutput(output);
                 execSpec.setErrorOutput(output);
             });
-
             int exitValue = execResult.getExitValue();
             log.debug("Executable {} completed with status {} output:\n{}", executable.getName(), exitValue, output);
 
@@ -179,8 +179,8 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         }
 
         @Override
-        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-            project.getLogger().info("Running in-process java with args: {}", loggedArgs);
+        public void invoke(
+                ExecOperations _execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
