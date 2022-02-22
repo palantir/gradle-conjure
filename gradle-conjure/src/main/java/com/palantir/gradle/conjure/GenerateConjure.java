@@ -34,7 +34,7 @@ public abstract class GenerateConjure implements WorkAction<GenerateConjureParam
                 "generate", intermediateRepresentationFile.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
         GradleExecUtils.exec(
                 getExecOperations(),
-                "run generator",
+                getParameters().getAction().get(),
                 OsUtils.appendDotBatIfWindows(
                         getParameters().getExecutableFile().getAsFile().get()),
                 generateCommand,

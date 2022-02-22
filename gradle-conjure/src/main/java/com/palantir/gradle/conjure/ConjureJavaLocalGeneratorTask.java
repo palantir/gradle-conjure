@@ -92,7 +92,10 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
 
         File outputDir = outputDirectory.getAsFile().get();
 
-        WorkQueue workQueue = getWorkerExecutor().processIsolation();
+        Map<String, String> environment = System.getenv();
+        WorkQueue workQueue = getWorkerExecutor().processIsolation(processWorkerSpec -> {
+            processWorkerSpec.getForkOptions().setEnvironment(environment);
+        });
         GENERATOR_FLAGS.forEach(generatorFlag -> {
             if (!generatorOptions.containsKey(generatorFlag)) {
                 return;
