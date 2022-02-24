@@ -14,7 +14,7 @@ org.junit.vintage:* = 5.8.2
 org.mockito:* = 4.3.1
 org.spockframework:* = 2.0-groovy-3.0
 com.palantir.sls-packaging:* = 7.20.0
-com.palantir.conjure.java.runtime:* = 7.26.0
+com.palantir.conjure.java.runtime:* = 7.28.0
 net.bytebuddy:byte-buddy = 1.12.8
 
 # Resolve conflicts
