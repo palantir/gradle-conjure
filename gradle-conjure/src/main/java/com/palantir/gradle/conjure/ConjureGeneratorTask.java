@@ -92,11 +92,8 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
     /** Entry point for the task. */
     public void compileFiles() {
-        WorkQueue workQueue = getWorkerExecutor().classLoaderIsolation(processWorkerSpec -> {
-            ConjureRunnerResource.conjureExecutableClasspath(
-                            getExecutablePath().getAsFile().get())
-                    .ifPresent(classpath -> processWorkerSpec.getClasspath().setFrom(classpath));
-        });
+        WorkQueue workQueue = ConjureRunnerResource.getIsolatedConjureWorkQueue(
+                getWorkerExecutor(), getExecutablePath().getAsFile().get());
         for (File sourceFile : getSource().getFiles()) {
             File thisOutputDirectory = outputDirectoryFor(sourceFile);
             try {

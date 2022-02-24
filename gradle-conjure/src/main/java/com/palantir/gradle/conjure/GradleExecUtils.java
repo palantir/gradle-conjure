@@ -31,7 +31,7 @@ final class GradleExecUtils {
             List<String> loggedArgs) {
         try {
             ConjureRunnerResource.ConjureRunner runner =
-                    ConjureRunnerResource.createNewRunnerInIsolatedClasspath(executable);
+                    ConjureRunnerResource.createNewRunnerWithCurrentClasspath(executable);
             runner.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
         } catch (IOException e) {
             throw new RuntimeException(e);

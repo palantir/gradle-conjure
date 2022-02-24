@@ -36,10 +36,11 @@ import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
+import org.gradle.workers.WorkQueue;
+import org.gradle.workers.WorkerExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PublicConstructorForAbstractClass")
 public abstract class ConjureRunnerResource {
 
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
@@ -49,7 +50,7 @@ public abstract class ConjureRunnerResource {
         void invoke(ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
 
-    static ConjureRunner createNewRunnerInIsolatedClasspath(File executable) throws IOException {
+    static ConjureRunner createNewRunnerWithCurrentClasspath(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
 
         if (maybeJava.isPresent()) {
@@ -63,7 +64,12 @@ public abstract class ConjureRunnerResource {
         return new ExternalProcessConjureRunner(executable);
     }
 
-    public static Optional<List<File>> conjureExecutableClasspath(File executable) {
+    static WorkQueue getIsolatedConjureWorkQueue(WorkerExecutor workerExecutor, File executable) {
+        return workerExecutor.classLoaderIsolation(classLoaderWorkerSpec -> conjureExecutableClasspath(executable)
+                .ifPresent(classpath -> classLoaderWorkerSpec.getClasspath().setFrom(classpath)));
+    }
+
+    static Optional<List<File>> conjureExecutableClasspath(File executable) {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
 
         if (maybeJava.isPresent()) {
