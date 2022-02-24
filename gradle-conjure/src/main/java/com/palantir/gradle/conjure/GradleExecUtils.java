@@ -29,7 +29,9 @@ final class GradleExecUtils {
             File executable,
             List<String> unloggedArgs,
             List<String> loggedArgs) {
-        try (ConjureRunnerResource.ConjureRunner runner = ConjureRunnerResource.createNewRunner(executable)) {
+        try {
+            ConjureRunnerResource.ConjureRunner runner =
+                    ConjureRunnerResource.createNewRunnerInIsolatedClasspath(executable);
             runner.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
         } catch (IOException e) {
             throw new RuntimeException(e);

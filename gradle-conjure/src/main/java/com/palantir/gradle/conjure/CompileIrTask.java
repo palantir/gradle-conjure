@@ -21,7 +21,6 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkQueue;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public abstract class CompileIrTask extends DefaultTask {
@@ -97,7 +97,7 @@ public abstract class CompileIrTask extends DefaultTask {
 
     @Inject
     @SuppressWarnings("JavaxInjectOnAbstractMethod")
-    public abstract ExecOperations getExecOperations();
+    protected abstract WorkerExecutor getWorkerExecutor();
 
     @TaskAction
     public final void generate() {
@@ -108,8 +108,14 @@ public abstract class CompileIrTask extends DefaultTask {
                 getOutputIrFile().get().getAsFile().getAbsolutePath(),
                 "--extensions",
                 OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
-
-        GradleExecUtils.exec(getExecOperations(), "generate conjure IR", executable, Collections.emptyList(), args);
+        WorkQueue workQueue = getWorkerExecutor().classLoaderIsolation(processWorkerSpec -> {
+            ConjureRunnerResource.conjureExecutableClasspath(executable)
+                    .ifPresent(classpath -> processWorkerSpec.getClasspath().setFrom(classpath));
+        });
+        workQueue.submit(CompileIr.class, compileIrParams -> {
+            compileIrParams.getExecutableFile().set(executable);
+            compileIrParams.getRenderedOptions().set(args);
+        });
     }
 
     private String getSerializedExtensions() {

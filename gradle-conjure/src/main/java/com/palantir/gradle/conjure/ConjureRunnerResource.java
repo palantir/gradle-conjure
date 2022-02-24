@@ -18,14 +18,11 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.palantir.gradle.conjure.ConjureRunnerResource.Params;
 import com.palantir.gradle.conjure.ReverseEngineerJavaStartScript.StartScriptInfo;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -37,72 +34,48 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.services.BuildService;
-import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PublicConstructorForAbstractClass")
-public abstract class ConjureRunnerResource implements BuildService<Params>, Closeable {
+public abstract class ConjureRunnerResource {
 
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
 
-    public interface Params extends BuildServiceParameters {
-
-        RegularFileProperty getExecutable();
-    }
-
-    private final ConjureRunner delegate;
-
-    public ConjureRunnerResource() throws IOException {
-        this.delegate =
-                createNewRunner(getParameters().getExecutable().getAsFile().get());
-    }
-
-    final void invoke(
-            ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-        delegate.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
-    }
-
-    @Override
-    public final void close() throws IOException {
-        delegate.close();
-    }
-
-    interface ConjureRunner extends Closeable {
+    interface ConjureRunner {
 
         void invoke(ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
 
-    static ConjureRunner createNewRunner(File executable) throws IOException {
+    static ConjureRunner createNewRunnerInIsolatedClasspath(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
 
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
-            boolean classLoaderMustBeClosed = true;
-            URLClassLoader classLoader =
-                    new ChildFirstUrlClassLoader(info.classpathUrls(), ConjureRunnerResource.class.getClassLoader());
-            try {
-                Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
-                if (mainMethod.isPresent()) {
-                    classLoaderMustBeClosed = false;
-                    return new InProcessConjureRunner(executable, mainMethod.get(), classLoader);
-                }
-            } finally {
-                if (classLoaderMustBeClosed) {
-                    classLoader.close();
-                }
+            Optional<Method> mainMethod =
+                    getMainMethod(info.mainClass(), Thread.currentThread().getContextClassLoader());
+            if (mainMethod.isPresent()) {
+                return new InProcessConjureRunner(executable, mainMethod.get());
             }
         }
         return new ExternalProcessConjureRunner(executable);
     }
 
-    private static Optional<Method> getMainMethod(URLClassLoader classLoader, String mainClassName) {
+    public static Optional<List<File>> conjureExecutableClasspath(File executable) {
+        Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
+
+        if (maybeJava.isPresent()) {
+            ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
+            return Optional.of(info.classpath());
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Method> getMainMethod(String mainClassName, ClassLoader classLoader) {
         try {
-            ClassFileLocator locator = new ClassFileLocator.ForUrl(classLoader.getURLs());
+            ClassFileLocator locator = ClassFileLocator.ForClassLoader.of(classLoader);
             TypePool typePool = TypePool.ClassLoading.of(classLoader);
             Class<?> mainClass = new ByteBuddy(ClassFileVersion.ofThisVm(ClassFileVersion.JAVA_V8))
                     .redefine(typePool.describe(mainClassName).resolve(), locator)
@@ -113,13 +86,12 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                                     MemberSubstitution.relaxed()
                                             .method(ElementMatchers.is(System.class.getMethod("exit", int.class)))
                                             .replaceWith(GradleExecStubs.getStubMethod())))
-                    .make(typePool)
-                    .load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                    .make()
+                    .load(Thread.currentThread().getContextClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded();
-
             return Optional.of(mainClass.getMethod("main", String[].class));
         } catch (ReflectiveOperationException e) {
-            log.warn("Failed too get main method {}", mainClassName, e);
+            log.warn("Failed to get main method {}", mainClassName, e);
             return Optional.empty();
         }
     }
@@ -130,11 +102,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
 
         ExternalProcessConjureRunner(File executable) {
             this.executable = executable;
-        }
-
-        @Override
-        public void close() {
-            // nop
         }
 
         @Override
@@ -171,12 +138,10 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
 
         private final File executable;
         private final Method mainMethod;
-        private final URLClassLoader classLoader;
 
-        InProcessConjureRunner(File executable, Method mainMethod, URLClassLoader classLoader) {
+        InProcessConjureRunner(File executable, Method mainMethod) {
             this.executable = executable;
             this.mainMethod = mainMethod;
-            this.classLoader = classLoader;
         }
 
         @Override
@@ -207,11 +172,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                             String.format("Failed to %s. The command '%s' failed.", failedTo, combinedArgs), t);
                 }
             }
-        }
-
-        @Override
-        public void close() throws IOException {
-            classLoader.close();
         }
     }
 }

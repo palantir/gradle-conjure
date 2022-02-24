@@ -92,9 +92,10 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
     /** Entry point for the task. */
     public void compileFiles() {
-        Map<String, String> environment = System.getenv();
-        WorkQueue workQueue = getWorkerExecutor().processIsolation(processWorkerSpec -> {
-            processWorkerSpec.getForkOptions().setEnvironment(environment);
+        WorkQueue workQueue = getWorkerExecutor().classLoaderIsolation(processWorkerSpec -> {
+            ConjureRunnerResource.conjureExecutableClasspath(
+                            getExecutablePath().getAsFile().get())
+                    .ifPresent(classpath -> processWorkerSpec.getClasspath().setFrom(classpath));
         });
         for (File sourceFile : getSource().getFiles()) {
             File thisOutputDirectory = outputDirectoryFor(sourceFile);
@@ -103,6 +104,7 @@ public abstract class ConjureGeneratorTask extends SourceTask {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+
             workQueue.submit(GenerateConjure.class, generateConjureParams -> {
                 generateConjureParams.getInputFile().set(sourceFile);
                 generateConjureParams.getOutputDir().set(thisOutputDirectory);
