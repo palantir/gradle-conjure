@@ -1,6 +1,6 @@
 type: improvement
 improvement:
-  description: Migrates conjure generation to the gradle worker api to reduce the
-    risk of metaspace OOMs when processing many conjure files
+  description: Migrates conjure generation to the gradle worker api to eliminate repeated
+    loading of the same classpath
   links:
   - https://github.com/palantir/gradle-conjure/pull/959
