@@ -66,6 +66,7 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
                 fields:
                   string: string
         '''.stripIndent()
+        file("gradle.properties") << "org.gradle.daemon=false"
     }
 
     def "generates all files"() {

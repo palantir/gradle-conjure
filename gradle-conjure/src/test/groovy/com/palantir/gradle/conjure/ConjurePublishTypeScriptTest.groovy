@@ -79,6 +79,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                   object: StringExample
                 returns: StringExample
         '''.stripIndent()
+        file("gradle.properties") << "org.gradle.daemon=false"
     }
 
     def 'installs dependencies'() {

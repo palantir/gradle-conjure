@@ -25,14 +25,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
 import net.bytebuddy.asm.MemberSubstitution;
 import net.bytebuddy.dynamic.ClassFileLocator;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
 import org.gradle.process.ExecOperations;
@@ -56,7 +55,8 @@ public abstract class ConjureRunnerResource {
 
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
-            Optional<Method> mainMethod = getMainMethod(info.mainClass());
+            Optional<Method> mainMethod =
+                    getMainMethod(info.mainClass(), Thread.currentThread().getContextClassLoader());
             if (mainMethod.isPresent()) {
                 return new InProcessConjureRunner(executable, mainMethod.get());
             }
@@ -64,15 +64,9 @@ public abstract class ConjureRunnerResource {
         return new ExternalProcessConjureRunner(executable);
     }
 
-    static WorkQueue getProcessDaemonWorkQueue(WorkerExecutor workerExecutor, File executable) {
-        Map<String, String> env = System.getenv();
-        return workerExecutor.processIsolation(processWorkerSpec -> {
-            processWorkerSpec
-                    .getClasspath()
-                    .from(conjureExecutableClasspath(executable).orElseGet(List::of));
-            processWorkerSpec.getForkOptions().setMaxHeapSize("128m");
-            processWorkerSpec.getForkOptions().setEnvironment(env);
-        });
+    static WorkQueue getIsolatedConjureWorkQueue(WorkerExecutor workerExecutor, File executable) {
+        return workerExecutor.classLoaderIsolation(classLoaderWorkerSpec -> conjureExecutableClasspath(executable)
+                .ifPresent(classpath -> classLoaderWorkerSpec.getClasspath().setFrom(classpath)));
     }
 
     static Optional<List<File>> conjureExecutableClasspath(File executable) {
@@ -85,14 +79,13 @@ public abstract class ConjureRunnerResource {
         return Optional.empty();
     }
 
-    private static Optional<Method> getMainMethod(String mainClassName) {
+    private static Optional<Method> getMainMethod(String mainClassName, ClassLoader classLoader) {
         try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ClassFileLocator locator = ClassFileLocator.ForClassLoader.of(classLoader);
             TypePool typePool = TypePool.ClassLoading.of(classLoader);
             Class<?> mainClass = new ByteBuddy(ClassFileVersion.ofThisVm(ClassFileVersion.JAVA_V8))
                     .redefine(typePool.describe(mainClassName).resolve(), locator)
-                    .name(getRedefinedMainMethodName(mainClassName))
+                    .name(mainClassName + "RedefinedForGradleConjure")
                     .visit(new ForDeclaredMethods()
                             .invokable(
                                     ElementMatchers.any(),
@@ -100,18 +93,13 @@ public abstract class ConjureRunnerResource {
                                             .method(ElementMatchers.is(System.class.getMethod("exit", int.class)))
                                             .replaceWith(GradleExecStubs.getStubMethod())))
                     .make()
-                    .load(classLoader, Default.INJECTION.allowExistingTypes())
+                    .load(Thread.currentThread().getContextClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded();
             return Optional.of(mainClass.getMethod("main", String[].class));
-
         } catch (ReflectiveOperationException e) {
             log.warn("Failed to get main method {}", mainClassName, e);
             return Optional.empty();
         }
-    }
-
-    private static String getRedefinedMainMethodName(String mainClassName) {
-        return mainClassName + "RedefinedForGradleConjure";
     }
 
     private static final class ExternalProcessConjureRunner implements ConjureRunner {
