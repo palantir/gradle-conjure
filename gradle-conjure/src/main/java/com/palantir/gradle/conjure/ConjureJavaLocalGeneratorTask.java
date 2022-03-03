@@ -90,7 +90,7 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
 
         File outputDir = outputDirectory.getAsFile().get();
 
-        WorkQueue workQueue = ConjureRunnerResource.getIsolatedConjureWorkQueue(
+        WorkQueue workQueue = ConjureRunnerResource.getProcessDaemonWorkQueue(
                 getWorkerExecutor(), executablePath.get().getAsFile());
         try {
             FileUtils.deleteDirectory(outputDir);

@@ -108,7 +108,7 @@ public abstract class CompileIrTask extends DefaultTask {
                 getOutputIrFile().get().getAsFile().getAbsolutePath(),
                 "--extensions",
                 OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
-        WorkQueue workQueue = ConjureRunnerResource.getIsolatedConjureWorkQueue(getWorkerExecutor(), executable);
+        WorkQueue workQueue = ConjureRunnerResource.getProcessDaemonWorkQueue(getWorkerExecutor(), executable);
         workQueue.submit(CompileIr.class, compileIrParams -> {
             compileIrParams.getExecutableFile().set(executable);
             compileIrParams.getRenderedOptions().set(args);
