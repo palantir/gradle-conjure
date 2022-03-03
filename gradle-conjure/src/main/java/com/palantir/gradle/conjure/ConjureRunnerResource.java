@@ -55,8 +55,7 @@ public abstract class ConjureRunnerResource {
 
         if (maybeJava.isPresent()) {
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
-            Optional<Method> mainMethod =
-                    getMainMethod(info.mainClass(), Thread.currentThread().getContextClassLoader());
+            Optional<Method> mainMethod = getMainMethod(info.mainClass());
             if (mainMethod.isPresent()) {
                 return new InProcessConjureRunner(executable, mainMethod.get());
             }
@@ -79,8 +78,9 @@ public abstract class ConjureRunnerResource {
         return Optional.empty();
     }
 
-    private static Optional<Method> getMainMethod(String mainClassName, ClassLoader classLoader) {
+    private static Optional<Method> getMainMethod(String mainClassName) {
         try {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ClassFileLocator locator = ClassFileLocator.ForClassLoader.of(classLoader);
             TypePool typePool = TypePool.ClassLoading.of(classLoader);
             Class<?> mainClass = new ByteBuddy(ClassFileVersion.ofThisVm(ClassFileVersion.JAVA_V8))
@@ -93,7 +93,7 @@ public abstract class ConjureRunnerResource {
                                             .method(ElementMatchers.is(System.class.getMethod("exit", int.class)))
                                             .replaceWith(GradleExecStubs.getStubMethod())))
                     .make()
-                    .load(Thread.currentThread().getContextClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .load(classLoader, ClassLoadingStrategy.Default.INJECTION.allowExistingTypes())
                     .getLoaded();
             return Optional.of(mainClass.getMethod("main", String[].class));
         } catch (ReflectiveOperationException e) {
