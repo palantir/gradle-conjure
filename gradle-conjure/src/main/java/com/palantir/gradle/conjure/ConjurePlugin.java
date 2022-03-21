@@ -227,7 +227,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 "gitignoreConjure" + upperSuffix,
                                 subproj.getProjectDir(),
                                 JAVA_GITIGNORE_CONTENTS));
-                        task.dependsOn(extractJavaTask);
+                        task.dependsOn(extractJavaTask, compileIrTask);
                     });
             subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
             applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
