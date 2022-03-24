@@ -259,23 +259,6 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                 ']}'
     }
 
-    def "fails on a single optional dependency"() {
-        file('api/build.gradle') << '''
-        serviceDependencies {
-            serviceDependency {
-                productGroup = "com.palantir.conjure"
-                productName = "conjure"
-                minimumVersion = "1.2.0"
-                recommendedVersion = "1.2.0"
-                maximumVersion = "2.x.x"
-                optional = true
-            }
-        }
-        '''.stripIndent()
-        expect:
-        runTasksWithFailure(':api:api-jersey:Jar')
-    }
-
     def "fails on absent fields"() {
         file('api/build.gradle') << '''
         serviceDependencies {
