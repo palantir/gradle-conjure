@@ -19,6 +19,7 @@ import net.ltgt.gradle.errorprone.CheckSeverity
 apply plugin: 'groovy'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'com.palantir.external-publish-jar'
+apply plugin: 'com.palantir.external-publish-gradle-plugin'
 
 dependencies {
     implementation project(':gradle-conjure-api')
@@ -47,7 +48,46 @@ dependencies {
 }
 
 gradlePlugin {
-    automatedPublishing = false
+    plugins {
+        conjure {
+            id = 'com.palantir.conjure'
+            implementationClass = 'com.palantir.gradle.conjure.ConjurePlugin'
+        }
+        conjurePublish {
+            id = 'com.palantir.conjure-publish'
+            implementationClass = 'com.palantir.gradle.conjure.ConjurePublishPlugin'
+        }
+        conjureLocal {
+            id = 'com.palantir.conjure-local'
+            implementationClass = 'com.palantir.gradle.conjure.ConjureLocalPlugin'
+        }
+        conjureJavaLocal {
+            id = 'com.palantir.conjure-java-local'
+            implementationClass = 'com.palantir.gradle.conjure.ConjureJavaLocalCodegenPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/palantir/gradle-conjure'
+    vcsUrl = 'https://github.com/palantir/gradle-conjure'
+    description = 'Gradle conjure is a gradle plugin integration for conjure generators'
+    tags = ['conjure', 'code gen']
+
+    plugins {
+        conjure {
+            displayName = 'Palantir GradleConjure Plugin'
+        }
+        conjurePublish {
+            displayName = 'Palantir Gradle Conjure Publish Plugin'
+        }
+        conjureLocal {
+            displayName = 'Palantir Gradle Conjure Local Plugin'
+        }
+        conjureJavaLocal {
+            displayName = 'Palantir Gradle Conjure Java Local Plugin'
+        }
+    }
 }
 
 idea {
