@@ -90,6 +90,10 @@ pluginBundle {
     }
 }
 
+tasks.named('processResources').configure {
+    duplicatesStrategy 'include'
+}
+
 idea {
     module {
         testSourceDirs += file("src/test/groovy")
