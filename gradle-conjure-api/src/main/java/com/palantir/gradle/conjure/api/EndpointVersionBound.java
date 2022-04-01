@@ -31,6 +31,18 @@ public final class EndpointVersionBound implements Serializable {
     @JsonProperty("http-method")
     private String httpMethod;
 
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("service-name")
+    private String serviceName;
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("endpoint-name")
+    private String endpointName;
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("deprecated")
+    private Boolean deprecated;
+
     @JsonProperty("min-version")
     private String minVersion;
 
@@ -52,6 +64,30 @@ public final class EndpointVersionBound implements Serializable {
 
     public void setHttpMethod(String httpMethod) {
         this.httpMethod = httpMethod;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getEndpointName() {
+        return endpointName;
+    }
+
+    public void setEndpointName(String endpointName) {
+        this.endpointName = endpointName;
+    }
+
+    public Boolean getDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(Boolean deprecated) {
+        this.deprecated = deprecated;
     }
 
     public String getMinVersion() {
@@ -82,11 +118,13 @@ public final class EndpointVersionBound implements Serializable {
         return Objects.equals(httpPath, that.httpPath)
                 && Objects.equals(httpMethod, that.httpMethod)
                 && Objects.equals(minVersion, that.minVersion)
-                && Objects.equals(maxVersion, that.maxVersion);
+                && Objects.equals(maxVersion, that.maxVersion)
+                && Objects.equals(endpointName, that.endpointName)
+                && Objects.equals(deprecated, that.deprecated);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(httpPath, httpMethod, minVersion, maxVersion);
+        return Objects.hash(httpPath, httpMethod, minVersion, maxVersion, endpointName, deprecated);
     }
 }
