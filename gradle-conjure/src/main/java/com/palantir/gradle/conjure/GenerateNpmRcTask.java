@@ -112,7 +112,7 @@ public class GenerateNpmRcTask extends DefaultTask {
                                 .PUT(BodyPublishers.ofString(
                                         MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password))))
                                 .build(),
-                        responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), inputStream -> {
+                        _responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), inputStream -> {
                             try {
                                 return MAPPER.readValue(inputStream, NpmTokenResponse.class);
                             } catch (IOException e) {
