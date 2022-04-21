@@ -1,0 +1,6 @@
+type: feature
+feature:
+  description: Add task that generates .npmrc for configured repository and username
+    and password
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1025
