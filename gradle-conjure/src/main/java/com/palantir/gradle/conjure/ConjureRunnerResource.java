@@ -45,7 +45,6 @@ import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PublicConstructorForAbstractClass")
 public abstract class ConjureRunnerResource implements BuildService<Params>, Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
