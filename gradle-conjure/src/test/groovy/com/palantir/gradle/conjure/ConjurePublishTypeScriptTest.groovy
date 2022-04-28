@@ -139,8 +139,6 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         server.enqueue(new MockResponse())
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
-        tasks.generateNpmRc.username = "test-publish"
-        tasks.generateNpmRc.password = "password"
         """.stripIndent()
         file("gradle.properties") << "npmRegistryUri=http://localhost:8888"
 

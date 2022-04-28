@@ -45,24 +45,14 @@ public class GenerateNpmRcTask extends DefaultTask {
     private static final JsonMapper MAPPER = ObjectMappers.newClientJsonMapper();
 
     private static final String NPM_REGISTRY_URI_PROPERTY = "npmRegistryUri";
+    private static final String ARTIFACTORY_USERNAME_NAME = "ARTIFACTORY_USERNAME";
+    private static final String ARTIFACTORY_PASSWORD_NAME = "ARTIFACTORY_PASSWORD";
     private final RegularFileProperty outputFile = getProject().getObjects().fileProperty();
-    private final Property<String> username = getProject().getObjects().property(String.class);
-    private final Property<String> password = getProject().getObjects().property(String.class);
     private final Property<String> packageName = getProject().getObjects().property(String.class);
 
     @OutputFile
     public final RegularFileProperty getOutputFile() {
         return this.outputFile;
-    }
-
-    @Input
-    public final Property<String> getUsername() {
-        return username;
-    }
-
-    @Input
-    public final Property<String> getPassword() {
-        return password;
     }
 
     @Input
@@ -87,7 +77,8 @@ public class GenerateNpmRcTask extends DefaultTask {
 
         String registryUri = getNpmRegistryUri();
         String strippedUri = registryUri.startsWith("https://") ? registryUri.substring(8) : registryUri.substring(7);
-        NpmTokenResponse npmTokenResponse = tokenFromCreds(registryUri, username.get(), password.get());
+        NpmTokenResponse npmTokenResponse = tokenFromCreds(
+                registryUri, System.getenv(ARTIFACTORY_USERNAME_NAME), System.getenv(ARTIFACTORY_PASSWORD_NAME));
 
         String scopeRegistry = scope.map(s -> s + ":").orElse("");
         String npmRcContents = String.format(

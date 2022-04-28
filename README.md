@@ -84,13 +84,7 @@ can specify custom repo in gradle.properties
 npmRepositoryUri = <my-repository-url>
 ```
 
-and configure credentials for publishing using (ideally picking the values up
-from environment variables)
-
-```gradle
-tasks.generateNpmRc.username = <publish-username>
-tasks.generateNpmRc.password = <publish-password>
-```
+and configure credentials for publishing using environment variables ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD.
 
 ## com.palantir.conjure-publish
 To enable publishing of your API definition for external consumption, add the `com.palantir.conjure-publish` which applies `com.palantir.conjure` and also creates a new `"conjure"` publication.
