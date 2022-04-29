@@ -101,3 +101,9 @@ tasks.withType(JavaCompile).configureEach {
         check('Slf4jLogsafeArgs', CheckSeverity.OFF)
     }
 }
+
+
+test {
+    environment "ARTIFACTORY_PASSWORD", "pass"
+    environment "ARTIFACTORY_USERNAME", "user"
+}
