@@ -60,7 +60,6 @@ public class GenerateNpmRcTask extends DefaultTask {
         return packageName;
     }
 
-    // mainly for tests and should not be included in the generator options
     private String getNpmRegistryUri() {
         String userRegistry = getProject().hasProperty(NPM_REGISTRY_URI_PROPERTY)
                 ? getProject().property(NPM_REGISTRY_URI_PROPERTY).toString()
@@ -77,13 +76,18 @@ public class GenerateNpmRcTask extends DefaultTask {
 
         String registryUri = getNpmRegistryUri();
         String strippedUri = registryUri.startsWith("https://") ? registryUri.substring(8) : registryUri.substring(7);
-        NpmTokenResponse npmTokenResponse = tokenFromCreds(
-                registryUri, System.getenv(ARTIFACTORY_USERNAME_NAME), System.getenv(ARTIFACTORY_PASSWORD_NAME));
+        String username = System.getenv(ARTIFACTORY_USERNAME_NAME);
+        String password = System.getenv(ARTIFACTORY_PASSWORD_NAME);
+
+        String tokenString = username != null && password != null
+                ? String.format(
+                        "\n//%s/:_authToken=%s",
+                        strippedUri,
+                        tokenFromCreds(registryUri, username, password).token())
+                : "";
 
         String scopeRegistry = scope.map(s -> s + ":").orElse("");
-        String npmRcContents = String.format(
-                "%sregistry=%s\n//%s/:_authToken=%s",
-                scopeRegistry, registryUri, strippedUri, npmTokenResponse.token());
+        String npmRcContents = scopeRegistry + "registry=" + registryUri + tokenString;
 
         try {
             Files.writeString(outputFile.getAsFile().get().toPath(), npmRcContents, StandardCharsets.UTF_8);

@@ -148,8 +148,8 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         then:
         file('api/api-typescript/src/.npmrc').text.contains('_authToken=atoken')
         result.wasExecuted('api:generateNpmRc')
-        result.wasExecuted('api:publishTypeScript')
         result.wasExecuted('api:compileTypeScript')
+        result.wasExecuted('api:publishTypeScript')
 
         cleanup:
         server.shutdown()
