@@ -227,7 +227,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 "gitignoreConjure" + upperSuffix,
                                 subproj.getProjectDir(),
                                 JAVA_GITIGNORE_CONTENTS));
-                        task.dependsOn(extractJavaTask);
+                        task.dependsOn(extractJavaTask, compileIrTask);
                     });
             subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
             applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
@@ -353,8 +353,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOptions(options);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(), "/src/\n"));
-                            task.dependsOn(extractConjureTypeScriptTask);
-                            task.dependsOn(productDependencyTask);
+                            task.dependsOn(extractConjureTypeScriptTask, productDependencyTask, compileIrTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjureTypeScript));
                 registerClean(project, compileConjureTypeScript);
@@ -437,7 +436,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.setOptions(options);
                             task.dependsOn(createWriteGitignoreTask(
                                     subproj, "gitignoreConjurePython", subproj.getProjectDir(), "/python/\n"));
-                            task.dependsOn(extractConjurePythonTask);
+                            task.dependsOn(extractConjurePythonTask, compileIrTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjurePython));
                 project.getTasks().register("buildWheel", Exec.class, task -> {
@@ -532,7 +531,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 .set(extractConjureGeneratorTask.flatMap(ExtractExecutableTask::getExecutable));
                         task.setOptions(() -> getGenericOptions.apply(conjureLanguage));
                         task.getOutputDirectory().set(subproject.file("src"));
-                        task.dependsOn(extractConjureGeneratorTask);
+                        task.dependsOn(extractConjureGeneratorTask, compileIrTask);
                     });
             compileConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
         });

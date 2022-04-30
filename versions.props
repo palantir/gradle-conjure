@@ -1,6 +1,7 @@
-com.fasterxml.jackson.*:* = 2.11.3
+com.fasterxml.jackson.*:* = 2.13.2
+com.fasterxml.jackson.core:jackson-databind = 2.13.2.1
 com.google.errorprone:error_prone_annotations = 2.11.0
-com.google.guava:guava = 31.0.1-jre
+com.google.guava:guava = 31.1-jre
 com.netflix.nebula:nebula-test = 10.0.0
 com.palantir.sls.versions:sls-versions = 1.4.0
 com.squareup.okhttp3:mockwebserver = 3.9.1
@@ -8,14 +9,14 @@ commons-io:commons-io = 2.11.0
 junit:junit = 4.13.2
 org.apache.commons:commons-lang3 = 3.12.0
 org.assertj:* = 3.22.0
-org.immutables:value = 2.9.0
+org.immutables:value = 2.8.8
 org.junit.jupiter:* = 5.8.2
 org.junit.vintage:* = 5.8.2
-org.mockito:* = 4.3.1
+org.mockito:* = 4.5.1
 org.spockframework:* = 2.0-groovy-3.0
-com.palantir.sls-packaging:* = 7.17.0
-com.palantir.conjure.java.runtime:* = 7.24.0
-net.bytebuddy:byte-buddy = 1.12.7
+com.palantir.sls-packaging:* = 7.20.0
+com.palantir.conjure.java.runtime:* = 7.33.0
+net.bytebuddy:byte-buddy = 1.12.9
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2

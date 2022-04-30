@@ -120,6 +120,34 @@ For each generator specified referenced by the configuration you must also add a
 +include 'conjure-api:postman'
 ```
 
+## com.palantir.conjure-java-local
+
+`com.palantir.conjure-java-local` helps to generate Java code from the conjure definition other services publish.
+
+```gradle
+apply plugin: 'com.palantir.conjure-java-local'
+
+conjure {
+    java {
+        addFlag 'objects'
+        addFlag 'strictObjects'
+        // addFlag 'undertow' as an implementer
+        // addFlag 'dialogue' as a consumer
+    }
+}
+
+dependencies {
+    conjure 'com.company.product:some-api@conjure.json'
+}
+
+subprojects {
+    dependencies {
+        // api 'com.palantir.conjure.java:conjure-undertow-lib' as an implementer
+        // implementation 'com.palantir.dialogue:dialogue-target' as a consumer
+    }
+}
+```
+
 ## Contributing
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
