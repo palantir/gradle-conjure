@@ -79,12 +79,12 @@ For conjure-java, this information is directly embedded into the Jar for the `-j
 ### Typescript
 
 typescript project generate .npmrc for publishing to configured repository. You
-can specify custom repo in gradle.properties
+can specify custom registry in gradle.properties
 ```
-npmRepositoryUri = <my-repository-url>
+npmRegistryUri = <my-registry-url>
 ```
 
-and configure credentials for publishing using environment variables ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD.
+and configure credentials for publishing using environment variables REGISTRY_USERNAME and REGISTRY_PASSWORD.
 
 ## com.palantir.conjure-publish
 To enable publishing of your API definition for external consumption, add the `com.palantir.conjure-publish` which applies `com.palantir.conjure` and also creates a new `"conjure"` publication.
