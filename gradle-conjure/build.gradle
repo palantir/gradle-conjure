@@ -104,6 +104,6 @@ tasks.withType(JavaCompile).configureEach {
 
 
 test {
-    environment "ARTIFACTORY_PASSWORD", "pass"
-    environment "ARTIFACTORY_USERNAME", "user"
+    environment "REGISTRY_USERNAME", "user"
+    environment "REGISTRY_PASSWORD", "pass"
 }

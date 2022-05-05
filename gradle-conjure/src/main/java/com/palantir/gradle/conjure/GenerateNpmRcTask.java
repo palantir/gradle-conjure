@@ -45,8 +45,8 @@ public class GenerateNpmRcTask extends DefaultTask {
     private static final JsonMapper MAPPER = ObjectMappers.newClientJsonMapper();
 
     private static final String NPM_REGISTRY_URI_PROPERTY = "npmRegistryUri";
-    private static final String ARTIFACTORY_USERNAME_NAME = "ARTIFACTORY_USERNAME";
-    private static final String ARTIFACTORY_PASSWORD_NAME = "ARTIFACTORY_PASSWORD";
+    private static final String REGISTRY_USERNAME = "REGISTRY_USERNAME";
+    private static final String REGISTRY_PASSWORD = "REGISTRY_PASSWORD";
     private final RegularFileProperty outputFile = getProject().getObjects().fileProperty();
     private final Property<String> packageName = getProject().getObjects().property(String.class);
 
@@ -76,8 +76,8 @@ public class GenerateNpmRcTask extends DefaultTask {
 
         String registryUri = getNpmRegistryUri();
         String strippedUri = registryUri.startsWith("https://") ? registryUri.substring(8) : registryUri.substring(7);
-        String username = System.getenv(ARTIFACTORY_USERNAME_NAME);
-        String password = System.getenv(ARTIFACTORY_PASSWORD_NAME);
+        String username = System.getenv(REGISTRY_USERNAME);
+        String password = System.getenv(REGISTRY_PASSWORD);
 
         String tokenString = username != null && password != null
                 ? String.format(
