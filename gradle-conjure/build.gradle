@@ -101,3 +101,9 @@ tasks.withType(JavaCompile).configureEach {
         check('Slf4jLogsafeArgs', CheckSeverity.OFF)
     }
 }
+
+
+test {
+    environment "REGISTRY_USERNAME", "user"
+    environment "REGISTRY_PASSWORD", "pass"
+}
