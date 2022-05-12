@@ -147,7 +147,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//http://localhost:8888/:_authToken=atoken')
+        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
         result.wasExecuted('api:generateNpmRc')
         result.wasExecuted('api:compileTypeScript')
         result.wasExecuted('api:publishTypeScript')
@@ -181,7 +181,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('@test:registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//http://localhost:8888/:_authToken=atoken')
+        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
         result.wasExecuted('api:generateNpmRc')
         result.wasExecuted('api:compileTypeScript')
         result.wasExecuted('api:publishTypeScript')
