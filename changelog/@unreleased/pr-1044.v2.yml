@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Correctly embed scope and repository uri in npmrc
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1044
