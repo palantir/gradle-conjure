@@ -86,8 +86,8 @@ public class GenerateNpmRcTask extends DefaultTask {
                         tokenFromCreds(registryUri, username, password).token())
                 : "";
 
-        String scopeRegistry = scope.map(s -> s + ":").orElse("");
-        String npmRcContents = scopeRegistry + "registry=" + registryUri + tokenString;
+        String scopeRegistry = scope.map(s -> "@" + s + ":").orElse("");
+        String npmRcContents = scopeRegistry + "registry=" + registryUri + "/" + tokenString;
 
         try {
             Files.writeString(outputFile.getAsFile().get().toPath(), npmRcContents, StandardCharsets.UTF_8);
