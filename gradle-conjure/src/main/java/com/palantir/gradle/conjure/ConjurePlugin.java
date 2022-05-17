@@ -395,11 +395,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(compileConjureTypeScript);
                             task.mustRunAfter(compileTypeScript);
                             task.getPackageName()
-                                    .set(project.provider(options::get)
-                                            .map(opts ->
-                                                    opts.has("packageName") ? (String) opts.get("packageName") : null)
-                                            .orElse(compileConjureTypeScript.flatMap(
-                                                    CompileConjureTypeScriptTask::getPackageName)));
+                                    .set(compileConjureTypeScript.flatMap(
+                                            CompileConjureTypeScriptTask::getPackageName));
                             task.getOutputFile().fileProvider(publishTypeScript.map(t -> t.getWorkingDir()
                                     .toPath()
                                     .resolve(".npmrc")
