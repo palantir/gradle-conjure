@@ -16,11 +16,13 @@
 
 package com.palantir.gradle.conjure;
 
+import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collections;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -46,6 +48,9 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
     static final String TASK_GROUP = "Conjure";
 
+    private TaskProvider<CompileIrTask> compileIrProvider = null;
+    private ConjureExtension conjureExtension = null;
+
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
@@ -54,13 +59,23 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                         ConjureProductDependenciesExtension.EXTENSION_NAME,
                         ConjureProductDependenciesExtension.class,
                         project);
-
+        conjureExtension = project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
-        TaskProvider<CompileIrTask> compileIr =
-                createIrTasks(project, conjureProductDependenciesExtension, copyConjureSourcesTask);
+        compileIrProvider =
+                createIrTasks(project, conjureProductDependenciesExtension, conjureExtension, copyConjureSourcesTask);
         createServiceDependenciesTask(project, conjureProductDependenciesExtension);
-        createOutgoingConfiguration(project, compileIr);
+        createOutgoingConfiguration(project, compileIrProvider);
+    }
+
+    ConjureExtension conjureExtension() {
+        return Objects.requireNonNull(
+                conjureExtension, "ConjureExtension task has not been registered. Has this plugin been applied?");
+    }
+
+    TaskProvider<CompileIrTask> compileIrProvider() {
+        return Objects.requireNonNull(
+                compileIrProvider, "compileIr task has not been registered. Has this plugin been applied?");
     }
 
     private static SourceDirectorySet createConjureSourceSet(Project project) {
@@ -75,6 +90,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     private static TaskProvider<CompileIrTask> createIrTasks(
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
+            ConjureExtension conjureExtension,
             TaskProvider<Copy> copyConjureSourcesTask) {
         TaskProvider<ExtractExecutableTask> extractCompilerTask = ExtractConjurePlugin.applyConjureCompiler(project);
 
@@ -84,6 +100,8 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             rawIr.getInputDirectory().set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
             rawIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             rawIr.getOutputIrFile().set(irDir.map(dir -> dir.file("rawIr.conjure.json")));
+            rawIr.getOptions()
+                    .set(project.provider(() -> conjureExtension.getParser().getProperties()));
             rawIr.dependsOn(copyConjureSourcesTask);
             rawIr.dependsOn(extractCompilerTask);
         });
@@ -98,6 +116,9 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             compileIr.getOutputIrFile().set(irDir.map(dir -> dir.file(project.getName() + ".conjure.json")));
             compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
+            compileIr
+                    .getOptions()
+                    .set(project.provider(() -> conjureExtension.getParser().getProperties()));
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
         });

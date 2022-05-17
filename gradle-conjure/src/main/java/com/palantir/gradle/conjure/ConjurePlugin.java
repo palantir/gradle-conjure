@@ -104,14 +104,13 @@ public final class ConjurePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
-        project.getPluginManager().apply(ConjureBasePlugin.class);
+        ConjureBasePlugin conjureBasePlugin = project.getPlugins().apply(ConjureBasePlugin.class);
 
-        TaskProvider<?> compileIrTask = project.getTasks().named(ConjureBasePlugin.COMPILE_IR_TASK);
+        TaskProvider<?> compileIrTask = conjureBasePlugin.compileIrProvider();
         TaskProvider<GenerateConjureServiceDependenciesTask> serviceDependencyTask = project.getTasks()
                 .named(ConjureBasePlugin.SERVICE_DEPENDENCIES_TASK, GenerateConjureServiceDependenciesTask.class);
 
-        ConjureExtension conjureExtension =
-                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
+        ConjureExtension conjureExtension = conjureBasePlugin.conjureExtension();
         Configuration conjureGeneratorsConfiguration =
                 project.getConfigurations().maybeCreate(CONJURE_GENERATORS_CONFIGURATION_NAME);
 

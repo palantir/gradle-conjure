@@ -58,7 +58,23 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
 
         then:
         runTasksSuccessfully('compileIr')
-        file("build/conjure-ir/${moduleName}.conjure.json")
+        file("build/conjure-ir/${moduleName}.conjure.json").isFile()
+    }
+
+    def 'compile conjure with additional flags'() {
+        when:
+        buildFile << """
+        conjure {
+            parser {
+                verbose = true
+            }
+        }
+        """.stripIndent()
+        file('src/main/conjure/api.yml') << API_YML
+
+        then:
+        runTasksSuccessfully('compileIr').standardOutput.contains '--verbose'
+        file("build/conjure-ir/${moduleName}.conjure.json").isFile()
     }
 
     def 'correctly caches compilation'() {

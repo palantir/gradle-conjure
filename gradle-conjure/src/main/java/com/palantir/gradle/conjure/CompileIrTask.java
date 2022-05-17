@@ -88,6 +88,10 @@ public abstract class CompileIrTask extends DefaultTask {
     @Optional
     public abstract MapProperty<String, Serializable> getConjureExtensions();
 
+    @Input
+    @Optional
+    public abstract MapProperty<String, Object> getOptions();
+
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -96,12 +100,14 @@ public abstract class CompileIrTask extends DefaultTask {
     @TaskAction
     public final void generate() {
         File executable = new File(getExecutableDir().getAsFile().get(), EXECUTABLE);
-        List<String> args = ImmutableList.of(
-                "compile",
-                getInputDirectory().get().getAsFile().getAbsolutePath(),
-                getOutputIrFile().get().getAsFile().getAbsolutePath(),
-                "--extensions",
-                OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()));
+        List<String> args = ImmutableList.<String>builder()
+                .add("compile")
+                .add(getInputDirectory().get().getAsFile().getAbsolutePath())
+                .add(getOutputIrFile().get().getAsFile().getAbsolutePath())
+                .add("--extensions")
+                .add(OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()))
+                .addAll(RenderGeneratorOptions.toArgs(getOptions().get(), Collections.emptyMap()))
+                .build();
 
         GradleExecUtils.exec(getProject(), "generate conjure IR", executable, Collections.emptyList(), args);
     }
