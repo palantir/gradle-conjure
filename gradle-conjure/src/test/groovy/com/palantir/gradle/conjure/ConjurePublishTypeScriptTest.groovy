@@ -79,6 +79,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                   object: StringExample
                 returns: StringExample
         '''.stripIndent()
+        file("gradle.properties") << "org.gradle.daemon=false"
     }
 
     def 'installs dependencies'() {
@@ -132,59 +133,29 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         given:
         MockWebServer server = new MockWebServer()
         server.start(8888)
-        // generateNpmRc will make request for token
-        server.enqueue(new MockResponse().setBody("{\"token\": \"atoken\"}"))
         // npm publish makes two requests to the registry
         server.enqueue(new MockResponse())
         server.enqueue(new MockResponse())
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
-        """.stripIndent()
-        file("gradle.properties") << "npmRegistryUri=http://localhost:8888"
-
-        when:
-        ExecutionResult result = runTasksSuccessfully('publish')
-
-        then:
-        file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.wasExecuted('api:generateNpmRc')
-        result.wasExecuted('api:compileTypeScript')
-        result.wasExecuted('api:publishTypeScript')
-
-        cleanup:
-        server.shutdown()
-    }
-
-    def 'publishes generated code with scope'() {
-        given:
-        MockWebServer server = new MockWebServer()
-        server.start(8888)
-        // generateNpmRc will make request for token
-        server.enqueue(new MockResponse().setBody("{\"token\": \"atoken\"}"))
-        // npm publish makes two requests to the registry
-        server.enqueue(new MockResponse())
-        server.enqueue(new MockResponse())
-        file('api/build.gradle').text = """
-        apply plugin: 'com.palantir.conjure'
-        
-        conjure {
-            typescript {
-                packageName = "@test/api"
-            }
+        publishTypeScript.doFirst {
+            file('api-typescript/src/.npmrc') << '''
+            registry=http://localhost:8888
+            //localhost:8888/:_password=password
+            //localhost:8888/:username=test-publish
+            //localhost:8888/:email=test@palantir.com
+            //localhost:8888/:always-auth=true
+            '''.stripIndent()
         }
         """.stripIndent()
-        file("gradle.properties") << "npmRegistryUri=http://localhost:8888"
 
         when:
         ExecutionResult result = runTasksSuccessfully('publish')
 
         then:
-        file('api/api-typescript/src/.npmrc').text.contains('@test:registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.wasExecuted('api:generateNpmRc')
-        result.wasExecuted('api:compileTypeScript')
+        file('api/api-typescript/src/.npmrc').text.contains('registry=')
         result.wasExecuted('api:publishTypeScript')
+        result.wasExecuted('api:compileTypeScript')
 
         cleanup:
         server.shutdown()

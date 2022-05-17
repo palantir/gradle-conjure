@@ -1,0 +1,8 @@
+type: fix
+fix:
+  description: |-
+    Revert npm publish changes
+
+    Reverts the changes that went into .24 and .25
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1048
