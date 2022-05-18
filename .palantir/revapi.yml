@@ -22,7 +22,6 @@ acceptedBreaks:
       new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointMinimumVersion>\
         \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
       justification: "Revert changes made in 5.13.0"
-  "5.15.0": {}
   "5.16.0":
     com.palantir.gradle.conjure:gradle-conjure-api:
     - code: "java.class.defaultSerializationChanged"
@@ -50,3 +49,41 @@ acceptedBreaks:
       old: "method java.util.Optional<java.lang.String> com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
       new: "method java.lang.String com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
       justification: "Reverting a change."
+  "5.25.0":
+    com.palantir.gradle.conjure:gradle-conjure-api:
+    - code: "java.generics.elementNowParameterized"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::java(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::java(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.elementNowParameterized"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::options(java.lang.String,\
+        \ groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::options(java.lang.String,\
+        \ groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.elementNowParameterized"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::python(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::python(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.elementNowParameterized"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::typescript(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::typescript(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.formalTypeParameterAdded"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::java(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::java(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.formalTypeParameterAdded"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::options(java.lang.String,\
+        \ groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::options(java.lang.String,\
+        \ groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.formalTypeParameterAdded"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::python(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::python(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
+    - code: "java.generics.formalTypeParameterAdded"
+      old: "method void com.palantir.gradle.conjure.api.ConjureExtension::typescript(groovy.lang.Closure<com.palantir.gradle.conjure.api.GeneratorOptions>)"
+      new: "method <T> void com.palantir.gradle.conjure.api.ConjureExtension::typescript(groovy.lang.Closure<T>)"
+      justification: "Gradle plugin extension is groovy-compatible"
