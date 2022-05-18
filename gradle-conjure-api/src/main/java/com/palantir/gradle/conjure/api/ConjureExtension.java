@@ -31,28 +31,27 @@ public class ConjureExtension {
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
-    public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final <T> void typescript(@DelegatesTo(GeneratorOptions.class) Closure<T> closure) {
         closure.setDelegate(typescriptOptions);
         closure.call();
     }
 
-    public final void java(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final <T> void java(@DelegatesTo(GeneratorOptions.class) Closure<T> closure) {
         closure.setDelegate(javaOptions);
         closure.call();
     }
 
-    public final void python(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final <T> void python(@DelegatesTo(GeneratorOptions.class) Closure<T> closure) {
         closure.setDelegate(pythonOptions);
         closure.call();
     }
 
-    public final void parser(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final <T> void parser(@DelegatesTo(GeneratorOptions.class) Closure<T> closure) {
         closure.setDelegate(parserOptions);
         closure.call();
     }
 
-    public final void options(
-            String generator, @DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final <T> void options(String generator, @DelegatesTo(GeneratorOptions.class) Closure<T> closure) {
         closure.setDelegate(getGenericOptions(generator));
         closure.call();
     }
