@@ -386,6 +386,25 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });
+                TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
+                        .register("generateNpmrc", GenerateNpmrcTask.class, task -> {
+                            task.setDescription(
+                                    "Generates .npmrc file suitable for publishing to configured upstream repo");
+                            task.setGroup(TASK_GROUP);
+                            task.dependsOn(compileConjureTypeScript);
+                            task.mustRunAfter(compileTypeScript);
+                            task.getPackageName()
+                                    .set(project.provider(options::get)
+                                            .map(opts ->
+                                                    opts.has("packageName") ? (String) opts.get("packageName") : null)
+                                            .orElse(compileConjureTypeScript.flatMap(
+                                                    CompileConjureTypeScriptTask::getPackageName)));
+                            task.getOutputFile().fileProvider(publishTypeScript.map(t -> t.getWorkingDir()
+                                    .toPath()
+                                    .resolve(".npmrc")
+                                    .toFile()));
+                        });
+                publishTypeScript.configure(t -> t.dependsOn(generateNpmrc));
                 linkPublish(subproj, publishTypeScript);
             });
         }
