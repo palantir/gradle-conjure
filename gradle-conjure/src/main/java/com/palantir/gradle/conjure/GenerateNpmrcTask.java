@@ -46,7 +46,7 @@ public class GenerateNpmrcTask extends DefaultTask {
 
     private final RegularFileProperty outputFile = getProject().getObjects().fileProperty();
     private final Property<String> packageName = getProject().getObjects().property(String.class);
-    private final Property<String> npmRegistryUri =
+    private final Property<String> registryUri =
             getProject().getObjects().property(String.class).convention("https://registry.npmjs.org");
     private final Property<String> registryUsername = getProject().getObjects().property(String.class);
     private final Property<String> registryPassword = getProject().getObjects().property(String.class);
@@ -62,8 +62,8 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     @Input
-    public final Property<String> getNpmRegistryUri() {
-        return npmRegistryUri;
+    public final Property<String> getRegistryUri() {
+        return registryUri;
     }
 
     @Input
@@ -77,9 +77,9 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     private String normalizedRegistryUri() {
-        return npmRegistryUri.get().endsWith("/")
-                ? npmRegistryUri.get().substring(0, npmRegistryUri.get().length() - 1)
-                : npmRegistryUri.get();
+        return registryUri.get().endsWith("/")
+                ? registryUri.get().substring(0, registryUri.get().length() - 1)
+                : registryUri.get();
     }
 
     @TaskAction
@@ -89,8 +89,9 @@ public class GenerateNpmrcTask extends DefaultTask {
                 ? Optional.of(packageName.get().substring(1, slashIndex))
                 : Optional.empty();
 
-        String registryUri = normalizedRegistryUri();
-        String strippedUri = registryUri.startsWith("https://") ? registryUri.substring(8) : registryUri.substring(7);
+        String normalizedUri = normalizedRegistryUri();
+        String strippedUri =
+                normalizedUri.startsWith("https://") ? normalizedUri.substring(8) : normalizedUri.substring(7);
         String username = registryUsername.getOrNull();
         String password = registryPassword.getOrNull();
 
@@ -98,11 +99,11 @@ public class GenerateNpmrcTask extends DefaultTask {
                 ? String.format(
                         "\n//%s/:_authToken=%s",
                         strippedUri,
-                        tokenFromCreds(registryUri, username, password).token())
+                        tokenFromCreds(normalizedUri, username, password).token())
                 : "";
 
         String scopeRegistry = scope.map(s -> "@" + s + ":").orElse("");
-        String npmRcContents = scopeRegistry + "registry=" + registryUri + "/" + tokenString;
+        String npmRcContents = scopeRegistry + "registry=" + normalizedUri + "/" + tokenString;
 
         try {
             Files.writeString(outputFile.getAsFile().get().toPath(), npmRcContents, StandardCharsets.UTF_8);
