@@ -67,12 +67,12 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     @Input
-    public final Property<String> getRegistryUsername() {
+    public final Property<String> getUsername() {
         return registryUsername;
     }
 
     @Input
-    public final Property<String> getRegistryPassword() {
+    public final Property<String> getPassword() {
         return registryPassword;
     }
 
