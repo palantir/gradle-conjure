@@ -22,7 +22,6 @@ acceptedBreaks:
       new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointMinimumVersion>\
         \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
       justification: "Revert changes made in 5.13.0"
-  "5.15.0": {}
   "5.16.0":
     com.palantir.gradle.conjure:gradle-conjure-api:
     - code: "java.class.defaultSerializationChanged"

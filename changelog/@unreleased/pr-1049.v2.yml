@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: The conjure IR compiler supports standard customization using the `parser`
+    key
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1049

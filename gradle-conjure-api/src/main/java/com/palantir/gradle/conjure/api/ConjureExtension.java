@@ -27,26 +27,41 @@ public class ConjureExtension {
 
     private final GeneratorOptions typescriptOptions = new GeneratorOptions();
     private final GeneratorOptions javaOptions = new GeneratorOptions();
+    private final GeneratorOptions parserOptions = new GeneratorOptions();
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
-    public final void typescript(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final void typescript(
+            // rawtypes to support idea integration
+            @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
         closure.setDelegate(typescriptOptions);
         closure.call();
     }
 
-    public final void java(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final void java(
+            // rawtypes to support idea integration
+            @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
         closure.setDelegate(javaOptions);
         closure.call();
     }
 
-    public final void python(@DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+    public final void python(
+            // rawtypes to support idea integration
+            @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
         closure.setDelegate(pythonOptions);
         closure.call();
     }
 
+    public final void parser(
+            // rawtypes to support idea integration
+            @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
+        closure.setDelegate(parserOptions);
+        closure.call();
+    }
+
     public final void options(
-            String generator, @DelegatesTo(GeneratorOptions.class) Closure<GeneratorOptions> closure) {
+            // rawtypes to support idea integration
+            String generator, @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
         closure.setDelegate(getGenericOptions(generator));
         closure.call();
     }
@@ -59,11 +74,25 @@ public class ConjureExtension {
         return javaOptions;
     }
 
+    public final GeneratorOptions getParser() {
+        return parserOptions;
+    }
+
     public final GeneratorOptions getPython() {
         return pythonOptions;
     }
 
     public final GeneratorOptions getGenericOptions(String generator) {
         return genericOptions.computeIfAbsent(generator, _g -> new GeneratorOptions());
+    }
+
+    @Override
+    public final String toString() {
+        return "ConjureExtension{typescriptOptions="
+                + typescriptOptions + ", javaOptions="
+                + javaOptions + ", parserOptions="
+                + parserOptions + ", pythonOptions="
+                + pythonOptions + ", genericOptions="
+                + genericOptions + '}';
     }
 }
