@@ -62,21 +62,21 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     @Input
-    public final Property<String> npmRegistryUri() {
+    public final Property<String> getNpmRegistryUri() {
         return npmRegistryUri;
     }
 
     @Input
-    public final Property<String> registryUsername() {
+    public final Property<String> getRegistryUsername() {
         return registryUsername;
     }
 
     @Input
-    public final Property<String> registryPassword() {
+    public final Property<String> getRegistryPassword() {
         return registryPassword;
     }
 
-    private String getNpmRegistryUri() {
+    private String normalizedRegistryUri() {
         return npmRegistryUri.get().endsWith("/")
                 ? npmRegistryUri.get().substring(0, npmRegistryUri.get().length() - 1)
                 : npmRegistryUri.get();
@@ -89,7 +89,7 @@ public class GenerateNpmrcTask extends DefaultTask {
                 ? Optional.of(packageName.get().substring(1, slashIndex))
                 : Optional.empty();
 
-        String registryUri = getNpmRegistryUri();
+        String registryUri = normalizedRegistryUri();
         String strippedUri = registryUri.startsWith("https://") ? registryUri.substring(8) : registryUri.substring(7);
         String username = registryUsername.getOrNull();
         String password = registryPassword.getOrNull();
