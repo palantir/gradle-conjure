@@ -310,7 +310,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 return;
             }
 
-            proj.getTasks().withType(checkUnusedDependenciesTask, task -> {
+            proj.getTasks().withType(checkUnusedDependenciesTask).configureEach(task -> {
                 try {
                     Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
                     List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
@@ -591,9 +591,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                     module.getGeneratedSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
         project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
-            Task task = project.getTasks().findByName("eclipseClasspath");
-            if (task != null) {
-                task.dependsOn(compileConjure);
+            try {
+                project.getTasks().named("eclipseClasspath").configure(t -> t.dependsOn(compileConjure));
+            } catch (UnknownDomainObjectException e) {
+                // eclipseClasspath is not always registered
             }
         });
     }
