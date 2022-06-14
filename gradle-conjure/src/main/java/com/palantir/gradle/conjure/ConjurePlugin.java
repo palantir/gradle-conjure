@@ -45,7 +45,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.UnknownDomainObjectException;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
@@ -402,7 +402,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 TaskProvider<Task> publishProvider;
                 try {
                     publishProvider = p.getTasks().named("publish");
-                } catch (UnknownDomainObjectException e) {
+                } catch (UnknownTaskException e) {
                     p.getLogger().debug("Manually creating publish task", e);
                     publishProvider = p.getTasks().register("publish");
                 }
@@ -577,7 +577,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             // safe way to check for existence with the task avoidance APIs
             try {
                 project.getTasks().named("ideaModule").configure(t -> t.dependsOn(compileConjure));
-            } catch (UnknownDomainObjectException e) {
+            } catch (UnknownTaskException e) {
                 project.getLogger().debug("Project does not have ideaModule task.", e);
             }
 
@@ -593,7 +593,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
             try {
                 project.getTasks().named("eclipseClasspath").configure(t -> t.dependsOn(compileConjure));
-            } catch (UnknownDomainObjectException e) {
+            } catch (UnknownTaskException e) {
                 // eclipseClasspath is not always registered
             }
         });
