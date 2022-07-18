@@ -94,7 +94,7 @@ public class GenerateNpmrcTask extends DefaultTask {
 
     @TaskAction
     public final void createNpmrc() throws IOException, InterruptedException {
-        if (getToken().isPresent() ^ getPassword().isPresent()) {
+        if (getToken().isPresent() && getPassword().isPresent()) {
             throw new GradleException("Either username and password or token must be specified but not both");
         }
         int slashIndex = packageName.get().indexOf("/");
