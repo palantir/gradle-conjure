@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Optional;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -50,6 +51,7 @@ public class GenerateNpmrcTask extends DefaultTask {
             getProject().getObjects().property(String.class).convention("https://registry.npmjs.org");
     private final Property<String> registryUsername = getProject().getObjects().property(String.class);
     private final Property<String> registryPassword = getProject().getObjects().property(String.class);
+    private final Property<String> registryToken = getProject().getObjects().property(String.class);
 
     @OutputFile
     public final RegularFileProperty getOutputFile() {
@@ -67,13 +69,21 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     @Input
+    @org.gradle.api.tasks.Optional
     public final Property<String> getUsername() {
         return registryUsername;
     }
 
     @Input
+    @org.gradle.api.tasks.Optional
     public final Property<String> getPassword() {
         return registryPassword;
+    }
+
+    @Input
+    @org.gradle.api.tasks.Optional
+    public final Property<String> getToken() {
+        return registryToken;
     }
 
     private String normalizedRegistryUri() {
@@ -84,6 +94,9 @@ public class GenerateNpmrcTask extends DefaultTask {
 
     @TaskAction
     public final void createNpmrc() throws IOException, InterruptedException {
+        if (getToken().isPresent() ^ getPassword().isPresent()) {
+            throw new GradleException("Either username and password or token must be specified but not both");
+        }
         int slashIndex = packageName.get().indexOf("/");
         Optional<String> scope = packageName.get().startsWith("@") && slashIndex != -1
                 ? Optional.of(packageName.get().substring(1, slashIndex))
@@ -94,13 +107,19 @@ public class GenerateNpmrcTask extends DefaultTask {
                 normalizedUri.startsWith("https://") ? normalizedUri.substring(8) : normalizedUri.substring(7);
         String username = registryUsername.getOrNull();
         String password = registryPassword.getOrNull();
+        String token = registryToken.getOrNull();
 
-        String tokenString = username != null && password != null
-                ? String.format(
-                        "\n//%s/:_authToken=%s",
-                        strippedUri,
-                        tokenFromCreds(normalizedUri, username, password).token())
-                : "";
+        String tokenString;
+        if (token != null) {
+            tokenString = String.format("\n//%s/:_authToken=%s", strippedUri, token);
+        } else if (username != null && password != null) {
+            tokenString = String.format(
+                    "\n//%s/:_authToken=%s",
+                    strippedUri,
+                    tokenFromCreds(normalizedUri, username, password).token());
+        } else {
+            tokenString = "";
+        }
 
         String scopeRegistry = scope.map(s -> "@" + s + ":").orElse("");
         String npmRcContents = scopeRegistry + "registry=" + normalizedUri + "/" + tokenString;
@@ -123,9 +142,9 @@ public class GenerateNpmrcTask extends DefaultTask {
                                 .PUT(BodyPublishers.ofString(
                                         MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password))))
                                 .build(),
-                        _responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), inputStream -> {
+                        _responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> {
                             try {
-                                return MAPPER.readValue(inputStream, NpmTokenResponse.class);
+                                return MAPPER.readValue(bytes, NpmTokenResponse.class);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

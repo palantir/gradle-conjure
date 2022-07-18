@@ -159,6 +159,34 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         server.shutdown()
     }
 
+    def 'publishes with token'() {
+        given:
+        MockWebServer server = new MockWebServer()
+        server.start(8888)
+        // npm publish makes two requests to the registry
+        server.enqueue(new MockResponse())
+        server.enqueue(new MockResponse())
+        file('api/build.gradle').text = """
+        apply plugin: 'com.palantir.conjure'
+
+        generateNpmrc.registryUri = "http://localhost:8888"
+        generateNpmrc.token = "registry-token"
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('publish')
+
+        then:
+        file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
+        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=registry-token')
+        result.wasExecuted('api:generateNpmrc')
+        result.wasExecuted('api:compileTypeScript')
+        result.wasExecuted('api:publishTypeScript')
+
+        cleanup:
+        server.shutdown()
+    }
+
     def 'publishes generated code with scope'() {
         given:
         MockWebServer server = new MockWebServer()
