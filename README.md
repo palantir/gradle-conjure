@@ -81,6 +81,10 @@ For conjure-java, this information is directly embedded into the Jar for the `-j
 Typescript projects provide generateNpmrc task that generates .npmrc for publishing to configured repository. Credentials are configured using properties `username` and `password` and you can provide custom registry with `registryUri` parameter 
 ```groovy
 generateNpmrc.registryUri = "https://my-custom-registry.com"
+generateNpmrc.token = "<registry-token>" // System.env.<TOKEN>
+```
+Alternatively you can use username and password and the plugin will perform the login operation to obtain a publish token for you.
+```groovy
 generateNpmrc.username = "<username>" // System.env.<USERNAME>
 generateNpmrc.password = "<password>" // System.env.<PASSWORD>
 ```
