@@ -17,11 +17,15 @@
 package com.palantir.gradle.conjure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.net.HttpHeaders;
 import com.palantir.conjure.java.serialization.ObjectMappers;
+import com.palantir.logsafe.DoNotLog;
+import com.palantir.logsafe.SafeArg;
+import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -93,7 +97,7 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     @TaskAction
-    public final void createNpmrc() throws IOException, InterruptedException {
+    public final void createNpmrc() throws InterruptedException {
         if (getToken().isPresent() && getPassword().isPresent()) {
             throw new GradleException("Either username and password or token must be specified but not both");
         }
@@ -126,34 +130,51 @@ public class GenerateNpmrcTask extends DefaultTask {
 
         try {
             Files.writeString(outputFile.getAsFile().get().toPath(), npmRcContents, StandardCharsets.UTF_8);
+        } catch (@DoNotLog IOException e) {
+            throw new SafeRuntimeException("Error writing npmrc file");
+        }
+    }
+
+    private static NpmTokenResponse tokenFromCreds(String registryUri, String username, String password)
+            throws InterruptedException {
+        try {
+            HttpResponse<NpmTokenResponse> response = HttpClient.newHttpClient()
+                    .send(
+                            HttpRequest.newBuilder()
+                                    .header(HttpHeaders.ACCEPT, "application/json")
+                                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                                    .uri(URI.create(
+                                            String.format("%s/-/user/org.couchdb.user:%s", registryUri, username)))
+                                    .PUT(BodyPublishers.ofString(serializeRequestBody(username, password)))
+                                    .build(),
+                            _responseInfo -> BodySubscribers.mapping(
+                                    BodySubscribers.ofByteArray(), GenerateNpmrcTask::deserializeResponse));
+
+            if (response.statusCode() >= 400) {
+                throw new RuntimeException("Call to registry failed: " + response.statusCode());
+            }
+
+            return response.body();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static NpmTokenResponse tokenFromCreds(String registryUri, String username, String password)
-            throws IOException, InterruptedException {
-        HttpResponse<NpmTokenResponse> response = HttpClient.newHttpClient()
-                .send(
-                        HttpRequest.newBuilder()
-                                .header(HttpHeaders.ACCEPT, "application/json")
-                                .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                                .uri(URI.create(String.format("%s/-/user/org.couchdb.user:%s", registryUri, username)))
-                                .PUT(BodyPublishers.ofString(
-                                        MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password))))
-                                .build(),
-                        _responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> {
-                            try {
-                                return MAPPER.readValue(bytes, NpmTokenResponse.class);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }));
-        if (response.statusCode() >= 400) {
-            throw new RuntimeException("Call to registry failed: " + response.statusCode());
+    private static String serializeRequestBody(String username, String password) {
+        try {
+            return MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password));
+        } catch (@DoNotLog JsonProcessingException e) {
+            throw new SafeRuntimeException("Error serializing NpmTokenRequest");
         }
+    }
 
-        return response.body();
+    private static NpmTokenResponse deserializeResponse(byte[] bytes) {
+        try {
+            return MAPPER.readValue(bytes, NpmTokenResponse.class);
+        } catch (@DoNotLog IOException e) {
+            throw new SafeRuntimeException(
+                    "Failed to deserialize npm token response", SafeArg.of("exceptionClass", e.getClass()));
+        }
     }
 
     @Immutable

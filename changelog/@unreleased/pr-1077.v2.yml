@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Don't log npm token response on serde error
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1077
