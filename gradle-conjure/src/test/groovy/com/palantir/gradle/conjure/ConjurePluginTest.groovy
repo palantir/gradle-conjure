@@ -66,6 +66,7 @@ class ConjurePluginTest extends IntegrationSpec {
                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                    force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
 
+                   force 'javax.ws.rs:javax.ws.rs-api:2.1.1'
                    force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
                    force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
                    force 'com.google.guava:guava:23.6.1-jre'

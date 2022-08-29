@@ -567,7 +567,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                        extractSubprojectLanguage(projectName, childProjectName));
+                                extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
