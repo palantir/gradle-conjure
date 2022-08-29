@@ -54,6 +54,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
                     force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
                     force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                     force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
+                    force 'javax.ws.rs:javax.ws.rs-api:2.1.1'
                 }
             }   
         }
