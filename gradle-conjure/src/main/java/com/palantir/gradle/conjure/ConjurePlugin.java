@@ -93,7 +93,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
     /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
-    static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
+    static final String ANNOTATION_API = "javax.annotation:javax.annotation-api:1.3.2";
 
     /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
@@ -289,7 +289,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupJerseyProject(Project project) {
-        project.getDependencies().add("api", "jakarta.ws.rs:jakarta.ws.rs-api");
+        project.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
         project.getDependencies().add("compileOnly", ANNOTATION_API);
     }
 
@@ -567,7 +567,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                                extractSubprojectLanguage(projectName, childProjectName));
+                        extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
