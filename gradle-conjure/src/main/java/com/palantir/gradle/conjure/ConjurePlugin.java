@@ -289,7 +289,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupJerseyProject(Project project) {
-        project.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api");
+        project.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api:2.1.1");
         project.getDependencies().add("compileOnly", ANNOTATION_API);
     }
 
@@ -567,7 +567,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                                extractSubprojectLanguage(projectName, childProjectName));
+                        extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
