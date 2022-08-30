@@ -91,9 +91,10 @@ public final class ConjurePlugin implements Plugin<Project> {
     /** Configuration where custom generators should be added as dependencies. */
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
+    /** Aligns with Options in conjure-java-core. */
+    static final String JAKARTA_PACKAGES = "jakartaPackages";
+
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
-    /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
-    static final String ANNOTATION_API = "javax.annotation:javax.annotation-api:1.3.2";
 
     /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
@@ -160,7 +161,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 .put(JAVA_OBJECTS_SUFFIX, (Consumer<Project>) ConjurePlugin::setupObjectsProject)
                 .put(JAVA_DIALOGUE_SUFFIX, (Consumer<Project>) ConjurePlugin::setupDialogueProject)
                 .put(JAVA_RETROFIT_SUFFIX, (Consumer<Project>) ConjurePlugin::setupRetrofitProject)
-                .put(JAVA_JERSEY_SUFFIX, (Consumer<Project>) ConjurePlugin::setupJerseyProject)
+                .put(JAVA_JERSEY_SUFFIX, p -> setupJerseyProject(p, optionsSupplier.get()))
                 .put(JAVA_UNDERTOW_SUFFIX, (Consumer<Project>) ConjurePlugin::setupUndertowProject)
                 .build();
 
@@ -285,14 +286,21 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupRetrofitProject(Project project) {
         project.getDependencies().add("api", "com.google.guava:guava");
         project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-        project.getDependencies().add("compileOnly", ANNOTATION_API);
+        project.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api:1.3.2");
     }
 
-    private static void setupJerseyProject(Project project) {
-        // version is included explicitly to ensure it doesn't have to be pinned
-        // javax version is chosen to avoid conflicts with jakarta EE9 libraries
-        project.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api:2.1.1");
-        project.getDependencies().add("compileOnly", ANNOTATION_API);
+    private static void setupJerseyProject(Project project, GeneratorOptions opts) {
+        if (opts.has(JAKARTA_PACKAGES)) {
+            // version is not set to let the consumer supply it
+            project.getDependencies().add("api", "jakarta.ws.rs:jakarta.ws.rs-api");
+        } else {
+            // version is included explicitly to ensure it doesn't have to be pinned
+            // javax version is chosen to avoid conflicts with jakarta EE9 libraries
+            project.getDependencies().add("api", "javax.ws.rs:javax.ws.rs-api:2.1.1");
+            // make Generated available for Java 8 and earlier, don't do anything with Jakarta (they'll
+            // have a modern JDK if they're migrating to Jakarta)
+            project.getDependencies().add("compileOnly", "javax.annotation:javax.annotation-api:1.3.2");
+        }
     }
 
     private static void setupUndertowProject(Project project) {
