@@ -12,11 +12,11 @@ org.assertj:* = 3.23.1
 org.immutables:value = 2.8.8
 org.junit.jupiter:* = 5.9.0
 org.junit.vintage:* = 5.9.0
-org.mockito:* = 4.6.1
+org.mockito:* = 4.7.0
 org.spockframework:* = 2.0-groovy-3.0
 com.palantir.sls-packaging:* = 7.23.0
-com.palantir.conjure.java.runtime:* = 7.33.0
-net.bytebuddy:byte-buddy = 1.12.13
+com.palantir.conjure.java.runtime:* = 7.38.0
+net.bytebuddy:byte-buddy = 1.12.14
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
