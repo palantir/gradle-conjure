@@ -86,14 +86,10 @@ public final class ConjurePlugin implements Plugin<Project> {
             .add("python")
             .build();
 
-    static final String CONJURE_JAVA_LIB_DEP = "com.palantir.conjure.java:conjure-lib";
-
     /** Configuration where custom generators should be added as dependencies. */
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
-    /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
-    static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
     /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
@@ -275,26 +271,27 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupObjectsProject(Project project) {
-        project.getDependencies().add("api", "com.palantir.conjure.java:conjure-lib");
+        project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
+        project.getDependencies().add("implementation", Dependencies.JETBRAINS_ANNOTATIONS);
     }
 
     private static void setupDialogueProject(Project project) {
-        project.getDependencies().add("api", "com.palantir.dialogue:dialogue-target");
+        project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
     }
 
     private static void setupRetrofitProject(Project project) {
         project.getDependencies().add("api", "com.google.guava:guava");
         project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-        project.getDependencies().add("compileOnly", ANNOTATION_API);
+        project.getDependencies().add("compileOnly", Dependencies.ANNOTATION_API);
     }
 
     private static void setupJerseyProject(Project project) {
-        project.getDependencies().add("api", "jakarta.ws.rs:jakarta.ws.rs-api");
-        project.getDependencies().add("compileOnly", ANNOTATION_API);
+        project.getDependencies().add("api", Dependencies.JAXRS_API);
+        project.getDependencies().add("compileOnly", Dependencies.ANNOTATION_API);
     }
 
     private static void setupUndertowProject(Project project) {
-        project.getDependencies().add("api", "com.palantir.conjure.java:conjure-undertow-lib");
+        project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
     }
 
     @SuppressWarnings({"unchecked", "RawTypes"})
@@ -313,10 +310,12 @@ public final class ConjurePlugin implements Plugin<Project> {
             proj.getTasks().withType(checkUnusedDependenciesTask).configureEach(task -> {
                 try {
                     Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
-                    List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(CONJURE_JAVA_LIB_DEP);
+                    List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(Dependencies.CONJURE_JAVA_LIB);
                     ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
                     // also ignore guava since retrofit adds it...
                     ignoreMethod.invoke(task, "com.google.guava", "guava");
+                    // And jetbrains annotations
+                    ignoreMethod.invoke(task, "org.jetbrains", "annotations");
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
                 }
