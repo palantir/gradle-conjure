@@ -31,6 +31,14 @@ public class ConjureExtension {
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
+    public ConjureExtension() {
+        // Projects using sufficiently new gradle-conjure have jetbrains-annotations
+        // added by default. Conjure generators ignore unknown flags and will not be
+        // impacted if generators have not been updated.
+        // See https://github.com/palantir/conjure-java/pull/1884
+        javaOptions.addFlag("jetbrainsContractAnnotations");
+    }
+
     public final void typescript(
             // rawtypes to support idea integration
             @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
