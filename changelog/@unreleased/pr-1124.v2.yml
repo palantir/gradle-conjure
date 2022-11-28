@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix exact dependency check failures in conjure-java-local
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1124

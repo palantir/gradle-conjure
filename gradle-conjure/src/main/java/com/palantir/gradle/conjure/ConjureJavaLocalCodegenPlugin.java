@@ -107,6 +107,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
+        ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
