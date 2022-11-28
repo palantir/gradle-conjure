@@ -16,7 +16,11 @@
 
 package com.palantir.gradle.conjure
 
+import com.google.common.io.ByteStreams
 import com.palantir.gradle.dist.RecommendedProductDependencies
+import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin
+
+import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 import nebula.test.IntegrationSpec
@@ -180,8 +184,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted(':conjure-api:compileJava')
         result.wasExecuted(':conjure-api:generateConjure')
 
-        def recommendedProductDependencies = readRecommendedProductDeps(file('conjure-api/build/libs/conjure-api-1.0.0.jar'))
-        recommendedProductDependencies == '{"recommended-product-dependencies":[{' +
+        def expected = '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
                 '"product-name":"conjure",' +
                 '"minimum-version":"1.2.0",' +
@@ -189,6 +192,9 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
                 '"maximum-version":"2.x.x",' +
                 '"optional":false' +
                 '}]}'
+        def jarFile = file('conjure-api/build/libs/conjure-api-1.0.0.jar')
+        readManifestRecommendedProductDeps(jarFile) == expected
+        readResourceRecommendedProductDeps(jarFile) == expected
     }
 
     def "fails if missing corresponding subproject"() {
@@ -224,11 +230,18 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.standardError.contains "Generator options must contain at least one of"
     }
 
-    def readRecommendedProductDeps(File jarFile) {
+    def readManifestRecommendedProductDeps(File jarFile) {
         def zf = new ZipFile(jarFile)
         def manifestEntry = zf.getEntry("META-INF/MANIFEST.MF")
         def manifest = new Manifest(zf.getInputStream(manifestEntry))
         return manifest.getMainAttributes().getValue(
                 RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
+    }
+
+    def readResourceRecommendedProductDeps(File jarFile) {
+        try (def zf = new ZipFile(jarFile)) {
+            def manifestEntry = zf.getEntry(RecommendedProductDependenciesPlugin.RESOURCE_PATH)
+            return new String(ByteStreams.toByteArray(zf.getInputStream(manifestEntry)), StandardCharsets.UTF_8)
+        }
     }
 }
