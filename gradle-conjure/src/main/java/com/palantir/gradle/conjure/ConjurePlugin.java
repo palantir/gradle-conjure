@@ -295,7 +295,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     @SuppressWarnings({"unchecked", "RawTypes"})
-    private static void ignoreFromCheckUnusedDependencies(Project proj) {
+    static void ignoreFromCheckUnusedDependencies(Project proj) {
         proj.getPlugins().withId("com.palantir.baseline-exact-dependencies", plugin -> {
             Class<? extends Task> checkUnusedDependenciesTask;
             try {
