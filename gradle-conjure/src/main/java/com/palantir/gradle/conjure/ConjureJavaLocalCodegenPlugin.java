@@ -21,8 +21,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.palantir.conjure.java.serialization.ObjectMappers;
 import com.palantir.gradle.conjure.api.ConjureExtension;
-import com.palantir.gradle.dist.ConfigureProductDependenciesTask;
 import com.palantir.gradle.dist.ProductDependency;
+import com.palantir.gradle.dist.RecommendedProductDependenciesExtension;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.File;
@@ -118,13 +118,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         Provider<File> conjureIrFile = extractConjureIr.map(
                 irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
-        project.getTasks()
-                .named("configureProductDependencies", ConfigureProductDependenciesTask.class)
-                .configure(task -> {
-                    task.setProductDependencies(
-                            conjureIrFile.map(ConjureJavaLocalCodegenPlugin::extractProductDependencies));
-                    task.dependsOn(extractConjureIr);
-                });
+
+        project.getExtensions()
+                .getByType(RecommendedProductDependenciesExtension.class)
+                .getRecommendedProductDependenciesProvider()
+                .set(conjureIrFile.map(ConjureJavaLocalCodegenPlugin::extractProductDependencies));
 
         TaskProvider<ConjureJavaLocalGeneratorTask> generateJava = project.getTasks()
                 .register("generateConjure", ConjureJavaLocalGeneratorTask.class, task -> {
