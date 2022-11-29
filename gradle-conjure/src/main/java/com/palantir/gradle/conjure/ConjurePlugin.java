@@ -158,7 +158,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 .put(JAVA_RETROFIT_SUFFIX, (Consumer<Project>) ConjurePlugin::setupRetrofitProject)
                 .put(JAVA_JERSEY_SUFFIX, (Consumer<Project>) ConjurePlugin::setupJerseyProject)
                 .put(JAVA_UNDERTOW_SUFFIX, (Consumer<Project>) ConjurePlugin::setupUndertowProject)
-                .build();
+                .buildOrThrow();
 
         // Make sure project names align
         Sets.SetView<String> difference = Sets.difference(configs.keySet(), JAVA_PROJECT_SUFFIXES);

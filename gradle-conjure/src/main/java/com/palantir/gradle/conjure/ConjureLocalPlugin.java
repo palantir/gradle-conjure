@@ -101,7 +101,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                         GeneratorOptions generatorOptions = optionsSupplier.get();
                         Preconditions.checkArgument(
                                 UNSAFE_JAVA_OPTIONS.stream().noneMatch(generatorOptions::has),
-                                "Unable to generate Java bindings since unsafe options were provided",
+                                "Unable to generate Java bindings since unsafe options were provided: %s",
                                 generatorOptions.getProperties());
 
                         return generatorOptions;
