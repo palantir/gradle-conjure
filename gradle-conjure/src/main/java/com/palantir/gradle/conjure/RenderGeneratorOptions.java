@@ -57,7 +57,7 @@ public final class RenderGeneratorOptions {
             }
         });
 
-        return resolvedProperties.build().entrySet().stream()
+        return resolvedProperties.buildOrThrow().entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
                 .map(entry -> {
                     Object value = entry.getValue();
