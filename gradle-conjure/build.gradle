@@ -52,18 +52,22 @@ gradlePlugin {
         conjure {
             id = 'com.palantir.conjure'
             implementationClass = 'com.palantir.gradle.conjure.ConjurePlugin'
+            displayName = 'Palantir GradleConjure Plugin'
         }
         conjurePublish {
             id = 'com.palantir.conjure-publish'
             implementationClass = 'com.palantir.gradle.conjure.ConjurePublishPlugin'
+            displayName = 'Palantir Gradle Conjure Publish Plugin'
         }
         conjureLocal {
             id = 'com.palantir.conjure-local'
             implementationClass = 'com.palantir.gradle.conjure.ConjureLocalPlugin'
+            displayName = 'Palantir Gradle Conjure Local Plugin'
         }
         conjureJavaLocal {
             id = 'com.palantir.conjure-java-local'
             implementationClass = 'com.palantir.gradle.conjure.ConjureJavaLocalCodegenPlugin'
+            displayName = 'Palantir Gradle Conjure Java Local Plugin'
         }
     }
 }
@@ -73,21 +77,6 @@ pluginBundle {
     vcsUrl = 'https://github.com/palantir/gradle-conjure'
     description = 'Gradle conjure is a gradle plugin integration for conjure generators'
     tags = ['conjure', 'code gen']
-
-    plugins {
-        conjure {
-            displayName = 'Palantir GradleConjure Plugin'
-        }
-        conjurePublish {
-            displayName = 'Palantir Gradle Conjure Publish Plugin'
-        }
-        conjureLocal {
-            displayName = 'Palantir Gradle Conjure Local Plugin'
-        }
-        conjureJavaLocal {
-            displayName = 'Palantir Gradle Conjure Java Local Plugin'
-        }
-    }
 }
 
 idea {
