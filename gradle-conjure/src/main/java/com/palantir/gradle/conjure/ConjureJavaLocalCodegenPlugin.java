@@ -31,22 +31,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 
 public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMappers.newClientObjectMapper();
     private static final String CONJURE_CONFIGURATION = "conjure";
-    private static final Pattern DEFINITION_NAME =
-            Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(\\.conjure)?\\.json");
 
     @Override
     public void apply(Project project) {
@@ -56,11 +53,10 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
-        TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
-            task.rename(DEFINITION_NAME, "$1.conjure.json");
-            task.from(conjureIrConfiguration);
-            task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
-        });
+        TaskProvider<ExtractConjureIrTask> extractConjureIr = project.getTasks()
+                .register("extractConjureIr", ExtractConjureIrTask.class, task -> {
+                    task.getIrConfiguration().set(conjureIrConfiguration);
+                });
 
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
@@ -71,7 +67,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             Project project,
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            TaskProvider<Copy> extractConjureIr,
+            TaskProvider<ExtractConjureIrTask> extractConjureIr,
             Configuration conjureIrConfiguration) {
 
         // Validating that each subproject has a corresponding definition and vice versa.
@@ -106,7 +102,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             Project project,
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            TaskProvider<Copy> extractConjureIr) {
+            TaskProvider<ExtractConjureIrTask> extractConjureIr) {
         ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
         ConjurePlugin.addGeneratedToMainSourceSet(project);
 
@@ -117,8 +113,9 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
-        Provider<File> conjureIrFile = extractConjureIr.map(
-                irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
+        Provider<File> conjureIrFile = extractConjureIr
+                .flatMap(task -> task.getConjureIr().file(project.getName() + ".conjure.json"))
+                .map(RegularFile::getAsFile);
 
         project.getExtensions()
                 .getByType(RecommendedProductDependenciesExtension.class)
