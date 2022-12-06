@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -116,8 +117,12 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
-        Provider<File> conjureIrFile = extractConjureIr.map(
-                irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
+        // Map to outputs to create a task dependency on 'extractConjureIr' from consumers
+        Provider<File> conjureIrFile = extractConjureIr
+                .map(DefaultTask::getOutputs)
+                .map(outputs -> outputs.getFiles()
+                        .filter(element -> element.getName().equals(project.getName() + ".conjure.json"))
+                        .getSingleFile());
 
         project.getExtensions()
                 .getByType(RecommendedProductDependenciesExtension.class)
