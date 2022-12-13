@@ -18,10 +18,8 @@ package com.palantir.gradle.conjure;
 
 import java.util.regex.Pattern;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.Sync;
@@ -34,10 +32,9 @@ public abstract class ExtractConjureIrTask extends Sync {
     public ExtractConjureIrTask() {
         rename(DEFINITION_NAME, "$1.conjure.json");
         from(getIrConfiguration());
-        Provider<Directory> outputDirectory =
-                getProject().getLayout().getBuildDirectory().dir("conjure-ir");
-        into(outputDirectory);
-        getConjureIr().set(outputDirectory);
+        getConjureIr().set(getProject().getLayout().getBuildDirectory().dir("conjure-ir"));
+        getConjureIr().disallowChanges();
+        into(getConjureIr());
     }
 
     /** Configuration used to resolve IR. */

@@ -25,7 +25,6 @@ import com.palantir.gradle.dist.ProductDependency;
 import com.palantir.gradle.dist.RecommendedProductDependenciesExtension;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -113,9 +112,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
 
-        Provider<File> conjureIrFile = extractConjureIr
-                .flatMap(task -> task.getConjureIr().file(project.getName() + ".conjure.json"))
-                .map(RegularFile::getAsFile);
+        Provider<RegularFile> conjureIrFile =
+                extractConjureIr.flatMap(task -> task.getConjureIr().file(project.getName() + ".conjure.json"));
 
         project.getExtensions()
                 .getByType(RecommendedProductDependenciesExtension.class)
@@ -153,10 +151,10 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         return group.replaceAll("-", "");
     }
 
-    private static Set<ProductDependency> extractProductDependencies(File irFile) {
+    private static Set<ProductDependency> extractProductDependencies(RegularFile irFile) {
         try {
             MinimalConjureDefinition conjureDefinition =
-                    OBJECT_MAPPER.readValue(irFile, MinimalConjureDefinition.class);
+                    OBJECT_MAPPER.readValue(irFile.getAsFile(), MinimalConjureDefinition.class);
             return conjureDefinition
                     .extensions()
                     .map(MinimalConjureDefinition.Extensions::productDependencies)
