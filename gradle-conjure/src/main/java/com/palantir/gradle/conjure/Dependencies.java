@@ -19,12 +19,15 @@ package com.palantir.gradle.conjure;
 final class Dependencies {
 
     /** Make the old Java8 @Generated annotation available even when compiling with Java9+. */
-    static final String ANNOTATION_API = "jakarta.annotation:jakarta.annotation-api:1.3.5";
+    static final String ANNOTATION_API_JAKARTA = "jakarta.annotation:jakarta.annotation-api:1.3.5";
+
+    static final String ANNOTATION_API_JAVAX = "javax.annotation:javax.annotation-api:1.3.2";
 
     static final String CONJURE_JAVA_LIB = "com.palantir.conjure.java:conjure-lib";
     static final String CONJURE_UNDERTOW_LIB = "com.palantir.conjure.java:conjure-undertow-lib";
     static final String DIALOGUE_TARGET = "com.palantir.dialogue:dialogue-target";
-    static final String JAXRS_API = "jakarta.ws.rs:jakarta.ws.rs-api";
+    static final String JAXRS_API_JAKARTA = "jakarta.ws.rs:jakarta.ws.rs-api";
+    static final String JAXRS_API_JAVAX = "javax.ws.rs:javax.ws.rs-api";
     /**
      * Includes a version in order to ensure upgrades that opt into annotations
      * have a minimum version rather than failing builds.
