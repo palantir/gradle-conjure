@@ -281,7 +281,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupRetrofitProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
-        boolean useJakarta = Dependencies.isUseJakartaNamespaces(optionsSupplier.get());
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies().add("api", "com.google.guava:guava");
         project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
         project.getDependencies()
@@ -291,7 +291,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
-        boolean useJakarta = Dependencies.isUseJakartaNamespaces(optionsSupplier.get());
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies()
                 .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
         project.getDependencies()

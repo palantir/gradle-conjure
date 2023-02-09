@@ -112,7 +112,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("implementation", Dependencies.JETBRAINS_ANNOTATIONS);
-        boolean useJakarta = Dependencies.isUseJakartaNamespaces(extension.getJava());
+        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
         project.getDependencies()
                 .add(
                         "compileOnly",
