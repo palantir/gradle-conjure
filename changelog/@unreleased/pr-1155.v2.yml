@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: by default gradle-conjure will generate a project with the older "javax"
+    dependencies unless "useJakartaNamespaces" is set to true, and then it will select
+    the newer "jakarta" dependencies.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1155
