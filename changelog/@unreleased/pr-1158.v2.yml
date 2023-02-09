@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Test for the correct 'jakartaPackages' flag when generating dependencies.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1158
