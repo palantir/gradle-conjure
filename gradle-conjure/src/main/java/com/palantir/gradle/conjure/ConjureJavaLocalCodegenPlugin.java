@@ -112,11 +112,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("implementation", Dependencies.JETBRAINS_ANNOTATIONS);
-        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
         project.getDependencies()
-                .add(
+                .addProvider(
                         "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
+                        project.getProviders()
+                                .provider(() -> Dependencies.getAnnotationApiDependency(extension::getJava)));
 
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
