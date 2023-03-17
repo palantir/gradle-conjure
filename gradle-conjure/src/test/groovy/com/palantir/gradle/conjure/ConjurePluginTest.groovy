@@ -509,6 +509,38 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
+    def 'featureFlag JakartaPackages can be enabled: #location'() {
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                jakartaPackages = true
+            }
+        }
+        '''.stripIndent()
+        updateSettings(prefix)
+
+        when:
+        runTasksSuccessfully(':api:compileConjureJersey')
+        ExecutionResult jerseyDependenciesResult = runTasksSuccessfully(prefixProject(prefix, 'api-jersey:dependencies'))
+
+        then:
+        String generatedServicePath = prefixPath(prefix, 'api-jersey/src/generated/java/test/test/api/TestServiceFoo.java')
+        fileExists(generatedServicePath)
+        File generatedService = new File(projectDir, generatedServicePath)
+        generatedService.text.contains("import jakarta.ws.rs")
+        !generatedService.text.contains("import javax.ws.rs")
+
+        jerseyDependenciesResult.standardOutput.contains("jakarta.ws.rs:jakarta.ws.rs-api")
+        jerseyDependenciesResult.standardOutput.contains("jakarta.annotation:jakarta.annotation-api")
+        !jerseyDependenciesResult.standardOutput.contains("javax.ws.rs:javax.ws.rs-api")
+        !jerseyDependenciesResult.standardOutput.contains("javax.annotation:javax.annotation-api")
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
     def 'typescript extension is respected: #location'() {
         file('api/build.gradle') << '''
         conjure {
