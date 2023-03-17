@@ -17,6 +17,7 @@
 package com.palantir.gradle.conjure;
 
 import com.palantir.gradle.conjure.api.GeneratorOptions;
+import java.util.function.Supplier;
 
 final class Dependencies {
 
@@ -37,8 +38,16 @@ final class Dependencies {
 
     private static final String JAKARTA_PACKAGES = "jakartaPackages";
 
-    static boolean isJakartaPackages(GeneratorOptions options) {
+    private static boolean isJakartaPackages(GeneratorOptions options) {
         return options.has(JAKARTA_PACKAGES) && Boolean.TRUE.equals(options.get(JAKARTA_PACKAGES));
+    }
+
+    static String getJaxrsApiDependency(Supplier<GeneratorOptions> optionsSupplier) {
+        return isJakartaPackages(optionsSupplier.get()) ? JAXRS_API_JAKARTA : JAXRS_API_JAVAX;
+    }
+
+    static String getAnnotationApiDependency(Supplier<GeneratorOptions> optionsSupplier) {
+        return isJakartaPackages(optionsSupplier.get()) ? ANNOTATION_API_JAKARTA : ANNOTATION_API_JAVAX;
     }
 
     private Dependencies() {}
