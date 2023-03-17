@@ -35,10 +35,10 @@ final class Dependencies {
      */
     static final String JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:23.0.0";
 
-    private static final String USE_JAKARTA_NAMESPACES = "useJakartaNamespaces";
+    private static final String JAKARTA_PACKAGES = "jakartaPackages";
 
-    static boolean isUseJakartaNamespaces(GeneratorOptions options) {
-        return options.has(USE_JAKARTA_NAMESPACES) && Boolean.TRUE.equals(options.get(USE_JAKARTA_NAMESPACES));
+    static boolean isJakartaPackages(GeneratorOptions options) {
+        return options.has(JAKARTA_PACKAGES) && Boolean.TRUE.equals(options.get(JAKARTA_PACKAGES));
     }
 
     private Dependencies() {}
