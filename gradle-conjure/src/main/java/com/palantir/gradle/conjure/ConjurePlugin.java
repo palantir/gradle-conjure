@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -155,13 +155,14 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
-        Map<String, Consumer<Project>> configs = ImmutableMap.<String, Consumer<Project>>builder()
-                .put(JAVA_OBJECTS_SUFFIX, (Consumer<Project>) ConjurePlugin::setupObjectsProject)
-                .put(JAVA_DIALOGUE_SUFFIX, (Consumer<Project>) ConjurePlugin::setupDialogueProject)
-                .put(JAVA_RETROFIT_SUFFIX, (Consumer<Project>) ConjurePlugin::setupRetrofitProject)
-                .put(JAVA_JERSEY_SUFFIX, (Consumer<Project>) ConjurePlugin::setupJerseyProject)
-                .put(JAVA_UNDERTOW_SUFFIX, (Consumer<Project>) ConjurePlugin::setupUndertowProject)
-                .buildOrThrow();
+        Map<String, BiConsumer<Project, Supplier<GeneratorOptions>>> configs =
+                ImmutableMap.<String, BiConsumer<Project, Supplier<GeneratorOptions>>>builder()
+                        .put(JAVA_OBJECTS_SUFFIX, ConjurePlugin::setupObjectsProject)
+                        .put(JAVA_DIALOGUE_SUFFIX, ConjurePlugin::setupDialogueProject)
+                        .put(JAVA_RETROFIT_SUFFIX, ConjurePlugin::setupRetrofitProject)
+                        .put(JAVA_JERSEY_SUFFIX, ConjurePlugin::setupJerseyProject)
+                        .put(JAVA_UNDERTOW_SUFFIX, ConjurePlugin::setupUndertowProject)
+                        .buildOrThrow();
 
         // Make sure project names align
         Sets.SetView<String> difference = Sets.difference(configs.keySet(), JAVA_PROJECT_SUFFIXES);
@@ -172,7 +173,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + difference);
         }
 
-        configs.forEach((suffix, config) -> setupDerivedJavaProject(
+        project.afterEvaluate(_p -> configs.forEach((suffix, config) -> setupDerivedJavaProject(
                 suffix,
                 project,
                 optionsSupplier,
@@ -180,7 +181,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileIrTask,
                 productDependencyExt,
                 extractJavaTask,
-                config));
+                config)));
     }
 
     private static Project setupDerivedJavaProject(
@@ -191,7 +192,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            Consumer<Project> extraConfig) {
+            BiConsumer<Project, Supplier<GeneratorOptions>> extraConfig) {
         String projectName = getDerivedProjectName(parentProject, projectSuffix);
         if (!derivedProjectExists(parentProject, projectName)) {
             return null;
@@ -239,7 +240,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
             }
             if (extraConfig != null) {
-                extraConfig.accept(subproj);
+                extraConfig.accept(subproj, optionsSupplier);
             }
         });
     }
@@ -273,27 +274,36 @@ public final class ConjurePlugin implements Plugin<Project> {
         return !(projectName.endsWith(JAVA_OBJECTS_SUFFIX) || projectName.endsWith(JAVA_UNDERTOW_SUFFIX));
     }
 
-    private static void setupObjectsProject(Project project) {
+    private static void setupObjectsProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("implementation", Dependencies.JETBRAINS_ANNOTATIONS);
     }
 
-    private static void setupDialogueProject(Project project) {
+    private static void setupDialogueProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
     }
 
-    private static void setupRetrofitProject(Project project) {
+    private static void setupRetrofitProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies().add("api", "com.google.guava:guava");
         project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-        project.getDependencies().add("compileOnly", Dependencies.ANNOTATION_API);
+        project.getDependencies()
+                .add(
+                        "compileOnly",
+                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
     }
 
-    private static void setupJerseyProject(Project project) {
-        project.getDependencies().add("api", Dependencies.JAXRS_API);
-        project.getDependencies().add("compileOnly", Dependencies.ANNOTATION_API);
+    private static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
+        project.getDependencies()
+                .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
+        project.getDependencies()
+                .add(
+                        "compileOnly",
+                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
     }
 
-    private static void setupUndertowProject(Project project) {
+    private static void setupUndertowProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
     }
 
