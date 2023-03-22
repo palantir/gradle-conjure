@@ -59,6 +59,9 @@ import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
+import org.gradle.plugins.ide.eclipse.model.Classpath;
+import org.gradle.plugins.ide.eclipse.model.EclipseModel;
+import org.gradle.plugins.ide.eclipse.model.SourceFolder;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
@@ -618,12 +621,31 @@ public final class ConjurePlugin implements Plugin<Project> {
             module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
                     module.getGeneratedSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
+
         project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
             try {
                 project.getTasks().named("eclipseClasspath").configure(t -> t.dependsOn(compileConjure));
             } catch (UnknownTaskException e) {
                 // eclipseClasspath is not always registered
             }
+            project.getExtensions().configure(EclipseModel.class, eclipseModel -> {
+                eclipseModel.classpath(classpath -> {
+                    classpath.file(file -> {
+                        file.whenMerged((Classpath cp) -> {
+                            cp.getEntries().stream()
+                                    .filter(cpe -> cpe instanceof SourceFolder)
+                                    .map(cpe -> (SourceFolder) cpe)
+                                    .filter(sf -> sf.getPath().equals(JAVA_GENERATED_SOURCE_DIRNAME))
+                                    .findFirst()
+                                    .ifPresent(sf -> {
+                                        Map<String, Object> attributes = sf.getEntryAttributes();
+                                        attributes.put("ignore_optional_problems", "true");
+                                        attributes.put("optional", "true");
+                                    });
+                        });
+                    });
+                });
+            });
         });
     }
 
