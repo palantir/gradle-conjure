@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: conjure-java-local adds correct dependencies for jaxrs, dialogue, and
+    conjure-undertow generated code.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1200
