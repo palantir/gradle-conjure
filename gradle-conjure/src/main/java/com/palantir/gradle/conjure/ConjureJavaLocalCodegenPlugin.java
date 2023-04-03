@@ -81,7 +81,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
 
         project.afterEvaluate(_p -> {
             project.getChildProjects().forEach((_name, subproject) -> {
-                // Configure subproject dependencies in after-evaluate to ensure the has been evaluated.
+                // Configure subproject dependencies in after-evaluate to ensure
+                // extension the has been evaluated.
                 configureDependencies(subproject, extension);
             });
             // Validating that each subproject has a corresponding definition and vice versa.
