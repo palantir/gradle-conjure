@@ -73,10 +73,20 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr,
             Configuration conjureIrConfiguration) {
+        project.getChildProjects().forEach((_name, subproject) -> {
+            subproject.getPluginManager().apply(JavaLibraryPlugin.class);
+            subproject.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
+            createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
+        });
 
-        // Validating that each subproject has a corresponding definition and vice versa.
-        // We do this in afterEvaluate to ensure the configuration is populated.
         project.afterEvaluate(_p -> {
+            project.getChildProjects().forEach((_name, subproject) -> {
+                // Configure subproject dependencies in after-evaluate to ensure
+                // extension the has been evaluated.
+                configureDependencies(subproject, extension);
+            });
+            // Validating that each subproject has a corresponding definition and vice versa.
+            // We do this in afterEvaluate to ensure the configuration is populated.
             Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
                     .map(Dependency::getName)
                     .collect(ImmutableSet.toImmutableSet());
@@ -94,12 +104,26 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                         String.format("Discovered subprojects %s without corresponding dependencies.", missingApis));
             }
         });
+    }
 
-        project.getChildProjects().forEach((_name, subproject) -> {
-            subproject.getPluginManager().apply(JavaLibraryPlugin.class);
-            subproject.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);
-            createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
-        });
+    private static void configureDependencies(Project project, ConjureExtension extension) {
+        project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
+        project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
+        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
+        project.getDependencies()
+                .add(
+                        "compileOnly",
+                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
+        if (Dependencies.isJersey(extension.getJava())) {
+            project.getDependencies()
+                    .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
+        }
+        if (Dependencies.isDialogue(extension.getJava())) {
+            project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
+        }
+        if (Dependencies.isUndertow(extension.getJava())) {
+            project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
+        }
     }
 
     private static void createGenerateTask(
@@ -109,14 +133,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
         ConjurePlugin.addGeneratedToMainSourceSet(project);
-
-        project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
-        project.getDependencies().add("implementation", Dependencies.JETBRAINS_ANNOTATIONS);
-        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
-        project.getDependencies()
-                .add(
-                        "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
 
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);

@@ -36,9 +36,24 @@ final class Dependencies {
     static final String JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:23.0.0";
 
     private static final String JAKARTA_PACKAGES = "jakartaPackages";
+    private static final String JERSEY = "jersey";
+    private static final String DIALOGUE = "dialogue";
+    private static final String UNDERTOW = "undertow";
 
     static boolean isJakartaPackages(GeneratorOptions options) {
         return options.has(JAKARTA_PACKAGES) && Boolean.TRUE.equals(options.get(JAKARTA_PACKAGES));
+    }
+
+    static boolean isJersey(GeneratorOptions options) {
+        return options.has(JERSEY) && Boolean.TRUE.equals(options.get(JERSEY));
+    }
+
+    static boolean isDialogue(GeneratorOptions options) {
+        return options.has(DIALOGUE) && Boolean.TRUE.equals(options.get(DIALOGUE));
+    }
+
+    static boolean isUndertow(GeneratorOptions options) {
+        return options.has(UNDERTOW) && Boolean.TRUE.equals(options.get(UNDERTOW));
     }
 
     private Dependencies() {}
