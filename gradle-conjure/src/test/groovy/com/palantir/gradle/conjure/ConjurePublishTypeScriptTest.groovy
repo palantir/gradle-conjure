@@ -59,14 +59,26 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         apply plugin: 'com.palantir.conjure'
         '''.stripIndent()
 
-        createFile('api/src/main/conjure/api.yml') << '''
+        createFile('api/src/main/conjure/shared.yml') << '''
         types:
           definitions:
-            default-package: test.test.api
+            default-package: test.test.shared
             objects:
               StringExample:
                 fields:
                   string: string
+        '''.stripIndent()
+
+        createFile('api/src/main/conjure/api.yml') << '''
+        types:
+          conjure-imports:
+            shared: shared.yml
+          definitions:
+            default-package: test.test.api
+            objects:
+              StringExample:
+                union:
+                  sharedString: shared.StringExample
         services:
           TestServiceFoo:
             name: Test Service Foo
@@ -110,9 +122,11 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
     def 'compiles TypeScript'() {
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
+        ExecutionResult result = runTasksWithFailure(':api:compileTypeScript')
 
         then:
+        println(result.standardOutput)
+        result.rethrowFailure()
         result.wasExecuted('api:installTypeScriptDependencies')
         result.wasExecuted('api:compileConjureTypeScript')
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
