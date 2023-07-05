@@ -80,28 +80,29 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         });
 
         project.getChildProjects().forEach((_name, subproject) -> {
-            // Configure subproject dependencies in after-evaluate to ensure
-            // extension the has been evaluated.
             configureDependencies(subproject, extension);
         });
-        // Validating that each subproject has a corresponding definition and vice versa.
-        // We do this in afterEvaluate to ensure the configuration is populated.
-        Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
-                .map(Dependency::getName)
-                .collect(ImmutableSet.toImmutableSet());
 
-        Sets.SetView<String> missingProjects =
-                Sets.difference(apis, project.getChildProjects().keySet());
-        if (!missingProjects.isEmpty()) {
-            throw new RuntimeException(
-                    String.format("Discovered dependencies %s without corresponding subprojects.", missingProjects));
-        }
-        Sets.SetView<String> missingApis =
-                Sets.difference(project.getChildProjects().keySet(), apis);
-        if (!missingApis.isEmpty()) {
-            throw new RuntimeException(
-                    String.format("Discovered subprojects %s without corresponding dependencies.", missingApis));
-        }
+        project.afterEvaluate(_p -> {
+            // Validating that each subproject has a corresponding definition and vice versa.
+            // We do this in afterEvaluate to ensure the configuration is populated.
+            Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
+                    .map(Dependency::getName)
+                    .collect(ImmutableSet.toImmutableSet());
+
+            Sets.SetView<String> missingProjects =
+                    Sets.difference(apis, project.getChildProjects().keySet());
+            if (!missingProjects.isEmpty()) {
+                throw new RuntimeException(
+                        String.format("Discovered dependencies %s without corresponding subprojects.", missingProjects));
+            }
+            Sets.SetView<String> missingApis =
+                    Sets.difference(project.getChildProjects().keySet(), apis);
+            if (!missingApis.isEmpty()) {
+                throw new RuntimeException(
+                        String.format("Discovered subprojects %s without corresponding dependencies.", missingApis));
+            }
+        });
     }
 
     private static void configureDependencies(Project project, ConjureExtension extension) {
