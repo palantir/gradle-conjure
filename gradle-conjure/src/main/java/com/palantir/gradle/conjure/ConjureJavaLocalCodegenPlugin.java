@@ -93,8 +93,8 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             Sets.SetView<String> missingProjects =
                     Sets.difference(apis, project.getChildProjects().keySet());
             if (!missingProjects.isEmpty()) {
-                throw new RuntimeException(
-                        String.format("Discovered dependencies %s without corresponding subprojects.", missingProjects));
+                throw new RuntimeException(String.format(
+                        "Discovered dependencies %s without corresponding subprojects.", missingProjects));
             }
             Sets.SetView<String> missingApis =
                     Sets.difference(project.getChildProjects().keySet(), apis);
