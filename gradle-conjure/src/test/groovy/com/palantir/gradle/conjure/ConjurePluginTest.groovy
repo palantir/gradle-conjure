@@ -509,6 +509,33 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
+    def 'featureFlag jakartaPackages can be enabled: #location'() {
+        setup:
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                jakartaPackages = true
+            }
+        }
+        '''.stripIndent()
+        updateSettings(prefix)
+
+        when:
+        ExecutionResult result = runTasks(prefixProject(prefix, 'api-jersey:compileJava'))
+
+        then:
+        result.success
+        String generated = prefixPath(prefix, 'api-jersey/src/generated/java/test/test/api/TestServiceFoo.java')
+        fileExists(generated)
+        File generatedFile = new File(projectDir, generated)
+        generatedFile.text.contains("import jakarta.ws.rs.POST;")
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
     def 'typescript extension is respected: #location'() {
         file('api/build.gradle') << '''
         conjure {
