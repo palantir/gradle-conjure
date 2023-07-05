@@ -79,51 +79,63 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
         });
 
-        project.afterEvaluate(_p -> {
-            project.getChildProjects().forEach((_name, subproject) -> {
-                // Configure subproject dependencies in after-evaluate to ensure
-                // extension the has been evaluated.
-                configureDependencies(subproject, extension);
-            });
-            // Validating that each subproject has a corresponding definition and vice versa.
-            // We do this in afterEvaluate to ensure the configuration is populated.
-            Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
-                    .map(Dependency::getName)
-                    .collect(ImmutableSet.toImmutableSet());
-
-            Sets.SetView<String> missingProjects =
-                    Sets.difference(apis, project.getChildProjects().keySet());
-            if (!missingProjects.isEmpty()) {
-                throw new RuntimeException(String.format(
-                        "Discovered dependencies %s without corresponding subprojects.", missingProjects));
-            }
-            Sets.SetView<String> missingApis =
-                    Sets.difference(project.getChildProjects().keySet(), apis);
-            if (!missingApis.isEmpty()) {
-                throw new RuntimeException(
-                        String.format("Discovered subprojects %s without corresponding dependencies.", missingApis));
-            }
+        project.getChildProjects().forEach((_name, subproject) -> {
+            // Configure subproject dependencies in after-evaluate to ensure
+            // extension the has been evaluated.
+            configureDependencies(subproject, extension);
         });
+        // Validating that each subproject has a corresponding definition and vice versa.
+        // We do this in afterEvaluate to ensure the configuration is populated.
+        Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
+                .map(Dependency::getName)
+                .collect(ImmutableSet.toImmutableSet());
+
+        Sets.SetView<String> missingProjects =
+                Sets.difference(apis, project.getChildProjects().keySet());
+        if (!missingProjects.isEmpty()) {
+            throw new RuntimeException(
+                    String.format("Discovered dependencies %s without corresponding subprojects.", missingProjects));
+        }
+        Sets.SetView<String> missingApis =
+                Sets.difference(project.getChildProjects().keySet(), apis);
+        if (!missingApis.isEmpty()) {
+            throw new RuntimeException(
+                    String.format("Discovered subprojects %s without corresponding dependencies.", missingApis));
+        }
     }
 
     private static void configureDependencies(Project project, ConjureExtension extension) {
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
-        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
         project.getDependencies()
-                .add(
+                .addProvider(
                         "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
-        if (Dependencies.isJersey(extension.getJava())) {
-            project.getDependencies()
-                    .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
-        }
-        if (Dependencies.isDialogue(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
-        }
-        if (Dependencies.isUndertow(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
-        }
+                        project.getProviders()
+                                .provider(() -> Dependencies.isJakartaPackages(extension.getJava())
+                                        ? Dependencies.ANNOTATION_API_JAKARTA
+                                        : Dependencies.ANNOTATION_API_JAVAX));
+        project.getDependencies().addProvider("api", project.getProviders().provider(() -> {
+            if (Dependencies.isJersey(extension.getJava())) {
+                return Dependencies.isJakartaPackages(extension.getJava())
+                        ? Dependencies.JAXRS_API_JAKARTA
+                        : Dependencies.JAXRS_API_JAVAX;
+            }
+            return null;
+        }));
+        project.getDependencies()
+                .addProvider(
+                        "api",
+                        project.getProviders()
+                                .provider(() -> Dependencies.isDialogue(extension.getJava())
+                                        ? Dependencies.DIALOGUE_TARGET
+                                        : null));
+        project.getDependencies()
+                .addProvider(
+                        "api",
+                        project.getProviders()
+                                .provider(() -> Dependencies.isUndertow(extension.getJava())
+                                        ? Dependencies.CONJURE_UNDERTOW_LIB
+                                        : null));
     }
 
     private static void createGenerateTask(
