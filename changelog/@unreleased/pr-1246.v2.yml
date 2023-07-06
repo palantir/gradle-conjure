@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: Dependencies for subprojects are now added via an `addProvider` instead
+    which defers execution of the code that adds the dependencies until the project
+    is actually configured, by which time the extension values have been populated.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1246
