@@ -58,22 +58,22 @@ class ConjurePluginTest extends IntegrationSpec {
             }
 
             configurations.all {
-               resolutionStrategy {
-                   force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
-                   force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
-                   force 'com.palantir.dialogue:dialogue-target:${TestVersions.CONJURE_JAVA_DIALOG}'
-                   force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
-                   force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
+                resolutionStrategy {
+                    force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.dialogue:dialogue-target:${TestVersions.CONJURE_JAVA_DIALOG}'
+                    force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
+                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                    force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
 
-                   force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
-                   force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
-                   force 'com.google.guava:guava:23.6.1-jre'
-                   force 'com.palantir.safe-logging:preconditions:1.12.0'
-                   force 'com.palantir.safe-logging:safe-logging:1.12.0'
-                   force 'com.squareup.retrofit2:retrofit:2.1.0'
-               }
-           }
+                    force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
+                    force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
+                    force 'com.google.guava:guava:23.6.1-jre'
+                    force 'com.palantir.safe-logging:preconditions:1.12.0'
+                    force 'com.palantir.safe-logging:safe-logging:1.12.0'
+                    force 'com.squareup.retrofit2:retrofit:2.1.0'
+                }
+            }
         }
         """.stripIndent()
 
@@ -502,6 +502,45 @@ class ConjurePluginTest extends IntegrationSpec {
 
         then:
         fileExists(prefixPath(prefix, 'api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java'))
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
+    def 'featureFlag jakartaPackages can be enabled: #location'() {
+        setup:
+        file('build.gradle') << """
+        allprojects {
+            configurations.all {
+                resolutionStrategy {
+                    // the jakartaPackages flag is only obeyed by conjure-java >= 7.13.0
+                    force 'com.palantir.conjure.java:conjure-java:7.13.0'
+                    force 'com.palantir.conjure.java:conjure-lib:7.13.0'
+                    force 'com.palantir.conjure.java:conjure-undertow-lib:7.13.0'
+                }
+            }
+        }
+        """.stripIndent()
+        file('api/build.gradle') << '''
+        conjure {
+            java {
+                jakartaPackages = true
+            }
+        }
+        '''.stripIndent()
+        updateSettings(prefix)
+
+        when:
+        ExecutionResult result = runTasks(prefixProject(prefix, 'api-jersey:compileJava'))
+
+        then:
+        result.success
+        String generated = prefixPath(prefix, 'api-jersey/src/generated/java/test/test/api/TestServiceFoo.java')
+        fileExists(generated)
+        File generatedFile = new File(projectDir, generated)
+        generatedFile.text.contains("import jakarta.ws.rs.POST;")
 
         where:
         location   | prefix
