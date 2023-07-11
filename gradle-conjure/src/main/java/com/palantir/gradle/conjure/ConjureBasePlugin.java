@@ -59,7 +59,8 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                         ConjureProductDependenciesExtension.EXTENSION_NAME,
                         ConjureProductDependenciesExtension.class,
                         project);
-        conjureExtension = project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
+        conjureExtension =
+                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class, project);
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
         compileIrProvider =

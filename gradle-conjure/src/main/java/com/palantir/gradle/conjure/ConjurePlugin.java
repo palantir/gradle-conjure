@@ -173,7 +173,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + difference);
         }
 
-        project.afterEvaluate(_p -> configs.forEach((suffix, config) -> setupDerivedJavaProject(
+        configs.forEach((suffix, config) -> setupDerivedJavaProject(
                 suffix,
                 project,
                 optionsSupplier,
@@ -181,7 +181,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileIrTask,
                 productDependencyExt,
                 extractJavaTask,
-                config)));
+                config));
     }
 
     private static Project setupDerivedJavaProject(

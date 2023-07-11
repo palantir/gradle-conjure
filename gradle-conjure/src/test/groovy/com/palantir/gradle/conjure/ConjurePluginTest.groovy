@@ -523,13 +523,9 @@ class ConjurePluginTest extends IntegrationSpec {
             }
         }
         """.stripIndent()
-        file('api/build.gradle') << '''
-        conjure {
-            java {
-                jakartaPackages = true
-            }
-        }
-        '''.stripIndent()
+        createFile('gradle.properties') << """
+        conjure.java.jakartaPackages=true
+        """.stripIndent()
         updateSettings(prefix)
 
         when:
