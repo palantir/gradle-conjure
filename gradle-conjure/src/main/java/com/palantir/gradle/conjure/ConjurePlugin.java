@@ -173,7 +173,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             + difference);
         }
 
-        configs.forEach((suffix, config) -> setupDerivedJavaProject(
+        project.afterEvaluate(_p -> configs.forEach((suffix, config) -> setupDerivedJavaProject(
                 suffix,
                 project,
                 optionsSupplier,
@@ -181,7 +181,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 compileIrTask,
                 productDependencyExt,
                 extractJavaTask,
-                config));
+                config)));
     }
 
     private static Project setupDerivedJavaProject(
@@ -284,32 +284,23 @@ public final class ConjurePlugin implements Plugin<Project> {
     }
 
     private static void setupRetrofitProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies().add("api", "com.google.guava:guava");
         project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
         project.getDependencies()
-                .addProvider(
+                .add(
                         "compileOnly",
-                        project.getProviders()
-                                .provider(() -> Dependencies.isJakartaPackages(optionsSupplier.get())
-                                        ? Dependencies.ANNOTATION_API_JAKARTA
-                                        : Dependencies.ANNOTATION_API_JAVAX));
+                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
     }
 
     private static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
+        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies()
-                .addProvider(
-                        "api",
-                        project.getProviders()
-                                .provider(() -> Dependencies.isJakartaPackages(optionsSupplier.get())
-                                        ? Dependencies.JAXRS_API_JAKARTA
-                                        : Dependencies.JAXRS_API_JAVAX));
+                .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
         project.getDependencies()
-                .addProvider(
+                .add(
                         "compileOnly",
-                        project.getProviders()
-                                .provider(() -> Dependencies.isJakartaPackages(optionsSupplier.get())
-                                        ? Dependencies.ANNOTATION_API_JAKARTA
-                                        : Dependencies.ANNOTATION_API_JAVAX));
+                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
     }
 
     private static void setupUndertowProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {

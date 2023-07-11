@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Revert "remove afterEvaluate in some places (#1246)"
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1248
