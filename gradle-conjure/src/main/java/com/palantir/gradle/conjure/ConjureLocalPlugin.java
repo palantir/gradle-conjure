@@ -57,7 +57,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                 project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_GENERATORS_CONFIGURATION_NAME);
 
         ConjureExtension extension =
-                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
+                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class, project);
 
         TaskProvider<Task> generateConjure = project.getTasks().register("generateConjure", task -> {
             task.setDescription("Generates code for all requested languages (for which there is a subproject) "

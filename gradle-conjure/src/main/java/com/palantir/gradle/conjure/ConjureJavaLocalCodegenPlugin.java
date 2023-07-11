@@ -53,7 +53,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         project.getPlugins().apply(JavaBasePlugin.class);
 
         ConjureExtension extension =
-                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
+                project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class, project);
 
         Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
         TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
@@ -79,12 +79,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             createGenerateTask(subproject, extension, extractJavaTask, extractConjureIr);
         });
 
+        project.getChildProjects().forEach((_name, subproject) -> {
+            configureDependencies(subproject, extension);
+        });
+
         project.afterEvaluate(_p -> {
-            project.getChildProjects().forEach((_name, subproject) -> {
-                // Configure subproject dependencies in after-evaluate to ensure
-                // extension the has been evaluated.
-                configureDependencies(subproject, extension);
-            });
             // Validating that each subproject has a corresponding definition and vice versa.
             // We do this in afterEvaluate to ensure the configuration is populated.
             Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()

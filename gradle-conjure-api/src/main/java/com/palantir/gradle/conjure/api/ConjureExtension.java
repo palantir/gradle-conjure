@@ -20,6 +20,7 @@ import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.HashMap;
 import java.util.Map;
+import org.gradle.api.Project;
 
 public class ConjureExtension {
 
@@ -31,12 +32,16 @@ public class ConjureExtension {
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
 
-    public ConjureExtension() {
+    public ConjureExtension(Project project) {
         // Projects using sufficiently new gradle-conjure have jetbrains-annotations
         // added by default. Conjure generators ignore unknown flags and will not be
         // impacted if generators have not been updated.
         // See https://github.com/palantir/conjure-java/pull/1884
         javaOptions.addFlag("jetbrainsContractAnnotations");
+
+        if (Boolean.parseBoolean((String) project.findProperty("conjure.java.jakartaPackages"))) {
+            javaOptions.addFlag("jakartaPackages");
+        }
     }
 
     public final void typescript(
