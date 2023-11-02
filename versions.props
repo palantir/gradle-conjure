@@ -12,10 +12,10 @@ org.assertj:* = 3.24.2
 org.immutables:value = 2.10.0
 org.junit.jupiter:* = 5.10.0
 org.junit.vintage:* = 5.10.0
-org.mockito:* = 5.6.0
+org.mockito:* = 5.7.0
 org.spockframework:* = 2.0-groovy-3.0
 com.palantir.sls-packaging:* = 7.43.0
-com.palantir.conjure.java.runtime:* = 7.67.0
+com.palantir.conjure.java.runtime:* = 7.68.0
 net.bytebuddy:byte-buddy = 1.14.9
 
 # Resolve conflicts
