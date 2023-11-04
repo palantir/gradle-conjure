@@ -4,7 +4,7 @@ com.google.errorprone:error_prone_annotations = 2.11.0
 com.google.guava:guava = 32.1.3-jre
 com.netflix.nebula:nebula-test = 10.0.0
 com.palantir.sls.versions:sls-versions = 1.5.0
-com.squareup.okhttp3:mockwebserver = 3.9.1
+com.squareup.okhttp3:mockwebserver = 4.12.0
 commons-io:commons-io = 2.15.0
 junit:junit = 4.13.2
 org.apache.commons:commons-lang3 = 3.13.0
@@ -20,5 +20,5 @@ net.bytebuddy:byte-buddy = 1.14.9
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
-com.squareup.okhttp3:okhttp = 3.14.1
+com.squareup.okhttp3:okhttp = 4.12.0
 org.objenesis:objenesis = 3.3
