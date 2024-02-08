@@ -30,6 +30,7 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'net.bytebuddy:byte-buddy'
+    implementation 'com.palantir.gradle.utils:environment-variables'
 
     annotationProcessor 'org.immutables:value'
     compileOnly 'org.immutables:value::annotations'

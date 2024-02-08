@@ -101,7 +101,10 @@ class ConjurePluginTest extends IntegrationSpec {
                   object: StringExample
                 returns: StringExample
         '''.stripIndent()
-        file("gradle.properties") << "org.gradle.daemon=false"
+        file("gradle.properties") << '''
+            org.gradle.daemon=false
+            __TESTING=true
+        '''.stripIndent(true)
     }
 
     def 'compileConjure generates code and ir: #location'() {
@@ -707,6 +710,33 @@ class ConjurePluginTest extends IntegrationSpec {
         sourcesFolderUrls.size() == 2
         sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
         sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
+    }
+
+    def 'compileTypeScript is run on build for circle node 0'() {
+        when:
+        def stdout = runTasksSuccessfully('build', '--dry-run',
+                '-P__TESTING_CIRCLE_NODE_INDEX=0').standardOutput
+
+        then:
+        stdout.contains ':api:compileTypeScript SKIPPED'
+    }
+
+    def 'compileTypeScript is not run on build for circle node 1'() {
+        when:
+        def stdout = runTasksSuccessfully('build', '--dry-run',
+                '-P__TESTING_CIRCLE_NODE_INDEX=1').standardOutput
+
+        then:
+        !stdout.contains(':api:compileTypeScript SKIPPED')
+    }
+
+    def 'compileTypeScript is run on build locally'() {
+        when:
+        // No CIRCLE_NODE_INDEX property set means local build
+        def stdout = runTasksSuccessfully('build', '--dry-run').standardOutput
+
+        then:
+        stdout.contains ':api:compileTypeScript SKIPPED'
     }
 
     @RestoreSystemProperties
