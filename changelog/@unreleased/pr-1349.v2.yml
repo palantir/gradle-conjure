@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Run `compileTypescript` and `compileConjure` as a dependency of `build`
+    to catch more failure at PR time rather than publish time.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1349
