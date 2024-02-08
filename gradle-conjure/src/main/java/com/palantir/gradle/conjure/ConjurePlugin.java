@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -705,12 +704,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void buildDependsOn(Project project, TaskProvider<?> task) {
         EnvironmentVariables environmentVariables = project.getObjects().newInstance(EnvironmentVariables.class);
 
-        boolean isOnCircleNode0OrLocal = environmentVariables
-                .envVarOrFromTestingProperty("CIRCLE_NODE_INDEX")
-                .map(Predicate.isEqual("0")::test)
-                .getOrElse(true);
-
-        if (!isOnCircleNode0OrLocal) {
+        if (!environmentVariables.isCircleNode0OrLocal().get()) {
             return;
         }
 
