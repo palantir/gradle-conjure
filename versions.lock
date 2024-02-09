@@ -17,6 +17,7 @@ com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 c
 com.google.j2objc:j2objc-annotations:2.8 (1 constraints: be09f5a0)
 com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.4.0 (1 constraints: 521c3c88)
 com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.4.0 (1 constraints: 0e051f36)
+com.palantir.gradle.utils:environment-variables:0.7.0 (1 constraints: 09050036)
 com.palantir.safe-logging:logger:3.6.0 (2 constraints: 0c2d526d)
 com.palantir.safe-logging:logger-slf4j:3.6.0 (1 constraints: 040e6542)
 com.palantir.safe-logging:logger-spi:3.6.0 (2 constraints: 171e6d7b)

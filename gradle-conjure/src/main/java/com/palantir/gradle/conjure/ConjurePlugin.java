@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
+import com.palantir.gradle.utils.environmentvariables.EnvironmentVariables;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -119,7 +120,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription("Generates code for your API definitions in src/main/conjure/**/*.yml");
                     task.setGroup(TASK_GROUP);
                 });
+
         applyDependencyForIdeTasks(project, compileConjure);
+        buildDependsOn(project, compileConjure);
 
         setupConjureJavaProjects(
                 project, immutableOptionsSupplier(conjureExtension::getJava), compileConjure, compileIrTask);
@@ -388,6 +391,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(installTypeScriptDependencies);
                             task.getOutputs().dir(srcDirectory);
                         });
+
+                buildDependsOn(project, compileTypeScript);
+
                 TaskProvider<Exec> publishTypeScript = project.getTasks()
                         .register("publishTypeScript", Exec.class, task -> {
                             task.setDescription("Runs `npm publish` to publish a TypeScript package "
@@ -693,5 +699,18 @@ public final class ConjurePlugin implements Plugin<Project> {
         } else {
             return project.getRootProject().findProject(projectName);
         }
+    }
+
+    private static void buildDependsOn(Project project, TaskProvider<?> task) {
+        EnvironmentVariables environmentVariables = project.getObjects().newInstance(EnvironmentVariables.class);
+
+        if (!environmentVariables.isCircleNode0OrLocal().get()) {
+            return;
+        }
+
+        project.getPluginManager().apply(LifecycleBasePlugin.class);
+        project.getTasks().named(LifecycleBasePlugin.BUILD_TASK_NAME).configure(build -> {
+            build.dependsOn(task);
+        });
     }
 }
