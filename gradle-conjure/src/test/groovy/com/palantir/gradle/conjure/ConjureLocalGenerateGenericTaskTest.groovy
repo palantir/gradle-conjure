@@ -31,11 +31,10 @@ class ConjureLocalGenerateGenericTaskTest extends Specification {
         where:
         fileName                           | expectedProductName | expectedProductVersion
         'foo-1.0.0.json'                   | "foo"               | '1.0.0'
-        "foo-baz-1.0.0.json"               | "foo-baz"           | "1.0.0"
+        "foo-baz-2-1.0.0.json"             | "foo-baz-2"         | "1.0.0"
         "foo-1.0.0.conjure.json"           | "foo"               | "1.0.0"
         "foo-1.0.0-rc1.conjure.json"       | "foo"               | "1.0.0-rc1"
-        "foo-1.0.0-gabcd.conjure.json"     | "foo"               | "1.0.0-gabcd"
-        "foo-1.0.0-rc1-gabcd.conjure.json" | "foo"               | "1.0.0-rc1-gabcd"
+        "foo-1.0.0-12-gabcd.conjure.json"  | "foo"               | "1.0.0-12-gabcd"
     }
 
     def "fails to parse invalid names"() {
