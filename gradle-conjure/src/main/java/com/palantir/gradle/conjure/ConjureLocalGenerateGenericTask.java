@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
-    private static final Pattern PATTERN = Pattern.compile("^([^.]+)-(.+?)(?:\\.conjure)?\\.json$");
+    private static final Pattern PATTERN = Pattern.compile("^([^.]+)-(.+?)(\\.conjure)?\\.json$");
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
@@ -37,7 +37,7 @@ public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenera
     @VisibleForTesting
     static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
         Matcher matcher = PATTERN.matcher(productName);
-        if (!matcher.matches() || matcher.groupCount() != 2) {
+        if (!matcher.matches() || matcher.groupCount() < 2) {
             throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", productName));
         }
         String irName = matcher.group(1);
