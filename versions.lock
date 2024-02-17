@@ -32,7 +32,7 @@ joda-time:joda-time:2.10.14 (1 constraints: 5b160f08)
 net.bytebuddy:byte-buddy:1.14.12 (3 constraints: 591c7522)
 org.apache.commons:commons-lang3:3.14.0 (1 constraints: 3a05413b)
 org.checkerframework:checker-qual:3.41.0 (1 constraints: 4a0a44bf)
-org.immutables:value:2.10.0 (1 constraints: 35052f3b)
+org.immutables:value:2.10.1 (1 constraints: 3605303b)
 org.jetbrains:annotations:24.0.1 (2 constraints: 11204d00)
 org.slf4j:slf4j-api:1.7.36 (3 constraints: 6130dd95)
 
