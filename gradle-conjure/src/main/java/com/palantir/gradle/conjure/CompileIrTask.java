@@ -21,6 +21,7 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -100,6 +101,9 @@ public abstract class CompileIrTask extends DefaultTask {
     @TaskAction
     public final void generate() {
         File executable = new File(getExecutableDir().getAsFile().get(), EXECUTABLE);
+        File errorOutputFile = Paths.get(getOutputFile().getParent())
+                .resolve("some-error-file.txt")
+                .toFile();
         List<String> args = ImmutableList.<String>builder()
                 .add("compile")
                 .add(getInputDirectory().get().getAsFile().getAbsolutePath())
@@ -107,6 +111,8 @@ public abstract class CompileIrTask extends DefaultTask {
                 .add("--extensions")
                 .add(OsUtils.escapeAndWrapArgIfWindows(getSerializedExtensions()))
                 .addAll(RenderGeneratorOptions.toArgs(getOptions().get(), Collections.emptyMap()))
+                .add("--errorFile")
+                .add(errorOutputFile.getAbsolutePath())
                 .build();
 
         GradleExecUtils.exec(getProject(), "generate conjure IR", executable, Collections.emptyList(), args);
