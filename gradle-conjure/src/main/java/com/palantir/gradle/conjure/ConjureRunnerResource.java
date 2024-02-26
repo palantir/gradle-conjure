@@ -83,7 +83,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             URLClassLoader classLoader =
                     new ChildFirstUrlClassLoader(info.classpathUrls(), ConjureRunnerResource.class.getClassLoader());
             try {
-                Optional<Method> mainMethod = getMainMethod(classLoader, info.mainClass());
+                Optional<Method> mainMethod = getInProcessOrMainMethod(classLoader, info.mainClass());
                 if (mainMethod.isPresent()) {
                     classLoaderMustBeClosed = false;
                     return new InProcessConjureRunner(executable, mainMethod.get(), classLoader);
@@ -95,6 +95,19 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             }
         }
         return new ExternalProcessConjureRunner(executable);
+    }
+
+    private static Optional<Method> getInProcessOrMainMethod(URLClassLoader classLoader, String mainClassName) {
+        try {
+            Class<?> mainClass = classLoader.loadClass(mainClassName);
+            return Optional.of(mainClass.getMethod("inProcessExecution", String[].class));
+        } catch (ClassNotFoundException e) {
+            log.warn("Failed to get main method for class {}", mainClassName, e);
+            return Optional.empty();
+        } catch (NoSuchMethodException e) {
+            log.debug("Falling back to using the main method", mainClassName, e);
+            return getMainMethod(classLoader, mainClassName);
+        }
     }
 
     private static Optional<Method> getMainMethod(URLClassLoader classLoader, String mainClassName) {
@@ -184,7 +197,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)
                     .build();
-
             try {
                 String[] args = combinedArgs.toArray(new String[] {});
                 mainMethod.invoke(null, new Object[] {args});
@@ -201,7 +213,10 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     // Exit status zero, we're good to go!
                 } else {
                     throw new RuntimeException(
-                            String.format("Failed to %s. The command '%s' failed.", failedTo, combinedArgs), t);
+                            String.format(
+                                    "%s\nFailed to %s. The command '%s' failed.",
+                                    t.getMessage(), failedTo, combinedArgs),
+                            t);
                 }
             }
         }
