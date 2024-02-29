@@ -16,6 +16,8 @@
 
 package com.palantir.gradle.conjure
 
+import org.junit.internal.Throwables
+
 import java.nio.file.Files
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
@@ -95,7 +97,8 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << "foo"
 
         then:
-        runTasksWithFailure('compileIr')
+        ExecutionResult result = runTasksWithFailure('compileIr')
+        com.google.common.base.Throwables.getRootCause(result.failure).message.contains "vjf"
     }
 
     def 'compileIr can get results from the build cache'() {

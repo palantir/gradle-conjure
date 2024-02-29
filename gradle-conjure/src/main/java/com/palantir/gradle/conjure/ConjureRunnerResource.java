@@ -214,7 +214,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                 } else {
                     throw new RuntimeException(
                             String.format(
-                                    "%s\nFailed to %s. The command '%s' failed.", rootCause, failedTo, combinedArgs),
+                                    "%s\n\nFailed to %s. The command '%s' failed.", rootCause, failedTo, combinedArgs),
                             t);
                 }
             }
