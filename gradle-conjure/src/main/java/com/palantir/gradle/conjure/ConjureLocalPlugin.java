@@ -90,9 +90,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
 
-        TaskProvider<WriteGitignoreTask> gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
-                subproj, "gitignoreConjureJava", subproj.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
-
         TaskProvider<ConjureLocalGenerateGenericTask> generateJava = project.getTasks()
                 .register("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
                     task.setDescription("Generates Java bindings for remote Conjure definitions.");
@@ -114,7 +111,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                                     .getBuildDirectory()
                                     .dir("generated/sources/conjure-local-java/java/main"));
 
-                    task.dependsOn(gitignoreConjureJava);
                     task.dependsOn(extractJavaTask);
 
                     subproj.getDependencies().add("api", subproj);

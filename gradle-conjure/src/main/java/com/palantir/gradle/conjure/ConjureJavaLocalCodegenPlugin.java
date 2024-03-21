@@ -133,9 +133,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
 
-        TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
-                project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
-
         Provider<File> conjureIrFile = extractConjureIr.map(
                 irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
 
@@ -159,8 +156,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                                 sanitizePackageName(project.getGroup().toString()));
                         return properties;
                     }));
-                    task.getOutputDirectory().set(project.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
-                    task.dependsOn(extractJavaTask, extractConjureIr, generateGitIgnore);
+                    task.getOutputDirectory()
+                            .set(project.getLayout()
+                                    .getBuildDirectory()
+                                    .dir("generated/sources/conjure-java-local-java/java/main"));
+                    task.dependsOn(extractJavaTask, extractConjureIr);
                 });
 
         ConjurePlugin.addGeneratedToMainSourceSet(project, generateJava);
