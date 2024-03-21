@@ -85,7 +85,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
             JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX, JAVA_UNDERTOW_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+    static final String JAVA_GITIGNORE_CONTENTS = "/build/generated/\n";
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.<String>builder()
             .addAll(JAVA_PROJECT_SUFFIXES)
@@ -637,6 +637,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             IdeaModule module = plugin.getModel().getModule();
 
             // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
+            module.setSourceDirs(mutableSetWithExtraEntry(
+                    module.getSourceDirs(), generated.get().getAsFile()));
             module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
                     module.getGeneratedSourceDirs(), generated.get().getAsFile()));
         });
