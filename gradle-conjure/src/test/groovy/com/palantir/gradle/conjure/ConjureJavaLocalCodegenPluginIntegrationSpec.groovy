@@ -87,7 +87,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted("extractConjureIr")
         result.wasExecuted("conjure-api:generateConjure")
         fileExists("build/conjure-ir/conjure-api.conjure.json")
-        fileExists('conjure-api/src/generated/java/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
         result.standardOutput.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
         result.standardOutput.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
     }
@@ -108,7 +108,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         result.wasExecuted("extractConjureIr")
-        fileExists('conjure-api/src/generated/java/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
         result.standardOutput.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
     }
 
@@ -123,7 +123,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         result.wasExecuted(':conjure-api:compileJava')
         result.wasExecuted(':conjure-api:generateConjure')
 
-        fileExists('conjure-api/src/generated/java/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
     def 'sets up idea source sets correctly'() {
@@ -144,7 +144,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         def sourcesFolderUrls = module.component.content.sourceFolder.@url
 
         sourcesFolderUrls.size() == 1
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
+        sourcesFolderUrls.contains('file://$MODULE_DIR$/build/generated/sources/conjure-java-local-java/java/main')
     }
 
     def 'embeds product dependencies correctly'() {
