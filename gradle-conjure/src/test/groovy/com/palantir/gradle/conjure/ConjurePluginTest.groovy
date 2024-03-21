@@ -127,8 +127,6 @@ class ConjurePluginTest extends IntegrationSpec {
         // java
         fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
-        fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
-        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['/build/generated/']
 
         // typescript
         fileExists(prefixPath(prefix, 'api-typescript/src/api/index.ts'))
@@ -168,7 +166,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureDialogue')
 
         fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
-        fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
 
         where:
         location   | prefix
@@ -229,7 +226,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureJersey')
 
         fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
-        fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
 
         where:
         location   | prefix
@@ -301,12 +297,6 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully("compileConjure")
 
         then:
-        result.wasUpToDate(prefixProject(prefix, 'api-objects:gitignoreConjureObjects'))
-        result.wasUpToDate(prefixProject(prefix, 'api-jersey:gitignoreConjureJersey'))
-        result.wasUpToDate(prefixProject(prefix, 'api-retrofit:gitignoreConjureRetrofit'))
-        result.wasUpToDate(prefixProject(prefix, 'api-typescript:gitignoreConjureTypeScript'))
-        result.wasUpToDate(prefixProject(prefix, 'api-undertow:gitignoreConjureUndertow'))
-        result.wasUpToDate(prefixProject(prefix, 'api-dialogue:gitignoreConjureDialogue'))
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
         result.wasUpToDate(':api:compileConjureRetrofit')

@@ -84,8 +84,6 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_UNDERTOW_SUFFIX = "undertow";
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
             JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX, JAVA_UNDERTOW_SUFFIX);
-    static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/build/generated/\n";
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.<String>builder()
             .addAll(JAVA_PROJECT_SUFFIXES)
@@ -215,8 +213,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         return parentProject.project(derivedProjectPath(parentProject, projectName), subproj -> {
             subproj.getPluginManager().apply(JavaLibraryPlugin.class);
             ignoreFromCheckUnusedDependencies(subproj);
-            TaskProvider<WriteGitignoreTask> writeGitignoreTask = createWriteGitignoreTask(
-                    subproj, "gitignoreConjure" + upperSuffix, subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS);
             TaskProvider<ConjureGeneratorTask> conjureGeneratorTask = parentProject
                     .getTasks()
                     .register("compileConjure" + upperSuffix, ConjureGeneratorTask.class, task -> {
@@ -230,7 +226,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                         .getBuildDirectory()
                                         .dir("generated/sources/conjure-" + projectSuffix + "/java/main"));
                         task.setSource(compileIrTask);
-                        task.dependsOn(extractJavaTask, compileIrTask, writeGitignoreTask);
+                        task.dependsOn(extractJavaTask, compileIrTask);
                     });
             addGeneratedToMainSourceSet(subproj, conjureGeneratorTask);
             subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
