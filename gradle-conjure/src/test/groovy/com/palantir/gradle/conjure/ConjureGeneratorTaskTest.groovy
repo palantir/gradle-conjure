@@ -79,7 +79,7 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         result.wasExecuted(':api:compileIr')
 
         // java
-        fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
+        fileExists('api/api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java')
     }
 
     def "cleans up old files"() {
@@ -106,8 +106,8 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
         result2.wasExecuted(':api:compileIr')
 
         // java
-        !fileExists('api/api-objects/src/generated/java/test/test/api/StringExample.java')
-        fileExists('api/api-objects/src/generated/java/test/test/api/NewStringExample.java')
+        !fileExists('api/api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java')
+        fileExists('api/api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/NewStringExample.java')
     }
 
     def 'when a file has errors the error is reported in the exception'() {

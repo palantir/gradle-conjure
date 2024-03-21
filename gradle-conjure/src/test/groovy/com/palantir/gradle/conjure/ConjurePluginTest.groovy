@@ -125,10 +125,10 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileIr')
 
         // java
-        fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java'))
-        file(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java'))
+        file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
         fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
-        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['/src/generated/java/']
+        file(prefixPath(prefix, 'api-objects/.gitignore')).readLines() == ['/build/generated/sources/conjure-objects/main/']
 
         // typescript
         fileExists(prefixPath(prefix, 'api-typescript/src/api/index.ts'))
@@ -167,7 +167,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
         result.wasExecuted(':api:compileConjureDialogue')
 
-        fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java'))
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java'))
         fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
 
         where:
@@ -228,7 +228,7 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
         result.wasExecuted(':api:compileConjureJersey')
 
-        fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java'))
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java'))
         fileExists(prefixPath(prefix, 'api-objects/.gitignore'))
 
         where:
@@ -237,12 +237,21 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    def 'clean cleans up src/generated/java: #location'() {
+    def 'clean cleans up build/generated/sources/conjure-*/main/java: #location'() {
         setup:
         updateSettings(prefix)
 
         when:
         runTasksSuccessfully('compileJava')
+
+        then:
+        fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/main/java'))
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java'))
+        fileExists(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/main/java'))
+        fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/main/java'))
+        fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/main/java'))
+
+        when:
         ExecutionResult result = runTasksSuccessfully('clean')
 
         then:
@@ -252,11 +261,11 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:cleanCompileConjureUndertow')
         result.wasExecuted(':api:cleanCompileConjureDialogue')
 
-        !fileExists(prefixPath(prefix, 'api-jersey/src/generated/java'))
-        !fileExists(prefixPath(prefix, 'api-objects/src/generated/java'))
-        !fileExists(prefixPath(prefix, 'api-retrofit/src/generated/java'))
-        !fileExists(prefixPath(prefix, 'api-undertow/src/generated/java'))
-        !fileExists(prefixPath(prefix, 'api-dialogue/src/generated/java'))
+        !fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/main/java'))
+        !fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java'))
+        !fileExists(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/main/java'))
+        !fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/main/java'))
+        !fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/main/java'))
 
         where:
         location   | prefix
@@ -425,11 +434,11 @@ class ConjurePluginTest extends IntegrationSpec {
         fileExists('api/build/conjure/conjure.yml')
 
         // java
-        file(prefixPath(prefix, 'api-jersey/src/generated/java/test/api/service/TestServiceFoo2.java')).text.contains(
+        file(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/main/java/test/api/service/TestServiceFoo2.java')).text.contains(
                 'import test.api.internal.InternalImport;')
-        file(prefixPath(prefix, 'api-retrofit/src/generated/java/test/api/service/TestServiceFoo2Retrofit.java')).text.contains(
+        file(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/main/java/test/api/service/TestServiceFoo2Retrofit.java')).text.contains(
                 'import test.api.internal.InternalImport;')
-        fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/api/internal/InternalImport.java'))
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/api/internal/InternalImport.java'))
 
         // typescript
         file(prefixPath(prefix, 'api-typescript/src/service/testServiceFoo2.ts')).text.contains(
@@ -461,8 +470,8 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureObjects')
         !result.wasExecuted(':api:compileConjureJersey')
 
-        fileExists(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java'))
-        file(prefixPath(prefix, 'api-objects/src/generated/java/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
+        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java'))
+        file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/main/java/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         where:
         location   | prefix
@@ -504,7 +513,7 @@ class ConjurePluginTest extends IntegrationSpec {
         ExecutionResult result = runTasksSuccessfully(':api:compileConjureUndertow')
 
         then:
-        fileExists(prefixPath(prefix, 'api-undertow/src/generated/java/test/test/api/UndertowTestServiceFoo.java'))
+        fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/main/java/test/test/api/UndertowTestServiceFoo.java'))
 
         where:
         location   | prefix
@@ -540,7 +549,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
         then:
         result.success
-        String generated = prefixPath(prefix, 'api-jersey/src/generated/java/test/test/api/TestServiceFoo.java')
+        String generated = prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/main/java/test/test/api/TestServiceFoo.java')
         fileExists(generated)
         File generatedFile = new File(projectDir, generated)
         generatedFile.text.contains("import jakarta.ws.rs.POST;")
@@ -709,7 +718,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
         sourcesFolderUrls.size() == 2
         sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/src/generated/java')
+        sourcesFolderUrls.contains('file://$MODULE_DIR$/build/generated/sources/conjure-jersey/main/java')
     }
 
     def 'compileTypeScript is run on build for circle node 0'() {
