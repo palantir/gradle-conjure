@@ -29,6 +29,7 @@ import com.palantir.gradle.utils.environmentvariables.EnvironmentVariables;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -49,11 +50,13 @@ import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskOutputs;
@@ -82,7 +85,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
             JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX, JAVA_UNDERTOW_SUFFIX);
     static final String JAVA_GENERATED_SOURCE_DIRNAME = "src/generated/java";
-    static final String JAVA_GITIGNORE_CONTENTS = "/src/generated/java/\n";
+    static final String JAVA_GITIGNORE_CONTENTS = "/build/generated/\n";
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.<String>builder()
             .addAll(JAVA_PROJECT_SUFFIXES)
@@ -212,7 +215,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         return parentProject.project(derivedProjectPath(parentProject, projectName), subproj -> {
             subproj.getPluginManager().apply(JavaLibraryPlugin.class);
             ignoreFromCheckUnusedDependencies(subproj);
-            addGeneratedToMainSourceSet(subproj);
+            TaskProvider<WriteGitignoreTask> writeGitignoreTask = createWriteGitignoreTask(
+                    subproj, "gitignoreConjure" + upperSuffix, subproj.getProjectDir(), JAVA_GITIGNORE_CONTENTS);
             TaskProvider<ConjureGeneratorTask> conjureGeneratorTask = parentProject
                     .getTasks()
                     .register("compileConjure" + upperSuffix, ConjureGeneratorTask.class, task -> {
@@ -221,18 +225,18 @@ public final class ConjurePlugin implements Plugin<Project> {
                         task.setGroup(TASK_GROUP);
                         task.getExecutablePath().set(extractJavaTask.flatMap(ExtractExecutableTask::getExecutable));
                         task.setOptions(() -> optionsSupplier.get().addFlag(projectSuffix));
-                        task.getOutputDirectory().set(subproj.file(JAVA_GENERATED_SOURCE_DIRNAME));
+                        task.getOutputDirectory()
+                                .set(subproj.getLayout()
+                                        .getBuildDirectory()
+                                        .dir("generated/sources/conjure-" + projectSuffix + "/main/java"));
                         task.setSource(compileIrTask);
-
-                        task.dependsOn(createWriteGitignoreTask(
-                                subproj,
-                                "gitignoreConjure" + upperSuffix,
-                                subproj.getProjectDir(),
-                                JAVA_GITIGNORE_CONTENTS));
-                        task.dependsOn(extractJavaTask, compileIrTask);
+                        task.dependsOn(extractJavaTask, compileIrTask, writeGitignoreTask);
                     });
+            addGeneratedToMainSourceSet(subproj, conjureGeneratorTask);
             subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
             applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
+            ConjurePlugin.configureIdeGeneratedSources(
+                    subproj, conjureGeneratorTask.flatMap(ConjureGeneratorTask::getOutputDirectory));
             compileConjure.configure(t -> t.dependsOn(conjureGeneratorTask));
 
             registerClean(parentProject, conjureGeneratorTask);
@@ -602,14 +606,14 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
     @SuppressWarnings("deprecation")
-    static void addGeneratedToMainSourceSet(Project subproj) {
+    static void addGeneratedToMainSourceSet(Project subproj, TaskProvider<?> conjureGeneratorTask) {
         org.gradle.api.plugins.JavaPluginConvention javaPlugin =
                 subproj.getConvention().findPlugin(org.gradle.api.plugins.JavaPluginConvention.class);
-        javaPlugin.getSourceSets().getByName("main").getJava().srcDir(subproj.files(JAVA_GENERATED_SOURCE_DIRNAME));
+        javaPlugin.getSourceSets().getByName("main").getJava().srcDir(conjureGeneratorTask);
     }
 
     static void applyDependencyForIdeTasks(Project project, TaskProvider<?> compileConjure) {
-        project.getPlugins().withType(IdeaPlugin.class, plugin -> {
+        project.getPlugins().withType(IdeaPlugin.class, _plugin -> {
             // root project does not have the ideaModule task.  There is unfortunately no
             // safe way to check for existence with the task avoidance APIs
             try {
@@ -617,15 +621,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             } catch (UnknownTaskException e) {
                 project.getLogger().debug("Project does not have ideaModule task.", e);
             }
-
-            IdeaModule module = plugin.getModel().getModule();
-
-            // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
-            module.setSourceDirs(
-                    mutableSetWithExtraEntry(module.getSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
-
-            module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
-                    module.getGeneratedSourceDirs(), project.file(JAVA_GENERATED_SOURCE_DIRNAME)));
         });
 
         project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
@@ -634,6 +629,24 @@ public final class ConjurePlugin implements Plugin<Project> {
             } catch (UnknownTaskException e) {
                 // eclipseClasspath is not always registered
             }
+        });
+    }
+
+    static void configureIdeGeneratedSources(Project project, Provider<Directory> generated) {
+        project.getPlugins().withType(IdeaPlugin.class, plugin -> {
+            IdeaModule module = plugin.getModel().getModule();
+
+            // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
+            module.setSourceDirs(mutableSetWithExtraEntry(
+                    module.getSourceDirs(), generated.get().getAsFile()));
+            module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
+                    module.getGeneratedSourceDirs(), generated.get().getAsFile()));
+        });
+
+        project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
+            String generatedSourceDirectory = asPath(project.getLayout().getProjectDirectory())
+                    .relativize(asPath(generated))
+                    .toString();
             project.getExtensions().configure(EclipseModel.class, eclipseModel -> {
                 eclipseModel.classpath(classpath -> {
                     classpath.file(file -> {
@@ -641,7 +654,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             cp.getEntries().stream()
                                     .filter(cpe -> cpe instanceof SourceFolder)
                                     .map(cpe -> (SourceFolder) cpe)
-                                    .filter(sf -> sf.getPath().equals(JAVA_GENERATED_SOURCE_DIRNAME))
+                                    .filter(sf -> sf.getPath().equals(generatedSourceDirectory))
                                     .findFirst()
                                     .ifPresent(sf -> {
                                         Map<String, Object> attributes = sf.getEntryAttributes();
@@ -655,6 +668,14 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
+    private static Path asPath(Directory directory) {
+        return directory.getAsFile().toPath();
+    }
+
+    private static Path asPath(Provider<Directory> directory) {
+        return asPath(directory.get());
+    }
+
     private static <T> Set<T> mutableSetWithExtraEntry(Set<T> set, T extraItem) {
         Set<T> newSet = new LinkedHashSet<>(set);
         newSet.add(extraItem);
@@ -663,12 +684,10 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     static TaskProvider<WriteGitignoreTask> createWriteGitignoreTask(
             Project project, String taskName, File outputDir, String contents) {
-        TaskProvider<WriteGitignoreTask> writeGitignoreTask = project.getTasks()
-                .register(taskName, WriteGitignoreTask.class, task -> {
-                    task.setOutputDirectory(outputDir);
-                    task.setContents(contents);
-                });
-        return writeGitignoreTask;
+        return project.getTasks().register(taskName, WriteGitignoreTask.class, task -> {
+            task.setOutputDirectory(outputDir);
+            task.setContents(contents);
+        });
     }
 
     private static Supplier<GeneratorOptions> immutableOptionsSupplier(Supplier<GeneratorOptions> supplier) {

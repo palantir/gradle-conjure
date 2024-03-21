@@ -64,6 +64,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     + "from remote Conjure definitions.");
             task.setGroup(ConjurePlugin.TASK_GROUP);
         });
+        ConjurePlugin.applyDependencyForIdeTasks(project, generateConjure);
+
         setupConjureJava(
                 project, immutableOptionsSupplier(extension::getJava), conjureIrConfiguration, generateConjure);
         setupConjurePython(
@@ -87,7 +89,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
-        ConjurePlugin.addGeneratedToMainSourceSet(subproj);
 
         TaskProvider<WriteGitignoreTask> gitignoreConjureJava = ConjurePlugin.createWriteGitignoreTask(
                 subproj, "gitignoreConjureJava", subproj.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
@@ -108,18 +109,23 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     });
                     task.setSource(conjureIrConfiguration);
                     task.getExecutablePath().set(extractJavaTask.flatMap(ExtractExecutableTask::getExecutable));
-                    task.getOutputDirectory().set(subproj.file(ConjurePlugin.JAVA_GENERATED_SOURCE_DIRNAME));
+                    task.getOutputDirectory()
+                            .set(subproj.getLayout()
+                                    .getBuildDirectory()
+                                    .dir("generated/sources/conjure-local-java/main/java"));
 
                     task.dependsOn(gitignoreConjureJava);
                     task.dependsOn(extractJavaTask);
 
                     subproj.getDependencies().add("api", subproj);
                 });
-        generateConjure.configure(t -> t.dependsOn(generateJava));
 
+        ConjurePlugin.addGeneratedToMainSourceSet(subproj, generateJava);
+        ConjurePlugin.configureIdeGeneratedSources(
+                subproj, generateJava.flatMap(ConjureGeneratorTask::getOutputDirectory));
+        generateConjure.configure(t -> t.dependsOn(generateJava));
         subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(generateJava));
         ConjurePlugin.registerClean(project, generateJava);
-        ConjurePlugin.applyDependencyForIdeTasks(subproj, generateJava);
     }
 
     private void setupGenericConjureProjects(
