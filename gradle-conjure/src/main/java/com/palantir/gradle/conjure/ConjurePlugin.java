@@ -228,7 +228,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         task.getOutputDirectory()
                                 .set(subproj.getLayout()
                                         .getBuildDirectory()
-                                        .dir("generated/sources/conjure-" + projectSuffix + "/main/java"));
+                                        .dir("generated/sources/conjure-" + projectSuffix + "/java/main"));
                         task.setSource(compileIrTask);
                         task.dependsOn(extractJavaTask, compileIrTask, writeGitignoreTask);
                     });
