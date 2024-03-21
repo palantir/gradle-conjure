@@ -112,7 +112,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     task.getOutputDirectory()
                             .set(subproj.getLayout()
                                     .getBuildDirectory()
-                                    .dir("generated/sources/conjure-local-java/main/java"));
+                                    .dir("generated/sources/conjure-local-java/java/main"));
 
                     task.dependsOn(gitignoreConjureJava);
                     task.dependsOn(extractJavaTask);
