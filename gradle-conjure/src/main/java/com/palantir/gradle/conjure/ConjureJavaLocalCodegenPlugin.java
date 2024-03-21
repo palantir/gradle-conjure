@@ -132,7 +132,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
         ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
-        ConjurePlugin.addGeneratedToMainSourceSet(project);
 
         TaskProvider<WriteGitignoreTask> generateGitIgnore = ConjurePlugin.createWriteGitignoreTask(
                 project, "gitignoreConjure", project.getProjectDir(), ConjurePlugin.JAVA_GITIGNORE_CONTENTS);
@@ -164,8 +163,12 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     task.dependsOn(extractJavaTask, extractConjureIr, generateGitIgnore);
                 });
 
+        ConjurePlugin.addGeneratedToMainSourceSet(project, generateJava);
+
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
         ConjurePlugin.applyDependencyForIdeTasks(project, generateJava);
+        ConjurePlugin.configureIdeGeneratedSources(
+                project, generateJava.flatMap(ConjureJavaLocalGeneratorTask::getOutputDirectory));
     }
 
     /**
