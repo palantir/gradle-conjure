@@ -25,8 +25,8 @@ class ConjureLocalGenerateTaskTest extends Specification {
         def productMetadata = ConjureLocalGenerateTask.parseProductNameAndVersion(fileName)
 
         then:
-        productMetadata.getV1() == expectedProductName
-        productMetadata.getV2().getValue() == expectedProductVersion
+        productMetadata.name() == expectedProductName
+        productMetadata.version().getValue() == expectedProductVersion
 
         where:
         fileName                           | expectedProductName | expectedProductVersion

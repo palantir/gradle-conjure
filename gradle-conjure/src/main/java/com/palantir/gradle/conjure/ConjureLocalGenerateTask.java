@@ -17,20 +17,19 @@
 package com.palantir.gradle.conjure;
 
 import com.palantir.sls.versions.OrderableSlsVersion;
-import groovy.lang.Tuple;
-import groovy.lang.Tuple2;
 import java.io.File;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.gradle.api.tasks.CacheableTask;
+import org.immutables.value.Value.Immutable;
 
 @CacheableTask
 public abstract class ConjureLocalGenerateTask extends ConjureGeneratorTask {
 
     protected static final Pattern PATTERN = Pattern.compile("^([^.]+)-(.+?)(\\.conjure)?\\.json$");
 
-    static Tuple2<String, OrderableSlsVersion> parseProductNameAndVersion(String filename) {
+    static ProductNameAndVersion parseProductNameAndVersion(String filename) {
         Matcher matcher = PATTERN.matcher(filename);
         if (!matcher.matches() || matcher.groupCount() < 2) {
             throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", filename));
@@ -43,15 +42,29 @@ public abstract class ConjureLocalGenerateTask extends ConjureGeneratorTask {
                     "Unable to parse orderable SLS version from conjure dependency name %s, version %s",
                     filename, maybeIrVersion));
         }
-        return Tuple.tuple(irName, maybeIrVersion.get());
+        return ProductNameAndVersion.of(irName, maybeIrVersion.get());
     }
 
     @Override
     protected final File outputDirectoryFor(File file) {
         // Strip extension and version
         return getOutputDirectory()
-                .dir(parseProductNameAndVersion(file.getName()).getV1())
+                .dir(parseProductNameAndVersion(file.getName()).name())
                 .get()
                 .getAsFile();
+    }
+
+    @Immutable
+    interface ProductNameAndVersion {
+        String name();
+
+        OrderableSlsVersion version();
+
+        static ProductNameAndVersion of(String name, OrderableSlsVersion version) {
+            return ImmutableProductNameAndVersion.builder()
+                    .name(name)
+                    .version(version)
+                    .build();
+        }
     }
 }

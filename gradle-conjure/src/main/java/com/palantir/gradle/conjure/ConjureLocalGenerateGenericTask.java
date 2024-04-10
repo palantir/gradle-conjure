@@ -18,8 +18,6 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import com.palantir.sls.versions.OrderableSlsVersion;
-import groovy.lang.Tuple2;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -33,9 +31,9 @@ public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenera
 
     @VisibleForTesting
     static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
-        Tuple2<String, OrderableSlsVersion> nameAndVersion = parseProductNameAndVersion(productName);
-        String irName = nameAndVersion.getV1();
-        String irVersion = nameAndVersion.getV2().getValue();
+        ProductNameAndVersion nameAndVersion = parseProductNameAndVersion(productName);
+        String irName = nameAndVersion.name();
+        String irVersion = nameAndVersion.version().getValue();
 
         return ImmutableMap.of("productName", () -> irName, "productVersion", () -> irVersion);
     }
