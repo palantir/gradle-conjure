@@ -18,16 +18,11 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import com.palantir.sls.versions.OrderableSlsVersion;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
-
-    private static final Pattern PATTERN = Pattern.compile("^([^.]+)-(.+?)(\\.conjure)?\\.json$");
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File irFile) {
@@ -36,18 +31,9 @@ public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenera
 
     @VisibleForTesting
     static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
-        Matcher matcher = PATTERN.matcher(productName);
-        if (!matcher.matches() || matcher.groupCount() < 2) {
-            throw new RuntimeException(String.format("Unable to parse conjure dependency name %s", productName));
-        }
-        String irName = matcher.group(1);
-        String irVersion = matcher.group(2);
-
-        if (!OrderableSlsVersion.check(irVersion)) {
-            throw new RuntimeException(String.format(
-                    "Unable to parse orderable SLS version from conjure dependency name %s, version %s",
-                    productName, irVersion));
-        }
+        ProductNameAndVersion nameAndVersion = parseProductNameAndVersion(productName);
+        String irName = nameAndVersion.name();
+        String irVersion = nameAndVersion.version().getValue();
 
         return ImmutableMap.of("productName", () -> irName, "productVersion", () -> irVersion);
     }

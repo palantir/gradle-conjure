@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Conjure-local generates code into correct directory also when called
+    on RC- and other more complex versions
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1416
