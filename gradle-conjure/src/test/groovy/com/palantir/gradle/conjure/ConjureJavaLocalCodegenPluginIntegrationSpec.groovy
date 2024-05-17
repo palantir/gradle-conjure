@@ -46,7 +46,6 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
                 resolutionStrategy {
                     force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                     force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
-                    force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
                 }
            }
         }

@@ -26,9 +26,9 @@ final class Dependencies {
     static final String JAXRS_API_JAKARTA = "jakarta.ws.rs:jakarta.ws.rs-api:3.0.0";
     static final String JAXRS_API_JAVAX = "javax.ws.rs:javax.ws.rs-api:2.1.1";
 
-    static final String CONJURE_JAVA_LIB = "com.palantir.conjure.java:conjure-lib";
-    static final String CONJURE_UNDERTOW_LIB = "com.palantir.conjure.java:conjure-undertow-lib";
-    static final String DIALOGUE_TARGET = "com.palantir.dialogue:dialogue-target";
+    static final String CONJURE_JAVA_LIB = "com.palantir.conjure.java:conjure-lib:8.22.0";
+    static final String CONJURE_UNDERTOW_LIB = "com.palantir.conjure.java:conjure-undertow-lib:8.22.0";
+    static final String DIALOGUE_TARGET = "com.palantir.dialogue:dialogue-target:3.135.0";
     /**
      * Includes a version in order to ensure upgrades that opt into annotations
      * have a minimum version rather than failing builds.
