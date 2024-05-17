@@ -1,0 +1,5 @@
+type: deprecation
+deprecation:
+  description: Retrofit client generation is no longer supported.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1441
