@@ -47,14 +47,6 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
 
         createFile('api/build.gradle') << """
         apply plugin: 'com.palantir.conjure'
-
-        subprojects {
-            pluginManager.withPlugin 'java', {
-                dependencies {
-                    implementation 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
-                }
-            }
-        }
         """.stripIndent()
 
         createFile('api/src/main/conjure/api.yml') << '''

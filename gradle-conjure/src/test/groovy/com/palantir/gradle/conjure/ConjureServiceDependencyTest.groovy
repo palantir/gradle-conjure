@@ -49,10 +49,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
             }
             configurations.all {
                 resolutionStrategy {
+                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                     force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
                     force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
-                    force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
-                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                    force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}' 
                     force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
                 }
             }   

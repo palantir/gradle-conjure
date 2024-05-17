@@ -45,8 +45,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
     private static final String TYPESCRIPT_PROJECT_NAME = "typescript";
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES =
             ImmutableSet.of(JAVA_PROJECT_NAME, PYTHON_PROJECT_NAME, TYPESCRIPT_PROJECT_NAME);
-    private static final ImmutableSet<String> UNSAFE_JAVA_OPTIONS =
-            ImmutableSet.of("objects", "retrofit", "jersey", "undertow");
+    private static final ImmutableSet<String> UNSAFE_JAVA_OPTIONS = ImmutableSet.of("objects", "jersey", "undertow");
 
     @Override
     public void apply(Project project) {

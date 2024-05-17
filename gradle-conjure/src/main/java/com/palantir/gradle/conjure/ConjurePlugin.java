@@ -80,10 +80,9 @@ public final class ConjurePlugin implements Plugin<Project> {
     static final String JAVA_DIALOGUE_SUFFIX = "dialogue";
     static final String JAVA_OBJECTS_SUFFIX = "objects";
     static final String JAVA_JERSEY_SUFFIX = "jersey";
-    static final String JAVA_RETROFIT_SUFFIX = "retrofit";
     static final String JAVA_UNDERTOW_SUFFIX = "undertow";
-    static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES = ImmutableSet.of(
-            JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_RETROFIT_SUFFIX, JAVA_UNDERTOW_SUFFIX);
+    static final ImmutableSet<String> JAVA_PROJECT_SUFFIXES =
+            ImmutableSet.of(JAVA_DIALOGUE_SUFFIX, JAVA_OBJECTS_SUFFIX, JAVA_JERSEY_SUFFIX, JAVA_UNDERTOW_SUFFIX);
 
     private static final ImmutableSet<String> FIRST_CLASS_GENERATOR_PROJECT_NAMES = ImmutableSet.<String>builder()
             .addAll(JAVA_PROJECT_SUFFIXES)
@@ -163,7 +162,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ImmutableMap.<String, BiConsumer<Project, Supplier<GeneratorOptions>>>builder()
                         .put(JAVA_OBJECTS_SUFFIX, ConjurePlugin::setupObjectsProject)
                         .put(JAVA_DIALOGUE_SUFFIX, ConjurePlugin::setupDialogueProject)
-                        .put(JAVA_RETROFIT_SUFFIX, ConjurePlugin::setupRetrofitProject)
                         .put(JAVA_JERSEY_SUFFIX, ConjurePlugin::setupJerseyProject)
                         .put(JAVA_UNDERTOW_SUFFIX, ConjurePlugin::setupUndertowProject)
                         .buildOrThrow();
@@ -286,16 +284,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
     }
 
-    private static void setupRetrofitProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
-        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
-        project.getDependencies().add("api", "com.google.guava:guava");
-        project.getDependencies().add("api", "com.squareup.retrofit2:retrofit");
-        project.getDependencies()
-                .add(
-                        "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
-    }
-
     private static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
         boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies()
@@ -328,9 +316,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     Method ignoreMethod = task.getClass().getMethod("ignore", String.class, String.class);
                     List<String> conjureJavaLibComponents = Splitter.on(':').splitToList(Dependencies.CONJURE_JAVA_LIB);
                     ignoreMethod.invoke(task, conjureJavaLibComponents.get(0), conjureJavaLibComponents.get(1));
-                    // also ignore guava since retrofit adds it...
-                    ignoreMethod.invoke(task, "com.google.guava", "guava");
-                    // And jetbrains annotations
                     ignoreMethod.invoke(task, "org.jetbrains", "annotations");
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);

@@ -47,7 +47,7 @@ conjure {
     }
 
     java {
-        retrofitCompletableFutures = true
+        useImmutableBytes = true
     }
 }
 ```
@@ -74,7 +74,7 @@ serviceDependencies {
 
 For conjure-typescript, this information is passed as an extra flag, `--productDependencies=your-project/build/service-dependencies.json`, which is used to embed information in the resultant package.json.
 
-For conjure-java, this information is directly embedded into the Jar for the `-jersey` and `-retrofit` projects.  It is stored as a manifest property, `Sls-Recommended-Product-Dependencies`, which can be detected by [sls-packaging](https://github.com/palantir/sls-packaging).
+For conjure-java, this information is directly embedded into the Jar for the `-jersey` and `-dialogue` projects.  It is stored as a manifest property, `Sls-Recommended-Product-Dependencies`, which can be detected by [sls-packaging](https://github.com/palantir/sls-packaging).
 
 ### Typescript
 

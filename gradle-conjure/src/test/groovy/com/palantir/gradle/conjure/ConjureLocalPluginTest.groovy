@@ -37,11 +37,11 @@ class ConjureLocalPluginTest extends IntegrationSpec {
             configurations.all {
                resolutionStrategy {
                    failOnVersionConflict()
-                   force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
-                   force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
-                   force 'com.palantir.conjure.python:conjure-python:${TestVersions.CONJURE_PYTHON}'
                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
+                   force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
                    force 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
+                   force 'com.palantir.conjure.python:conjure-python:${TestVersions.CONJURE_PYTHON}'
+                   force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
                }
            }
         }

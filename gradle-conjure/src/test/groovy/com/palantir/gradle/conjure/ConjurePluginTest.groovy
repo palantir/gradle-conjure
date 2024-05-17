@@ -31,7 +31,6 @@ class ConjurePluginTest extends IntegrationSpec {
         include 'api'
         include 'api:api-objects'
         include 'api:api-jersey'
-        include 'api:api-retrofit'
         include 'api:api-typescript'
         include 'api:api-undertow'
         include 'api:api-dialogue'
@@ -59,19 +58,12 @@ class ConjurePluginTest extends IntegrationSpec {
 
             configurations.all {
                 resolutionStrategy {
+                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                     force 'com.palantir.conjure.java:conjure-java:${TestVersions.CONJURE_JAVA}'
                     force 'com.palantir.conjure.java:conjure-lib:${TestVersions.CONJURE_JAVA}'
-                    force 'com.palantir.dialogue:dialogue-target:${TestVersions.CONJURE_JAVA_DIALOG}'
                     force 'com.palantir.conjure.java:conjure-undertow-lib:${TestVersions.CONJURE_JAVA}'
-                    force 'com.palantir.conjure:conjure:${TestVersions.CONJURE}'
                     force 'com.palantir.conjure.typescript:conjure-typescript:${TestVersions.CONJURE_TYPESCRIPT}'
-
-                    force 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
-                    force 'com.fasterxml.jackson.core:jackson-databind:2.10.2'
-                    force 'com.google.guava:guava:23.6.1-jre'
-                    force 'com.palantir.safe-logging:preconditions:1.12.0'
-                    force 'com.palantir.safe-logging:safe-logging:1.12.0'
-                    force 'com.squareup.retrofit2:retrofit:2.1.0'
+                    force 'com.palantir.dialogue:dialogue-target:${TestVersions.DIALOGUE}'
                 }
             }
         }
@@ -118,7 +110,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjure')
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
         result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:compileConjureDialogue')
@@ -158,8 +149,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-retrofit:compileJava'))
-        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
         result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
@@ -187,8 +176,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-retrofit:compileJava'))
-        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
         result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
@@ -199,8 +186,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result2.wasUpToDate(':api:compileConjureObjects')
         result2.wasUpToDate(prefixProject(prefix, 'api-jersey:compileJava'))
         result2.wasUpToDate(':api:compileConjureJersey')
-        result2.wasUpToDate(prefixProject(prefix, 'api-retrofit:compileJava'))
-        result2.wasUpToDate(':api:compileConjureRetrofit')
         result2.wasUpToDate(prefixProject(prefix, 'api-undertow:compileJava'))
         result2.wasUpToDate(':api:compileConjureUndertow')
         result2.wasUpToDate(prefixProject(prefix, 'api-dialogue:compileJava'))
@@ -243,7 +228,6 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
         fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
-        fileExists(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/java/main'))
         fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
         fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
@@ -253,13 +237,11 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         result.wasExecuted(':api:cleanCompileConjureJersey')
         result.wasExecuted(':api:cleanCompileConjureObjects')
-        result.wasExecuted(':api:cleanCompileConjureRetrofit')
         result.wasExecuted(':api:cleanCompileConjureUndertow')
         result.wasExecuted(':api:cleanCompileConjureDialogue')
 
         !fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
         !fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
-        !fileExists(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/java/main'))
         !fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
         !fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
@@ -299,7 +281,6 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         result.wasUpToDate(':api:compileConjureObjects')
         result.wasUpToDate(':api:compileConjureJersey')
-        result.wasUpToDate(':api:compileConjureRetrofit')
         result.wasUpToDate(':api:compileConjureTypeScript')
         result.wasUpToDate(':api:compileConjureUndertow')
         result.wasUpToDate(':api:compileConjureDialogue')
@@ -343,7 +324,6 @@ class ConjurePluginTest extends IntegrationSpec {
         then:
         result.wasExecuted(':api:compileConjureObjects')
         result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(':api:compileConjureTypeScript')
         result.wasExecuted(':api:compileConjureUndertow')
         result.wasExecuted(':api:compileConjureDialogue')
@@ -417,7 +397,6 @@ class ConjurePluginTest extends IntegrationSpec {
         result.wasExecuted(':api:compileConjure')
         result.wasExecuted(':api:compileConjureJersey')
         result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:compileConjureRetrofit')
         result.wasExecuted(":api:compileIr")
 
         fileExists('api/build/conjure/internal-import.yml')
@@ -425,8 +404,6 @@ class ConjurePluginTest extends IntegrationSpec {
 
         // java
         file(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/api/service/TestServiceFoo2.java')).text.contains(
-                'import test.api.internal.InternalImport;')
-        file(prefixPath(prefix, 'api-retrofit/build/generated/sources/conjure-retrofit/java/main/test/api/service/TestServiceFoo2Retrofit.java')).text.contains(
                 'import test.api.internal.InternalImport;')
         fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java'))
 
