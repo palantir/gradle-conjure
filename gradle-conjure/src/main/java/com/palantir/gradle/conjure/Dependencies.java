@@ -34,6 +34,12 @@ final class Dependencies {
      * have a minimum version rather than failing builds.
      */
     static final String JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:23.0.0";
+    /**
+     * Starting with conjure-lib version 8.18.0, the build() method of generated builders
+     * add a @CheckReturnValue annotation from errorprone.
+     * See: https://github.com/palantir/conjure-java/pull/2282
+     */
+    static final String ERRORPRONE_ANNOTATIONS = "com.google.errorprone:error_prone_annotations";
 
     private static final String JAKARTA_PACKAGES = "jakartaPackages";
     private static final String JERSEY = "jersey";

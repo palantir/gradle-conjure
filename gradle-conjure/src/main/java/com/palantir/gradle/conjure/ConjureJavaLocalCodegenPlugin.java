@@ -109,6 +109,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static void configureDependencies(Project project, ConjureExtension extension) {
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
+        project.getDependencies().add("api", Dependencies.ERRORPRONE_ANNOTATIONS);
         boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
         project.getDependencies()
                 .add(

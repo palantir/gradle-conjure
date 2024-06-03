@@ -278,6 +278,7 @@ public final class ConjurePlugin implements Plugin<Project> {
     private static void setupObjectsProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
         project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
+        project.getDependencies().add("api", Dependencies.ERRORPRONE_ANNOTATIONS);
     }
 
     private static void setupDialogueProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
