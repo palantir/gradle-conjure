@@ -15,7 +15,7 @@ org.junit.jupiter:* = 5.10.2
 org.junit.vintage:* = 5.10.2
 org.mockito:* = 5.12.0
 org.spockframework:* = 2.0-groovy-3.0
-com.palantir.sls-packaging:* = 7.56.0
+com.palantir.sls-packaging:* = 7.57.0
 com.palantir.conjure.java.runtime:* = 8.12.0
 net.bytebuddy:byte-buddy = 1.14.17
 
