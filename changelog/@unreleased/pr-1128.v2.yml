@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: extractIr task dependencies are configured correctly
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1128

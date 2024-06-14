@@ -25,28 +25,24 @@ import com.palantir.gradle.dist.ProductDependency;
 import com.palantir.gradle.dist.RecommendedProductDependenciesExtension;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 
 public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     private static final ObjectMapper OBJECT_MAPPER = ObjectMappers.newClientObjectMapper();
     private static final String CONJURE_CONFIGURATION = "conjure";
-    private static final Pattern DEFINITION_NAME =
-            Pattern.compile("(.*)-([0-9]+\\.[0-9]+\\.[0-9]+(?:-rc[0-9]+)?(?:-[0-9]+-g[a-f0-9]+)?)(\\.conjure)?\\.json");
 
     @Override
     public void apply(Project project) {
@@ -56,11 +52,10 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
         Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
-        TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
-            task.rename(DEFINITION_NAME, "$1.conjure.json");
-            task.from(conjureIrConfiguration);
-            task.into(project.getLayout().getBuildDirectory().dir("conjure-ir"));
-        });
+        TaskProvider<ExtractConjureIrTask> extractConjureIr = project.getTasks()
+                .register("extractConjureIr", ExtractConjureIrTask.class, task -> {
+                    task.getIrConfiguration().set(conjureIrConfiguration);
+                });
 
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
@@ -71,7 +66,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             Project project,
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            TaskProvider<Copy> extractConjureIr,
+            TaskProvider<ExtractConjureIrTask> extractConjureIr,
             Configuration conjureIrConfiguration) {
         project.getChildProjects().forEach((_name, subproject) -> {
             subproject.getPluginManager().apply(JavaLibraryPlugin.class);
@@ -130,11 +125,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             Project project,
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            TaskProvider<Copy> extractConjureIr) {
+            TaskProvider<ExtractConjureIrTask> extractConjureIr) {
         ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
 
-        Provider<File> conjureIrFile = extractConjureIr.map(
-                irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));
+        Provider<RegularFile> conjureIrFile =
+                extractConjureIr.flatMap(task -> task.getConjureIr().file(project.getName() + ".conjure.json"));
 
         project.getExtensions()
                 .getByType(RecommendedProductDependenciesExtension.class)
@@ -179,10 +174,10 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         return group.replaceAll("-", "");
     }
 
-    private static Set<ProductDependency> extractProductDependencies(File irFile) {
+    private static Set<ProductDependency> extractProductDependencies(RegularFile irFile) {
         try {
             MinimalConjureDefinition conjureDefinition =
-                    OBJECT_MAPPER.readValue(irFile, MinimalConjureDefinition.class);
+                    OBJECT_MAPPER.readValue(irFile.getAsFile(), MinimalConjureDefinition.class);
             return conjureDefinition
                     .extensions()
                     .map(MinimalConjureDefinition.Extensions::productDependencies)
