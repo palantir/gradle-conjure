@@ -1,4 +1,4 @@
-# Run ./gradlew writeVersionsLock to regenerate this file
+# Run ./gradlew writeVersionsLocks to regenerate this file
 com.fasterxml.jackson.core:jackson-annotations:2.16.1 (5 constraints: 5255fa55)
 com.fasterxml.jackson.core:jackson-core:2.16.1 (8 constraints: 40b85a21)
 com.fasterxml.jackson.core:jackson-databind:2.16.1 (10 constraints: 14e38fa1)
