@@ -35,10 +35,12 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.logging.LogLevel;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
@@ -91,9 +93,8 @@ public class GenerateNpmrcTask extends DefaultTask {
     }
 
     private String normalizedRegistryUri() {
-        return registryUri.get().endsWith("/")
-                ? registryUri.get().substring(0, registryUri.get().length() - 1)
-                : registryUri.get();
+        String uri = registryUri.get();
+        return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
     }
 
     @TaskAction
@@ -129,7 +130,9 @@ public class GenerateNpmrcTask extends DefaultTask {
         String npmRcContents = scopeRegistry + "registry=" + normalizedUri + "/" + tokenString;
 
         try {
-            Files.writeString(outputFile.getAsFile().get().toPath(), npmRcContents, StandardCharsets.UTF_8);
+            Path npmrcPath = outputFile.getAsFile().get().toPath().toAbsolutePath();
+            Files.writeString(npmrcPath, npmRcContents, StandardCharsets.UTF_8);
+            getLogger().log(LogLevel.INFO, "Wrote npm config to {}", npmrcPath);
         } catch (@DoNotLog IOException e) {
             throw new SafeRuntimeException("Error writing npmrc file");
         }
