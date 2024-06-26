@@ -126,9 +126,12 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('installTypeScriptDependencies')
+        ExecutionResult result = runTasks('installTypeScriptDependencies')
+        System.err.println(result.standardError)
+        System.out.println(result.standardOutput)
 
         then:
+        result.rethrowFailure() == result
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=theansweris42')
         result.wasExecuted('api:generateNpmrc')
