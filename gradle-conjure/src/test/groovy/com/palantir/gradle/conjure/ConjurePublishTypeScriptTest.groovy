@@ -108,6 +108,36 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         second.wasUpToDate(':api:installTypeScriptDependencies')
     }
 
+    def 'installTypeScriptDependencies uses custom registry'() {
+        given:
+        MockWebServer server = new MockWebServer()
+        server.start(8888)
+        // generateNpmrc will make request for token
+        server.enqueue(new MockResponse().setBody("{\"token\": \"theansweris42\"}"))
+        // npm publish makes two requests to the registry
+        server.enqueue(new MockResponse())
+        server.enqueue(new MockResponse())
+        file('api/build.gradle').text = """
+        apply plugin: 'com.palantir.conjure'
+
+        generateNpmrc.registryUri = "http://localhost:8888"
+        generateNpmrc.username = "user"
+        generateNpmrc.password = "pass"
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('installTypeScriptDependencies')
+
+        then:
+        file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
+        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=theansweris42')
+        result.wasExecuted('api:generateNpmrc')
+        result.wasExecuted('api:compileConjureTypeScript')
+
+        cleanup:
+        server.shutdown()
+    }
+
     def 'compiles TypeScript'() {
         when:
         ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
