@@ -358,6 +358,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 registerClean(project, compileConjureTypeScript);
 
                 String npmCommand = OsUtils.NPM_COMMAND_NAME;
+
                 TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
                         .register("generateNpmrc", GenerateNpmrcTask.class, task -> {
                             task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts");
@@ -381,7 +382,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                         .register("installTypeScriptDependencies", Exec.class, task -> {
                             task.commandLine(npmCommand, "install", "--no-package-lock", "--no-production");
                             task.workingDir(srcDirectory);
-                            task.dependsOn(generateNpmrc);
                             task.dependsOn(compileConjureTypeScript);
                             task.getInputs().file(new File(srcDirectory, "package.json"));
                             task.getOutputs().dir(new File(srcDirectory, "node_modules"));
