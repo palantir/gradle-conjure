@@ -23,6 +23,8 @@ import nebula.test.functional.ExecutionResult
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 
+import java.util.concurrent.TimeUnit
+
 class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
     def setup() {
@@ -117,28 +119,42 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         // npm install makes two requests to the registry
         server.enqueue(new MockResponse().setBody("""
         {
-          "name": "conjure-typescript-runtime",
+          "name": "conjure-client",
           "version": "0.0.0",
           "author": "Palantir Technologies, Inc",
           "license": "Apache-2.0"
         }
         """.stripIndent()))
+        server.enqueue(new MockResponse().setBody("""
+        {
+          "name": "typescript",
+          "version": "0.0.0",
+          "author": "Palantir Technologies, Inc",
+          "license": "Apache-2.0"
+        }
+        """.stripIndent()))
+
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
-
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.username = "user"
         generateNpmrc.password = "pass"
+        tasks.installTypeScriptDependencies.dependsOn tasks.generateNpmrc
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('generateNpmrc')
+        ExecutionResult result = runTasks('installTypeScriptDependencies')
 
         then:
+        server.requestCount == 3
+        server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/-/user/org.couchdb.user:user"
+        server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/conjure-client"
+        server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/typescript"
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=theansweris42')
         result.wasExecuted('api:generateNpmrc')
         result.wasExecuted('api:compileConjureTypeScript')
+        result.wasExecuted('api:installTypeScriptDependencies')
 
         cleanup:
         server.shutdown()
