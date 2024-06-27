@@ -150,9 +150,12 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/-/user/org.couchdb.user:user"
         server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/conjure-client"
         server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/typescript"
-        file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=42')
+        file('api/api-typescript/src/.npmrc').exists()
+        file('api/api-typescript/src/.npmrc').readLines()
+                .containsAll('registry=http://localhost:8888/', '//localhost:8888/:_authToken=42')
         result.wasExecuted('api:generateNpmrc')
+        !result.wasSkipped('api:generateNpmrc')
+        !result.wasUpToDate('api:generateNpmrc')
         result.wasExecuted('api:compileConjureTypeScript')
         result.wasExecuted('api:installTypeScriptDependencies')
 
