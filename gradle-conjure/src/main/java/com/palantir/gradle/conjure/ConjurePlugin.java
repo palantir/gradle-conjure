@@ -383,6 +383,15 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.commandLine(npmCommand, "install", "--no-package-lock", "--no-production");
                             task.workingDir(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
+                            if (Boolean.parseBoolean(options.get()
+                                    .getProperties()
+                                    .getOrDefault("installGeneratesNpmrc", "true")
+                                    .toString())) {
+                                // In most cases we want the installTypeScriptDependencies task to depend on
+                                // the generateNpmrc task, except for some tests that pull dependencies from
+                                // the actual https://registry.npmjs.org repository.
+                                task.dependsOn(generateNpmrc);
+                            }
                             task.getInputs().file(new File(srcDirectory, "package.json"));
                             task.getOutputs().dir(new File(srcDirectory, "node_modules"));
                         });

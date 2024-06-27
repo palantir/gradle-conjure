@@ -115,7 +115,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         MockWebServer server = new MockWebServer()
         server.start(8888)
         // generateNpmrc will make request for token
-        server.enqueue(new MockResponse().setBody("{\"token\": \"theansweris42\"}"))
+        server.enqueue(new MockResponse().setBody("{\"token\": \"42\"}"))
         // npm install makes two requests to the registry
         server.enqueue(new MockResponse().setBody("""
         {
@@ -136,10 +136,10 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
+
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.username = "user"
         generateNpmrc.password = "pass"
-        tasks.installTypeScriptDependencies.dependsOn tasks.generateNpmrc
         """.stripIndent()
 
         when:
@@ -151,7 +151,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/conjure-client"
         server.takeRequest(100, TimeUnit.MILLISECONDS).path == "/typescript"
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
-        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=theansweris42')
+        file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=42')
         result.wasExecuted('api:generateNpmrc')
         result.wasExecuted('api:compileConjureTypeScript')
         result.wasExecuted('api:installTypeScriptDependencies')
@@ -192,6 +192,12 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
 
+        conjure {
+            typescript {
+                installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
+            }
+        }
+
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.username = "user"
         generateNpmrc.password = "pass"
@@ -220,6 +226,12 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         server.enqueue(new MockResponse())
         file('api/build.gradle').text = """
         apply plugin: 'com.palantir.conjure'
+
+        conjure {
+            typescript {
+                installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
+            }
+        }
 
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.token = "registry-token"
@@ -254,6 +266,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         conjure {
             typescript {
                 packageName = "@test/api"
+                installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
             }
         }
 
