@@ -25,6 +25,7 @@ import com.google.common.net.HttpHeaders;
 import com.palantir.conjure.java.serialization.ObjectMappers;
 import com.palantir.logsafe.DoNotLog;
 import com.palantir.logsafe.SafeArg;
+import com.palantir.logsafe.UnsafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.io.IOException;
 import java.net.URI;
@@ -36,6 +37,7 @@ import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -131,10 +133,20 @@ public class GenerateNpmrcTask extends DefaultTask {
 
         try {
             Path npmrcPath = outputFile.getAsFile().get().toPath().toAbsolutePath();
-            Files.writeString(npmrcPath, npmRcContents, StandardCharsets.UTF_8);
-            getLogger().log(LogLevel.INFO, "Wrote npm config to {}", npmrcPath);
+            Files.writeString(
+                    npmrcPath,
+                    npmRcContents,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
+            long size = Files.size(npmrcPath);
+            getLogger().log(LogLevel.INFO, "Wrote npm config to '{}': {} bytes", npmrcPath, size);
         } catch (@DoNotLog IOException e) {
-            throw new SafeRuntimeException("Error writing npmrc file");
+            throw new SafeRuntimeException(
+                    "Error writing npmrc file",
+                    SafeArg.of("registryUri", getRegistryUri()),
+                    UnsafeArg.of("username", username));
         }
     }
 
@@ -154,12 +166,20 @@ public class GenerateNpmrcTask extends DefaultTask {
                                     BodySubscribers.ofByteArray(), GenerateNpmrcTask::deserializeResponse));
 
             if (response.statusCode() >= 400) {
-                throw new RuntimeException("Call to registry failed: " + response.statusCode());
+                throw new SafeRuntimeException(
+                        "Call to registry failed",
+                        SafeArg.of("registryUri", registryUri),
+                        SafeArg.of("responseStatus", response.statusCode()),
+                        UnsafeArg.of("username", username));
             }
 
             return response.body();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SafeRuntimeException(
+                    "Failed to fetch token",
+                    e,
+                    SafeArg.of("registryUri", registryUri),
+                    UnsafeArg.of("username", username));
         }
     }
 
@@ -176,10 +196,13 @@ public class GenerateNpmrcTask extends DefaultTask {
             return MAPPER.readValue(bytes, NpmTokenResponse.class);
         } catch (@DoNotLog IOException e) {
             throw new SafeRuntimeException(
-                    "Failed to deserialize npm token response", SafeArg.of("exceptionClass", e.getClass()));
+                    "Failed to deserialize npm token response",
+                    SafeArg.of("exceptionClass", e.getClass()),
+                    SafeArg.of("bytes", bytes == null ? 0 : bytes.length));
         }
     }
 
+    @DoNotLog
     @Immutable
     @JsonSerialize(as = ImmutableNpmTokenRequest.class)
     @JsonDeserialize(as = ImmutableNpmTokenRequest.class)
@@ -187,15 +210,18 @@ public class GenerateNpmrcTask extends DefaultTask {
         @Parameter
         String name();
 
+        @DoNotLog
         @Parameter
         String password();
     }
 
+    @DoNotLog
     @Immutable
     @JsonSerialize(as = ImmutableNpmTokenResponse.class)
     @JsonDeserialize(as = ImmutableNpmTokenResponse.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     interface NpmTokenResponse {
+        @DoNotLog
         @Parameter
         String token();
     }
