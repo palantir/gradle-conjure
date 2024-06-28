@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Generate npmrc
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1463
