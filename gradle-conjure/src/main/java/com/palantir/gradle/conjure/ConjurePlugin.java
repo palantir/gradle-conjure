@@ -600,8 +600,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
     @SuppressWarnings("deprecation")
     static void addGeneratedToMainSourceSet(Project subproj, TaskProvider<?> conjureGeneratorTask) {
-        org.gradle.api.plugins.JavaPluginConvention javaPlugin =
-                subproj.getConvention().findPlugin(org.gradle.api.plugins.JavaPluginConvention.class);
+        org.gradle.api.plugins.JavaPluginExtension javaPlugin =
+                subproj.getExtensions().getByType(org.gradle.api.plugins.JavaPluginExtension.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(conjureGeneratorTask);
     }
 
