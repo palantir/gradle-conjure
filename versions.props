@@ -11,13 +11,13 @@ junit:junit = 4.13.2
 org.apache.commons:commons-lang3 = 3.17.0
 org.assertj:* = 3.26.3
 org.immutables:value = 2.10.1
-org.junit.jupiter:* = 5.11.0
-org.junit.vintage:* = 5.11.0
+org.junit.jupiter:* = 5.11.1
+org.junit.vintage:* = 5.11.1
 org.mockito:* = 5.13.0
 org.spockframework:* = 2.0-groovy-3.0
 com.palantir.sls-packaging:* = 7.66.0
 com.palantir.conjure.java.runtime:* = 8.14.0
-net.bytebuddy:byte-buddy = 1.15.1
+net.bytebuddy:byte-buddy = 1.15.2
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
