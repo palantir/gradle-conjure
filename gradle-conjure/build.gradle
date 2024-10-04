@@ -49,35 +49,38 @@ dependencies {
 }
 
 gradlePlugin {
+    website = 'https://github.com/palantir/gradle-conjure'
+    vcsUrl = 'https://github.com/palantir/gradle-conjure'
     plugins {
         conjure {
             id = 'com.palantir.conjure'
             implementationClass = 'com.palantir.gradle.conjure.ConjurePlugin'
             displayName = 'Palantir GradleConjure Plugin'
+            description = 'Gradle conjure is a gradle plugin integration for conjure generators'
+            tags.set(['conjure', 'code gen'])
         }
         conjurePublish {
             id = 'com.palantir.conjure-publish'
             implementationClass = 'com.palantir.gradle.conjure.ConjurePublishPlugin'
             displayName = 'Palantir Gradle Conjure Publish Plugin'
+            description = 'Gradle conjure is a gradle plugin integration for conjure generators'
+            tags.set(['conjure', 'code gen'])
         }
         conjureLocal {
             id = 'com.palantir.conjure-local'
             implementationClass = 'com.palantir.gradle.conjure.ConjureLocalPlugin'
             displayName = 'Palantir Gradle Conjure Local Plugin'
+            description = 'Gradle conjure is a gradle plugin integration for conjure generators'
+            tags.set(['conjure', 'code gen'])
         }
         conjureJavaLocal {
             id = 'com.palantir.conjure-java-local'
             implementationClass = 'com.palantir.gradle.conjure.ConjureJavaLocalCodegenPlugin'
             displayName = 'Palantir Gradle Conjure Java Local Plugin'
+            description = 'Gradle conjure is a gradle plugin integration for conjure generators'
+            tags.set(['conjure', 'code gen'])
         }
     }
-}
-
-pluginBundle {
-    website = 'https://github.com/palantir/gradle-conjure'
-    vcsUrl = 'https://github.com/palantir/gradle-conjure'
-    description = 'Gradle conjure is a gradle plugin integration for conjure generators'
-    tags = ['conjure', 'code gen']
 }
 
 idea {
