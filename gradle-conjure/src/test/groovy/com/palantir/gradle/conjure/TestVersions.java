@@ -16,8 +16,12 @@
 
 package com.palantir.gradle.conjure;
 
+import com.google.common.collect.ImmutableList;
+
 public final class TestVersions {
     private TestVersions() {}
+
+    public static final ImmutableList<String> VERSIONS = ImmutableList.of("7.6.4", "8.8");
 
     public static final String CONJURE = "4.48.0";
     public static final String CONJURE_JAVA = "8.22.0";
