@@ -94,3 +94,7 @@ tasks.withType(JavaCompile).configureEach {
         check('Slf4jLogsafeArgs', CheckSeverity.OFF)
     }
 }
+
+test {
+    systemProperty 'ignoreDeprecations', 'true'
+}
