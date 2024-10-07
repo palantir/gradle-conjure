@@ -16,11 +16,14 @@
 
 package com.palantir.gradle.conjure
 
+import spock.lang.Unroll
+
 import java.nio.file.Files
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import org.apache.commons.io.FileUtils
 
+@Unroll
 class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
     private static final String API_YML = """
     types:
@@ -52,13 +55,16 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
     }
 
-    def 'compile conjure'() {
+    def 'compile conjure: #gradleVersion'() {
         when:
         file('src/main/conjure/api.yml') << API_YML
 
         then:
         runTasksSuccessfully('compileIr')
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
+
+        where:
+        gradleVersion << TestVersions.VERSIONS
     }
 
     def 'compile conjure with additional flags'() {
@@ -77,7 +83,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
     }
 
-    def 'correctly caches compilation'() {
+    def 'correctly caches compilation: #gradleVersion'() {
         when:
         file('src/main/conjure/api.yml') << API_YML
 
@@ -88,6 +94,9 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         def result2 = runTasksSuccessfully('compileIr')
         result2.wasUpToDate('extractConjure')
         result2.wasUpToDate('compileIr')
+
+        where:
+        gradleVersion << TestVersions.VERSIONS
     }
 
     def 'fails to compile invalid conjure'() {
