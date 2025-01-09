@@ -656,35 +656,6 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    def 'sets up idea source sets correctly'() {
-        given:
-        createFile('api/api-jersey/some-extra-source-folder')
-
-        file('build.gradle') << '''
-        subprojects {
-            apply plugin: 'idea'
-
-            idea {
-                module {
-                    sourceDirs += file('some-extra-source-folder')
-                }
-            }
-        }
-        '''.stripIndent()
-
-        when:
-        runTasksSuccessfully('idea')
-
-        then:
-        def slurper = new XmlParser()
-        def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
-        def sourcesFolderUrls = module.component.content.sourceFolder.@url
-
-        sourcesFolderUrls.size() == 2
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/build/generated/sources/conjure-jersey/java/main')
-    }
-
     def 'compileTypeScript is run on build for circle node 0'() {
         when:
         def stdout = runTasksSuccessfully('build', '--dry-run',

@@ -56,6 +56,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaLibraryPlugin;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
@@ -121,7 +122,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setGroup(TASK_GROUP);
                 });
 
-        applyDependencyForIdeTasks(project, compileConjure);
         buildDependsOn(project, compileConjure);
 
         setupConjureJavaProjects(
@@ -228,7 +228,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                     });
             addGeneratedToMainSourceSet(subproj, conjureGeneratorTask);
             subproj.getTasks().named("compileJava").configure(t -> t.dependsOn(conjureGeneratorTask));
-            applyDependencyForIdeTasks(subproj, conjureGeneratorTask);
             ConjurePlugin.configureIdeGeneratedSources(
                     subproj, conjureGeneratorTask.flatMap(ConjureGeneratorTask::getOutputDirectory));
             compileConjure.configure(t -> t.dependsOn(conjureGeneratorTask));
@@ -333,7 +332,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         String typescriptProjectName = project.getName() + "-typescript";
         if (derivedProjectExists(project, typescriptProjectName)) {
             project.project(derivedProjectPath(project, typescriptProjectName), subproj -> {
-                applyDependencyForIdeTasks(subproj, compileConjure);
                 File srcDirectory = subproj.file("src");
                 TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                         ExtractConjurePlugin.applyConjureTypeScript(project);
@@ -453,7 +451,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         String pythonProjectName = project.getName() + "-python";
         if (derivedProjectExists(project, pythonProjectName)) {
             project.project(derivedProjectPath(project, pythonProjectName), subproj -> {
-                applyDependencyForIdeTasks(subproj, compileConjure);
                 File buildDir = new File(project.getBuildDir(), "python");
                 File distDir = new File(buildDir, "dist");
                 TaskProvider<ExtractExecutableTask> extractConjurePythonTask =
@@ -597,41 +594,16 @@ public final class ConjurePlugin implements Plugin<Project> {
         return Collections.emptyMap();
     }
 
-    // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
-    @SuppressWarnings("deprecation")
     static void addGeneratedToMainSourceSet(Project subproj, TaskProvider<?> conjureGeneratorTask) {
-        org.gradle.api.plugins.JavaPluginExtension javaPlugin =
-                subproj.getExtensions().getByType(org.gradle.api.plugins.JavaPluginExtension.class);
+        JavaPluginExtension javaPlugin = subproj.getExtensions().getByType(JavaPluginExtension.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(conjureGeneratorTask);
-    }
-
-    static void applyDependencyForIdeTasks(Project project, TaskProvider<?> compileConjure) {
-        project.getPlugins().withType(IdeaPlugin.class, _plugin -> {
-            // root project does not have the ideaModule task.  There is unfortunately no
-            // safe way to check for existence with the task avoidance APIs
-            try {
-                project.getTasks().named("ideaModule").configure(t -> t.dependsOn(compileConjure));
-            } catch (UnknownTaskException e) {
-                project.getLogger().debug("Project does not have ideaModule task.", e);
-            }
-        });
-
-        project.getPlugins().withType(EclipsePlugin.class, _plugin -> {
-            try {
-                project.getTasks().named("eclipseClasspath").configure(t -> t.dependsOn(compileConjure));
-            } catch (UnknownTaskException e) {
-                // eclipseClasspath is not always registered
-            }
-        });
     }
 
     static void configureIdeGeneratedSources(Project project, Provider<Directory> generated) {
         project.getPlugins().withType(IdeaPlugin.class, plugin -> {
             IdeaModule module = plugin.getModel().getModule();
 
-            // module.getSourceDirs / getGeneratedSourceDirs could be an immutable set, so defensively copy
-            module.setSourceDirs(mutableSetWithExtraEntry(
-                    module.getSourceDirs(), generated.get().getAsFile()));
+            // module.getGeneratedSourceDirs could be an immutable set, so defensively copy
             module.setGeneratedSourceDirs(mutableSetWithExtraEntry(
                     module.getGeneratedSourceDirs(), generated.get().getAsFile()));
         });

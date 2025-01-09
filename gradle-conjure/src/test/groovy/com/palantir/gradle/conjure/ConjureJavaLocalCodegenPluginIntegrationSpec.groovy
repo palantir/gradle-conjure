@@ -120,27 +120,6 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
-    def 'sets up idea source sets correctly'() {
-        buildFile << """
-        conjure { java { addFlag 'objects' } }
-        subprojects {
-            apply plugin: 'idea'
-        }
-        """.stripIndent()
-        addSubproject("conjure-api")
-
-        when:
-        runTasksSuccessfully('idea')
-
-        then:
-        def slurper = new XmlParser()
-        def module = slurper.parse(file('conjure-api/conjure-api.iml'))
-        def sourcesFolderUrls = module.component.content.sourceFolder.@url
-
-        sourcesFolderUrls.size() == 1
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/build/generated/sources/conjure-java-local-java/java/main')
-    }
-
     def 'embeds product dependencies correctly'() {
         addSubproject("conjure-api")
         buildFile << """

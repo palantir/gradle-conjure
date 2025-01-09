@@ -1,0 +1,7 @@
+type: fix
+fix:
+  description: Remove unnecessary `./gradlew idea` support - it has been deprecated
+    for many years, please use native Gradle integration by opening with IntelliJ
+    instead.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1567

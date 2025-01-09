@@ -166,7 +166,6 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         ConjurePlugin.addGeneratedToMainSourceSet(project, generateJava);
 
         project.getTasks().named("compileJava").configure(compileJava -> compileJava.dependsOn(generateJava));
-        ConjurePlugin.applyDependencyForIdeTasks(project, generateJava);
         ConjurePlugin.configureIdeGeneratedSources(
                 project, generateJava.flatMap(ConjureJavaLocalGeneratorTask::getOutputDirectory));
     }
