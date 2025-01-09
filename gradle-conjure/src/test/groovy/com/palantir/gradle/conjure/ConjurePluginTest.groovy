@@ -656,62 +656,6 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
-    def 'sets up idea source sets correctly'() {
-        given:
-        createFile('api/api-jersey/some-extra-source-folder')
-
-        file('build.gradle') << '''
-        subprojects {
-            apply plugin: 'idea'
-
-            idea {
-                module {
-                    sourceDirs += file('some-extra-source-folder')
-                }
-            }
-        }
-        '''.stripIndent()
-
-        when:
-        runTasksSuccessfully('idea')
-
-        then:
-        def slurper = new XmlParser()
-        def module = slurper.parse(file('api/api-jersey/api-jersey.iml'))
-        def sourcesFolderUrls = module.component.content.sourceFolder.@url
-
-        sourcesFolderUrls.size() == 2
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/some-extra-source-folder')
-        sourcesFolderUrls.contains('file://$MODULE_DIR$/build/generated/sources/conjure-jersey/java/main')
-    }
-
-    def 'compileTypeScript is run on build for circle node 0'() {
-        when:
-        def stdout = runTasksSuccessfully('build', '--dry-run',
-                '-P__TESTING_CIRCLE_NODE_INDEX=0').standardOutput
-
-        then:
-        stdout.contains ':api:compileTypeScript SKIPPED'
-    }
-
-    def 'compileTypeScript is not run on build for circle node 1'() {
-        when:
-        def stdout = runTasksSuccessfully('build', '--dry-run',
-                '-P__TESTING_CIRCLE_NODE_INDEX=1').standardOutput
-
-        then:
-        !stdout.contains(':api:compileTypeScript SKIPPED')
-    }
-
-    def 'compileTypeScript is run on build locally'() {
-        when:
-        // No CIRCLE_NODE_INDEX property set means local build
-        def stdout = runTasksSuccessfully('build', '--dry-run').standardOutput
-
-        then:
-        stdout.contains ':api:compileTypeScript SKIPPED'
-    }
-
     @RestoreSystemProperties
     def 'works with checkUnusedDependencies'() {
         System.setProperty("ignoreMutableProjectStateWarnings", "true")

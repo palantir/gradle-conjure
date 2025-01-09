@@ -63,7 +63,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     + "from remote Conjure definitions.");
             task.setGroup(ConjurePlugin.TASK_GROUP);
         });
-        ConjurePlugin.applyDependencyForIdeTasks(project, generateConjure);
 
         setupConjureJava(
                 project, immutableOptionsSupplier(extension::getJava), conjureIrConfiguration, generateConjure);
