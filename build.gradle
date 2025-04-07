@@ -18,6 +18,7 @@ buildscript {
     repositories {
         mavenCentral() { metadataSources { mavenPom(); ignoreGradleMetadataRedirection() } }
         gradlePluginPortal() { metadataSources { mavenPom(); ignoreGradleMetadataRedirection() } }
+        mavenLocal()
     }
 
     dependencies {
@@ -58,6 +59,7 @@ allprojects {
 
     repositories {
         mavenCentral() { metadataSources { mavenPom(); ignoreGradleMetadataRedirection() } }
+        mavenLocal()
     }
 }
 
@@ -66,6 +68,9 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'org.inferred.processors'
 
+
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     tasks.withType(JavaCompile) {
         options.compilerArgs += ['-Werror', '-Xlint:-deprecation']
@@ -82,9 +87,9 @@ subprojects {
 }
 
 javaVersions {
-    libraryTarget = 11
+    libraryTarget = 17
 }
 
 jdks {
-    daemonTarget = 17
+    daemonTarget = 21
 }

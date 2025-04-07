@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.palantir.gradle.betterexec.BetterExec;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
@@ -374,10 +375,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 compileConjure.configure(t -> t.dependsOn(generateNpmrc));
 
-                TaskProvider<Exec> installTypeScriptDependencies = project.getTasks()
-                        .register("installTypeScriptDependencies", Exec.class, task -> {
-                            task.commandLine(npmCommand, "install", "--no-package-lock", "--no-production");
-                            task.workingDir(srcDirectory);
+                TaskProvider<BetterExec> installTypeScriptDependencies = project.getTasks()
+                        .register("installTypeScriptDependencies", BetterExec.class, task -> {
+                            task.getCommand()
+                                    .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
+                            task.getWorkingDir().set(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
                             task.getInputs().file(new File(srcDirectory, "package.json"));
                             task.getOutputs().dir(new File(srcDirectory, "node_modules"));
