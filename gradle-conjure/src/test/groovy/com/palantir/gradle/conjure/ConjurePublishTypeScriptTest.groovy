@@ -207,7 +207,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        ExecutionResult result = runTasksSuccessfully('publish', '--info')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
@@ -241,7 +241,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        ExecutionResult result = runTasksSuccessfully('publish', '--info')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')

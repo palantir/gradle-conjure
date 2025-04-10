@@ -60,7 +60,6 @@ import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Delete;
-import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
@@ -396,26 +395,26 @@ public final class ConjurePlugin implements Plugin<Project> {
                     }
                 });
 
-                TaskProvider<Exec> compileTypeScript = project.getTasks()
-                        .register("compileTypeScript", Exec.class, task -> {
+                TaskProvider<BetterExec> compileTypeScript = project.getTasks()
+                        .register("compileTypeScript", BetterExec.class, task -> {
                             task.setDescription(
                                     "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
                             task.setGroup(TASK_GROUP);
-                            task.commandLine(npmCommand, "run-script", "build");
-                            task.workingDir(srcDirectory);
+                            task.getCommand().set(List.of(npmCommand, "run-script", "build"));
+                            task.getWorkingDir().set(srcDirectory);
                             task.dependsOn(installTypeScriptDependencies);
                             task.getOutputs().dir(srcDirectory);
                         });
 
                 buildDependsOn(project, compileTypeScript);
 
-                TaskProvider<Exec> publishTypeScript = project.getTasks()
-                        .register("publishTypeScript", Exec.class, task -> {
+                TaskProvider<BetterExec> publishTypeScript = project.getTasks()
+                        .register("publishTypeScript", BetterExec.class, task -> {
                             task.setDescription("Runs `npm publish` to publish a TypeScript package "
                                     + "generated from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
-                            task.commandLine(npmCommand, "publish");
-                            task.workingDir(srcDirectory);
+                            task.getCommand().set(List.of(npmCommand, "publish"));
+                            task.getWorkingDir().set(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });
@@ -471,27 +470,27 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(extractConjurePythonTask, compileIrTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjurePython));
-                project.getTasks().register("buildWheel", Exec.class, task -> {
+                project.getTasks().register("buildWheel", BetterExec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.commandLine(
+                    task.getCommand().set(List.of(
                             "python",
                             "setup.py",
                             "build",
                             "--build-base",
-                            buildDir,
+                            buildDir.toPath().toString(),
                             "egg_info",
                             "--egg-base",
-                            buildDir,
+                            buildDir.toPath().toString(),
                             "sdist",
                             "--dist-dir",
-                            distDir,
+                            distDir.toPath().toString(),
                             "bdist_wheel",
                             "--universal",
                             "--dist-dir",
-                            distDir);
-                    task.workingDir(subproj.file("python"));
+                            distDir.toPath().toString()));
+                    task.getWorkingDir().set(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                 });
                 registerClean(project, compileConjurePython);
