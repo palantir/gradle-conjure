@@ -31,6 +31,7 @@ public interface MinimalConjureDefinition {
     @Value.Immutable
     @JsonDeserialize(as = ImmutableExtensions.class)
     interface Extensions {
+
         @JsonProperty("recommended-product-dependencies")
         Set<ProductDependency> productDependencies();
     }

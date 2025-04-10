@@ -474,22 +474,23 @@ public final class ConjurePlugin implements Plugin<Project> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.getCommand().set(List.of(
-                            "python",
-                            "setup.py",
-                            "build",
-                            "--build-base",
-                            buildDir.toPath().toString(),
-                            "egg_info",
-                            "--egg-base",
-                            buildDir.toPath().toString(),
-                            "sdist",
-                            "--dist-dir",
-                            distDir.toPath().toString(),
-                            "bdist_wheel",
-                            "--universal",
-                            "--dist-dir",
-                            distDir.toPath().toString()));
+                    task.getCommand()
+                            .set(List.of(
+                                    "python",
+                                    "setup.py",
+                                    "build",
+                                    "--build-base",
+                                    buildDir.toPath().toString(),
+                                    "egg_info",
+                                    "--egg-base",
+                                    buildDir.toPath().toString(),
+                                    "sdist",
+                                    "--dist-dir",
+                                    distDir.toPath().toString(),
+                                    "bdist_wheel",
+                                    "--universal",
+                                    "--dist-dir",
+                                    distDir.toPath().toString()));
                     task.getWorkingDir().set(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                 });
