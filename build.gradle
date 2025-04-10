@@ -68,10 +68,6 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'org.inferred.processors'
 
-
-    sourceCompatibility = 11
-    targetCompatibility = 11
-
     tasks.withType(JavaCompile) {
         options.compilerArgs += ['-Werror', '-Xlint:-deprecation']
         options.errorprone {
