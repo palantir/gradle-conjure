@@ -28,7 +28,6 @@ dependencies {
     implementation 'com.palantir.sls.versions:sls-versions'
     implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
     implementation 'com.palantir.sls-packaging:gradle-recommended-product-dependencies'
-    implementation 'com.palantir.gradle.better-exec:better-exec'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'net.bytebuddy:byte-buddy'
