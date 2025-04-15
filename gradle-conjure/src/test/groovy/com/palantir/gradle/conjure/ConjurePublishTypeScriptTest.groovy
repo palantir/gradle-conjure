@@ -16,8 +16,7 @@
 
 package com.palantir.gradle.conjure
 
-import com.google.common.io.Resources
-import java.nio.charset.Charset
+
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
 import okhttp3.mockwebserver.MockResponse
@@ -200,6 +199,10 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                 installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
             }
         }
+        
+        // we need generateNpmrc to run after we use installTypeScriptDependencies, such that we are installing deps
+        // from actual https://registry.npmjs.org 
+        generateNpmrc.dependsOn(project.getTasks().named('installTypeScriptDependencies'))
 
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.username = "user"
@@ -235,18 +238,24 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                 installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
             }
         }
+        
+        // we need generateNpmrc to run after we use installTypeScriptDependencies, such that we are installing deps
+        // from actual https://registry.npmjs.org 
+        generateNpmrc.dependsOn(project.getTasks().named('installTypeScriptDependencies'))
 
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.token = "registry-token"
+       
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        ExecutionResult result = runTasks('publish')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=registry-token')
         result.wasExecuted('api:generateNpmrc')
+        result.wasExecuted('api:installTypeScriptDependencies')
         result.wasExecuted('api:compileTypeScript')
         result.wasExecuted('api:publishTypeScript')
 
@@ -272,6 +281,10 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
                 installGeneratesNpmrc = false // test relies on pulling from actual https://registry.npmjs.org
             }
         }
+        
+        // we need generateNpmrc to run after we use installTypeScriptDependencies, such that we are installing deps
+        // from actual https://registry.npmjs.org 
+        generateNpmrc.dependsOn(project.getTasks().named('installTypeScriptDependencies'))
 
         generateNpmrc.registryUri = "http://localhost:8888"
         generateNpmrc.username = "user"
@@ -290,9 +303,5 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
         cleanup:
         server.shutdown()
-    }
-
-    def readResource(String name) {
-        return Resources.asCharSource(Resources.getResource(name), Charset.defaultCharset()).read()
     }
 }
