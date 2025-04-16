@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.palantir.gradle.betterexec.BetterExec;
 import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
@@ -374,10 +375,11 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 compileConjure.configure(t -> t.dependsOn(generateNpmrc));
 
-                TaskProvider<Exec> installTypeScriptDependencies = project.getTasks()
-                        .register("installTypeScriptDependencies", Exec.class, task -> {
-                            task.commandLine(npmCommand, "install", "--no-package-lock", "--no-production");
-                            task.workingDir(srcDirectory);
+                TaskProvider<BetterExec> installTypeScriptDependencies = project.getTasks()
+                        .register("installTypeScriptDependencies", BetterExec.class, task -> {
+                            task.getCommand()
+                                    .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
+                            task.getWorkingDir().set(srcDirectory);
                             task.dependsOn(compileConjureTypeScript);
                             task.getInputs().file(new File(srcDirectory, "package.json"));
                             task.getOutputs().dir(new File(srcDirectory, "node_modules"));
@@ -394,13 +396,13 @@ public final class ConjurePlugin implements Plugin<Project> {
                     }
                 });
 
-                TaskProvider<Exec> compileTypeScript = project.getTasks()
-                        .register("compileTypeScript", Exec.class, task -> {
+                TaskProvider<BetterExec> compileTypeScript = project.getTasks()
+                        .register("compileTypeScript", BetterExec.class, task -> {
                             task.setDescription(
                                     "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
                             task.setGroup(TASK_GROUP);
-                            task.commandLine(npmCommand, "run-script", "build");
-                            task.workingDir(srcDirectory);
+                            task.getCommand().set(List.of(npmCommand, "run-script", "build"));
+                            task.getWorkingDir().set(srcDirectory);
                             task.dependsOn(installTypeScriptDependencies);
                             task.getOutputs().dir(srcDirectory);
                         });
@@ -469,27 +471,28 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.dependsOn(extractConjurePythonTask, compileIrTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjurePython));
-                project.getTasks().register("buildWheel", Exec.class, task -> {
+                project.getTasks().register("buildWheel", BetterExec.class, task -> {
                     task.setDescription("Runs `python setup.py sdist bdist_wheel --universal` to build a python wheel "
                             + "generated from your Conjure definitions.");
                     task.setGroup(TASK_GROUP);
-                    task.commandLine(
-                            "python",
-                            "setup.py",
-                            "build",
-                            "--build-base",
-                            buildDir,
-                            "egg_info",
-                            "--egg-base",
-                            buildDir,
-                            "sdist",
-                            "--dist-dir",
-                            distDir,
-                            "bdist_wheel",
-                            "--universal",
-                            "--dist-dir",
-                            distDir);
-                    task.workingDir(subproj.file("python"));
+                    task.getCommand()
+                            .set(List.of(
+                                    "python",
+                                    "setup.py",
+                                    "build",
+                                    "--build-base",
+                                    buildDir.toPath().toString(),
+                                    "egg_info",
+                                    "--egg-base",
+                                    buildDir.toPath().toString(),
+                                    "sdist",
+                                    "--dist-dir",
+                                    distDir.toPath().toString(),
+                                    "bdist_wheel",
+                                    "--universal",
+                                    "--dist-dir",
+                                    distDir.toPath().toString()));
+                    task.getWorkingDir().set(subproj.file("python"));
                     task.dependsOn(compileConjurePython);
                 });
                 registerClean(project, compileConjurePython);
