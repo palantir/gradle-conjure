@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Use BetterExec for typescript tasks
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1603
