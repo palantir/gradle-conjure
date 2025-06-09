@@ -22,6 +22,7 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -32,6 +33,7 @@ import org.gradle.api.Task;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.services.BuildServiceRegistry;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
@@ -47,6 +49,9 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
     @Inject
     protected abstract ExecOperations getExecOperations();
+
+    @Inject
+    protected abstract BuildServiceRegistry getBuildServiceRegistry();
 
     public ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
@@ -97,28 +102,21 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
             try {
                 FileUtils.deleteDirectory(thisOutputDirectory);
+                Files.createDirectories(thisOutputDirectory.toPath());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
-            }
-
-            if (!thisOutputDirectory.mkdirs() && !thisOutputDirectory.exists()) {
-                throw new RuntimeException("Failed to create output directory: " + thisOutputDirectory);
             }
 
             List<String> generateCommand =
                     ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 
-            getExecOperations().exec(execSpec -> {
-                execSpec.executable(
-                        OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile())
-                                .getAbsolutePath());
-                List<String> allArgs = ImmutableList.<String>builder()
-                        .addAll(generateCommand)
-                        .addAll(RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)))
-                        .build();
-                execSpec.args(allArgs);
-                execSpec.setIgnoreExitValue(false);
-            });
+            GradleExecUtils.exec(
+                    getExecOperations(),
+                    getBuildServiceRegistry(),
+                    "run generator",
+                    OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile()),
+                    generateCommand,
+                    RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
         });
     }
 
