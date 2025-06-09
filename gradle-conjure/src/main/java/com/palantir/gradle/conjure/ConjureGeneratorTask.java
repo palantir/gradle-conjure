@@ -25,6 +25,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -38,10 +39,14 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
+import org.gradle.process.ExecOperations;
 
 @CacheableTask
 public abstract class ConjureGeneratorTask extends SourceTask {
     private Supplier<GeneratorOptions> options;
+
+    @Inject
+    protected abstract ExecOperations getExecOperations();
 
     public ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
@@ -96,17 +101,24 @@ public abstract class ConjureGeneratorTask extends SourceTask {
                 throw new UncheckedIOException(e);
             }
 
-            getProject().mkdir(thisOutputDirectory);
+            if (!thisOutputDirectory.mkdirs() && !thisOutputDirectory.exists()) {
+                throw new RuntimeException("Failed to create output directory: " + thisOutputDirectory);
+            }
 
             List<String> generateCommand =
                     ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 
-            GradleExecUtils.exec(
-                    getProject(),
-                    "run generator",
-                    OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile()),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
+            getExecOperations().exec(execSpec -> {
+                execSpec.executable(
+                        OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile())
+                                .getAbsolutePath());
+                List<String> allArgs = ImmutableList.<String>builder()
+                        .addAll(generateCommand)
+                        .addAll(RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)))
+                        .build();
+                execSpec.args(allArgs);
+                execSpec.setIgnoreExitValue(false);
+            });
         });
     }
 
