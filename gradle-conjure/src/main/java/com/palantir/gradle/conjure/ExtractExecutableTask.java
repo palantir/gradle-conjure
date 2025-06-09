@@ -26,10 +26,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
+import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.ArchiveOperations;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
@@ -37,6 +39,7 @@ import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.file.RelativePath;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -48,12 +51,15 @@ import org.gradle.api.tasks.TaskProvider;
 public abstract class ExtractExecutableTask extends Sync {
     private FileCollection archive;
 
+    @Inject
+    protected abstract ArchiveOperations getArchiveOperations();
+
     public ExtractExecutableTask() {
         // Memoize this because we are re-using it in the doLast action.
         Supplier<File> tarFile = Suppliers.memoize(this::resolveTarFile);
 
         // Configure the spec lazily
-        from((Callable<FileTree>) () -> getProject().tarTree(tarFile.get())); // will get lazily resolved
+        from((Callable<FileTree>) () -> getArchiveOperations().tarTree(tarFile.get())); // will get lazily resolved
         eachFile(fcd -> fcd.setRelativePath(stripFirstName(fcd.getRelativePath())));
         into(getOutputDirectory()); // will get lazily resolved
 
@@ -63,7 +69,7 @@ public abstract class ExtractExecutableTask extends Sync {
             @Override
             public void execute(Task _task) {
                 Set<String> rootDirectories = new HashSet<>();
-                getProject().tarTree(tarFile.get()).visit(new FileVisitor() {
+                getArchiveOperations().tarTree(tarFile.get()).visit(new FileVisitor() {
                     @Override
                     public void visitDir(FileVisitDetails dirDetails) {
                         // Note: If root dir contains only another dir (e.g. a/b), we won't get called with just that
