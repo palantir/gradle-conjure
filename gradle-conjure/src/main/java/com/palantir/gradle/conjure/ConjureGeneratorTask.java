@@ -98,6 +98,7 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
             getProject().mkdir(thisOutputDirectory);
 
+            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> generateCommand =
                     ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 

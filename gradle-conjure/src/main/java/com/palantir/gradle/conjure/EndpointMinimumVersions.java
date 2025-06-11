@@ -24,7 +24,7 @@ import java.util.Set;
 import org.immutables.value.Value;
 
 // Automatically suppressed to unblock enforcement in new code
-@SuppressWarnings("ImmutablesStyle")
+@SuppressWarnings({"ImmutablesStyle", "for-rollout:AnnotationPosition"})
 @Value.Immutable
 @Value.Style(jdkOnly = true)
 @JsonSerialize(as = ImmutableEndpointMinimumVersions.class)

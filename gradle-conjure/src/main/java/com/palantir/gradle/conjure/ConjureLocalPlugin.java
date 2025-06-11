@@ -122,6 +122,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         ConjurePlugin.registerClean(project, generateJava);
     }
 
+    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     private void setupGenericConjureProjects(
             Project project,
             ConjureExtension conjureExtension,

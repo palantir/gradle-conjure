@@ -159,6 +159,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
+        @SuppressWarnings("for-rollout:PreferredInterfaceType")
         Map<String, BiConsumer<Project, Supplier<GeneratorOptions>>> configs =
                 ImmutableMap.<String, BiConsumer<Project, Supplier<GeneratorOptions>>>builder()
                         .put(JAVA_OBJECTS_SUFFIX, ConjurePlugin::setupObjectsProject)
@@ -500,6 +501,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         }
     }
 
+    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     private static void setupGenericConjureProjects(
             Project project,
             Function<String, GeneratorOptions> getGenericOptions,
