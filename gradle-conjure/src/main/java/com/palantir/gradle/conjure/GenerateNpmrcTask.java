@@ -99,6 +99,7 @@ public class GenerateNpmrcTask extends DefaultTask {
         return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
     }
 
+    @SuppressWarnings("for-rollout:UnusedException")
     @TaskAction
     public final void createNpmrc() throws InterruptedException {
         if (getToken().isPresent() && getPassword().isPresent()) {
@@ -183,6 +184,7 @@ public class GenerateNpmrcTask extends DefaultTask {
         }
     }
 
+    @SuppressWarnings("for-rollout:UnusedException")
     private static String serializeRequestBody(String username, String password) {
         try {
             return MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password));

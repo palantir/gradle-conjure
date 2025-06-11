@@ -121,6 +121,7 @@ final class ReverseEngineerJavaStartScript {
     interface StartScriptInfo {
         List<File> classpath();
 
+        @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
         @Value.Derived
         default URL[] classpathUrls() {
             return classpath().stream()

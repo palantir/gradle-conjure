@@ -26,7 +26,7 @@ import java.util.Vector;
  * Class loader which loads from its own jars rather than existing classes from the parent classloader.
  * This prevents interference between the callers classpath and generators.
  */
-@SuppressWarnings("JdkObsolete") // Enumeration
+@SuppressWarnings({"JdkObsolete", "for-rollout:BanClassLoader"}) // Enumeration
 final class ChildFirstUrlClassLoader extends URLClassLoader {
 
     ChildFirstUrlClassLoader(URL[] urls, ClassLoader parent) {
