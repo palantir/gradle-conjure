@@ -67,6 +67,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         setupSubprojects(project, extension, extractJavaTask, extractConjureIr, conjureIrConfiguration);
     }
 
+    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     private static void setupSubprojects(
             Project project,
             ConjureExtension extension,
@@ -87,6 +88,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             });
             // Validating that each subproject has a corresponding definition and vice versa.
             // We do this in afterEvaluate to ensure the configuration is populated.
+            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             Set<String> apis = conjureIrConfiguration.getAllDependencies().stream()
                     .map(Dependency::getName)
                     .collect(ImmutableSet.toImmutableSet());

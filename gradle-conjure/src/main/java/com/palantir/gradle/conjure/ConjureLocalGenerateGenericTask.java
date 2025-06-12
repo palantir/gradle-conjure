@@ -29,6 +29,7 @@ public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenera
         return resolveProductMetadata(irFile.getName());
     }
 
+    @SuppressWarnings("for-rollout:PreferredInterfaceType")
     @VisibleForTesting
     static Map<String, Supplier<Object>> resolveProductMetadata(String productName) {
         ProductNameAndVersion nameAndVersion = parseProductNameAndVersion(productName);

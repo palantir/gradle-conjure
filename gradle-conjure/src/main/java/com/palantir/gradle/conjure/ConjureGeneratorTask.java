@@ -107,6 +107,7 @@ public abstract class ConjureGeneratorTask extends SourceTask {
                 throw new UncheckedIOException(e);
             }
 
+            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> generateCommand =
                     ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 

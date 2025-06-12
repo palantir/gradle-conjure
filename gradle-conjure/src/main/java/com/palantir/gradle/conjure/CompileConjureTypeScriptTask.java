@@ -60,6 +60,7 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
     @Input
     public abstract Property<String> getPackageVersion();
 
+    @SuppressWarnings("for-rollout:PreferredInterfaceType")
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {
         return ImmutableMap.of(
