@@ -78,7 +78,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     static ConjureRunner createNewRunner(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
-            @SuppressWarnings("for-rollout:DifferentNameButSame")
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
             boolean classLoaderMustBeClosed = true;
             @SuppressWarnings("for-rollout:BanClassLoader")
@@ -136,12 +135,11 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             // nop
         }
 
-        @SuppressWarnings({"for-rollout:DefaultLocale", "for-rollout:ThrowSpecificExceptions"})
+        @SuppressWarnings("for-rollout:DefaultLocale")
         @Override
         public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .add(executable.getAbsolutePath())
                     .addAll(unloggedArgs)
@@ -181,11 +179,10 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             this.classLoader = classLoader;
         }
 
-        @SuppressWarnings({"for-rollout:DefaultLocale", "for-rollout:ThrowSpecificExceptions"})
+        @SuppressWarnings("for-rollout:DefaultLocale")
         @Override
         public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
             project.getLogger().info("Running in-process java with args: {}", loggedArgs);
-            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)

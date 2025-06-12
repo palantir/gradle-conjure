@@ -30,7 +30,6 @@ import org.gradle.api.tasks.Input;
 @CacheableTask
 public abstract class CompileConjurePythonTask extends ConjureGeneratorTask {
 
-    @SuppressWarnings("for-rollout:PreferredInterfaceType")
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {
         return ImmutableMap.of("packageName", this::getProjectName, "packageVersion", this::getPackageVersion);

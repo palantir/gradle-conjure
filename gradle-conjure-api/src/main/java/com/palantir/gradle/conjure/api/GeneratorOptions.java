@@ -41,7 +41,6 @@ public final class GeneratorOptions implements Serializable {
         this.storage = new LinkedHashMap<>(options.getProperties());
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {
             throw new RuntimeException("Can't override the 'properties' property");
@@ -58,7 +57,6 @@ public final class GeneratorOptions implements Serializable {
         return this.storage.containsKey(name);
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public Object get(String name) {
         if (!this.has(name)) {
             throw new RuntimeException("Unknown property: " + name);

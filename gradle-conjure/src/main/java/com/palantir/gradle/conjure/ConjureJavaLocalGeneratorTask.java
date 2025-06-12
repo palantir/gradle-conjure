@@ -102,7 +102,6 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
             Map<String, Object> filteredOptions = Maps.filterKeys(
                     generatorOptions, key -> !GENERATOR_FLAGS.contains(key) || generatorFlag.equals(key));
 
-            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> generateCommand =
                     ImmutableList.of("generate", definitionFile.getAbsolutePath(), outputDir.getAbsolutePath());
 
