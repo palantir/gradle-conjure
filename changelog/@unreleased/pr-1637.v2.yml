@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Make `gradle-conjure` configuration cacheable for the `classes` task
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1637
