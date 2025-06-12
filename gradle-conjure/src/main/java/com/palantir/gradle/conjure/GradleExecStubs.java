@@ -28,7 +28,6 @@ public final class GradleExecStubs {
         throw new ExitInvoked(status);
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public static Method getStubMethod() {
         try {
             return GradleExecStubs.class.getMethod("exitStub", int.class);

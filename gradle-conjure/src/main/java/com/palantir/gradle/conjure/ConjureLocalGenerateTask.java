@@ -29,7 +29,6 @@ public abstract class ConjureLocalGenerateTask extends ConjureGeneratorTask {
 
     protected static final Pattern PATTERN = Pattern.compile("^([^.]+)-(.+?)(\\.conjure)?\\.json$");
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     static ProductNameAndVersion parseProductNameAndVersion(String filename) {
         Matcher matcher = PATTERN.matcher(filename);
         if (!matcher.matches() || matcher.groupCount() < 2) {

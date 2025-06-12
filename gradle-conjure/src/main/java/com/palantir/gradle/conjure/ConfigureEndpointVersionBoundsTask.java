@@ -66,7 +66,6 @@ public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
     // TODO(fwindheuser): Replace 'JavaPluginConvention'  with 'JavaPluginExtension' after dropping Gradle 6 support.
     @SuppressWarnings("deprecation")
     private Manifest createManifest(Project project, List<EndpointVersionBound> versions) {
-        @SuppressWarnings("for-rollout:UnnecessarilyFullyQualified")
         org.gradle.api.plugins.JavaPluginExtension javaConvention =
                 project.getExtensions().getByType(org.gradle.api.plugins.JavaPluginExtension.class);
         return javaConvention.manifest(manifest -> {
