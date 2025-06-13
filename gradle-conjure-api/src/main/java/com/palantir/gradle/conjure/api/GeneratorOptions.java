@@ -27,7 +27,6 @@ public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
 
     /** Keys must be defined in camelCase. */
-    @SuppressWarnings({"for-rollout:ConstantPatternCompile", "for-rollout:NonFinalStaticField"})
     private static Predicate<String> camelCase =
             Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
 
