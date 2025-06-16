@@ -37,7 +37,6 @@ final class GradleExecUtils {
             List<String> loggedArgs) {
 
         if (gradleVersionHighEnough()) {
-            // Use shared build service if supported
             buildServiceRegistry
                     .registerIfAbsent(
                             // Executable name must be the cache key, neither the spec parameters

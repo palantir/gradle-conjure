@@ -187,10 +187,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         @SuppressWarnings({"for-rollout:DefaultLocale", "for-rollout:ThrowSpecificExceptions"})
         @Override
         public void invoke(
-                ExecOperations _execOperations, // not used for in-process
-                String failedTo,
-                List<String> unloggedArgs,
-                List<String> loggedArgs) {
+                ExecOperations _execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
             log.info("Running in-process java: {} with args: {}", executable.getName(), loggedArgs);
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .addAll(unloggedArgs)

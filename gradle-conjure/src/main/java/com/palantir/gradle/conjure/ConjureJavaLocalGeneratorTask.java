@@ -65,7 +65,6 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
     @Input
     public abstract MapProperty<String, Object> getOptions();
 
-    // Set the path sensitivity of the sources, which would otherwise default to ABSOLUTE
     @Override
     @PathSensitive(PathSensitivity.RELATIVE)
     public final FileTree getSource() {
