@@ -78,10 +78,8 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     static ConjureRunner createNewRunner(File executable) throws IOException {
         Optional<StartScriptInfo> maybeJava = ReverseEngineerJavaStartScript.maybeParseStartScript(executable.toPath());
         if (maybeJava.isPresent()) {
-            @SuppressWarnings("for-rollout:DifferentNameButSame")
             ReverseEngineerJavaStartScript.StartScriptInfo info = maybeJava.get();
             boolean classLoaderMustBeClosed = true;
-            @SuppressWarnings("for-rollout:BanClassLoader")
             URLClassLoader classLoader =
                     new ChildFirstUrlClassLoader(info.classpathUrls(), ConjureRunnerResource.class.getClassLoader());
             try {
@@ -136,14 +134,12 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             // nop
         }
 
-        @SuppressWarnings({"for-rollout:DefaultLocale", "for-rollout:ThrowSpecificExceptions"})
         @Override
         public void invoke(
                 ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
 
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            @SuppressWarnings("for-rollout:PreferredInterfaceType")
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .add(executable.getAbsolutePath())
                     .addAll(unloggedArgs)
@@ -184,7 +180,6 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             this.classLoader = classLoader;
         }
 
-        @SuppressWarnings({"for-rollout:DefaultLocale", "for-rollout:ThrowSpecificExceptions"})
         @Override
         public void invoke(
                 ExecOperations _execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {

@@ -27,7 +27,6 @@ public final class GeneratorOptions implements Serializable {
     private static final long serialVersionUID = 5676541916502995769L;
 
     /** Keys must be defined in camelCase. */
-    @SuppressWarnings({"for-rollout:ConstantPatternCompile", "for-rollout:NonFinalStaticField"})
     private static Predicate<String> camelCase =
             Pattern.compile("[a-z][a-zA-Z0-9]*").asPredicate();
 
@@ -41,7 +40,6 @@ public final class GeneratorOptions implements Serializable {
         this.storage = new LinkedHashMap<>(options.getProperties());
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public void setProperty(String name, Object newValue) {
         if (name.equals("properties")) {
             throw new RuntimeException("Can't override the 'properties' property");
@@ -58,7 +56,6 @@ public final class GeneratorOptions implements Serializable {
         return this.storage.containsKey(name);
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public Object get(String name) {
         if (!this.has(name)) {
             throw new RuntimeException("Unknown property: " + name);

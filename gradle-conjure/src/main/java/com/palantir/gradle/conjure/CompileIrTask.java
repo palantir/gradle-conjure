@@ -109,7 +109,6 @@ public abstract class CompileIrTask extends DefaultTask {
     @TaskAction
     public final void generate() {
         File executable = new File(getExecutableDir().getAsFile().get(), EXECUTABLE);
-        @SuppressWarnings("for-rollout:PreferredInterfaceType")
         List<String> args = ImmutableList.<String>builder()
                 .add("compile")
                 .add(getInputDirectory().get().getAsFile().getAbsolutePath())
@@ -128,7 +127,6 @@ public abstract class CompileIrTask extends DefaultTask {
                 args);
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     private String getSerializedExtensions() {
         try {
             Map<Object, Object> extData = new HashMap<>();

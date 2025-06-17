@@ -35,7 +35,6 @@ public class ConjureProductDependenciesExtension {
     private final SetProperty<EndpointVersionBound> endpointVersions;
     private final ProviderFactory providerFactory;
 
-    @SuppressWarnings("for-rollout:UnnecessarilyVisible")
     @Inject
     public ConjureProductDependenciesExtension(Project project) {
         this.project = project;

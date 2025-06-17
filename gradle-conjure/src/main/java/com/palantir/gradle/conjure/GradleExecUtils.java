@@ -27,7 +27,6 @@ import org.gradle.util.GradleVersion;
 
 final class GradleExecUtils {
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     static void exec(
             ExecOperations execOperations,
             BuildServiceRegistry buildServiceRegistry,
