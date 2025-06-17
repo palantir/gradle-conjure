@@ -27,7 +27,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
 
     def "classes task runs with configuration cache when applying conjure"() {
         given:
-        setupBuildWithGitVersion("""
+        buildFile << """
             apply plugin: 'com.palantir.conjure'
             apply plugin: 'java-library'
 
@@ -35,7 +35,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
                 mavenCentral()
                 mavenLocal()
             }
-        """)
+        """.stripIndent(true)
 
         expect:
         runTasksWithConfigurationCache('classes')
@@ -43,7 +43,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
 
     def "classes task runs with configuration cache when applying conjure-local"() {
         given:
-        setupBuildWithGitVersion("""
+        buildFile << """
             apply plugin: 'com.palantir.conjure-local'
             apply plugin: 'java-library'
 
@@ -51,7 +51,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
                 mavenCentral()
                 mavenLocal()
             }
-        """)
+        """.stripIndent(true)
 
         expect:
         runTasksWithConfigurationCache('classes')
@@ -59,7 +59,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
 
     def "classes task runs with configuration cache when applying conjure-publish"() {
         given:
-        setupBuildWithGitVersion("""
+        buildFile << """
             apply plugin: 'com.palantir.conjure-publish'
             apply plugin: 'java-library'
 
@@ -67,7 +67,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
                 mavenCentral()
                 mavenLocal()
             }
-        """)
+        """.stripIndent(true)
 
         expect:
         runTasksWithConfigurationCache('classes')
@@ -75,7 +75,7 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
 
     def "classes task runs with configuration cache when applying conjure-java-local"() {
         given:
-        setupBuildWithGitVersion("""
+        buildFile << """
             apply plugin: 'com.palantir.conjure-java-local'
             apply plugin: 'java-library'
 
@@ -83,18 +83,10 @@ class ConfigurationCacheTest extends IntegrationTestKitSpec {
                 mavenCentral()
                 mavenLocal()
             }
-        """)
+        """.stripIndent(true)
 
         expect:
         runTasksWithConfigurationCache('classes')
-    }
-
-    /**
-     * Sets up the build.gradle file with the given content.
-     */
-    private void setupBuildWithGitVersion(String buildFileContent) {
-        // language=Gradle
-        buildFile << buildFileContent.stripIndent(true)
     }
 
     /**
