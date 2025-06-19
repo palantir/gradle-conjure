@@ -25,34 +25,29 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.services.BuildServiceRegistry;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
 
 @CacheableTask
 public abstract class CompileIrTask extends DefaultTask {
     private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
 
-    @Inject
-    protected abstract ExecOperations getExecOperations();
-
-    @Inject
-    protected abstract BuildServiceRegistry getBuildServiceRegistry();
+    @Nested
+    protected abstract GradleExec getGradleExec();
 
     public CompileIrTask() {
         getConjureExtensions().convention(new HashMap<>());
@@ -118,13 +113,7 @@ public abstract class CompileIrTask extends DefaultTask {
                 .addAll(RenderGeneratorOptions.toArgs(getOptions().get(), Collections.emptyMap()))
                 .build();
 
-        GradleExecUtils.exec(
-                getExecOperations(),
-                getBuildServiceRegistry(),
-                "generate conjure IR",
-                executable,
-                Collections.emptyList(),
-                args);
+        getGradleExec().exec("generate conjure IR", executable, Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {

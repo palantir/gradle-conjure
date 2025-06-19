@@ -27,33 +27,28 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.MapProperty;
-import org.gradle.api.services.BuildServiceRegistry;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecOperations;
 
 @CacheableTask
 public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
     private static final ImmutableSet<String> GENERATOR_FLAGS =
             ImmutableSet.of("objects", "jersey", "undertow", "dialogue");
 
-    @Inject
-    protected abstract ExecOperations getExecOperations();
-
-    @Inject
-    protected abstract BuildServiceRegistry getBuildServiceRegistry();
+    @Nested
+    protected abstract GradleExec getGradleExec();
 
     @OutputDirectory
     protected abstract DirectoryProperty getOutputDirectory();
@@ -103,13 +98,12 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
             List<String> generateCommand =
                     ImmutableList.of("generate", definitionFile.getAbsolutePath(), outputDir.getAbsolutePath());
 
-            GradleExecUtils.exec(
-                    getExecOperations(),
-                    getBuildServiceRegistry(),
-                    "generate " + generatorFlag,
-                    getExecutablePath().getAsFile().get(),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
+            getGradleExec()
+                    .exec(
+                            "generate " + generatorFlag,
+                            getExecutablePath().getAsFile().get(),
+                            generateCommand,
+                            RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
         });
     }
 }

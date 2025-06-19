@@ -18,15 +18,28 @@ package com.palantir.gradle.conjure
 
 import nebula.test.ProjectSpec
 import org.assertj.core.api.Assertions
+import org.gradle.api.services.BuildServiceRegistry
 import org.gradle.process.ExecOperations
 
 class GradleExecUtilsProjectSpec extends ProjectSpec {
+
+    GradleExec createGradleExec() {
+        return new GradleExec() {
+            @Override
+            ExecOperations getExecOperations() {
+                return (ExecOperations) project.services.get(ExecOperations)
+            }
+            @Override
+            BuildServiceRegistry getBuildServiceRegistry() {
+                return project.gradle.sharedServices
+            }
+        }
+    }
+
     def 'running a program that exits with code 0 does not throw an exception'() {
         expect:
-        GradleExecUtils.exec(
-                (ExecOperations) project.services.get(ExecOperations),
-                project.gradle.sharedServices,
-                'execute',
+        createGradleExec().exec(
+                "execute",
                 new File('/bin/sh'),
                 ['-c'],
                 ['exit 0']
@@ -39,10 +52,8 @@ class GradleExecUtilsProjectSpec extends ProjectSpec {
         def extraArgs = ['echo foo; echo bar >&2; exit 1']
 
         Assertions.assertThatExceptionOfType(RuntimeException).isThrownBy {
-            GradleExecUtils.exec(
-                    (ExecOperations) project.services.get(ExecOperations),
-                    project.gradle.sharedServices,
-                    'fail',
+            createGradleExec().exec(
+                    "fail",
                     new File('/bin/sh'),
                     baseArgs,
                     extraArgs
