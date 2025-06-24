@@ -66,7 +66,7 @@ class ConjureGeneratorTaskTest extends IntegrationTestKitSpec {
 
     def "generates all files"() {
         when:
-        BuildResult result = runTasks(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
@@ -115,5 +115,17 @@ class ConjureGeneratorTaskTest extends IntegrationTestKitSpec {
 
         then:
         BuildResult.output.contains('Cannot construct instance of')
+    }
+
+    private BuildResult runTasksWithConfigurationCache(String... tasks) {
+        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
+        assert firstRun.output.contains('Configuration cache entry stored.'),
+                "Expected first run to store configuration cache, but output was: ${firstRun.output}"
+
+        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
+        assert secondRun.output.contains('Configuration cache entry reused.'),
+                "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
+
+        return firstRun
     }
 }
