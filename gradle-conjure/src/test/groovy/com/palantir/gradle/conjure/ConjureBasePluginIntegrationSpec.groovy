@@ -67,23 +67,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        runTasks('compileIr')
-        file("build/conjure-ir/${moduleName}.conjure.json").isFile()
-
-        where:
-        gradleVersion << TestVersions.VERSIONS
-    }
-
-    def 'classes with configuration cache: #gradleVersion'() {
-        when:
-        //language=groovy
-        buildFile << """
-        apply plugin: 'java-library'
-        """.stripIndent(true)
-        file('src/main/conjure/api.yml') << API_YML
-
-        then:
-        runTasksWithConfigurationCache('classes')
+        runTasksWithConfigurationCache('compileIr')
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
 
         where:
@@ -102,7 +86,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        runTasks('compileIr', '--info').output.contains('--verbose')
+        runTasksWithConfigurationCache('compileIr', '--info').output.contains('--verbose')
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
     }
 
@@ -170,7 +154,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasks('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
         result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
@@ -214,7 +198,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasks('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
         result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
@@ -255,7 +239,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasks('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
         result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
@@ -302,14 +286,14 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         '''.stripIndent())
 
         then:
-        def result = runTasks('getIr', 'getJava')
+        def result = runTasksWithConfigurationCache('getIr', 'getJava')
         result.task(':conjure-api:compileIr').outcome == TaskOutcome.SUCCESS
         result.task(':conjure-api:compileJava').outcome == TaskOutcome.SUCCESS
         file("build/all-ir/conjure-api.conjure.json")
         file("build/all-java/conjure-api-0.1.0.jar")
     }
 
-    private boolean runTasksWithConfigurationCache(String... tasks) {
+    private BuildResult runTasksWithConfigurationCache(String... tasks) {
         def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
         assert firstRun.output.contains('Configuration cache entry stored.'),
                 "Expected first run to store configuration cache, but output was: ${firstRun.output}"
@@ -318,6 +302,6 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         assert secondRun.output.contains('Configuration cache entry reused.'),
                 "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
 
-        return true
+        return firstRun
     }
 }
