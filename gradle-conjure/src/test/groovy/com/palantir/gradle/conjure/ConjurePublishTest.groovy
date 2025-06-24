@@ -16,16 +16,17 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import nebula.test.IntegrationTestKitSpec
 
-class ConjurePublishTest extends IntegrationSpec {
+class ConjurePublishTest extends IntegrationTestKitSpec {
 
     private static final String VERSION = '0.1.0'
     private static final String GROUP_ID = 'com.palantir.test-palantir'
     private static final String ARTIFACT_ID = 'ir-publish-test'
 
     def 'simple example'() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
         setup:
         buildFile << """
             repositories {
@@ -78,13 +79,11 @@ class ConjurePublishTest extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileIr', 'publishConjurePublicationToTestRepoRepository')
+        runTasks('compileIr', 'publishConjurePublicationToTestRepoRepository')
 
         then:
-        result.success
-
         // check for just the distribution and no JAR files
         def groupDirectory = GROUP_ID.replaceAll('\\.', '/')
-        fileExists("build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json")
+        new File(projectDir, "build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json").exists()
     }
 }

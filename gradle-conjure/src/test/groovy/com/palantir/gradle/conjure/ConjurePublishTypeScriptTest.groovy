@@ -17,16 +17,19 @@
 package com.palantir.gradle.conjure
 
 
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import nebula.test.IntegrationTestKitSpec
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 import java.util.concurrent.TimeUnit
 
-class ConjurePublishTypeScriptTest extends IntegrationSpec {
+class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
 
     def setup() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
         createFile('settings.gradle') << '''
         include 'api'
         include 'api:api-typescript'
@@ -84,29 +87,29 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
     def 'installs dependencies'() {
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:installTypeScriptDependencies')
+        BuildResult result = runTasks(':api:installTypeScriptDependencies')
 
         then:
-        result.wasExecuted('api:compileConjureTypeScript')
+        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
         directory('api/api-typescript/src/node_modules').exists()
     }
 
     def 'installTypeScriptDependencies is up-to-date when run for the second time'() {
         when:
         !directory('api/api-typescript/src/node_modules').exists()
-        ExecutionResult first = runTasksSuccessfully('installTypeScriptDependencies')
+        BuildResult first = runTasks('installTypeScriptDependencies')
 
         then:
-        first.wasExecuted(':api:compileConjureTypeScript') // necessary to get the package.json
-        first.wasExecuted(':api:installTypeScriptDependencies')
+        first.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS // necessary to get the package.json
+        first.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
         directory('api/api-typescript/src/node_modules').exists()
 
         when:
-        ExecutionResult second = runTasksSuccessfully('-i', 'installTypeScriptDependencies')
+        BuildResult second = runTasks('-i', 'installTypeScriptDependencies')
 
         then:
-        second.wasExecuted(':api:compileConjureTypeScript') // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
-        second.wasUpToDate(':api:installTypeScriptDependencies')
+        second.task(':api:compileConjureTypeScript').outcome == TaskOutcome.UP_TO_DATE // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
+        second.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.UP_TO_DATE
     }
 
     def 'generateNpmrc uses custom registry'() {
@@ -142,7 +145,7 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasks('installTypeScriptDependencies')
+        BuildResult result = runTasksAndFail('installTypeScriptDependencies')
 
         then:
         server.requestCount == 3
@@ -152,11 +155,11 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         file('api/api-typescript/src/.npmrc').exists()
         file('api/api-typescript/src/.npmrc').readLines()
                 .containsAll('registry=http://localhost:8888/', '//localhost:8888/:_authToken=42')
-        result.wasExecuted('api:generateNpmrc')
-        !result.wasSkipped('api:generateNpmrc')
-        !result.wasUpToDate('api:generateNpmrc')
-        result.wasExecuted('api:compileConjureTypeScript')
-        result.wasExecuted('api:installTypeScriptDependencies')
+        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
+        result.task(':api:generateNpmrc').outcome != TaskOutcome.SKIPPED
+        result.task(':api:generateNpmrc').outcome != TaskOutcome.UP_TO_DATE
+        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
+        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.FAILED
 
         cleanup:
         server.shutdown()
@@ -164,22 +167,22 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
 
     def 'compiles TypeScript'() {
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileTypeScript')
+        BuildResult result = runTasks(':api:compileTypeScript')
 
         then:
-        result.wasExecuted('api:installTypeScriptDependencies')
-        result.wasExecuted('api:compileConjureTypeScript')
+        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
     }
 
     def 'compileTypeScript is up-to-date when run for the second time'() {
         when:
-        ExecutionResult first = runTasksSuccessfully('compileTypeScript')
-        first.wasExecuted(':api:compileTypeScript')
-        ExecutionResult second = runTasksSuccessfully('compileTypeScript')
+        BuildResult first = runTasks('compileTypeScript')
+        first.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        BuildResult second = runTasks('compileTypeScript')
 
         then:
-        second.wasUpToDate(':api:compileTypeScript')
+        second.task(':api:compileTypeScript').outcome == TaskOutcome.UP_TO_DATE
     }
 
     def 'publishes generated code'() {
@@ -210,14 +213,14 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        BuildResult result = runTasks('publish')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.wasExecuted('api:generateNpmrc')
-        result.wasExecuted('api:compileTypeScript')
-        result.wasExecuted('api:publishTypeScript')
+        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
 
         cleanup:
         server.shutdown()
@@ -249,15 +252,15 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        BuildResult result = runTasks('publish')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=registry-token')
-        result.wasExecuted('api:generateNpmrc')
-        result.wasExecuted('api:installTypeScriptDependencies')
-        result.wasExecuted('api:compileTypeScript')
-        result.wasExecuted('api:publishTypeScript')
+        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
+        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
 
         cleanup:
         server.shutdown()
@@ -292,14 +295,14 @@ class ConjurePublishTypeScriptTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('publish')
+        BuildResult result = runTasks('publish')
 
         then:
         file('api/api-typescript/src/.npmrc').text.contains('@test:registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.wasExecuted('api:generateNpmrc')
-        result.wasExecuted('api:compileTypeScript')
-        result.wasExecuted('api:publishTypeScript')
+        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
 
         cleanup:
         server.shutdown()

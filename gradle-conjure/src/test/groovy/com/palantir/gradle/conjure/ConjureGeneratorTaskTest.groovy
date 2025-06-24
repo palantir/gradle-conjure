@@ -16,11 +16,14 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import nebula.test.IntegrationTestKitSpec
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureGeneratorTaskTest extends IntegrationSpec {
+class ConjureGeneratorTaskTest extends IntegrationTestKitSpec {
     def setup() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
         createFile('settings.gradle') << """
         include 'api'
         include 'api:api-objects'
@@ -63,20 +66,20 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
 
     def "generates all files"() {
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasks(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjure')
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:compileIr')
+        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
 
         // java
-        fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
+        new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
     }
 
     def "cleans up old files"() {
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasks(':api:compileConjure')
         file('api/src/main/conjure/api.yml').text = '''
         types:
           definitions:
@@ -86,20 +89,20 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
                 fields:
                   string: string
         '''.stripIndent()
-        ExecutionResult result2 = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result2 = runTasks(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjure')
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:compileIr')
+        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
 
-        result2.wasExecuted(':api:compileConjure')
-        result2.wasExecuted(':api:compileConjureObjects')
-        result2.wasExecuted(':api:compileIr')
+        result2.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
+        result2.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result2.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
 
         // java
-        !fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
-        fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java')
+        !new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java').exists()
+        new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java').exists()
     }
 
     def 'when a file has errors the error is reported in the exception'() {
@@ -108,9 +111,9 @@ class ConjureGeneratorTaskTest extends IntegrationSpec {
             this-is-invalid
         '''.stripIndent()
 
-        ExecutionResult executionResult = runTasksWithFailure(':api:compileIr')
+        BuildResult BuildResult = runTasksAndFail(':api:compileIr')
 
         then:
-        executionResult.getStandardError().contains('Cannot construct instance of')
+        BuildResult.output.contains('Cannot construct instance of')
     }
 }

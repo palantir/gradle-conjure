@@ -19,14 +19,15 @@ package com.palantir.gradle.conjure
 import com.google.common.io.ByteStreams
 import com.palantir.gradle.dist.RecommendedProductDependencies
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin
+import nebula.test.IntegrationTestKitSpec
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
 import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
 
-class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
+class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationTestKitSpec {
     def standardBuildFile = """
         buildscript {
             repositories {
@@ -57,6 +58,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
     """.stripIndent()
 
     def setup() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
         buildFile << standardBuildFile;
     }
 
@@ -75,15 +78,15 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         addSubproject("conjure-api")
 
         when:
-        def result = runTasksSuccessfully(":conjure-api:generateConjure")
+        def result = runTasks(":conjure-api:generateConjure", '--info')
 
         then:
-        result.wasExecuted("extractConjureIr")
-        result.wasExecuted("conjure-api:generateConjure")
-        fileExists("build/conjure-ir/conjure-api.conjure.json")
-        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
-        result.standardOutput.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
+        result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
+        result.task(":conjure-api:generateConjure").outcome == TaskOutcome.SUCCESS
+        new File(projectDir,"build/conjure-ir/conjure-api.conjure.json").exists()
+        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java').exists()
+        result.output.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
+        result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
     }
 
     def "respects user provided packagePrefix"() {
@@ -98,12 +101,12 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         addSubproject("conjure-api")
 
         when:
-        def result = runTasksSuccessfully(":conjure-api:generateConjure")
+        def result = runTasks(":conjure-api:generateConjure", '--info')
 
         then:
-        result.wasExecuted("extractConjureIr")
-        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.standardOutput.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
+        result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
+        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java').exists()
+        result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
     }
 
     def 'check code compiles'() {
@@ -111,13 +114,13 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         buildFile << "conjure { java { addFlag 'objects' } }"
 
         when:
-        ExecutionResult result = runTasksSuccessfully('check')
+        BuildResult result = runTasks('check')
 
         then:
-        result.wasExecuted(':conjure-api:compileJava')
-        result.wasExecuted(':conjure-api:generateConjure')
+        result.task(':conjure-api:compileJava').outcome == TaskOutcome.SUCCESS
+        result.task(':conjure-api:generateConjure').outcome == TaskOutcome.SUCCESS
 
-        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java').exists()
     }
 
     def 'embeds product dependencies correctly'() {
@@ -151,11 +154,11 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('jar')
+        BuildResult result = runTasks('jar')
 
         then:
-        result.wasExecuted(':conjure-api:compileJava')
-        result.wasExecuted(':conjure-api:generateConjure')
+        result.task(':conjure-api:compileJava').outcome == TaskOutcome.NO_SOURCE
+        result.task(':conjure-api:generateConjure').outcome == TaskOutcome.SUCCESS
 
         def expected = '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
@@ -175,10 +178,10 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """
         task dummy {}
         """.stripIndent()
-        def result = runTasksWithFailure("dummy")
+        def result = runTasksAndFail("dummy")
 
         then:
-        result.standardError.contains "Discovered dependencies [conjure-api] without corresponding subprojects."
+        result.output.contains "Discovered dependencies [conjure-api] without corresponding subprojects."
     }
 
     def "fails if missing dependency"() {
@@ -188,19 +191,19 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """
         task dummy {}
         """.stripIndent()
-        def result = runTasksWithFailure("dummy")
+        def result = runTasksAndFail("dummy")
 
         then:
-        result.standardError.contains "Discovered subprojects [missing-api] without corresponding dependencies."
+        result.output.contains "Discovered subprojects [missing-api] without corresponding dependencies."
     }
 
     def "fails to generate without required flags"() {
         addSubproject("conjure-api")
         when:
-        def result = runTasksWithFailure(":conjure-api:generateConjure")
+        def result = runTasksAndFail(":conjure-api:generateConjure")
 
         then:
-        result.standardError.contains "Generator options must contain at least one of"
+        result.output.contains "Generator options must contain at least one of"
     }
 
     def readManifestRecommendedProductDeps(File jarFile) {

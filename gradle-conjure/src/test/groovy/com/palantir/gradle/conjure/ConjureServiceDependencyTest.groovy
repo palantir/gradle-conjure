@@ -18,15 +18,18 @@ package com.palantir.gradle.conjure
 
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension
 import com.palantir.gradle.dist.RecommendedProductDependencies
+import nebula.test.IntegrationTestKitSpec
+import org.gradle.testkit.runner.TaskOutcome
 
 import java.util.jar.Attributes
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
-import nebula.test.IntegrationSpec
 
-class ConjureServiceDependencyTest extends IntegrationSpec {
+class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
 
     def setup() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
         addSubproject('api')
         addSubproject('api:api-objects')
         addSubproject('api:api-jersey')
@@ -86,10 +89,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
 
     def "generates empty product dependencies if not configured"() {
         when:
-        runTasksSuccessfully(':api:generateConjureServiceDependencies')
+        runTasks(':api:generateConjureServiceDependencies')
 
         then:
-        fileExists("api/build/service-dependencies.json")
+        new File(projectDir, "api/build/service-dependencies.json").exists()
         file('api/build/service-dependencies.json').text == '[]'
     }
 
@@ -106,10 +109,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        runTasksSuccessfully(':api:generateConjureServiceDependencies')
+        runTasks(':api:generateConjureServiceDependencies')
 
         then:
-        fileExists('api/build/service-dependencies.json')
+        new File(projectDir, 'api/build/service-dependencies.json').exists()
         file('api/build/service-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
         file('api/build/service-dependencies.json').text.contains('"product-name":"conjure"')
         file('api/build/service-dependencies.json').text.contains('"minimum-version":"1.2.0"')
@@ -130,10 +133,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:compileConjure')
+        def result = runTasks(':api:compileConjure', '--info')
 
         then:
-        result.standardOutput.find('with args: \\[.*, --extensions, '
+        result.output.find('with args: \\[.*, --extensions, '
                 + '\\{"recommended-product-dependencies":\\[\\{'
                 + '"product-group":"com.palantir.conjure",'
                 + '"product-name":"conjure",'
@@ -156,10 +159,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:compileConjure')
+        def result = runTasks(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:generateConjureServiceDependencies')
+        result.task(':api:generateConjureServiceDependencies').outcome == TaskOutcome.SUCCESS
         file('api/api-typescript/src/package.json').text.contains('sls')
     }
 
@@ -176,12 +179,12 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-objects:Jar')
-        def result2 = runTasksSuccessfully(':api:api-undertow:Jar')
+        def result = runTasks(':api:api-objects:Jar')
+        def result2 = runTasks(':api:api-undertow:Jar')
 
         then:
-        !result.wasExecuted(':api:generateConjureServiceDependencies')
-        !result2.wasExecuted(':api:generateConjureServiceDependencies')
+        !result.tasks.contains(':api:generateConjureServiceDependencies')
+        !result2.tasks.contains(':api:generateConjureServiceDependencies')
         readRecommendedProductDeps(file('api/api-objects/build/libs/api-objects-0.1.0.jar')) == null
         readRecommendedProductDeps(file('api/api-undertow/build/libs/api-undertow-0.1.0.jar')) == null
     }
@@ -200,10 +203,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+        def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        !result.wasExecuted(':api:generateConjureServiceDependencies')
+        !result.tasks.contains(':api:generateConjureServiceDependencies')
         def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         recommendedDeps == '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
@@ -236,10 +239,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+        def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        !result.wasExecuted(':api:generateConjureServiceDependencies')
+        !result.tasks.contains(':api:generateConjureServiceDependencies')
         def recommendedDeps = readRecommendedProductDeps(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         recommendedDeps == '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +
@@ -270,7 +273,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':api:generateConjureServiceDependencies')
+        runTasksAndFail(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid version"() {
@@ -287,7 +290,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':api:generateConjureServiceDependencies')
+        runTasksAndFail(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid group"() {
@@ -304,7 +307,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         '''.stripIndent()
 
         expect:
-        runTasksWithFailure(':api:generateConjureServiceDependencies')
+        runTasksAndFail(':api:generateConjureServiceDependencies')
     }
 
     def "no endpoint versions attribute if no min versions configured"() {
@@ -321,7 +324,7 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+        runTasks(':api:api-jersey:Jar')
 
         then:
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
@@ -349,10 +352,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+        def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        result.wasExecuted(':api:api-jersey:configureEndpointVersionBounds')
+        result.task(':api:api-jersey:configureEndpointVersionBounds').outcome == TaskOutcome.SUCCESS
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies
@@ -380,10 +383,10 @@ class ConjureServiceDependencyTest extends IntegrationSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksSuccessfully(':api:api-jersey:Jar')
+        def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        result.wasExecuted(':api:api-jersey:configureEndpointVersionBounds')
+        result.task(':api:api-jersey:configureEndpointVersionBounds').outcome == TaskOutcome.SUCCESS
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies
