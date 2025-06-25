@@ -117,6 +117,14 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
         if (Dependencies.isJersey(extension.getJava())) {
             project.getDependencies()
                     .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
+            if (Dependencies.isNotNullAuthAndBodyParams(extension.getJava())) {
+                project.getDependencies()
+                        .add(
+                                "implementation",
+                                useJakarta
+                                        ? Dependencies.JAXRS_VALIDATION_API_JAKARTA
+                                        : Dependencies.JAXRS_VALIDATION_API_JAVAX);
+            }
         }
         if (Dependencies.isDialogue(extension.getJava())) {
             project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);

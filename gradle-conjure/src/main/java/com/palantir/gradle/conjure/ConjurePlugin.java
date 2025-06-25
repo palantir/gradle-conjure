@@ -288,6 +288,14 @@ public final class ConjurePlugin implements Plugin<Project> {
         boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies()
                 .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
+        if (Dependencies.isNotNullAuthAndBodyParams(optionsSupplier.get())) {
+            project.getDependencies()
+                    .add(
+                            "implementation",
+                            useJakarta
+                                    ? Dependencies.JAXRS_VALIDATION_API_JAKARTA
+                                    : Dependencies.JAXRS_VALIDATION_API_JAVAX);
+        }
         project.getDependencies()
                 .add(
                         "compileOnly",
