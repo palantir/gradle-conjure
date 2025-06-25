@@ -25,7 +25,7 @@ import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
 @Unroll
-class ConjurePluginTest extends IntegrationTestKitSpec {
+class ConjurePluginTest extends ConfigurationCacheSpec {
 
     def setup() {
         definePluginOutsideOfPluginBlock = true
@@ -104,7 +104,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
@@ -142,7 +142,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
+        BuildResult result = runTasksWithConfigurationCache(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
 
         then:
         result.task(':' + prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
@@ -167,8 +167,8 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks('check')
-        BuildResult result2 = runTasks('check')
+        BuildResult result = runTasksWithConfigurationCache('check')
+        BuildResult result2 = runTasksWithConfigurationCache('check')
 
         then:
         result.task(':extractConjureJava').outcome == TaskOutcome.SUCCESS
@@ -203,7 +203,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
         when:
         System.setProperty("ignoreMutableProjectStateWarnings", "true")
-        BuildResult result = runTasks('--parallel', 'check', 'tasks')
+        BuildResult result = runTasksWithConfigurationCache('--parallel', 'check', 'tasks')
 
         then:
         result.task(':' + prefixProject(prefix, 'api-objects:compileJava'))
@@ -223,7 +223,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks('compileJava')
+        runTasksWithConfigurationCache('compileJava')
 
         then:
         new File(projectDir, prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main')).exists()
@@ -232,7 +232,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         new File(projectDir, prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main')).exists()
 
         when:
-        BuildResult result = runTasks('clean')
+        BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
         result.task(':api:cleanCompileConjureJersey').outcome == TaskOutcome.SUCCESS
@@ -253,7 +253,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
     def 'compileConjure creates build/conjure for root project'() {
         when:
-        runTasks('compileConjure')
+        runTasksWithConfigurationCache('compileConjure')
 
         then:
         new File(projectDir, 'api/build/conjure').exists()
@@ -261,8 +261,8 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
     def 'clean cleans up build/conjure for root project'() {
         when:
-        runTasks('compileConjure')
-        BuildResult result = runTasks('clean')
+        runTasksWithConfigurationCache('compileConjure')
+        BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
         result.task(':api:cleanCopyConjureSourcesIntoBuild').outcome == TaskOutcome.SUCCESS
@@ -275,8 +275,8 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks("compileConjure")
-        BuildResult result = runTasks("compileConjure")
+        runTasksWithConfigurationCache("compileConjure")
+        BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
@@ -298,7 +298,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks("compileConjure")
+        runTasksWithConfigurationCache("compileConjure")
         createFile('api/src/main/conjure/api.yml').write '''
         types:
           definitions:
@@ -319,7 +319,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
                   object: StringExample
                 returns: StringExample
         '''.stripIndent()
-        BuildResult result = runTasks("compileConjure")
+        BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
@@ -347,9 +347,9 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
                 union:
                   number: integer
         '''.stripIndent()
-        runTasks("copyConjureSourcesIntoBuild")
+        runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
         file(path).delete()
-        runTasks("copyConjureSourcesIntoBuild")
+        runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
 
         then:
         !new File(projectDir, 'api/build/conjure/todelete.yml').exists()
@@ -391,7 +391,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         '''.stripIndent()
 
         when:
-        BuildResult result = runTasks(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
@@ -430,7 +430,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
@@ -477,7 +477,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks(':api:compileConjureUndertow')
+        runTasksWithConfigurationCache(':api:compileConjureUndertow')
 
         then:
         new File(projectDir, prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main/test/test/api/UndertowTestServiceFoo.java'))
@@ -512,7 +512,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks(prefixProject(prefix, 'api-jersey:compileJava'))
+        runTasksWithConfigurationCache(prefixProject(prefix, 'api-jersey:compileJava'))
 
         then:
         String generated = prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/test/api/TestServiceFoo.java')
@@ -539,7 +539,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        runTasks(':api:compileConjureTypeScript')
+        runTasksWithConfigurationCache(':api:compileConjureTypeScript')
 
         then:
         file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"name": "foo"')
@@ -564,7 +564,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks(':api:compileConjureTypeScript', '--info')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjureTypeScript', '--info')
 
         then:
         result.output.contains("--nodeCompatibleModules")
@@ -590,7 +590,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
         expect:
         // doesn't matter what task is run, just need to trigger project evaluation
-        runTasks(':tasks')
+        runTasksWithConfigurationCache(':tasks')
 
         where:
         location   | prefix
@@ -623,7 +623,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasks(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:compileConjurePostman').outcome == TaskOutcome.SUCCESS
@@ -647,7 +647,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
         updateSettings(prefix)
 
         expect:
-        runTasks('compileConjure')
+        runTasksWithConfigurationCache('compileConjure')
 
         where:
         location   | prefix
@@ -657,7 +657,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
     def 'compileTypeScript is run on build for circle node 0'() {
         when:
-        def stdout = runTasks('build', '--dry-run',
+        def stdout = runTasksWithConfigurationCache('build', '--dry-run',
                 '-P__TESTING_CIRCLE_NODE_INDEX=0').output
 
         then:
@@ -666,7 +666,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
 
     def 'compileTypeScript is not run on build for circle node 1'() {
         when:
-        def stdout = runTasks('build', '--dry-run',
+        def stdout = runTasksWithConfigurationCache('build', '--dry-run',
                 '-P__TESTING_CIRCLE_NODE_INDEX=1').output
 
         then:
@@ -676,7 +676,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
     def 'compileTypeScript is run on build locally'() {
         when:
         // No CIRCLE_NODE_INDEX property set means local build
-        def stdout = runTasks('build', '--dry-run').output
+        def stdout = runTasksWithConfigurationCache('build', '--dry-run').output
 
         then:
         stdout.contains ':api:compileTypeScript SKIPPED'
@@ -697,7 +697,7 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
     def 'runs on version of gradle: #version'() {
         when:
         gradleVersion = version
-        BuildResult result = runTasks('compileConjure')
+        BuildResult result = runTasksWithConfigurationCache('compileConjure')
 
         then:
         result.task(':compileConjure').outcome == TaskOutcome.SUCCESS
@@ -736,5 +736,4 @@ class ConjurePluginTest extends IntegrationTestKitSpec {
             return "${prefix}${delimiter}${path}"
         }
     }
-
 }

@@ -19,7 +19,6 @@ package com.palantir.gradle.conjure
 import com.google.common.io.ByteStreams
 import com.palantir.gradle.dist.RecommendedProductDependencies
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin
-import nebula.test.IntegrationTestKitSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -27,7 +26,7 @@ import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
-class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationTestKitSpec {
+class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpec {
     def standardBuildFile = """
         buildscript {
             repositories {
@@ -114,6 +113,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationTestKitSpe
         buildFile << "conjure { java { addFlag 'objects' } }"
 
         when:
+        // cannot run with configuration cache until sls-packaging is fixed
         BuildResult result = runTasks('check')
 
         then:
@@ -219,17 +219,5 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends IntegrationTestKitSpe
             def manifestEntry = zf.getEntry(RecommendedProductDependenciesPlugin.RESOURCE_PATH)
             return new String(ByteStreams.toByteArray(zf.getInputStream(manifestEntry)), StandardCharsets.UTF_8)
         }
-    }
-
-    private BuildResult runTasksWithConfigurationCache(String... tasks) {
-        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert firstRun.output.contains('Configuration cache entry stored.'),
-                "Expected first run to store configuration cache, but output was: ${firstRun.output}"
-
-        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert secondRun.output.contains('Configuration cache entry reused.'),
-                "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
-
-        return firstRun
     }
 }

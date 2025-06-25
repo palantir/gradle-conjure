@@ -16,7 +16,6 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationTestKitSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Unroll
@@ -25,7 +24,7 @@ import java.nio.file.Files
 import org.apache.commons.io.FileUtils
 
 @Unroll
-class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
+class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
     private static final String API_YML = """
     types:
       definitions:
@@ -95,10 +94,10 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        def result1 = runTasks('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
         result1.task(':extractConjure').outcome == TaskOutcome.SUCCESS
         result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
-        def result2 = runTasks('compileIr')
+        def result2 = runTasksWithConfigurationCache('compileIr')
         result2.task(':extractConjure').outcome == TaskOutcome.UP_TO_DATE
         result2.task(':compileIr').outcome == TaskOutcome.UP_TO_DATE
 
@@ -129,9 +128,9 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         when:
         file('src/main/conjure/api.yml') << API_YML
 
-        runTasks('compileIr')
+        runTasksWithConfigurationCache('compileIr')
         FileUtils.deleteDirectory(projectDir.toPath().resolve("build").toFile())
-        BuildResult result = runTasks('compileIr', '-i')
+        BuildResult result = runTasksWithConfigurationCache('compileIr', '-i')
 
         then:
         result.output.contains "Task :compileIr FROM-CACHE"
@@ -293,15 +292,5 @@ class ConjureBasePluginIntegrationSpec extends IntegrationTestKitSpec {
         file("build/all-java/conjure-api-0.1.0.jar")
     }
 
-    private BuildResult runTasksWithConfigurationCache(String... tasks) {
-        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert firstRun.output.contains('Configuration cache entry stored.'),
-                "Expected first run to store configuration cache, but output was: ${firstRun.output}"
 
-        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert secondRun.output.contains('Configuration cache entry reused.'),
-                "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
-
-        return firstRun
-    }
 }

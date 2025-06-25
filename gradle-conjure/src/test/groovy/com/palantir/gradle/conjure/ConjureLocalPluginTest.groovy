@@ -16,11 +16,10 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationTestKitSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureLocalPluginTest extends IntegrationTestKitSpec {
+class ConjureLocalPluginTest extends ConfigurationCacheSpec {
     def standardBuildFile = """
         buildscript {
             repositories {
@@ -135,17 +134,5 @@ class ConjureLocalPluginTest extends IntegrationTestKitSpec {
         new File(projectDir, 'postman/postman/conjure-api/conjure-api.postman_collection.json').exists()
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")
-    }
-
-    private BuildResult runTasksWithConfigurationCache(String... tasks) {
-        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert firstRun.output.contains('Configuration cache entry stored.'),
-                "Expected first run to store configuration cache, but output was: ${firstRun.output}"
-
-        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert secondRun.output.contains('Configuration cache entry reused.'),
-                "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
-
-        return firstRun
     }
 }

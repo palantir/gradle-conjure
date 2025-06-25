@@ -16,10 +16,7 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationTestKitSpec
-import org.gradle.testkit.runner.BuildResult
-
-class ConjurePublishTest extends IntegrationTestKitSpec {
+class ConjurePublishTest extends ConfigurationCacheSpec {
 
     private static final String VERSION = '0.1.0'
     private static final String GROUP_ID = 'com.palantir.test-palantir'
@@ -86,17 +83,5 @@ class ConjurePublishTest extends IntegrationTestKitSpec {
         // check for just the distribution and no JAR files
         def groupDirectory = GROUP_ID.replaceAll('\\.', '/')
         new File(projectDir, "build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json").exists()
-    }
-
-    private BuildResult runTasksWithConfigurationCache(String... tasks) {
-        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert firstRun.output.contains('Configuration cache entry stored.'),
-                "Expected first run to store configuration cache, but output was: ${firstRun.output}"
-
-        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
-        assert secondRun.output.contains('Configuration cache entry reused.'),
-                "Expected second run to reuse configuration cache, but output was: ${secondRun.output}"
-
-        return firstRun
     }
 }

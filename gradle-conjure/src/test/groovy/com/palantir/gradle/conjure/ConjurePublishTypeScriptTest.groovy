@@ -17,7 +17,6 @@
 package com.palantir.gradle.conjure
 
 
-import nebula.test.IntegrationTestKitSpec
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.gradle.testkit.runner.BuildResult
@@ -25,7 +24,7 @@ import org.gradle.testkit.runner.TaskOutcome
 
 import java.util.concurrent.TimeUnit
 
-class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
+class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
 
     def setup() {
         definePluginOutsideOfPluginBlock = true
@@ -87,6 +86,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
 
     def 'installs dependencies'() {
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks(':api:installTypeScriptDependencies')
 
         then:
@@ -105,7 +105,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
         directory('api/api-typescript/src/node_modules').exists()
 
         when:
-        BuildResult second = runTasks('-i', 'installTypeScriptDependencies')
+        BuildResult second = runTasksWithConfigurationCache('-i', 'installTypeScriptDependencies')
 
         then:
         second.task(':api:compileConjureTypeScript').outcome == TaskOutcome.UP_TO_DATE // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
@@ -167,6 +167,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
 
     def 'compiles TypeScript'() {
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks(':api:compileTypeScript')
 
         then:
@@ -177,8 +178,10 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
 
     def 'compileTypeScript is up-to-date when run for the second time'() {
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult first = runTasks('compileTypeScript')
         first.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult second = runTasks('compileTypeScript')
 
         then:
@@ -213,6 +216,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:
@@ -252,6 +256,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:
@@ -295,6 +300,7 @@ class ConjurePublishTypeScriptTest extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
+        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:

@@ -18,14 +18,13 @@ package com.palantir.gradle.conjure
 
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension
 import com.palantir.gradle.dist.RecommendedProductDependencies
-import nebula.test.IntegrationTestKitSpec
 import org.gradle.testkit.runner.TaskOutcome
 
 import java.util.jar.Attributes
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
-class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
+class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
 
     def setup() {
         definePluginOutsideOfPluginBlock = true
@@ -89,7 +88,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
 
     def "generates empty product dependencies if not configured"() {
         when:
-        runTasks(':api:generateConjureServiceDependencies')
+        runTasksWithConfigurationCache(':api:generateConjureServiceDependencies')
 
         then:
         new File(projectDir, "api/build/service-dependencies.json").exists()
@@ -109,7 +108,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
-        runTasks(':api:generateConjureServiceDependencies')
+        runTasksWithConfigurationCache(':api:generateConjureServiceDependencies')
 
         then:
         new File(projectDir, 'api/build/service-dependencies.json').exists()
@@ -133,7 +132,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasks(':api:compileConjure', '--info')
+        def result = runTasksWithConfigurationCache(':api:compileConjure', '--info')
 
         then:
         result.output.find('with args: \\[.*, --extensions, '
@@ -159,7 +158,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasks(':api:compileConjure')
+        def result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
         result.task(':api:generateConjureServiceDependencies').outcome == TaskOutcome.SUCCESS
@@ -179,8 +178,8 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasks(':api:api-objects:Jar')
-        def result2 = runTasks(':api:api-undertow:Jar')
+        def result = runTasksWithConfigurationCache(':api:api-objects:Jar')
+        def result2 = runTasksWithConfigurationCache(':api:api-undertow:Jar')
 
         then:
         !result.tasks.contains(':api:generateConjureServiceDependencies')
@@ -203,6 +202,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
+        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -239,6 +239,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
+        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -324,6 +325,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
+        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         runTasks(':api:api-jersey:Jar')
 
         then:
@@ -352,6 +354,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
+        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -383,6 +386,7 @@ class ConjureServiceDependencyTest extends IntegrationTestKitSpec {
         }
         '''.stripIndent()
         when:
+        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:

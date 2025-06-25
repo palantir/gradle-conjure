@@ -20,10 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.gradle.api.Action;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
@@ -31,23 +27,15 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
 public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
     public CompileConjureTypeScriptTask() {
-        Project project = getProject();
-        getPackageName().convention(getProject().provider(project::getName));
+        getPackageName().convention(getProject().provider(() -> getProject().getName()));
         getPackageVersion()
-                .convention(getProject().provider(() -> project.getVersion().toString()));
-        doFirst(new Action<Task>() {
-            @Override
-            public void execute(Task task) {
-                ConfigurableFileTree fileTree =
-                        task.getProject().fileTree(CompileConjureTypeScriptTask.this.getOutputDirectory());
-                fileTree.exclude("node_modules/**/*");
-                fileTree.forEach(File::delete);
-            }
-        });
+                .convention(
+                        getProject().provider(() -> getProject().getVersion().toString()));
     }
 
     @InputFile
@@ -59,6 +47,28 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
 
     @Input
     public abstract Property<String> getPackageVersion();
+
+    @TaskAction
+    public final void cleanOutputDirectory() {
+        File outputDir = getOutputDirectory().get().getAsFile();
+        File nodeModulesDir = new File(outputDir, "node_modules");
+        deleteRecursively(nodeModulesDir);
+    }
+
+    private static void deleteRecursively(File file) {
+        if (!file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursively(child);
+                }
+            }
+        }
+        file.delete();
+    }
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {
