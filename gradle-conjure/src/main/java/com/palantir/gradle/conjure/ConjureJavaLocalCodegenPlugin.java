@@ -115,22 +115,13 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                         "compileOnly",
                         useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
         if (Dependencies.isJersey(extension.getJava())) {
-            project.getDependencies()
-                    .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
-            if (Dependencies.isNotNullAuthAndBodyParams(extension.getJava())) {
-                project.getDependencies()
-                        .add(
-                                "implementation",
-                                useJakarta
-                                        ? Dependencies.JAXRS_VALIDATION_API_JAKARTA
-                                        : Dependencies.JAXRS_VALIDATION_API_JAVAX);
-            }
+            ConjurePlugin.setupJerseyProject(project, extension::getJava);
         }
         if (Dependencies.isDialogue(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
+            ConjurePlugin.setupDialogueProject(project, extension::getJava);
         }
         if (Dependencies.isUndertow(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
+            ConjurePlugin.setupUndertowProject(project, extension::getJava);
         }
     }
 

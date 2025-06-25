@@ -280,11 +280,11 @@ public final class ConjurePlugin implements Plugin<Project> {
         project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
     }
 
-    private static void setupDialogueProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
+    static void setupDialogueProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
     }
 
-    private static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
+    static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
         boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
         project.getDependencies()
                 .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
@@ -302,7 +302,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
     }
 
-    private static void setupUndertowProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
+    static void setupUndertowProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
         project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
     }
 
