@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -159,13 +159,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<ExtractExecutableTask> extractJavaTask = ExtractConjurePlugin.applyConjureJava(project);
 
-        Map<String, BiConsumer<Project, Supplier<GeneratorOptions>>> configs =
-                ImmutableMap.<String, BiConsumer<Project, Supplier<GeneratorOptions>>>builder()
-                        .put(JAVA_OBJECTS_SUFFIX, ConjurePlugin::setupObjectsProject)
-                        .put(JAVA_DIALOGUE_SUFFIX, ConjurePlugin::setupDialogueProject)
-                        .put(JAVA_JERSEY_SUFFIX, ConjurePlugin::setupJerseyProject)
-                        .put(JAVA_UNDERTOW_SUFFIX, ConjurePlugin::setupUndertowProject)
-                        .buildOrThrow();
+        Map<String, Consumer<Project>> configs = ImmutableMap.<String, Consumer<Project>>builder()
+                .put(JAVA_OBJECTS_SUFFIX, Dependencies::setupObjectsProject)
+                .put(JAVA_DIALOGUE_SUFFIX, Dependencies::setupDialogueProject)
+                .put(JAVA_JERSEY_SUFFIX, p -> Dependencies.setupJerseyProject(p, optionsSupplier.get()))
+                .put(JAVA_UNDERTOW_SUFFIX, Dependencies::setupUndertowProject)
+                .buildOrThrow();
 
         // Make sure project names align
         Sets.SetView<String> difference = Sets.difference(configs.keySet(), JAVA_PROJECT_SUFFIXES);
@@ -195,7 +194,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<?> compileIrTask,
             ConjureProductDependenciesExtension productDependencyExt,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
-            BiConsumer<Project, Supplier<GeneratorOptions>> extraConfig) {
+            Consumer<Project> extraConfig) {
         String projectName = getDerivedProjectName(parentProject, projectSuffix);
         if (!derivedProjectExists(parentProject, projectName)) {
             return null;
@@ -211,7 +210,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         String upperSuffix = getUppercaseSuffix(projectSuffix);
         return parentProject.project(derivedProjectPath(parentProject, projectName), subproj -> {
             subproj.getPluginManager().apply(JavaLibraryPlugin.class);
-            ignoreFromCheckUnusedDependencies(subproj);
+            ignoreFromCheckExactDependencies(subproj);
             TaskProvider<ConjureGeneratorTask> conjureGeneratorTask = parentProject
                     .getTasks()
                     .register("compileConjure" + upperSuffix, ConjureGeneratorTask.class, task -> {
@@ -241,7 +240,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ConjureJavaServiceDependencies.configureJavaServiceDependencies(subproj, productDependencyExt);
             }
             if (extraConfig != null) {
-                extraConfig.accept(subproj, optionsSupplier);
+                extraConfig.accept(subproj);
             }
         });
     }
@@ -275,45 +274,17 @@ public final class ConjurePlugin implements Plugin<Project> {
         return !(projectName.endsWith(JAVA_OBJECTS_SUFFIX) || projectName.endsWith(JAVA_UNDERTOW_SUFFIX));
     }
 
-    private static void setupObjectsProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
-        project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
-        project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
-    }
-
-    static void setupDialogueProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
-        project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
-    }
-
-    static void setupJerseyProject(Project project, Supplier<GeneratorOptions> optionsSupplier) {
-        boolean useJakarta = Dependencies.isJakartaPackages(optionsSupplier.get());
-        project.getDependencies()
-                .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
-        if (Dependencies.isNotNullAuthAndBodyParams(optionsSupplier.get())) {
-            project.getDependencies()
-                    .add(
-                            "implementation",
-                            useJakarta
-                                    ? Dependencies.JAXRS_VALIDATION_API_JAKARTA
-                                    : Dependencies.JAXRS_VALIDATION_API_JAVAX);
-        }
-        project.getDependencies()
-                .add(
-                        "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
-    }
-
-    static void setupUndertowProject(Project project, Supplier<GeneratorOptions> _optionsSupplier) {
-        project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
-    }
-
     @SuppressWarnings({"unchecked", "RawTypes"})
-    static void ignoreFromCheckUnusedDependencies(Project proj) {
+    static void ignoreFromCheckExactDependencies(Project proj) {
         proj.getPlugins().withId("com.palantir.baseline-exact-dependencies", plugin -> {
             Class<? extends Task> checkUnusedDependenciesTask;
+            Class<? extends Task> checkImplicitDependenciesParentTask;
             try {
                 ClassLoader baselineClassloader = plugin.getClass().getClassLoader();
                 checkUnusedDependenciesTask = (Class<? extends Task>)
                         baselineClassloader.loadClass("com.palantir.baseline.tasks.CheckUnusedDependenciesTask");
+                checkImplicitDependenciesParentTask = (Class<? extends Task>) baselineClassloader.loadClass(
+                        "com.palantir.baseline.tasks.CheckImplicitDependenciesParentTask");
             } catch (ClassNotFoundException e) {
                 log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
                 return;
@@ -328,6 +299,16 @@ public final class ConjurePlugin implements Plugin<Project> {
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.warn("Failed to ignore conjure-lib from baseline's checkUnusedDependencies", e);
                 }
+            });
+
+            // We disable the wrapper checkImplicitDependencies task in conjure subprojects, so users can configure the
+            //   global check task to depend on it, even if the conjure generator version they use happens to
+            //   implicitly depend on transitive libraries that the current gradle plugin version does not declare
+            //   explicitly.
+            // We do still try to set up dependencies explicitly, and cover it in ConjurePluginTest, but it could
+            //   otherwise create problems when versions of the generator and plugin are not in sync.
+            proj.getTasks().withType(checkImplicitDependenciesParentTask).configureEach(task -> {
+                task.setEnabled(false);
             });
         });
     }

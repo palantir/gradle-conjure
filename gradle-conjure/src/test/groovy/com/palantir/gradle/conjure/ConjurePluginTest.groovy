@@ -224,6 +224,41 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
+    def 'define explicit dependencies: #location'() {
+        setup:
+        updateSettings(prefix)
+
+        // language=gradle
+        buildFile << """
+        apply plugin: 'com.palantir.baseline'
+
+        allprojects {
+            apply plugin: 'java-library'
+            // Forcefully enable the exact dependencies tasks, since we disable them by default in the plugin
+            checkImplicitDependencies.enabled = true
+            checkUnusedDependencies.enabled = true
+        }
+        """.stripIndent(true)
+
+        when:
+        ExecutionResult result = runTasksSuccessfully("checkImplicitDependencies", "checkUnusedDependencies")
+
+        then:
+        List<String> subProjects = List.of("api-objects", "api-jersey", "api-undertow", "api-dialogue")
+        List<String> tasks = List.of("checkImplicitDependenciesMain", "checkUnusedDependenciesMain")
+        subProjects.each { subProject ->
+            tasks.each { task ->
+                assert result.wasExecuted("${prefixProject(prefix, subProject)}:${task}")
+                assert !result.wasSkipped("${prefixProject(prefix, subProject)}:${task}")
+            }
+        }
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
     def 'check cache is used: #location'() {
         setup:
         updateSettings(prefix)
