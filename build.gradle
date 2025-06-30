@@ -35,7 +35,6 @@ buildscript {
         classpath 'org.revapi:gradle-revapi:1.8.0'
         classpath 'com.palantir.javaformat:gradle-palantir-java-format:2.69.0'
         classpath 'com.palantir.suppressible-error-prone:gradle-suppressible-error-prone:2.11.0'
-        classpath 'gradle.plugin.org.inferred:gradle-processors:3.7.0'
     }
 }
 
@@ -65,7 +64,6 @@ allprojects {
 import net.ltgt.gradle.errorprone.CheckSeverity
 subprojects {
     apply plugin: 'java-library'
-    apply plugin: 'org.inferred.processors'
 
 
     tasks.withType(JavaCompile) {
