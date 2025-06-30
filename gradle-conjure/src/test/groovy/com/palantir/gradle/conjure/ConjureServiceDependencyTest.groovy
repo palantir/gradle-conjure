@@ -159,7 +159,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         def result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:generateConjureServiceDependencies').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:generateConjureServiceDependencies')
         file('api/api-typescript/src/package.json').text.contains('sls')
     }
 
@@ -352,7 +352,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        result.task(':api:api-jersey:configureEndpointVersionBounds').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:api-jersey:configureEndpointVersionBounds')
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies
@@ -383,7 +383,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
-        result.task(':api:api-jersey:configureEndpointVersionBounds').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:api-jersey:configureEndpointVersionBounds')
         Attributes attributes = getAttributes(file('api/api-jersey/build/libs/api-jersey-0.1.0.jar'))
         def recommendedDeps = attributes.getValue(RecommendedProductDependencies.SLS_RECOMMENDED_PRODUCT_DEPS_KEY)
         //check to make sure we didn't stomp over the recommended-product-dependencies

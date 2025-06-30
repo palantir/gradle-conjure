@@ -78,8 +78,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         def result = runTasksWithConfigurationCache(":conjure-api:generateConjure", '--info')
 
         then:
-        result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
-        result.task(":conjure-api:generateConjure").outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':extractConjureIr', ':conjure-api:generateConjure')
         fileExists("build/conjure-ir/conjure-api.conjure.json")
         fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
@@ -101,7 +100,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         def result = runTasksWithConfigurationCache(":conjure-api:generateConjure", '--info')
 
         then:
-        result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(":extractConjureIr")
         fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
     }
@@ -114,8 +113,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         BuildResult result = runTasks('check')
 
         then:
-        result.task(':conjure-api:compileJava').outcome == TaskOutcome.SUCCESS
-        result.task(':conjure-api:generateConjure').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':conjure-api:compileJava', ':conjure-api:generateConjure')
 
         fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
@@ -154,8 +152,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         BuildResult result = runTasks('jar')
 
         then:
-        result.task(':conjure-api:compileJava').outcome == TaskOutcome.NO_SOURCE
-        result.task(':conjure-api:generateConjure').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.NO_SOURCE)*.path.contains(':conjure-api:compileJava')
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':conjure-api:generateConjure')
 
         def expected = '{"recommended-product-dependencies":[{' +
                 '"product-group":"com.palantir.conjure",' +

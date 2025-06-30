@@ -93,11 +93,9 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
 
         then:
         def result1 = runTasksWithConfigurationCache('compileIr')
-        result1.task(':extractConjure').outcome == TaskOutcome.SUCCESS
-        result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
+        result1.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':extractConjure', ':compileIr')
         def result2 = runTasksWithConfigurationCache('compileIr')
-        result2.task(':extractConjure').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':compileIr').outcome == TaskOutcome.UP_TO_DATE
+        result2.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(':extractConjure', ':compileIr')
 
         where:
         gradleVersion << TestVersions.VERSIONS
@@ -154,7 +152,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-IR-with-extensions.conjure.json')
         actualFile.exists()
 
@@ -198,7 +196,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-file.conjure.json')
         actualFile.exists()
         def actual = actualFile.text
@@ -239,7 +237,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.task(':compileIr').outcome == TaskOutcome.SUCCESS
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-large-file.conjure.json')
         actualFile.exists()
         def actual = actualFile.text
@@ -284,8 +282,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
 
         then:
         def result = runTasksWithConfigurationCache('getIr', 'getJava')
-        result.task(':conjure-api:compileIr').outcome == TaskOutcome.SUCCESS
-        result.task(':conjure-api:compileJava').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':conjure-api:compileIr', ':conjure-api:compileJava')
         file("build/all-ir/conjure-api.conjure.json")
         file("build/all-java/conjure-api-0.1.0.jar")
     }

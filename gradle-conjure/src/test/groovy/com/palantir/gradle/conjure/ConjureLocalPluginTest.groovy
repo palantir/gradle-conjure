@@ -72,7 +72,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksAndFail("generateConjure", '--info')
 
         then:
-        result.task(":generateJava").outcome == TaskOutcome.FAILED
+        result.tasks(TaskOutcome.FAILED)*.path.contains(":generateJava")
         result.output.contains('with args: [--dialog')
     }
 
@@ -101,8 +101,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache("generateConjure")
 
         then:
-        result.task(":generateTypeScript").outcome == TaskOutcome.SUCCESS
-        result.task(":generatePython").outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(":generateTypeScript", ":generatePython")
 
         fileExists('typescript/src/conjure-api/index.ts')
         fileExists('python/python/conjure-api/conjure_spec/__init__.py')
@@ -128,7 +127,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
 
         then:
         BuildResult result = runTasksWithConfigurationCache("generateConjure")
-        result.task(":generatePostman").outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(":generatePostman")
         fileExists( 'postman/postman/conjure-api/conjure-api.postman_collection.json')
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")

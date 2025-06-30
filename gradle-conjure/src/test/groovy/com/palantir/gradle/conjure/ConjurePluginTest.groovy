@@ -16,8 +16,6 @@
 
 package com.palantir.gradle.conjure
 
-
-import nebula.test.IntegrationTestKitSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.IgnoreIf
@@ -105,13 +103,15 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjure',
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue',
+                ':api:compileIr'
+        )
 
         // java
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
@@ -143,14 +143,16 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
 
         then:
-        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
 
@@ -169,25 +171,29 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result2 = runTasksWithConfigurationCache('check')
 
         then:
-        result.task(':extractConjureJava').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':extractConjureJava',
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
-        result2.task(':extractConjureJava').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':api:compileConjureJersey').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':api:compileConjureUndertow').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':api:compileConjureDialogue').outcome == TaskOutcome.UP_TO_DATE
+        result2.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':extractConjureJava',
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
         where:
         location   | prefix
@@ -233,10 +239,12 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
-        result.task(':api:cleanCompileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(':api:cleanCompileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':api:cleanCompileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(':api:cleanCompileConjureDialogue').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:cleanCompileConjureJersey',
+                ':api:cleanCompileConjureObjects',
+                ':api:cleanCompileConjureUndertow',
+                ':api:cleanCompileConjureDialogue'
+        )
 
         !fileExists( prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
         !fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
@@ -263,7 +271,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
-        result.task(':api:cleanCopyConjureSourcesIntoBuild').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:cleanCopyConjureSourcesIntoBuild')
 
         !fileExists( 'api/build/conjure')
     }
@@ -277,13 +285,15 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:copyConjureSourcesIntoBuild').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileIr').outcome == TaskOutcome.UP_TO_DATE
+        result.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue',
+                ':api:copyConjureSourcesIntoBuild',
+                ':api:compileIr'
+        )
 
         where:
         location   | prefix
@@ -320,12 +330,14 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.UP_TO_DATE
-        result.task(':api:copyConjureSourcesIntoBuild').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue'
+        )
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:copyConjureSourcesIntoBuild')
 
         where:
         location   | prefix
@@ -392,10 +404,12 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(":api:compileIr").outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjure',
+                ':api:compileConjureJersey',
+                ':api:compileConjureObjects',
+                ':api:compileIr'
+        )
 
         fileExists( 'api/build/conjure/internal-import.yml')
         fileExists( 'api/build/conjure/conjure.yml')
@@ -431,8 +445,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects')
         !result.tasks.contains(':api:compileConjureJersey')
 
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
@@ -624,7 +637,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjurePostman').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:compileConjurePostman')
         fileExists( prefixPath(prefix, 'api-postman/src/api.postman_collection.json'))
         file(prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).text.contains('"version" : "1.0.0"')
 
@@ -698,7 +711,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache('compileConjure')
 
         then:
-        result.task(':compileConjure').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileConjure')
 
         where:
         version << ['6.1']

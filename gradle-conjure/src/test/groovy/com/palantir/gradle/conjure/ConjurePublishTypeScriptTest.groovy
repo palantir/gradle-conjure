@@ -1,5 +1,5 @@
 /*
- * (c) Copyright 2018 Palantir Technologies Inc. All rights reserved.
+ * (c) Copyright 2025 Palantir Technologies Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.palantir.gradle.conjure
-
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -87,7 +85,10 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         BuildResult result = runTasks(':api:installTypeScriptDependencies')
 
         then:
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjureTypeScript',
+                ':api:installTypeScriptDependencies'
+        )
         directory('api/api-typescript/src/node_modules').exists()
     }
 
@@ -97,16 +98,17 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         BuildResult first = runTasks('installTypeScriptDependencies')
 
         then:
-        first.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS // necessary to get the package.json
-        first.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
+        first.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjureTypeScript',
+                ':api:installTypeScriptDependencies'
+        )
         directory('api/api-typescript/src/node_modules').exists()
 
         when:
         BuildResult second = runTasksWithConfigurationCache('-i', 'installTypeScriptDependencies')
 
         then:
-        second.task(':api:compileConjureTypeScript').outcome == TaskOutcome.UP_TO_DATE // this should really be up-to-date, but something touches the output package.json which makes gradle re-run this
-        second.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.UP_TO_DATE
+        second.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(':api:installTypeScriptDependencies', ':api:compileConjureTypeScript')
     }
 
     def 'generateNpmrc uses custom registry'() {
@@ -152,11 +154,11 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         file('api/api-typescript/src/.npmrc').exists()
         file('api/api-typescript/src/.npmrc').readLines()
                 .containsAll('registry=http://localhost:8888/', '//localhost:8888/:_authToken=42')
-        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
-        result.task(':api:generateNpmrc').outcome != TaskOutcome.SKIPPED
-        result.task(':api:generateNpmrc').outcome != TaskOutcome.UP_TO_DATE
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
-        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.FAILED
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:generateNpmrc')
+        !result.tasks(TaskOutcome.SKIPPED)*.path.contains(':api:generateNpmrc')
+        !result.tasks(TaskOutcome.UP_TO_DATE)*.path.contains(':api:generateNpmrc')
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:compileConjureTypeScript')
+        result.tasks(TaskOutcome.FAILED)*.path.contains(':api:installTypeScriptDependencies')
 
         cleanup:
         server.shutdown()
@@ -167,19 +169,22 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         BuildResult result = runTasks(':api:compileTypeScript')
 
         then:
-        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureTypeScript').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:installTypeScriptDependencies',
+                ':api:compileConjureTypeScript',
+                ':api:compileTypeScript'
+        )
         file('api/api-typescript/src/index.js').text.contains('export * from "./api";')
     }
 
     def 'compileTypeScript is up-to-date when run for the second time'() {
         when:
         BuildResult first = runTasks('compileTypeScript')
-        first.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
+        first.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:compileTypeScript')
         BuildResult second = runTasks('compileTypeScript')
 
         then:
-        second.task(':api:compileTypeScript').outcome == TaskOutcome.UP_TO_DATE
+        second.tasks(TaskOutcome.UP_TO_DATE)*.path.contains(':api:compileTypeScript')
     }
 
     def 'publishes generated code'() {
@@ -215,9 +220,11 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
-        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:generateNpmrc',
+                ':api:compileTypeScript',
+                ':api:publishTypeScript'
+        )
 
         cleanup:
         server.shutdown()
@@ -254,10 +261,12 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         then:
         file('api/api-typescript/src/.npmrc').text.contains('registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=registry-token')
-        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
-        result.task(':api:installTypeScriptDependencies').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
-        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:generateNpmrc',
+                ':api:installTypeScriptDependencies',
+                ':api:compileTypeScript',
+                ':api:publishTypeScript'
+        )
 
         cleanup:
         server.shutdown()
@@ -297,9 +306,11 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         then:
         file('api/api-typescript/src/.npmrc').text.contains('@test:registry=http://localhost:8888/')
         file('api/api-typescript/src/.npmrc').text.contains('//localhost:8888/:_authToken=atoken')
-        result.task(':api:generateNpmrc').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
-        result.task(':api:publishTypeScript').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:generateNpmrc',
+                ':api:compileTypeScript',
+                ':api:publishTypeScript'
+        )
 
         cleanup:
         server.shutdown()

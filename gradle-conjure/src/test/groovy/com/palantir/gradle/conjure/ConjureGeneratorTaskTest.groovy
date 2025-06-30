@@ -66,9 +66,7 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
 
         // java
         new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
@@ -89,13 +87,9 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
         BuildResult result2 = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
 
-        result2.task(':api:compileConjure').outcome == TaskOutcome.SUCCESS
-        result2.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result2.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
+        result2.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
 
         // java
         !fileExists( 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
