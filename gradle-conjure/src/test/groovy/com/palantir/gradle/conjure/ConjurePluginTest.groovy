@@ -143,13 +143,13 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
 
         then:
-        result.task(':' + prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
@@ -170,23 +170,23 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
         then:
         result.task(':extractConjureJava').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
-        result.task(':' + prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         result2.task(':extractConjureJava').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':' + prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.UP_TO_DATE
+        result2.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.UP_TO_DATE
         result2.task(':api:compileConjureObjects').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':' + prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.UP_TO_DATE
+        result2.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.UP_TO_DATE
         result2.task(':api:compileConjureJersey').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':' + prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.UP_TO_DATE
+        result2.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.UP_TO_DATE
         result2.task(':api:compileConjureUndertow').outcome == TaskOutcome.UP_TO_DATE
-        result2.task(':' + prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.UP_TO_DATE
+        result2.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.UP_TO_DATE
         result2.task(':api:compileConjureDialogue').outcome == TaskOutcome.UP_TO_DATE
 
         where:
@@ -204,8 +204,8 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         BuildResult result = runTasksWithConfigurationCache('--parallel', 'check', 'tasks')
 
         then:
-        result.task(':' + prefixProject(prefix, 'api-objects:compileJava'))
-        result.task(':' + prefixProject(prefix, 'api-jersey:compileJava'))
+        result.task(prefixProject(prefix, 'api-objects:compileJava'))
+        result.task(prefixProject(prefix, 'api-jersey:compileJava'))
         result.task(':api:compileConjureJersey')
 
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
@@ -724,7 +724,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
     }
 
     private String prefixProject(String prefix, String project) {
-        return addPrefix(prefix, project, ':')
+        return ':' + addPrefix(prefix, project, ':')
     }
 
     private String addPrefix(String prefix, String path, String delimiter) {

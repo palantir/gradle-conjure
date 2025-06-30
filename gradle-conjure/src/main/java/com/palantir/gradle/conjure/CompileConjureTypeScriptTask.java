@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.apache.commons.io.FileUtils;
@@ -50,13 +51,21 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
             @Override
             public void execute(Task _task) {
                 File outputDir = getOutputDirectory().get().getAsFile();
-                File nodeModulesDir = new File(outputDir, "node_modules");
-                if (nodeModulesDir.exists()) {
-                    try {
-                        FileUtils.deleteDirectory(nodeModulesDir);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to delete node_modules directory", e);
-                    }
+                File[] files = outputDir.listFiles();
+                if (files != null) {
+                    Arrays.stream(files)
+                            .filter(file -> !file.getName().equals("node_modules"))
+                            .forEach(file -> {
+                                try {
+                                    if (file.isDirectory()) {
+                                        FileUtils.deleteDirectory(file);
+                                    } else {
+                                        FileUtils.delete(file);
+                                    }
+                                } catch (IOException e) {
+                                    throw new RuntimeException("Failed to delete: " + file, e);
+                                }
+                            });
                 }
             }
         });
