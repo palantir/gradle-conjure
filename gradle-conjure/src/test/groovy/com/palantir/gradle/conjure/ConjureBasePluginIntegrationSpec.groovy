@@ -36,8 +36,6 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
     """.stripIndent()
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         buildFile << """
         allprojects {
             ${applyPlugin(ConjureBasePlugin)}
@@ -291,6 +289,4 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         file("build/all-ir/conjure-api.conjure.json")
         file("build/all-java/conjure-api-0.1.0.jar")
     }
-
-
 }

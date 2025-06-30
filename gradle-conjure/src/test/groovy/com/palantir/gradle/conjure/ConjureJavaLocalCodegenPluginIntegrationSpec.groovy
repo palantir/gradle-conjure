@@ -57,8 +57,6 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
     """.stripIndent()
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         buildFile << standardBuildFile;
     }
 
@@ -82,8 +80,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         then:
         result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
         result.task(":conjure-api:generateConjure").outcome == TaskOutcome.SUCCESS
-        new File(projectDir,"build/conjure-ir/conjure-api.conjure.json").exists()
-        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java').exists()
+        fileExists("build/conjure-ir/conjure-api.conjure.json")
+        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
         result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
     }
@@ -104,7 +102,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
 
         then:
         result.task(":extractConjureIr").outcome == TaskOutcome.SUCCESS
-        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java').exists()
+        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
     }
 
@@ -113,14 +111,13 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         buildFile << "conjure { java { addFlag 'objects' } }"
 
         when:
-        // cannot run with configuration cache until sls-packaging is fixed
         BuildResult result = runTasks('check')
 
         then:
         result.task(':conjure-api:compileJava').outcome == TaskOutcome.SUCCESS
         result.task(':conjure-api:generateConjure').outcome == TaskOutcome.SUCCESS
 
-        new File(projectDir, 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java').exists()
+        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
     def 'embeds product dependencies correctly'() {

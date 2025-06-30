@@ -29,6 +29,7 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
@@ -50,20 +51,21 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
 
     public interface Params extends BuildServiceParameters {
-
         RegularFileProperty getExecutable();
     }
 
     private final ConjureRunner delegate;
+
+    @Inject
+    protected abstract ExecOperations getExecOperations();
 
     public ConjureRunnerResource() throws IOException {
         this.delegate =
                 createNewRunner(getParameters().getExecutable().getAsFile().get());
     }
 
-    final void invoke(
-            ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-        delegate.invoke(execOperations, failedTo, unloggedArgs, loggedArgs);
+    final void invoke(String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        delegate.invoke(getExecOperations(), failedTo, unloggedArgs, loggedArgs);
     }
 
     @Override

@@ -54,8 +54,6 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
     """.stripIndent()
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         buildFile << standardBuildFile
     }
 
@@ -106,8 +104,8 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         result.task(":generateTypeScript").outcome == TaskOutcome.SUCCESS
         result.task(":generatePython").outcome == TaskOutcome.SUCCESS
 
-        new File(projectDir, 'typescript/src/conjure-api/index.ts').exists()
-        new File(projectDir, 'python/python/conjure-api/conjure_spec/__init__.py').exists()
+        fileExists('typescript/src/conjure-api/index.ts')
+        fileExists('python/python/conjure-api/conjure_spec/__init__.py')
     }
 
     def "custom generator throws if generator missing"() {
@@ -131,7 +129,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         then:
         BuildResult result = runTasksWithConfigurationCache("generateConjure")
         result.task(":generatePostman").outcome == TaskOutcome.SUCCESS
-        new File(projectDir, 'postman/postman/conjure-api/conjure-api.postman_collection.json').exists()
+        fileExists( 'postman/postman/conjure-api/conjure-api.postman_collection.json')
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")
     }

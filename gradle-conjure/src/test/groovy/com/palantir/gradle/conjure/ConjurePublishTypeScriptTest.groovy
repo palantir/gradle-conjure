@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit
 class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         createFile('settings.gradle') << '''
         include 'api'
         include 'api:api-typescript'
@@ -86,7 +84,6 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
 
     def 'installs dependencies'() {
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks(':api:installTypeScriptDependencies')
 
         then:
@@ -167,7 +164,6 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
 
     def 'compiles TypeScript'() {
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks(':api:compileTypeScript')
 
         then:
@@ -178,10 +174,8 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
 
     def 'compileTypeScript is up-to-date when run for the second time'() {
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult first = runTasks('compileTypeScript')
         first.task(':api:compileTypeScript').outcome == TaskOutcome.SUCCESS
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult second = runTasks('compileTypeScript')
 
         then:
@@ -216,7 +210,6 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:
@@ -256,7 +249,6 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:
@@ -300,7 +292,6 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        // Cannot run with configuration cache until BetterExec is fixed
         BuildResult result = runTasks('publish')
 
         then:

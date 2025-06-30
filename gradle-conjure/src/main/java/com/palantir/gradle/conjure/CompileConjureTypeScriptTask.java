@@ -18,8 +18,12 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
@@ -27,16 +31,9 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
-import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
 public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
-    public CompileConjureTypeScriptTask() {
-        getPackageName().convention(getProject().provider(() -> getProject().getName()));
-        getPackageVersion()
-                .convention(
-                        getProject().provider(() -> getProject().getVersion().toString()));
-    }
 
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
@@ -48,26 +45,21 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
     @Input
     public abstract Property<String> getPackageVersion();
 
-    @TaskAction
-    public final void cleanOutputDirectory() {
-        File outputDir = getOutputDirectory().get().getAsFile();
-        File nodeModulesDir = new File(outputDir, "node_modules");
-        deleteRecursively(nodeModulesDir);
-    }
-
-    private static void deleteRecursively(File file) {
-        if (!file.exists()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    deleteRecursively(child);
+    public CompileConjureTypeScriptTask() {
+        doFirst(new Action<Task>() {
+            @Override
+            public void execute(Task _task) {
+                File outputDir = getOutputDirectory().get().getAsFile();
+                File nodeModulesDir = new File(outputDir, "node_modules");
+                if (nodeModulesDir.exists()) {
+                    try {
+                        FileUtils.deleteDirectory(nodeModulesDir);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to delete node_modules directory", e);
+                    }
                 }
             }
-        }
-        file.delete();
+        });
     }
 
     @Override

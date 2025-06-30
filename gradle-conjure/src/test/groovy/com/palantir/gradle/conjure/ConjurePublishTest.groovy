@@ -23,8 +23,6 @@ class ConjurePublishTest extends ConfigurationCacheSpec {
     private static final String ARTIFACT_ID = 'ir-publish-test'
 
     def 'simple example'() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         setup:
         buildFile << """
             repositories {
@@ -82,6 +80,6 @@ class ConjurePublishTest extends ConfigurationCacheSpec {
         then:
         // check for just the distribution and no JAR files
         def groupDirectory = GROUP_ID.replaceAll('\\.', '/')
-        new File(projectDir, "build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json").exists()
+        fileExists( "build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json")
     }
 }

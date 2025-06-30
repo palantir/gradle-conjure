@@ -28,8 +28,6 @@ import spock.util.environment.RestoreSystemProperties
 class ConjurePluginTest extends ConfigurationCacheSpec {
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         createFile('settings.gradle') << '''
         include 'api'
         include 'api:api-objects'
@@ -116,19 +114,19 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
 
         // java
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).exists()
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         // typescript
-        new File(projectDir, prefixPath(prefix, 'api-typescript/src/api/index.ts')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-typescript/src/index.ts')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-typescript/src/tsconfig.json')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-typescript/src/package.json')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-typescript/.gitignore')).exists()
+        fileExists( prefixPath(prefix, 'api-typescript/src/api/index.ts'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/index.ts'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/tsconfig.json'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/package.json'))
+        fileExists( prefixPath(prefix, 'api-typescript/.gitignore'))
         file(prefixPath(prefix, 'api-typescript/.gitignore')).readLines() == ["/src/"]
 
         // irFile - these are always in api project
-        new File(projectDir, 'api/build/conjure-ir/api.conjure.json').exists()
+        fileExists( 'api/build/conjure-ir/api.conjure.json')
         file('api/build/conjure-ir/api.conjure.json').text.contains('TestServiceFoo')
 
         where:
@@ -154,7 +152,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':' + prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
         result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).exists()
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
 
         where:
         location   | prefix
@@ -210,7 +208,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':' + prefixProject(prefix, 'api-jersey:compileJava'))
         result.task(':api:compileConjureJersey')
 
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).exists()
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
 
         where:
         location   | prefix
@@ -226,10 +224,10 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache('compileJava')
 
         then:
-        new File(projectDir, prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main')).exists()
-        new File(projectDir, prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main')).exists()
+        fileExists( prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
+        fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
+        fileExists( prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
         when:
         BuildResult result = runTasksWithConfigurationCache('clean')
@@ -240,10 +238,10 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':api:cleanCompileConjureUndertow').outcome == TaskOutcome.SUCCESS
         result.task(':api:cleanCompileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
-        !new File(projectDir, prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main')).exists()
-        !new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main')).exists()
-        !new File(projectDir, prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main')).exists()
-        !new File(projectDir, prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main')).exists()
+        !fileExists( prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
+        !fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
+        !fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
+        !fileExists( prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
         where:
         location   | prefix
@@ -256,7 +254,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache('compileConjure')
 
         then:
-        new File(projectDir, 'api/build/conjure').exists()
+        fileExists( 'api/build/conjure')
     }
 
     def 'clean cleans up build/conjure for root project'() {
@@ -267,7 +265,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         then:
         result.task(':api:cleanCopyConjureSourcesIntoBuild').outcome == TaskOutcome.SUCCESS
 
-        !new File(projectDir, 'api/build/conjure').exists()
+        !fileExists( 'api/build/conjure')
     }
 
     def 'compileConjure does not run tasks if up to date: #location'() {
@@ -352,7 +350,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
 
         then:
-        !new File(projectDir, 'api/build/conjure/todelete.yml').exists()
+        !fileExists( 'api/build/conjure/todelete.yml')
     }
 
     def 'copies conjure imports into build directory and provides imports to conjure compiler: #location'() {
@@ -399,20 +397,20 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
         result.task(":api:compileIr").outcome == TaskOutcome.SUCCESS
 
-        new File(projectDir, 'api/build/conjure/internal-import.yml').exists()
-        new File(projectDir, 'api/build/conjure/conjure.yml').exists()
+        fileExists( 'api/build/conjure/internal-import.yml')
+        fileExists( 'api/build/conjure/conjure.yml')
 
         // java
         file(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/api/service/TestServiceFoo2.java')).text.contains(
                 'import test.api.internal.InternalImport;')
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java')).exists()
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java'))
 
         // typescript
         file(prefixPath(prefix, 'api-typescript/src/service/testServiceFoo2.ts')).text.contains(
                 'import { IInternalImport }')
 
         // ir
-        new File(projectDir, "api/build/conjure-ir/api.conjure.json").exists()
+        fileExists( "api/build/conjure-ir/api.conjure.json")
 
         where:
         location   | prefix
@@ -437,7 +435,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
         !result.tasks.contains(':api:compileConjureJersey')
 
-        new File(projectDir, prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).exists()
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         where:
@@ -480,7 +478,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache(':api:compileConjureUndertow')
 
         then:
-        new File(projectDir, prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main/test/test/api/UndertowTestServiceFoo.java'))
+        fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main/test/test/api/UndertowTestServiceFoo.java'))
 
         where:
         location   | prefix
@@ -516,7 +514,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
         then:
         String generated = prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/test/api/TestServiceFoo.java')
-        new File(projectDir, generated).exists()
+        fileExists(generated)
         File generatedFile = new File(projectDir, generated)
         generatedFile.text.contains("import jakarta.ws.rs.POST;")
 
@@ -564,7 +562,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasksWithConfigurationCache(':api:compileConjureTypeScript', '--info')
+        BuildResult result = runTasksWithConfigurationCacheAndCheck(':api:compileConjureTypeScript', '--info')
 
         then:
         result.output.contains("--nodeCompatibleModules")
@@ -590,7 +588,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
         expect:
         // doesn't matter what task is run, just need to trigger project evaluation
-        runTasksWithConfigurationCache(':tasks')
+        runTasksWithConfigurationCacheAndCheck(':tasks')
 
         where:
         location   | prefix
@@ -627,7 +625,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
         then:
         result.task(':api:compileConjurePostman').outcome == TaskOutcome.SUCCESS
-        new File(projectDir, prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).exists()
+        fileExists( prefixPath(prefix, 'api-postman/src/api.postman_collection.json'))
         file(prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).text.contains('"version" : "1.0.0"')
 
         where:
@@ -647,7 +645,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         updateSettings(prefix)
 
         expect:
-        runTasksWithConfigurationCache('compileConjure')
+        runTasksWithConfigurationCacheAndCheck('compileConjure')
 
         where:
         location   | prefix
@@ -657,7 +655,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
     def 'compileTypeScript is run on build for circle node 0'() {
         when:
-        def stdout = runTasksWithConfigurationCache('build', '--dry-run',
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run',
                 '-P__TESTING_CIRCLE_NODE_INDEX=0').output
 
         then:
@@ -666,7 +664,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
 
     def 'compileTypeScript is not run on build for circle node 1'() {
         when:
-        def stdout = runTasksWithConfigurationCache('build', '--dry-run',
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run',
                 '-P__TESTING_CIRCLE_NODE_INDEX=1').output
 
         then:
@@ -676,7 +674,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
     def 'compileTypeScript is run on build locally'() {
         when:
         // No CIRCLE_NODE_INDEX property set means local build
-        def stdout = runTasksWithConfigurationCache('build', '--dry-run').output
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run').output
 
         then:
         stdout.contains ':api:compileTypeScript SKIPPED'

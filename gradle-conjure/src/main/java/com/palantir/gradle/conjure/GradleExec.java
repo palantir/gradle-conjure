@@ -16,13 +16,11 @@
 
 package com.palantir.gradle.conjure;
 
-import com.palantir.gradle.conjure.ConjureRunnerResource.Params;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
 import org.gradle.api.services.BuildServiceRegistry;
-import org.gradle.api.services.BuildServiceSpec;
 import org.gradle.process.ExecOperations;
 import org.gradle.util.GradleVersion;
 
@@ -41,13 +39,11 @@ public abstract class GradleExec {
                     .registerIfAbsent(
                             // Executable name must be the cache key, neither the spec parameters
                             // nor the class are taken into account for caching.
-                            "conjure-runner-" + executable,
-                            ConjureRunnerResource.class,
-                            (BuildServiceSpec<Params> spec) -> {
+                            "conjure-runner-" + executable, ConjureRunnerResource.class, spec -> {
                                 spec.getParameters().getExecutable().set(executable);
                             })
                     .get()
-                    .invoke(getExecOperations(), failedTo, unloggedArgs, loggedArgs);
+                    .invoke(failedTo, unloggedArgs, loggedArgs);
         } else {
             try (ConjureRunnerResource.ConjureRunner runner = ConjureRunnerResource.createNewRunner(executable)) {
                 runner.invoke(getExecOperations(), failedTo, unloggedArgs, loggedArgs);

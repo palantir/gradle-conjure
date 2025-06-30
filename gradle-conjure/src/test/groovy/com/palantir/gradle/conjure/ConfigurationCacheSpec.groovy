@@ -21,18 +21,42 @@ import org.gradle.testkit.runner.BuildResult
 
 
 abstract class ConfigurationCacheSpec extends IntegrationTestKitSpec {
-    BuildResult runTasksWithConfigurationCache(String... tasks) {
-        def firstRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
+    def setup() {
+        definePluginOutsideOfPluginBlock = true
+        keepFiles = true
+    }
+
+    Boolean fileExists(String path) {
+        return new File(projectDir, path).exists()
+    }
+
+    BuildResult runTasksWithConfigurationCacheAndCheck(String... tasks) {
+        def firstRun = runTasksWithConfigurationCache(false, tasks)
         assert firstRun.output.contains('Configuration cache entry stored.')
-        def secondRun = createRunner(tasks + ['--configuration-cache'] as String[]).build()
+        def secondRun = runTasksWithConfigurationCache(tasks)
         assert secondRun.output.contains('Configuration cache entry reused.')
 
+        return firstRun
+    }
+
+    BuildResult runTasksWithConfigurationCache(String... tasks) {
+        return runTasksWithConfigurationCache(true, tasks)
+    }
+
+    BuildResult runTasksWithConfigurationCache(boolean cleanUp, String... tasks) {
+        def run = createRunner(tasks + ['--configuration-cache'] as String[]).build()
+
+        assert run.output.contains('Configuration cache entry stored.') ||
+                run.output.contains('Configuration cache entry reused.')
+
         File configCacheDir = new File(projectDir, ".gradle/configuration-cache")
-        if (configCacheDir.exists()) {
+        if (configCacheDir.exists() && cleanUp) {
             configCacheDir.deleteDir()
         }
-        assert !configCacheDir.exists(), "Configuration cache directory was not deleted"
+        if (cleanUp) {
+            assert !configCacheDir.exists(), "Configuration cache directory was not deleted"
+        }
 
-        return firstRun
+        return run
     }
 }

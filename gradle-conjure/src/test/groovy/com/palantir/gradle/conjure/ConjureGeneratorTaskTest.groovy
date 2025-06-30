@@ -21,8 +21,6 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         createFile('settings.gradle') << """
         include 'api'
         include 'api:api-objects'
@@ -100,8 +98,8 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
         result2.task(':api:compileIr').outcome == TaskOutcome.SUCCESS
 
         // java
-        !new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java').exists()
-        new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java').exists()
+        !fileExists( 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
+        fileExists( 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java')
     }
 
     def 'when a file has errors the error is reported in the exception'() {

@@ -27,8 +27,6 @@ import java.util.zip.ZipFile
 class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
 
     def setup() {
-        definePluginOutsideOfPluginBlock = true
-        keepFiles = true
         addSubproject('api')
         addSubproject('api:api-objects')
         addSubproject('api:api-jersey')
@@ -91,7 +89,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache(':api:generateConjureServiceDependencies')
 
         then:
-        new File(projectDir, "api/build/service-dependencies.json").exists()
+        fileExists( "api/build/service-dependencies.json")
         file('api/build/service-dependencies.json').text == '[]'
     }
 
@@ -111,7 +109,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache(':api:generateConjureServiceDependencies')
 
         then:
-        new File(projectDir, 'api/build/service-dependencies.json').exists()
+        fileExists( 'api/build/service-dependencies.json')
         file('api/build/service-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
         file('api/build/service-dependencies.json').text.contains('"product-name":"conjure"')
         file('api/build/service-dependencies.json').text.contains('"minimum-version":"1.2.0"')
@@ -132,7 +130,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        def result = runTasksWithConfigurationCache(':api:compileConjure', '--info')
+        def result = runTasksWithConfigurationCacheAndCheck(':api:compileConjure', '--info')
 
         then:
         result.output.find('with args: \\[.*, --extensions, '
@@ -202,7 +200,6 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -239,7 +236,6 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -325,7 +321,6 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         runTasks(':api:api-jersey:Jar')
 
         then:
@@ -354,7 +349,6 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
@@ -386,7 +380,6 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         }
         '''.stripIndent()
         when:
-        // cannot be configuration cache until `ConfigureProductDependenciesTask` is fixed in SLS Packaging
         def result = runTasks(':api:api-jersey:Jar')
 
         then:
