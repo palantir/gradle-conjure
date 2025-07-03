@@ -16,53 +16,33 @@
 
 package com.palantir.gradle.conjure.api;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import java.util.HashSet;
 import java.util.Set;
-import javax.inject.Inject;
-import org.gradle.api.Project;
-import org.gradle.api.provider.ProviderFactory;
+import java.util.function.Function;
+import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 
-public class ConjureProductDependenciesExtension {
+public abstract class ConjureProductDependenciesExtension {
 
     public static final String EXTENSION_NAME = "serviceDependencies";
     public static final String ENDPOINT_VERSIONS_MANIFEST_KEY = "Endpoint-Version-Bounds";
 
-    private final Project project;
-    private final Set<ServiceDependency> productDependencies = new HashSet<>();
-    private final SetProperty<EndpointVersionBound> endpointVersions;
-    private final ProviderFactory providerFactory;
+    public abstract SetProperty<ServiceDependency> getProductDependencies();
 
-    @Inject
-    public ConjureProductDependenciesExtension(Project project) {
-        this.project = project;
-        this.endpointVersions =
-                project.getObjects().setProperty(EndpointVersionBound.class).empty();
-        this.providerFactory = project.getProviders();
-    }
+    public abstract SetProperty<EndpointVersionBound> getEndpointVersions();
 
-    public final Set<ServiceDependency> getProductDependencies() {
-        return productDependencies;
-    }
+    public abstract Property<Function<Set<ServiceDependency>, Set<ServiceDependency>>>
+            getProductDependenciesTransformer();
 
-    public final void serviceDependency(@DelegatesTo(ServiceDependency.class) Closure<ServiceDependency> closure) {
+    public void serviceDependency(Action<? super ServiceDependency> action) {
         ServiceDependency serviceDependency = new ServiceDependency();
-        closure.setDelegate(serviceDependency);
-        closure.call();
-        productDependencies.add(serviceDependency);
+        action.execute(serviceDependency);
+        getProductDependencies().add(serviceDependency);
     }
 
-    public final void endpointVersion(@DelegatesTo(EndpointVersionBound.class) Closure<?> closure) {
-        endpointVersions.add(providerFactory.provider(() -> {
-            EndpointVersionBound evb = new EndpointVersionBound();
-            project.configure(evb, closure);
-            return evb;
-        }));
-    }
-
-    public final SetProperty<EndpointVersionBound> getEndpointVersions() {
-        return endpointVersions;
+    public void endpointVersion(Action<? super EndpointVersionBound> action) {
+        EndpointVersionBound evb = new EndpointVersionBound();
+        action.execute(evb);
+        getEndpointVersions().add(evb);
     }
 }

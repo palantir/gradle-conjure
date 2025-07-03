@@ -55,10 +55,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
         ConjureProductDependenciesExtension conjureProductDependenciesExtension = project.getExtensions()
-                .create(
-                        ConjureProductDependenciesExtension.EXTENSION_NAME,
-                        ConjureProductDependenciesExtension.class,
-                        project);
+                .create(ConjureProductDependenciesExtension.EXTENSION_NAME, ConjureProductDependenciesExtension.class);
         conjureExtension = project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
@@ -115,7 +112,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                     .set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
             compileIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             compileIr.getOutputIrFile().set(irDir.map(dir -> dir.file(project.getName() + ".conjure.json")));
-            compileIr.getProductDependencies().set(project.provider(pdepsExtension::getProductDependencies));
+            compileIr.getProductDependencies().set(pdepsExtension.getProductDependencies());
             compileIr
                     .getOptions()
                     .set(project.provider(() -> conjureExtension.getParser().getProperties()));
@@ -165,7 +162,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
     private static void createServiceDependenciesTask(Project project, ConjureProductDependenciesExtension ext) {
         project.getTasks().register(SERVICE_DEPENDENCIES_TASK, GenerateConjureServiceDependenciesTask.class, task -> {
-            task.setConjureServiceDependencies(ext::getProductDependencies);
+            task.getConjureServiceDependencies().set(ext.getProductDependencies());
         });
     }
 }
