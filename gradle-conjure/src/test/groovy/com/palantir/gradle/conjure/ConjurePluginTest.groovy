@@ -159,6 +159,71 @@ class ConjurePluginTest extends IntegrationSpec {
         'peer'     | ''
     }
 
+    def 'check code compiles with requireNotNullAuthAndBodyParams: #location'() {
+        setup:
+        updateSettings(prefix)
+
+        // language=gradle
+        file('api/build.gradle') << """
+        conjure {
+            java {
+                requireNotNullAuthAndBodyParams = true
+            }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('compileJava')
+
+        then:
+        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
+        result.wasExecuted(':api:compileConjureObjects')
+        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
+        result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
+        result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
+        result.wasExecuted(':api:compileConjureDialogue')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
+    def 'check code compiles with requireNotNullAuthAndBodyParams and jakarta: #location'() {
+        setup:
+        updateSettings(prefix)
+
+        // language=gradle
+        file('api/build.gradle') << """
+        conjure {
+            java {
+                requireNotNullAuthAndBodyParams = true
+                jakartaPackages = true
+            }
+        }
+        """.stripIndent()
+
+        when:
+        ExecutionResult result = runTasksSuccessfully('compileJava')
+
+        then:
+        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
+        result.wasExecuted(':api:compileConjureObjects')
+        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
+        result.wasExecuted(':api:compileConjureJersey')
+        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
+        result.wasExecuted(':api:compileConjureUndertow')
+        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
+        result.wasExecuted(':api:compileConjureDialogue')
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
     def 'check cache is used: #location'() {
         setup:
         updateSettings(prefix)
