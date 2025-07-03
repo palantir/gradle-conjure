@@ -67,6 +67,10 @@ final class ConjureJavaServiceDependencies {
     }
 
     private static Set<ProductDependency> convertDependencies(Set<ServiceDependency> serviceDependencies) {
+        serviceDependencies.forEach(dependency -> {
+            System.out.println("FINLAY");
+            System.out.println(dependency.getMinimumVersion());
+        });
         return serviceDependencies.stream()
                 .map(serviceDependency -> new ProductDependency(
                         serviceDependency.getProductGroup(),

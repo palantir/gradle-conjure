@@ -52,8 +52,14 @@ public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask
 
     @TaskAction
     public final void generateConjureServiceDependencies() throws IOException {
-        getConjureServiceDependencies().get().forEach(GenerateConjureServiceDependenciesTask::validateServiceDependency);
-        jsonMapper.writeValue(getOutputFile().getAsFile().get(), getConjureServiceDependencies());
+        getConjureServiceDependencies()
+                .get()
+                .forEach(GenerateConjureServiceDependenciesTask::validateServiceDependency);
+        jsonMapper.writeValue(
+                getOutputFile().getAsFile().get(),
+                getConjureServiceDependencies()
+                        .get() // <-- ensure this is a Set (which Jackson will serialize as an array)
+                );
     }
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {

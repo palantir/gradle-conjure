@@ -31,6 +31,10 @@ public abstract class ConjureProductDependenciesExtension {
 
     public abstract SetProperty<EndpointVersionBound> getEndpointVersions();
 
+    public ConjureProductDependenciesExtension() {
+        getProductDependenciesTransformer().convention(deps -> deps);
+    }
+
     public abstract Property<Function<Set<ServiceDependency>, Set<ServiceDependency>>>
             getProductDependenciesTransformer();
 
