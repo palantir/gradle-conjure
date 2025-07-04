@@ -49,3 +49,149 @@ acceptedBreaks:
       old: "method java.util.Optional<java.lang.String> com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
       new: "method java.lang.String com.palantir.gradle.conjure.api.EndpointVersionBound::getMaxVersion()"
       justification: "Reverting a change."
+  "5.57.0":
+    com.palantir.gradle.conjure:gradle-conjure-api:
+    - code: "java.annotation.removed"
+      old: "method void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::<init>(org.gradle.api.Project)"
+      new: "method void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::<init>()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.annotation.removed"
+      old: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::endpointVersion(===groovy.lang.Closure<?>===)"
+      new: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::endpointVersion(===org.gradle.api.Action<?\
+        \ super com.palantir.gradle.conjure.api.EndpointVersionBound>===)"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.annotation.removed"
+      old: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::serviceDependency(===groovy.lang.Closure<com.palantir.gradle.conjure.api.ServiceDependency>===)"
+      new: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::serviceDependency(===org.gradle.api.Action<?\
+        \ super com.palantir.gradle.conjure.api.ServiceDependency>===)"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.class.nowAbstract"
+      old: "class com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension"
+      new: "class com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.abstractMethodAdded"
+      new: "method org.gradle.api.provider.ListProperty<java.util.function.Function<java.util.Set<com.palantir.gradle.conjure.api.ServiceDependency>,\
+        \ java.util.Set<com.palantir.gradle.conjure.api.ServiceDependency>>> com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependenciesTransformers()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.noLongerFinal"
+      old: "method java.util.Set<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.noLongerFinal"
+      old: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointVersionBound>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
+      new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointVersionBound>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.nowAbstract"
+      old: "method java.util.Set<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.nowAbstract"
+      old: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointVersionBound>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
+      new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.EndpointVersionBound>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getEndpointVersions()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::<init>(org.gradle.api.Project)"
+      new: "method void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::<init>()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.parameterTypeChanged"
+      old: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::endpointVersion(===groovy.lang.Closure<?>===)"
+      new: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::endpointVersion(===org.gradle.api.Action<?\
+        \ super com.palantir.gradle.conjure.api.EndpointVersionBound>===)"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.parameterTypeChanged"
+      old: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::serviceDependency(===groovy.lang.Closure<com.palantir.gradle.conjure.api.ServiceDependency>===)"
+      new: "parameter void com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::serviceDependency(===org.gradle.api.Action<?\
+        \ super com.palantir.gradle.conjure.api.ServiceDependency>===)"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.util.Set<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      new: "method org.gradle.api.provider.SetProperty<com.palantir.gradle.conjure.api.ServiceDependency>\
+        \ com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension::getProductDependencies()"
+      justification: "ConjureProductDependenciesExtension has been modernised to use\
+        \ Gradle best practices, this has come from a desire to make it configuration\
+        \ cache friendly, the changes to serviceDependency and endpointVersion should\
+        \ have no impact as gradle will implement the closure method for the action,\
+        \ getEndpointVersions and getProductDependencies are now SetProperties so\
+        \ this is a break which is needed for configuration cache, getProductDependenciesTransformers\
+        \ is new and should not break anything"

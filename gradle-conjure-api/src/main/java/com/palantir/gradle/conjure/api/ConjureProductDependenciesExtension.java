@@ -34,12 +34,18 @@ public abstract class ConjureProductDependenciesExtension {
     public abstract ListProperty<Function<Set<ServiceDependency>, Set<ServiceDependency>>>
             getProductDependenciesTransformers();
 
+    /**
+     * Adds a new service dependency.
+     */
     public void serviceDependency(Action<? super ServiceDependency> action) {
         ServiceDependency serviceDependency = new ServiceDependency();
         action.execute(serviceDependency);
         getProductDependencies().add(serviceDependency);
     }
 
+    /**
+     * Adds a new endpoint version bound.
+     */
     public void endpointVersion(Action<? super EndpointVersionBound> action) {
         EndpointVersionBound evb = new EndpointVersionBound();
         action.execute(evb);
