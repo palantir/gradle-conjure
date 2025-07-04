@@ -57,9 +57,7 @@ public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask
                 .forEach(GenerateConjureServiceDependenciesTask::validateServiceDependency);
         jsonMapper.writeValue(
                 getOutputFile().getAsFile().get(),
-                getConjureServiceDependencies()
-                        .get() // <-- ensure this is a Set (which Jackson will serialize as an array)
-                );
+                getConjureServiceDependencies().get());
     }
 
     private static void validateServiceDependency(ServiceDependency serviceDependency) {
