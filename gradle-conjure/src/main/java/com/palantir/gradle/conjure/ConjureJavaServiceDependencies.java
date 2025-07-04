@@ -44,10 +44,13 @@ final class ConjureJavaServiceDependencies {
         ext.getRecommendedProductDependenciesProvider()
                 .set(productDependencyExt
                         .getProductDependencies()
-                        .map(deps -> ConjureJavaServiceDependencies.convertDependencies(productDependencyExt
-                                .getProductDependenciesTransformer()
-                                .get()
-                                .apply(deps))));
+                        .map(deps -> ConjureJavaServiceDependencies.convertDependencies(
+                                productDependencyExt.getProductDependenciesTransformers().get().stream()
+                                        .reduce(
+                                                deps,
+                                                (current, transformer) -> transformer.apply(current),
+                                                (_a, b) -> b // Not used, but required for reduce signature
+                                                ))));
 
         project.getPluginManager().withPlugin("java", _plugin -> {
             TaskProvider<ConfigureEndpointVersionBoundsTask> configureEndpointVersionsTask = project.getTasks()

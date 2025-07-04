@@ -19,7 +19,7 @@ package com.palantir.gradle.conjure.api;
 import java.util.Set;
 import java.util.function.Function;
 import org.gradle.api.Action;
-import org.gradle.api.provider.Property;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.SetProperty;
 
 public abstract class ConjureProductDependenciesExtension {
@@ -31,12 +31,8 @@ public abstract class ConjureProductDependenciesExtension {
 
     public abstract SetProperty<EndpointVersionBound> getEndpointVersions();
 
-    public ConjureProductDependenciesExtension() {
-        getProductDependenciesTransformer().convention(deps -> deps);
-    }
-
-    public abstract Property<Function<Set<ServiceDependency>, Set<ServiceDependency>>>
-            getProductDependenciesTransformer();
+    public abstract ListProperty<Function<Set<ServiceDependency>, Set<ServiceDependency>>>
+            getProductDependenciesTransformers();
 
     public void serviceDependency(Action<? super ServiceDependency> action) {
         ServiceDependency serviceDependency = new ServiceDependency();
