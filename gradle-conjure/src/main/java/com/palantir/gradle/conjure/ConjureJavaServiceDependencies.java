@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
 
@@ -41,16 +42,18 @@ final class ConjureJavaServiceDependencies {
         RecommendedProductDependenciesExtension ext =
                 project.getExtensions().getByType(RecommendedProductDependenciesExtension.class);
 
+        Provider<Set<ServiceDependency>> finalDependencies = productDependencyExt
+                .getProductDependencies()
+                .zip(
+                        productDependencyExt.getProductDependenciesTransformers(),
+                        (dependencies, transformers) -> transformers.stream()
+                                .reduce(
+                                        dependencies,
+                                        (current, transformer) -> transformer.apply(current),
+                                        (_a, b) -> b));
+
         ext.getRecommendedProductDependenciesProvider()
-                .set(productDependencyExt
-                        .getProductDependencies()
-                        .map(deps -> ConjureJavaServiceDependencies.convertDependencies(
-                                productDependencyExt.getProductDependenciesTransformers().get().stream()
-                                        .reduce(
-                                                deps,
-                                                (current, transformer) -> transformer.apply(current),
-                                                (_a, b) -> b // Not used, but required for reduce signature
-                                                ))));
+                .set(finalDependencies.map(ConjureJavaServiceDependencies::convertDependencies));
 
         project.getPluginManager().withPlugin("java", _plugin -> {
             TaskProvider<ConfigureEndpointVersionBoundsTask> configureEndpointVersionsTask = project.getTasks()
@@ -70,6 +73,7 @@ final class ConjureJavaServiceDependencies {
     }
 
     private static Set<ProductDependency> convertDependencies(Set<ServiceDependency> serviceDependencies) {
+        serviceDependencies.forEach(dep -> System.out.println(dep.getMinimumVersion()));
         return serviceDependencies.stream()
                 .map(serviceDependency -> new ProductDependency(
                         serviceDependency.getProductGroup(),
