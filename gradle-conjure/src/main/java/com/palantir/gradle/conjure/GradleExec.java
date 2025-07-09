@@ -34,7 +34,6 @@ public abstract class GradleExec {
 
     public final void exec(String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
 
-        if (gradleVersionHighEnough()) {
             getBuildServiceRegistry()
                     .registerIfAbsent(
                             // Executable name must be the cache key, neither the spec parameters
@@ -44,17 +43,6 @@ public abstract class GradleExec {
                             })
                     .get()
                     .invoke(failedTo, unloggedArgs, loggedArgs);
-        } else {
-            try (ConjureRunnerResource.ConjureRunner runner = ConjureRunnerResource.createNewRunner(executable)) {
-                runner.invoke(getExecOperations(), failedTo, unloggedArgs, loggedArgs);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
-    }
-
-    // See https://github.com/gradle/gradle/issues/17434
-    private static boolean gradleVersionHighEnough() {
-        return GradleVersion.current().compareTo(GradleVersion.version("7.4.2")) >= 0;
     }
 }
