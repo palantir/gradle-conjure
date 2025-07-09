@@ -126,10 +126,10 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
 
         runTasksWithConfigurationCache('compileIr')
         FileUtils.deleteDirectory(projectDir.toPath().resolve("build").toFile())
-        BuildResult result = runTasksWithConfigurationCache('compileIr', '-i')
+        def output = runTasksWithConfigurationCache('compileIr', '-i').output
 
         then:
-        result.output.contains "Task :compileIr FROM-CACHE"
+        output.contains "Task :compileIr FROM-CACHE"
     }
 
     def 'renders IR with extensions'() {

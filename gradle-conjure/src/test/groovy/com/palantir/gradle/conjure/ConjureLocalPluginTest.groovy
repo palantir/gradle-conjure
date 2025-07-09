@@ -87,10 +87,10 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        BuildResult result = runTasksAndFail("generateConjure")
+        def output = runTasksAndFail("generateConjure").output
 
         then:
-        result.output.contains('Unable to generate Java bindings since unsafe options were provided')
+        output.contains('Unable to generate Java bindings since unsafe options were provided')
     }
 
     def "generateConjure generates code in subprojects"() {
@@ -111,8 +111,8 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         addSubproject("postman")
 
         expect:
-        BuildResult result1 = runTasksAndFail("generateConjure")
-        result1.output.contains("without corresponding generator dependency")
+        def output = runTasksAndFail("generateConjure").output
+        output.contains("without corresponding generator dependency")
     }
 
     def 'supports custom postman generator'() {

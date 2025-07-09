@@ -173,10 +173,10 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         buildFile << """
         task dummy {}
         """.stripIndent()
-        def result = runTasksAndFail("dummy")
+        def output = runTasksAndFail("dummy").output
 
         then:
-        result.output.contains "Discovered dependencies [conjure-api] without corresponding subprojects."
+        output.contains "Discovered dependencies [conjure-api] without corresponding subprojects."
     }
 
     def "fails if missing dependency"() {
@@ -186,19 +186,19 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         buildFile << """
         task dummy {}
         """.stripIndent()
-        def result = runTasksAndFail("dummy")
+        def output = runTasksAndFail("dummy").output
 
         then:
-        result.output.contains "Discovered subprojects [missing-api] without corresponding dependencies."
+        output.contains "Discovered subprojects [missing-api] without corresponding dependencies."
     }
 
     def "fails to generate without required flags"() {
         addSubproject("conjure-api")
         when:
-        def result = runTasksAndFail(":conjure-api:generateConjure")
+        def output = runTasksAndFail(":conjure-api:generateConjure").output
 
         then:
-        result.output.contains "Generator options must contain at least one of"
+        output.contains "Generator options must contain at least one of"
     }
 
     def readManifestRecommendedProductDeps(File jarFile) {

@@ -102,9 +102,9 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
             this-is-invalid
         '''.stripIndent()
 
-        BuildResult BuildResult = runTasksAndFail(':api:compileIr')
+        def output = runTasksAndFail(':api:compileIr').output
 
         then:
-        BuildResult.output.contains('Cannot construct instance of')
+        output.contains('Cannot construct instance of')
     }
 }

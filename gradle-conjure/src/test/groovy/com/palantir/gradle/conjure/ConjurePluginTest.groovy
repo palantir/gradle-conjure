@@ -575,11 +575,11 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasksWithConfigurationCacheAndCheck(':api:compileConjureTypeScript', '--info')
+        def output = runTasksWithConfigurationCacheAndCheck(':api:compileConjureTypeScript', '--info').output
 
         then:
-        result.output.contains("--nodeCompatibleModules")
-        result.output.contains("--unknownOps=Unknown")
+        output.contains("--nodeCompatibleModules")
+        output.contains("--unknownOps=Unknown")
 
         where:
         location   | prefix
