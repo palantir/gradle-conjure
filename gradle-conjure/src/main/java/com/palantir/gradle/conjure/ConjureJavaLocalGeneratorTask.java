@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.gradle.api.provider.MapProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -41,36 +43,28 @@ import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
 @CacheableTask
-public class ConjureJavaLocalGeneratorTask extends SourceTask {
+public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
     private static final ImmutableSet<String> GENERATOR_FLAGS =
             ImmutableSet.of("objects", "jersey", "undertow", "dialogue");
 
-    private final RegularFileProperty executablePath = getProject().getObjects().fileProperty();
-    private final DirectoryProperty outputDirectory = getProject().getObjects().directoryProperty();
-    private final MapProperty<String, Object> options =
-            getProject().getObjects().mapProperty(String.class, Object.class);
+    @Nested
+    protected abstract GradleExec getGradleExec();
+
+    @OutputDirectory
+    protected abstract DirectoryProperty getOutputDirectory();
+
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    protected abstract RegularFileProperty getExecutablePath();
+
+    @Input
+    protected abstract MapProperty<String, Object> getOptions();
 
     // Set the path sensitivity of the sources, which would otherwise default to ABSOLUTE
     @Override
     @PathSensitive(PathSensitivity.RELATIVE)
     public final FileTree getSource() {
         return super.getSource();
-    }
-
-    @OutputDirectory
-    public final DirectoryProperty getOutputDirectory() {
-        return outputDirectory;
-    }
-
-    @InputFile
-    @PathSensitive(PathSensitivity.NONE)
-    public final RegularFileProperty getExecutablePath() {
-        return executablePath;
-    }
-
-    @Input
-    public final MapProperty<String, Object> getOptions() {
-        return this.options;
     }
 
     @TaskAction
@@ -83,15 +77,14 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
                 GENERATOR_FLAGS);
         File definitionFile = getSource().getFiles().iterator().next();
 
-        File outputDir = outputDirectory.getAsFile().get();
+        File outputDir = getOutputDirectory().getAsFile().get();
 
         try {
             FileUtils.deleteDirectory(outputDir);
+            Files.createDirectories(outputDir.toPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-        getProject().mkdir(outputDir);
 
         GENERATOR_FLAGS.forEach(generatorFlag -> {
             if (!generatorOptions.containsKey(generatorFlag)) {
@@ -105,12 +98,12 @@ public class ConjureJavaLocalGeneratorTask extends SourceTask {
             List<String> generateCommand =
                     ImmutableList.of("generate", definitionFile.getAbsolutePath(), outputDir.getAbsolutePath());
 
-            GradleExecUtils.exec(
-                    getProject(),
-                    "generate " + generatorFlag,
-                    getExecutablePath().getAsFile().get(),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
+            getGradleExec()
+                    .exec(
+                            "generate " + generatorFlag,
+                            getExecutablePath().getAsFile().get(),
+                            generateCommand,
+                            RenderGeneratorOptions.toArgs(filteredOptions, Collections.emptyMap()));
         });
     }
 }

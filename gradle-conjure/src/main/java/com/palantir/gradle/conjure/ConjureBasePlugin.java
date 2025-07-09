@@ -165,7 +165,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
     private static void createServiceDependenciesTask(Project project, ConjureProductDependenciesExtension ext) {
         project.getTasks().register(SERVICE_DEPENDENCIES_TASK, GenerateConjureServiceDependenciesTask.class, task -> {
-            task.setConjureServiceDependencies(ext::getProductDependencies);
+            task.getConjureServiceDependencies().set(ext.getProductDependencies());
         });
     }
 }

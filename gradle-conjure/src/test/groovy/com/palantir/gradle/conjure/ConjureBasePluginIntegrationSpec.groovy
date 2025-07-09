@@ -16,15 +16,15 @@
 
 package com.palantir.gradle.conjure
 
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Unroll
 
 import java.nio.file.Files
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
 import org.apache.commons.io.FileUtils
 
 @Unroll
-class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
+class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
     private static final String API_YML = """
     types:
       definitions:
@@ -55,12 +55,16 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
     }
 
+    String applyPlugin(Class pluginClass) {
+        "apply plugin: $pluginClass.name"
+    }
+
     def 'compile conjure: #gradleVersion'() {
         when:
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        runTasksSuccessfully('compileIr')
+        runTasksWithConfigurationCache('compileIr')
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
 
         where:
@@ -79,7 +83,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        runTasksSuccessfully('compileIr').standardOutput.contains '--verbose'
+        runTasksWithConfigurationCache('compileIr', '--info').output.contains('--verbose')
         file("build/conjure-ir/${moduleName}.conjure.json").isFile()
     }
 
@@ -88,12 +92,10 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << API_YML
 
         then:
-        def result1 = runTasksSuccessfully('compileIr')
-        result1.wasExecuted('extractConjure')
-        result1.wasExecuted('compileIr')
-        def result2 = runTasksSuccessfully('compileIr')
-        result2.wasUpToDate('extractConjure')
-        result2.wasUpToDate('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
+        result1.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':extractConjure', ':compileIr')
+        def result2 = runTasksWithConfigurationCache('compileIr')
+        result2.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(':extractConjure', ':compileIr')
 
         where:
         gradleVersion << TestVersions.VERSIONS
@@ -104,7 +106,7 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         file('src/main/conjure/api.yml') << "foo"
 
         then:
-        runTasksWithFailure('compileIr')
+        runTasksAndFail('compileIr')
     }
 
     def 'compileIr can get results from the build cache'() {
@@ -122,12 +124,12 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         when:
         file('src/main/conjure/api.yml') << API_YML
 
-        runTasksSuccessfully('compileIr')
+        runTasksWithConfigurationCache('compileIr')
         FileUtils.deleteDirectory(projectDir.toPath().resolve("build").toFile())
-        ExecutionResult result = runTasksSuccessfully('compileIr', '-i')
+        def output = runTasksWithConfigurationCache('compileIr', '-i').output
 
         then:
-        result.standardOutput.contains "Task :compileIr FROM-CACHE"
+        output.contains "Task :compileIr FROM-CACHE"
     }
 
     def 'renders IR with extensions'() {
@@ -147,10 +149,10 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasksSuccessfully('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.wasExecuted('compileIr')
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-IR-with-extensions.conjure.json')
         actualFile.exists()
 
@@ -191,10 +193,10 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasksSuccessfully('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.wasExecuted('compileIr')
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-file.conjure.json')
         actualFile.exists()
         def actual = actualFile.text
@@ -232,10 +234,10 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        def result1 = runTasksSuccessfully('compileIr')
+        def result1 = runTasksWithConfigurationCache('compileIr')
 
         then:
-        result1.wasExecuted('compileIr')
+        result1.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileIr')
         def actualFile = new File(projectDir,'build/conjure-ir/renders-extensions-from-large-file.conjure.json')
         actualFile.exists()
         def actual = actualFile.text
@@ -279,9 +281,8 @@ class ConjureBasePluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent())
 
         then:
-        def result = runTasksSuccessfully('getIr', 'getJava')
-        result.wasExecuted(':conjure-api:compileIr')
-        result.wasExecuted(':conjure-api:compileJava')
+        def result = runTasksWithConfigurationCache('getIr', 'getJava')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':conjure-api:compileIr', ':conjure-api:compileJava')
         file("build/all-ir/conjure-api.conjure.json")
         file("build/all-java/conjure-api-0.1.0.jar")
     }
