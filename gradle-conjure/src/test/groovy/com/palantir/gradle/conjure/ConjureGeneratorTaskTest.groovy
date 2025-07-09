@@ -92,8 +92,8 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
         result2.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
 
         // java
-        !fileExists( 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
-        fileExists( 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java')
+        !fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
+        fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/NewStringExample.java')
     }
 
     def 'when a file has errors the error is reported in the exception'() {

@@ -128,7 +128,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         then:
         BuildResult result = runTasksWithConfigurationCache("generateConjure")
         result.tasks(TaskOutcome.SUCCESS)*.path.contains(":generatePostman")
-        fileExists( 'postman/postman/conjure-api/conjure-api.postman_collection.json')
+        fileExists('postman/postman/conjure-api/conjure-api.postman_collection.json')
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")
     }

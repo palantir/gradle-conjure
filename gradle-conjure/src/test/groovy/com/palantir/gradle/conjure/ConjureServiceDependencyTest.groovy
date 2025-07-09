@@ -109,7 +109,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache(':api:generateConjureServiceDependencies')
 
         then:
-        fileExists( 'api/build/service-dependencies.json')
+        fileExists('api/build/service-dependencies.json')
         file('api/build/service-dependencies.json').text.contains('"product-group":"com.palantir.conjure"')
         file('api/build/service-dependencies.json').text.contains('"product-name":"conjure"')
         file('api/build/service-dependencies.json').text.contains('"minimum-version":"1.2.0"')

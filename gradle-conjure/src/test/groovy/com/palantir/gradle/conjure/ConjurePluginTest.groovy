@@ -126,7 +126,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         file(prefixPath(prefix, 'api-typescript/.gitignore')).readLines() == ["/src/"]
 
         // irFile - these are always in api project
-        fileExists( 'api/build/conjure-ir/api.conjure.json')
+        fileExists('api/build/conjure-ir/api.conjure.json')
         file('api/build/conjure-ir/api.conjure.json').text.contains('TestServiceFoo')
 
         where:
@@ -262,7 +262,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache('compileConjure')
 
         then:
-        fileExists( 'api/build/conjure')
+        fileExists('api/build/conjure')
     }
 
     def 'clean cleans up build/conjure for root project'() {
@@ -273,7 +273,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:cleanCopyConjureSourcesIntoBuild')
 
-        !fileExists( 'api/build/conjure')
+        !fileExists('api/build/conjure')
     }
 
     def 'compileConjure does not run tasks if up to date: #location'() {
@@ -362,7 +362,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
 
         then:
-        !fileExists( 'api/build/conjure/todelete.yml')
+        !fileExists('api/build/conjure/todelete.yml')
     }
 
     def 'copies conjure imports into build directory and provides imports to conjure compiler: #location'() {
@@ -411,8 +411,8 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
                 ':api:compileIr'
         )
 
-        fileExists( 'api/build/conjure/internal-import.yml')
-        fileExists( 'api/build/conjure/conjure.yml')
+        fileExists('api/build/conjure/internal-import.yml')
+        fileExists('api/build/conjure/conjure.yml')
 
         // java
         file(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/api/service/TestServiceFoo2.java')).text.contains(

@@ -80,7 +80,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':extractConjureIr', ':conjure-api:generateConjure')
         fileExists("build/conjure-ir/conjure-api.conjure.json")
-        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
         result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
     }
@@ -101,7 +101,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
 
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.contains(":extractConjureIr")
-        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
         result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
     }
 
@@ -115,7 +115,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':conjure-api:compileJava', ':conjure-api:generateConjure')
 
-        fileExists( 'conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
+        fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
     }
 
     def 'embeds product dependencies correctly'() {
