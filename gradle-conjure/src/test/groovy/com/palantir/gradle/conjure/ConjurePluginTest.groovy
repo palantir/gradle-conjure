@@ -176,17 +176,17 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileJava')
+        BuildResult result = runTasksWithConfigurationCache('compileJava')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         where:
         location   | prefix
@@ -209,17 +209,17 @@ class ConjurePluginTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileJava')
+        BuildResult result = runTasksWithConfigurationCache('compileJava')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         where:
         location   | prefix
