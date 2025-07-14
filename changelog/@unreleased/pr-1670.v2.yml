@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Republishing after publish infra failure.
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1670
