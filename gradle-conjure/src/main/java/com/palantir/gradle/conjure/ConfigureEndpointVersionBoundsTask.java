@@ -34,7 +34,9 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.Jar;
 
+@SuppressWarnings("for-rollout:NonAbstractGradleType")
 public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final ListProperty<EndpointVersionBound> endpointVersions =
             getProject().getObjects().listProperty(EndpointVersionBound.class);
 
@@ -42,6 +44,7 @@ public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
         setDescription("Configures the 'jar' task to write the endpoint minimum versions into its manifest");
     }
 
+    @SuppressWarnings("for-rollout:IllegalMethodCalledDuringTaskExecution")
     @TaskAction
     final void action() {
         if (!endpointVersions.isPresent() || endpointVersions.get().isEmpty()) {

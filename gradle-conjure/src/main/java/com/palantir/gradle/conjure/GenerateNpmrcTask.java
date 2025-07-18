@@ -50,15 +50,27 @@ import org.gradle.api.tasks.TaskAction;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
+@SuppressWarnings("for-rollout:NonAbstractGradleType")
 public class GenerateNpmrcTask extends DefaultTask {
     private static final JsonMapper MAPPER = ObjectMappers.newClientJsonMapper();
 
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final RegularFileProperty outputFile = getProject().getObjects().fileProperty();
+
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final Property<String> packageName = getProject().getObjects().property(String.class);
+
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final Property<String> registryUri =
             getProject().getObjects().property(String.class).convention("https://registry.npmjs.org");
+
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final Property<String> registryUsername = getProject().getObjects().property(String.class);
+
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final Property<String> registryPassword = getProject().getObjects().property(String.class);
+
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final Property<String> registryToken = getProject().getObjects().property(String.class);
 
     @OutputFile

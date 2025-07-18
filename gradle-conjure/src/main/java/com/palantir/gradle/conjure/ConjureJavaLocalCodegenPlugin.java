@@ -52,9 +52,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().apply(JavaBasePlugin.class);
 
+        @SuppressWarnings("for-rollout:NonAbstractGradleType")
         ConjureExtension extension =
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
+        @SuppressWarnings("for-rollout:ConfigurationAvoidanceRegistration")
         Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
         TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
             task.rename(DEFINITION_NAME, "$1.conjure.json");

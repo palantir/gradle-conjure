@@ -55,6 +55,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         Configuration conjureGeneratorsConfiguration =
                 project.getConfigurations().maybeCreate(ConjurePlugin.CONJURE_GENERATORS_CONFIGURATION_NAME);
 
+        @SuppressWarnings("for-rollout:NonAbstractGradleType")
         ConjureExtension extension =
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
