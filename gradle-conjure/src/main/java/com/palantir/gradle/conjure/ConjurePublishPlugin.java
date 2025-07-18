@@ -27,6 +27,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 public final class ConjurePublishPlugin implements Plugin<Project> {
 
+    @SuppressWarnings("for-rollout:ConfigurationAvoidanceRegistration")
     @Override
     public void apply(Project project) {
         // Ensure publishing exists before configuring IR publishing

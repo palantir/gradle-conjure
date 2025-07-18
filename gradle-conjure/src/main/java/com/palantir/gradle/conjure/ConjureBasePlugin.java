@@ -51,9 +51,11 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     private TaskProvider<CompileIrTask> compileIrProvider = null;
     private ConjureExtension conjureExtension = null;
 
+    @SuppressWarnings("for-rollout:NonAbstractGradleType")
     @Override
     public void apply(Project project) {
         project.getPlugins().apply(BasePlugin.class);
+        @SuppressWarnings({"for-rollout:GradleTypesAsFields", "for-rollout:NonAbstractGradleType"})
         ConjureProductDependenciesExtension conjureProductDependenciesExtension = project.getExtensions()
                 .create(
                         ConjureProductDependenciesExtension.EXTENSION_NAME,
@@ -125,6 +127,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     }
 
     private static void createOutgoingConfiguration(Project project, TaskProvider<CompileIrTask> compileIr) {
+        @SuppressWarnings("for-rollout:ConfigurationAvoidanceRegistration")
         Configuration conjureIr = project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
             conf.setCanBeResolved(false);
             conf.setCanBeConsumed(true);

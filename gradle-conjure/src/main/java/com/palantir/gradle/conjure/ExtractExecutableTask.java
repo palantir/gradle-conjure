@@ -48,6 +48,7 @@ import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskProvider;
 
 public abstract class ExtractExecutableTask extends Sync {
+    @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private FileCollection archive;
 
     @Inject
