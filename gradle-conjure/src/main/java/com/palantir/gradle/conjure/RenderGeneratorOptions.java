@@ -61,9 +61,6 @@ public final class RenderGeneratorOptions {
                 .sorted(Comparator.comparing(Map.Entry::getKey))
                 .map(entry -> {
                     Object value = entry.getValue();
-                    if (value == Boolean.TRUE) {
-                        return "--" + entry.getKey();
-                    }
                     Preconditions.checkArgument(
                             !entry.getKey().contains("="),
                             "Conjure generator parameter '%s' cannot contain '='",
