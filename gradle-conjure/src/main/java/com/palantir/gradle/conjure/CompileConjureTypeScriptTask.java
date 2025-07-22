@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
                                         FileUtils.delete(file);
                                     }
                                 } catch (IOException e) {
-                                    throw new RuntimeException("Failed to delete: " + file, e);
+                                    throw new UncheckedIOException("Failed to delete: " + file, e);
                                 }
                             });
                 }
