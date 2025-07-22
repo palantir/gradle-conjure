@@ -81,8 +81,8 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':extractConjureIr', ':conjure-api:generateConjure')
         fileExists("build/conjure-ir/conjure-api.conjure.json")
         fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/groupwithdashes/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.output.contains "with args: [--jersey, --jetbrainsContractAnnotations, --packagePrefix=test.groupwithdashes]"
-        result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=test.groupwithdashes]"
+        result.output.contains "with args: [--jersey=true, --jetbrainsContractAnnotations=true, --packagePrefix=test.groupwithdashes]"
+        result.output.contains "with args: [--jetbrainsContractAnnotations=true, --objects=true, --packagePrefix=test.groupwithdashes]"
     }
 
     def "respects user provided packagePrefix"() {
@@ -102,7 +102,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.contains(":extractConjureIr")
         fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/user/group/com/palantir/conjure/spec/ConjureDefinition.java')
-        result.output.contains "with args: [--jetbrainsContractAnnotations, --objects, --packagePrefix=user.group]"
+        result.output.contains "with args: [--jetbrainsContractAnnotations=true, --objects=true, --packagePrefix=user.group]"
     }
 
     def 'check code compiles'() {
