@@ -27,6 +27,7 @@ import com.palantir.logsafe.DoNotLog;
 import com.palantir.logsafe.SafeArg;
 import com.palantir.logsafe.UnsafeArg;
 import com.palantir.logsafe.exceptions.SafeRuntimeException;
+import com.palantir.logsafe.exceptions.SafeUncheckedIoException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -111,6 +112,7 @@ public class GenerateNpmrcTask extends DefaultTask {
         return uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
     }
 
+    @SuppressWarnings("for-rollout:UnusedException")
     @TaskAction
     public final void createNpmrc() throws InterruptedException {
         if (getToken().isPresent() && getPassword().isPresent()) {
@@ -187,7 +189,7 @@ public class GenerateNpmrcTask extends DefaultTask {
 
             return response.body();
         } catch (IOException e) {
-            throw new SafeRuntimeException(
+            throw new SafeUncheckedIoException(
                     "Failed to fetch token",
                     e,
                     SafeArg.of("registryUri", registryUri),
@@ -195,6 +197,7 @@ public class GenerateNpmrcTask extends DefaultTask {
         }
     }
 
+    @SuppressWarnings("for-rollout:UnusedException")
     private static String serializeRequestBody(String username, String password) {
         try {
             return MAPPER.writeValueAsString(ImmutableNpmTokenRequest.of(username, password));

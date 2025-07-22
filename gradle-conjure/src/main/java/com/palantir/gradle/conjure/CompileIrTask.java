@@ -21,6 +21,7 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -128,7 +129,7 @@ public abstract class CompileIrTask extends DefaultTask {
                     "recommended-product-dependencies", getProductDependencies().get());
             return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(extData);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to serialize conjure extensions", e);
+            throw new UncheckedIOException("Failed to serialize conjure extensions", e);
         }
     }
 }
