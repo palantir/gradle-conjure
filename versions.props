@@ -4,7 +4,6 @@ com.google.guava:guava = 33.4.8-jre
 com.netflix.nebula:nebula-test = 10.6.2
 com.palantir.gradle.utils:environment-variables = 0.15.0
 com.palantir.sls.versions:sls-versions = 1.5.0
-com.squareup.okhttp3:mockwebserver = 5.1.0
 commons-io:commons-io = 2.20.0
 junit:junit = 4.13.2
 org.apache.commons:commons-lang3 = 3.18.0
@@ -22,5 +21,9 @@ com.palantir.gradle.better-exec:* = 3.1.0
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
-com.squareup.okhttp3:okhttp = 5.1.0
 org.objenesis:objenesis = 3.4
+
+# dependency-upgrader:OFF
+# Avoid forcing consumers to bump to okhttp 5.x
+com.squareup.okhttp3:* = 4.12.0
+# dependency-upgrader:ON
