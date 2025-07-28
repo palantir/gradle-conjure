@@ -16,10 +16,11 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureLocalPluginTest extends ConfigurationCacheSpec {
+class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExists {
     def standardBuildFile = """
         buildscript {
             repositories {
@@ -69,7 +70,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
 
         when:
         // Task fails since conjure-java does not support dialog flag
-        BuildResult result = runTasksAndFail("generateConjure", '--info')
+        BuildResult result = runTasksAndFailWithConfigurationCache("generateConjure", '--info')
 
         then:
         result.tasks(TaskOutcome.FAILED)*.path.contains(":generateJava")
@@ -87,7 +88,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         """.stripIndent()
 
         when:
-        def output = runTasksAndFail("generateConjure").output
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
 
         then:
         output.contains('Unable to generate Java bindings since unsafe options were provided')
@@ -111,7 +112,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec {
         addSubproject("postman")
 
         expect:
-        def output = runTasksAndFail("generateConjure").output
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
         output.contains("without corresponding generator dependency")
     }
 

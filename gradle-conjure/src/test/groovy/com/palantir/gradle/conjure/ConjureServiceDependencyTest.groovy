@@ -18,13 +18,14 @@ package com.palantir.gradle.conjure
 
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension
 import com.palantir.gradle.dist.RecommendedProductDependencies
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.TaskOutcome
 
 import java.util.jar.Attributes
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
-class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
+class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements FileExists {
 
     def setup() {
         addSubproject('api')
@@ -270,7 +271,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid version"() {
@@ -287,7 +288,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid group"() {
@@ -304,7 +305,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec {
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "no endpoint versions attribute if no min versions configured"() {

@@ -16,10 +16,11 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
+class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExists {
     def setup() {
         createFile('settings.gradle') << """
         include 'api'
@@ -102,7 +103,7 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
             this-is-invalid
         '''.stripIndent()
 
-        def output = runTasksAndFail(':api:compileIr').output
+        def output = runTasksAndFailWithConfigurationCache(':api:compileIr').output
 
         then:
         output.contains('Cannot construct instance of')

@@ -16,7 +16,9 @@
 
 package com.palantir.gradle.conjure
 
-class ConjurePublishTest extends ConfigurationCacheSpec {
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
+
+class ConjurePublishTest extends ConfigurationCacheSpec implements FileExists {
 
     private static final String VERSION = '0.1.0'
     private static final String GROUP_ID = 'com.palantir.test-palantir'

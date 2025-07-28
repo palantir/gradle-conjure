@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Unroll
@@ -106,7 +107,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         file('src/main/conjure/api.yml') << "foo"
 
         then:
-        runTasksAndFail('compileIr')
+        runTasksAndFailWithConfigurationCache('compileIr')
     }
 
     def 'compileIr can get results from the build cache'() {
