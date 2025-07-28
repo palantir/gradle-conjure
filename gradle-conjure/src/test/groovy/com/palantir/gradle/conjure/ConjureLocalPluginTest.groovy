@@ -16,10 +16,11 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureLocalPluginTest extends ConfigurationCacheSpec {
+class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExists {
     def standardBuildFile = """
         buildscript {
             repositories {

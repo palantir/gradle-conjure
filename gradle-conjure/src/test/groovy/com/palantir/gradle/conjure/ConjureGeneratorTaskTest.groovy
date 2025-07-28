@@ -16,10 +16,11 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureGeneratorTaskTest extends ConfigurationCacheSpec {
+class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExists {
     def setup() {
         createFile('settings.gradle') << """
         include 'api'

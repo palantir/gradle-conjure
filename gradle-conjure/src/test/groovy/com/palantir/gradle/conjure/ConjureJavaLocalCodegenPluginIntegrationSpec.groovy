@@ -19,6 +19,7 @@ package com.palantir.gradle.conjure
 import com.google.common.io.ByteStreams
 import com.palantir.gradle.dist.RecommendedProductDependencies
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -26,7 +27,7 @@ import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
-class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpec {
+class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpec implements FileExists {
     def standardBuildFile = """
         buildscript {
             repositories {

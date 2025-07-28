@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.conjure
 
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.IgnoreIf
@@ -23,7 +24,7 @@ import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
 @Unroll
-class ConjurePluginTest extends ConfigurationCacheSpec {
+class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
 
     def setup() {
         createFile('settings.gradle') << '''
