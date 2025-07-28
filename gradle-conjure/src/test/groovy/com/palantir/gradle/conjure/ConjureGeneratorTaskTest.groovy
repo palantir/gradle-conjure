@@ -103,7 +103,7 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExi
             this-is-invalid
         '''.stripIndent()
 
-        def output = runTasksAndFail(':api:compileIr').output
+        def output = runTasksAndFailWithConfigurationCache(':api:compileIr').output
 
         then:
         output.contains('Cannot construct instance of')

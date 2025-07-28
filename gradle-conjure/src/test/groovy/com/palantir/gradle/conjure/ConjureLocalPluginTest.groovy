@@ -70,7 +70,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
 
         when:
         // Task fails since conjure-java does not support dialog flag
-        BuildResult result = runTasksAndFail("generateConjure", '--info')
+        BuildResult result = runTasksAndFailWithConfigurationCache("generateConjure", '--info')
 
         then:
         result.tasks(TaskOutcome.FAILED)*.path.contains(":generateJava")
@@ -88,7 +88,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
         """.stripIndent()
 
         when:
-        def output = runTasksAndFail("generateConjure").output
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
 
         then:
         output.contains('Unable to generate Java bindings since unsafe options were provided')
@@ -112,7 +112,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
         addSubproject("postman")
 
         expect:
-        def output = runTasksAndFail("generateConjure").output
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
         output.contains("without corresponding generator dependency")
     }
 

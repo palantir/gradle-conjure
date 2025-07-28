@@ -107,7 +107,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
         file('src/main/conjure/api.yml') << "foo"
 
         then:
-        runTasksAndFail('compileIr')
+        runTasksAndFailWithConfigurationCache('compileIr')
     }
 
     def 'compileIr can get results from the build cache'() {

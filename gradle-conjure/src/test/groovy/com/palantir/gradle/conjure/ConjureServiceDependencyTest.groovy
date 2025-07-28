@@ -271,7 +271,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid version"() {
@@ -288,7 +288,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "fails on invalid group"() {
@@ -305,7 +305,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         '''.stripIndent()
 
         expect:
-        runTasksAndFail(':api:generateConjureServiceDependencies')
+        runTasksAndFailWithConfigurationCache(':api:generateConjureServiceDependencies')
     }
 
     def "no endpoint versions attribute if no min versions configured"() {

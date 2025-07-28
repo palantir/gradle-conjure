@@ -532,7 +532,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         updateSettings(prefix)
 
         when:
-        BuildResult result = runTasksAndFail(':api:compileConjure')
+        BuildResult result = runTasksAndFailWithConfigurationCache(':api:compileConjure')
 
         then:
         !result.task(':api:compileConjureJersey')
