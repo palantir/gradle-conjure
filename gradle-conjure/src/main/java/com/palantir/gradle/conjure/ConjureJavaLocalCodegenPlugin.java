@@ -24,7 +24,7 @@ import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.dist.ProductDependency;
 import com.palantir.gradle.dist.RecommendedProductDependenciesExtension;
 import com.palantir.gradle.dist.RecommendedProductDependenciesPlugin;
-import com.palantir.logsafe.exceptions.SafeRuntimeException;
+import com.palantir.logsafe.exceptions.SafeUncheckedIoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -52,9 +52,11 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPlugins().apply(JavaBasePlugin.class);
 
+        @SuppressWarnings("for-rollout:NonAbstractGradleType")
         ConjureExtension extension =
                 project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
 
+        @SuppressWarnings("for-rollout:ConfigurationAvoidanceRegistration")
         Configuration conjureIrConfiguration = project.getConfigurations().create(CONJURE_CONFIGURATION);
         TaskProvider<Copy> extractConjureIr = project.getTasks().register("extractConjureIr", Copy.class, task -> {
             task.rename(DEFINITION_NAME, "$1.conjure.json");
@@ -182,7 +184,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                     .map(MinimalConjureDefinition.Extensions::productDependencies)
                     .orElseGet(Collections::emptySet);
         } catch (IOException e) {
-            throw new SafeRuntimeException("Failed to parse conjure definition", e);
+            throw new SafeUncheckedIoException("Failed to parse conjure definition", e);
         }
     }
 }

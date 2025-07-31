@@ -21,9 +21,10 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Utf8;
 import com.palantir.logsafe.Preconditions;
 import com.palantir.logsafe.SafeArg;
-import com.palantir.logsafe.exceptions.SafeRuntimeException;
+import com.palantir.logsafe.exceptions.SafeUncheckedIoException;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -113,7 +114,7 @@ final class ReverseEngineerJavaStartScript {
                 return Optional.empty();
             }
         } catch (IOException e) {
-            throw new SafeRuntimeException("Unable to read file", e);
+            throw new SafeUncheckedIoException("Unable to read file", e);
         }
     }
 
@@ -128,7 +129,7 @@ final class ReverseEngineerJavaStartScript {
                         try {
                             return file.toURI().toURL();
                         } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
+                            throw new UncheckedIOException(e);
                         }
                     })
                     .toArray(URL[]::new);

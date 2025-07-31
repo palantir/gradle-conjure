@@ -18,20 +18,38 @@ package com.palantir.gradle.conjure
 
 import nebula.test.ProjectSpec
 import org.assertj.core.api.Assertions
+import org.gradle.api.model.ObjectFactory
 
 class GradleExecUtilsProjectSpec extends ProjectSpec {
+
     def 'running a program that exits with code 0 does not throw an exception'() {
+        ObjectFactory objectFactory = project.getObjects();
+        GradleExec gradleExec = objectFactory.newInstance(GradleExec.class);
+
         expect:
-        GradleExecUtils.exec(project, 'execute', new File('/bin/sh'), ['-c'], ['exit 0'])
+        gradleExec.exec(
+                "execute",
+                new File('/bin/sh'),
+                ['-c'],
+                ['exit 0']
+        )
     }
 
     def 'running a program that exits with a non-zero code throws an exception containing both stdout and stderr'() {
+        ObjectFactory objectFactory = project.getObjects();
+        GradleExec gradleExec = objectFactory.newInstance(GradleExec.class);
+
         expect:
         def baseArgs = ['-c']
         def extraArgs = ['echo foo; echo bar >&2; exit 1']
 
         Assertions.assertThatExceptionOfType(RuntimeException).isThrownBy {
-            GradleExecUtils.exec(project, 'fail', new File('/bin/sh'), baseArgs, extraArgs)
+            gradleExec.exec(
+                    "fail",
+                    new File('/bin/sh'),
+                    baseArgs,
+                    extraArgs
+            )
         }.withMessageContaining("Failed to fail.")
                 .withMessageContaining((baseArgs + extraArgs).join(", "))
                 .withMessageContaining("failed with exit code 1. Output:")

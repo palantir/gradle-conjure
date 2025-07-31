@@ -327,6 +327,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         ExtractConjurePlugin.applyConjureTypeScript(project);
                 TaskProvider<CompileConjureTypeScriptTask> compileConjureTypeScript = project.getTasks()
                         .register("compileConjureTypeScript", CompileConjureTypeScriptTask.class, task -> {
+                            task.getPackageName().convention(project.getName());
+                            task.getPackageVersion().convention(project.provider(() -> project.getVersion()
+                                    .toString()));
                             task.setDescription("Generates TypeScript files and a package.json from your "
                                     + "Conjure definitions.");
                             task.setGroup(TASK_GROUP);

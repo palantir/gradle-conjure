@@ -29,6 +29,7 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.asm.AsmVisitorWrapper.ForDeclaredMethods;
@@ -37,10 +38,10 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.pool.TypePool;
-import org.gradle.api.Project;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +51,21 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     private static final Logger log = LoggerFactory.getLogger(ConjureRunnerResource.class);
 
     public interface Params extends BuildServiceParameters {
-
         RegularFileProperty getExecutable();
     }
 
     private final ConjureRunner delegate;
+
+    @Inject
+    protected abstract ExecOperations getExecOperations();
 
     public ConjureRunnerResource() throws IOException {
         this.delegate =
                 createNewRunner(getParameters().getExecutable().getAsFile().get());
     }
 
-    final void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-        delegate.invoke(project, failedTo, unloggedArgs, loggedArgs);
+    final void invoke(String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        delegate.invoke(getExecOperations(), failedTo, unloggedArgs, loggedArgs);
     }
 
     @Override
@@ -71,8 +74,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
     }
 
     interface ConjureRunner extends Closeable {
-
-        void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
+        void invoke(ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs);
     }
 
     static ConjureRunner createNewRunner(File executable) throws IOException {
@@ -116,7 +118,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
 
             return Optional.of(mainClass.getMethod("main", String[].class));
         } catch (ReflectiveOperationException e) {
-            log.warn("Failed too get main method {}", mainClassName, e);
+            log.warn("Failed to get main method {}", mainClassName, e);
             return Optional.empty();
         }
     }
@@ -135,7 +137,9 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         }
 
         @Override
-        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+        public void invoke(
+                ExecOperations execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
             List<String> combinedArgs = ImmutableList.<String>builder()
@@ -144,8 +148,9 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
                     .addAll(loggedArgs)
                     .build();
 
-            ExecResult execResult = project.exec(execSpec -> {
-                project.getLogger().info("Running with args: {}", loggedArgs);
+            log.info("Running external process: {} with args: {}", executable.getName(), loggedArgs);
+
+            ExecResult execResult = execOperations.exec(execSpec -> {
                 execSpec.commandLine(combinedArgs);
                 execSpec.setIgnoreExitValue(true);
                 execSpec.setStandardOutput(output);
@@ -178,8 +183,9 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
         }
 
         @Override
-        public void invoke(Project project, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
-            project.getLogger().info("Running in-process java with args: {}", loggedArgs);
+        public void invoke(
+                ExecOperations _execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
+            log.info("Running in-process java: {} with args: {}", executable.getName(), loggedArgs);
             List<String> combinedArgs = ImmutableList.<String>builder()
                     .addAll(unloggedArgs)
                     .addAll(loggedArgs)

@@ -22,6 +22,7 @@ import com.palantir.gradle.conjure.api.GeneratorOptions;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -34,6 +35,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -42,6 +44,9 @@ import org.gradle.api.tasks.SourceTask;
 @CacheableTask
 public abstract class ConjureGeneratorTask extends SourceTask {
     private Supplier<GeneratorOptions> options;
+
+    @Nested
+    protected abstract GradleExec getGradleExec();
 
     public ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
@@ -92,21 +97,21 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
             try {
                 FileUtils.deleteDirectory(thisOutputDirectory);
+                Files.createDirectories(thisOutputDirectory.toPath());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
 
-            getProject().mkdir(thisOutputDirectory);
-
             List<String> generateCommand =
                     ImmutableList.of("generate", file.getAbsolutePath(), thisOutputDirectory.getAbsolutePath());
 
-            GradleExecUtils.exec(
-                    getProject(),
-                    "run generator",
-                    OsUtils.appendDotBatIfWindows(getExecutablePath().get().getAsFile()),
-                    generateCommand,
-                    RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
+            getGradleExec()
+                    .exec(
+                            "run generator",
+                            OsUtils.appendDotBatIfWindows(
+                                    getExecutablePath().get().getAsFile()),
+                            generateCommand,
+                            RenderGeneratorOptions.toArgs(getOptions(), requiredOptions(file)));
         });
     }
 

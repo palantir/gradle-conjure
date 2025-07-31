@@ -16,15 +16,15 @@
 
 package com.palantir.gradle.conjure
 
-
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
 
 @Unroll
-class ConjurePluginTest extends IntegrationSpec {
+class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
 
     def setup() {
         createFile('settings.gradle') << '''
@@ -101,27 +101,29 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjure')
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureTypeScript')
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(':api:compileConjureDialogue')
-        result.wasExecuted(':api:compileIr')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjure',
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue',
+                ':api:compileIr'
+        )
 
         // java
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         // typescript
-        fileExists(prefixPath(prefix, 'api-typescript/src/api/index.ts'))
-        fileExists(prefixPath(prefix, 'api-typescript/src/index.ts'))
-        fileExists(prefixPath(prefix, 'api-typescript/src/tsconfig.json'))
-        fileExists(prefixPath(prefix, 'api-typescript/src/package.json'))
-        fileExists(prefixPath(prefix, 'api-typescript/.gitignore'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/api/index.ts'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/index.ts'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/tsconfig.json'))
+        fileExists( prefixPath(prefix, 'api-typescript/src/package.json'))
+        fileExists( prefixPath(prefix, 'api-typescript/.gitignore'))
         file(prefixPath(prefix, 'api-typescript/.gitignore')).readLines() == ["/src/"]
 
         // irFile - these are always in api project
@@ -139,19 +141,21 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
+        BuildResult result = runTasksWithConfigurationCache(prefixProject(prefix, 'api-dialogue:dependencies'), 'check', '-s')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
 
         where:
         location   | prefix
@@ -173,17 +177,17 @@ class ConjurePluginTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileJava')
+        BuildResult result = runTasksWithConfigurationCache('compileJava')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         where:
         location   | prefix
@@ -206,17 +210,17 @@ class ConjurePluginTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileJava')
+        BuildResult result = runTasksWithConfigurationCache('compileJava')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.task(prefixProject(prefix, 'api-objects:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureObjects').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-jersey:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureJersey').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-undertow:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureUndertow').outcome == TaskOutcome.SUCCESS
+        result.task(prefixProject(prefix, 'api-dialogue:compileJava')).outcome == TaskOutcome.SUCCESS
+        result.task(':api:compileConjureDialogue').outcome == TaskOutcome.SUCCESS
 
         where:
         location   | prefix
@@ -264,29 +268,33 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully('check')
-        ExecutionResult result2 = runTasksSuccessfully('check')
+        BuildResult result = runTasksWithConfigurationCache('check')
+        BuildResult result2 = runTasksWithConfigurationCache('check')
 
         then:
-        result.wasExecuted(':extractConjureJava')
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(prefixProject(prefix, 'api-undertow:compileJava'))
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result.wasExecuted(':api:compileConjureDialogue')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':extractConjureJava',
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
-        result2.wasUpToDate(':extractConjureJava')
-        result2.wasUpToDate(prefixProject(prefix, 'api-objects:compileJava'))
-        result2.wasUpToDate(':api:compileConjureObjects')
-        result2.wasUpToDate(prefixProject(prefix, 'api-jersey:compileJava'))
-        result2.wasUpToDate(':api:compileConjureJersey')
-        result2.wasUpToDate(prefixProject(prefix, 'api-undertow:compileJava'))
-        result2.wasUpToDate(':api:compileConjureUndertow')
-        result2.wasUpToDate(prefixProject(prefix, 'api-dialogue:compileJava'))
-        result2.wasUpToDate(':api:compileConjureDialogue')
+        result2.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':extractConjureJava',
+                prefixProject(prefix, 'api-objects:compileJava'),
+                ':api:compileConjureObjects',
+                prefixProject(prefix, 'api-jersey:compileJava'),
+                ':api:compileConjureJersey',
+                prefixProject(prefix, 'api-undertow:compileJava'),
+                ':api:compileConjureUndertow',
+                prefixProject(prefix, 'api-dialogue:compileJava'),
+                ':api:compileConjureDialogue'
+        )
 
         where:
         location   | prefix
@@ -300,14 +308,14 @@ class ConjurePluginTest extends IntegrationSpec {
 
         when:
         System.setProperty("ignoreMutableProjectStateWarnings", "true")
-        ExecutionResult result = runTasksSuccessfully('--parallel', 'check', 'tasks')
+        BuildResult result = runTasksWithConfigurationCache('--parallel', 'check', 'tasks')
 
         then:
-        result.wasExecuted(prefixProject(prefix, 'api-objects:compileJava'))
-        result.wasExecuted(prefixProject(prefix, 'api-jersey:compileJava'))
-        result.wasExecuted(':api:compileConjureJersey')
+        result.task(prefixProject(prefix, 'api-objects:compileJava'))
+        result.task(prefixProject(prefix, 'api-jersey:compileJava'))
+        result.task(':api:compileConjureJersey')
 
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
 
         where:
         location   | prefix
@@ -320,27 +328,29 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        runTasksSuccessfully('compileJava')
+        runTasksWithConfigurationCache('compileJava')
 
         then:
-        fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
-        fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
-        fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
+        fileExists( prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
+        fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
+        fileExists( prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
         when:
-        ExecutionResult result = runTasksSuccessfully('clean')
+        BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
-        result.wasExecuted(':api:cleanCompileConjureJersey')
-        result.wasExecuted(':api:cleanCompileConjureObjects')
-        result.wasExecuted(':api:cleanCompileConjureUndertow')
-        result.wasExecuted(':api:cleanCompileConjureDialogue')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:cleanCompileConjureJersey',
+                ':api:cleanCompileConjureObjects',
+                ':api:cleanCompileConjureUndertow',
+                ':api:cleanCompileConjureDialogue'
+        )
 
-        !fileExists(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
-        !fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
-        !fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
-        !fileExists(prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
+        !fileExists( prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main'))
+        !fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main'))
+        !fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main'))
+        !fileExists( prefixPath(prefix, 'api-dialogue/build/generated/sources/conjure-dialogue/java/main'))
 
         where:
         location   | prefix
@@ -350,7 +360,7 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'compileConjure creates build/conjure for root project'() {
         when:
-        runTasksSuccessfully('compileConjure')
+        runTasksWithConfigurationCache('compileConjure')
 
         then:
         fileExists('api/build/conjure')
@@ -358,11 +368,11 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'clean cleans up build/conjure for root project'() {
         when:
-        runTasksSuccessfully('compileConjure')
-        ExecutionResult result = runTasksSuccessfully('clean')
+        runTasksWithConfigurationCache('compileConjure')
+        BuildResult result = runTasksWithConfigurationCache('clean')
 
         then:
-        result.wasExecuted(':api:cleanCopyConjureSourcesIntoBuild')
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:cleanCopyConjureSourcesIntoBuild')
 
         !fileExists('api/build/conjure')
     }
@@ -372,17 +382,19 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        runTasksSuccessfully("compileConjure")
-        ExecutionResult result = runTasksSuccessfully("compileConjure")
+        runTasksWithConfigurationCache("compileConjure")
+        BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
-        result.wasUpToDate(':api:compileConjureObjects')
-        result.wasUpToDate(':api:compileConjureJersey')
-        result.wasUpToDate(':api:compileConjureTypeScript')
-        result.wasUpToDate(':api:compileConjureUndertow')
-        result.wasUpToDate(':api:compileConjureDialogue')
-        result.wasUpToDate(':api:copyConjureSourcesIntoBuild')
-        result.wasUpToDate(':api:compileIr')
+        result.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue',
+                ':api:copyConjureSourcesIntoBuild',
+                ':api:compileIr'
+        )
 
         where:
         location   | prefix
@@ -395,7 +407,7 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        runTasksSuccessfully("compileConjure")
+        runTasksWithConfigurationCache("compileConjure")
         createFile('api/src/main/conjure/api.yml').write '''
         types:
           definitions:
@@ -416,15 +428,17 @@ class ConjurePluginTest extends IntegrationSpec {
                   object: StringExample
                 returns: StringExample
         '''.stripIndent()
-        ExecutionResult result = runTasksSuccessfully("compileConjure")
+        BuildResult result = runTasksWithConfigurationCache("compileConjure")
 
         then:
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureTypeScript')
-        result.wasExecuted(':api:compileConjureUndertow')
-        result.wasExecuted(':api:compileConjureDialogue')
-        result.wasExecuted(':api:copyConjureSourcesIntoBuild')
+        result.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(
+                ':api:compileConjureObjects',
+                ':api:compileConjureJersey',
+                ':api:compileConjureTypeScript',
+                ':api:compileConjureUndertow',
+                ':api:compileConjureDialogue'
+        )
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:copyConjureSourcesIntoBuild')
 
         where:
         location   | prefix
@@ -444,9 +458,9 @@ class ConjurePluginTest extends IntegrationSpec {
                 union:
                   number: integer
         '''.stripIndent()
-        runTasksSuccessfully("copyConjureSourcesIntoBuild")
+        runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
         file(path).delete()
-        runTasksSuccessfully("copyConjureSourcesIntoBuild")
+        runTasksWithConfigurationCache("copyConjureSourcesIntoBuild")
 
         then:
         !fileExists('api/build/conjure/todelete.yml')
@@ -488,13 +502,15 @@ class ConjurePluginTest extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjure')
-        result.wasExecuted(':api:compileConjureJersey')
-        result.wasExecuted(':api:compileConjureObjects')
-        result.wasExecuted(":api:compileIr")
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':api:compileConjure',
+                ':api:compileConjureJersey',
+                ':api:compileConjureObjects',
+                ':api:compileIr'
+        )
 
         fileExists('api/build/conjure/internal-import.yml')
         fileExists('api/build/conjure/conjure.yml')
@@ -502,14 +518,14 @@ class ConjurePluginTest extends IntegrationSpec {
         // java
         file(prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/api/service/TestServiceFoo2.java')).text.contains(
                 'import test.api.internal.InternalImport;')
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java'))
 
         // typescript
         file(prefixPath(prefix, 'api-typescript/src/service/testServiceFoo2.ts')).text.contains(
                 'import { IInternalImport }')
 
         // ir
-        fileExists("api/build/conjure-ir/api.conjure.json")
+        fileExists( "api/build/conjure-ir/api.conjure.json")
 
         where:
         location   | prefix
@@ -527,14 +543,13 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjure')
-        result.wasExecuted(':api:compileConjureObjects')
-        !result.wasExecuted(':api:compileConjureJersey')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects')
+        !result.tasks.contains(':api:compileConjureJersey')
 
-        fileExists(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
+        fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java'))
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         where:
@@ -552,10 +567,10 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksWithFailure(':api:compileConjure')
+        BuildResult result = runTasksAndFailWithConfigurationCache(':api:compileConjure')
 
         then:
-        !result.wasExecuted(':api:compileConjureJersey')
+        !result.task(':api:compileConjureJersey')
 
         where:
         location   | prefix
@@ -574,10 +589,10 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjureUndertow')
+        runTasksWithConfigurationCache(':api:compileConjureUndertow')
 
         then:
-        fileExists(prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main/test/test/api/UndertowTestServiceFoo.java'))
+        fileExists( prefixPath(prefix, 'api-undertow/build/generated/sources/conjure-undertow/java/main/test/test/api/UndertowTestServiceFoo.java'))
 
         where:
         location   | prefix
@@ -609,10 +624,9 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasks(prefixProject(prefix, 'api-jersey:compileJava'))
+        runTasksWithConfigurationCache(prefixProject(prefix, 'api-jersey:compileJava'))
 
         then:
-        result.success
         String generated = prefixPath(prefix, 'api-jersey/build/generated/sources/conjure-jersey/java/main/test/test/api/TestServiceFoo.java')
         fileExists(generated)
         File generatedFile = new File(projectDir, generated)
@@ -637,7 +651,7 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjureTypeScript')
+        runTasksWithConfigurationCache(':api:compileConjureTypeScript')
 
         then:
         file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"name": "foo"')
@@ -662,11 +676,11 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasks(':api:compileConjureTypeScript')
+        def output = runTasksWithConfigurationCacheAndCheck(':api:compileConjureTypeScript', '--info').output
 
         then:
-        result.standardOutput.contains("--nodeCompatibleModules")
-        result.standardOutput.contains("--unknownOps=Unknown")
+        output.contains("--nodeCompatibleModules")
+        output.contains("--unknownOps=Unknown")
 
         where:
         location   | prefix
@@ -686,12 +700,9 @@ class ConjurePluginTest extends IntegrationSpec {
         '''.stripIndent()
         updateSettings(prefix)
 
-        when:
+        expect:
         // doesn't matter what task is run, just need to trigger project evaluation
-        ExecutionResult result = runTasksSuccessfully(':tasks')
-
-        then:
-        result.success
+        runTasksWithConfigurationCacheAndCheck(':tasks')
 
         where:
         location   | prefix
@@ -724,11 +735,11 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         when:
-        ExecutionResult result = runTasksSuccessfully(':api:compileConjure')
+        BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.wasExecuted(':api:compileConjurePostman')
-        fileExists(prefixPath(prefix, 'api-postman/src/api.postman_collection.json'))
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:compileConjurePostman')
+        fileExists( prefixPath(prefix, 'api-postman/src/api.postman_collection.json'))
         file(prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).text.contains('"version" : "1.0.0"')
 
         where:
@@ -748,7 +759,7 @@ class ConjurePluginTest extends IntegrationSpec {
         updateSettings(prefix)
 
         expect:
-        runTasksSuccessfully('compileConjure')
+        runTasksWithConfigurationCacheAndCheck('compileConjure')
 
         where:
         location   | prefix
@@ -758,8 +769,8 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'compileTypeScript is run on build for circle node 0'() {
         when:
-        def stdout = runTasksSuccessfully('build', '--dry-run',
-                '-P__TESTING_CIRCLE_NODE_INDEX=0').standardOutput
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run',
+                '-P__TESTING_CIRCLE_NODE_INDEX=0').output
 
         then:
         stdout.contains ':api:compileTypeScript SKIPPED'
@@ -767,8 +778,8 @@ class ConjurePluginTest extends IntegrationSpec {
 
     def 'compileTypeScript is not run on build for circle node 1'() {
         when:
-        def stdout = runTasksSuccessfully('build', '--dry-run',
-                '-P__TESTING_CIRCLE_NODE_INDEX=1').standardOutput
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run',
+                '-P__TESTING_CIRCLE_NODE_INDEX=1').output
 
         then:
         !stdout.contains(':api:compileTypeScript SKIPPED')
@@ -777,7 +788,7 @@ class ConjurePluginTest extends IntegrationSpec {
     def 'compileTypeScript is run on build locally'() {
         when:
         // No CIRCLE_NODE_INDEX property set means local build
-        def stdout = runTasksSuccessfully('build', '--dry-run').standardOutput
+        def stdout = runTasksWithConfigurationCacheAndCheck('build', '--dry-run').output
 
         then:
         stdout.contains ':api:compileTypeScript SKIPPED'
@@ -791,17 +802,17 @@ class ConjurePluginTest extends IntegrationSpec {
         """.stripIndent()
 
         expect:
-        runTasksSuccessfully('checkUnusedDependencies', '--warning-mode=all')
+        runTasks('checkUnusedDependencies', '--warning-mode=all')
     }
 
     @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
         when:
         gradleVersion = version
-        ExecutionResult result = runTasksSuccessfully('compileConjure')
+        BuildResult result = runTasksWithConfigurationCache('compileConjure')
 
         then:
-        result.success
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(':compileConjure')
 
         where:
         version << ['6.1']
@@ -827,7 +838,7 @@ class ConjurePluginTest extends IntegrationSpec {
     }
 
     private String prefixProject(String prefix, String project) {
-        return addPrefix(prefix, project, ':')
+        return ':' + addPrefix(prefix, project, ':')
     }
 
     private String addPrefix(String prefix, String path, String delimiter) {
@@ -837,5 +848,4 @@ class ConjurePluginTest extends IntegrationSpec {
             return "${prefix}${delimiter}${path}"
         }
     }
-
 }

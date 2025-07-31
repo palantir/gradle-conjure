@@ -21,6 +21,7 @@ import com.palantir.gradle.conjure.api.ServiceDependency;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
@@ -44,6 +46,9 @@ import org.gradle.api.tasks.TaskAction;
 @CacheableTask
 public abstract class CompileIrTask extends DefaultTask {
     private static final String EXECUTABLE = OsUtils.appendDotBatIfWindows("bin/conjure");
+
+    @Nested
+    protected abstract GradleExec getGradleExec();
 
     public CompileIrTask() {
         getConjureExtensions().convention(new HashMap<>());
@@ -109,7 +114,7 @@ public abstract class CompileIrTask extends DefaultTask {
                 .addAll(RenderGeneratorOptions.toArgs(getOptions().get(), Collections.emptyMap()))
                 .build();
 
-        GradleExecUtils.exec(getProject(), "generate conjure IR", executable, Collections.emptyList(), args);
+        getGradleExec().exec("generate conjure IR", executable, Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {
@@ -124,7 +129,7 @@ public abstract class CompileIrTask extends DefaultTask {
                     "recommended-product-dependencies", getProductDependencies().get());
             return GenerateConjureServiceDependenciesTask.jsonMapper.writeValueAsString(extData);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to serialize conjure extensions", e);
+            throw new UncheckedIOException("Failed to serialize conjure extensions", e);
         }
     }
 }

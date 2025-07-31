@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Make `gradle-conjure` configuration cacheable for the `classes` task
+    by removing the capturing of the `Project` type
+  links:
+  - https://github.com/palantir/gradle-conjure/pull/1637

@@ -16,10 +16,11 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.TaskOutcome
 
-class ConjureLocalPluginTest extends IntegrationSpec {
+class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExists {
     def standardBuildFile = """
         buildscript {
             repositories {
@@ -69,11 +70,11 @@ class ConjureLocalPluginTest extends IntegrationSpec {
 
         when:
         // Task fails since conjure-java does not support dialog flag
-        ExecutionResult result = runTasksWithFailure("generateConjure")
+        BuildResult result = runTasksAndFailWithConfigurationCache("generateConjure", '--info')
 
         then:
-        result.wasExecuted(":generateJava")
-        result.standardOutput.contains('with args: [--dialog')
+        result.tasks(TaskOutcome.FAILED)*.path.contains(":generateJava")
+        result.output.contains('with args: [--dialog')
     }
 
     def "fails to generate java with unsafe options"() {
@@ -87,10 +88,10 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        ExecutionResult result = runTasksWithFailure("generateConjure")
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
 
         then:
-        result.standardError.contains('Unable to generate Java bindings since unsafe options were provided')
+        output.contains('Unable to generate Java bindings since unsafe options were provided')
     }
 
     def "generateConjure generates code in subprojects"() {
@@ -98,11 +99,10 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         addSubproject("python")
 
         when:
-        ExecutionResult result = runTasksSuccessfully("generateConjure")
+        BuildResult result = runTasksWithConfigurationCache("generateConjure")
 
         then:
-        result.wasExecuted(":generateTypeScript")
-        result.wasExecuted(":generatePython")
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(":generateTypeScript", ":generatePython")
 
         fileExists('typescript/src/conjure-api/index.ts')
         fileExists('python/python/conjure-api/conjure_spec/__init__.py')
@@ -112,8 +112,8 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         addSubproject("postman")
 
         expect:
-        ExecutionResult result1 = runTasksWithFailure("generateConjure")
-        result1.standardError.contains("without corresponding generator dependency")
+        def output = runTasksAndFailWithConfigurationCache("generateConjure").output
+        output.contains("without corresponding generator dependency")
     }
 
     def 'supports custom postman generator'() {
@@ -127,8 +127,8 @@ class ConjureLocalPluginTest extends IntegrationSpec {
         '''.stripIndent()
 
         then:
-        ExecutionResult result = runTasksSuccessfully("generateConjure")
-        result.wasExecuted(":generatePostman")
+        BuildResult result = runTasksWithConfigurationCache("generateConjure")
+        result.tasks(TaskOutcome.SUCCESS)*.path.contains(":generatePostman")
         fileExists('postman/postman/conjure-api/conjure-api.postman_collection.json')
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")

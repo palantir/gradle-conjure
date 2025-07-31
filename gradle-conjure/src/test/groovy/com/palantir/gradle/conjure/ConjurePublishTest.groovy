@@ -16,10 +16,9 @@
 
 package com.palantir.gradle.conjure
 
-import nebula.test.IntegrationSpec
-import nebula.test.functional.ExecutionResult
+import com.palantir.gradle.plugintesting.ConfigurationCacheSpec
 
-class ConjurePublishTest extends IntegrationSpec {
+class ConjurePublishTest extends ConfigurationCacheSpec implements FileExists {
 
     private static final String VERSION = '0.1.0'
     private static final String GROUP_ID = 'com.palantir.test-palantir'
@@ -78,13 +77,11 @@ class ConjurePublishTest extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        ExecutionResult result = runTasksSuccessfully('compileIr', 'publishConjurePublicationToTestRepoRepository')
+        runTasksWithConfigurationCache('compileIr', 'publishConjurePublicationToTestRepoRepository')
 
         then:
-        result.success
-
         // check for just the distribution and no JAR files
         def groupDirectory = GROUP_ID.replaceAll('\\.', '/')
-        fileExists("build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json")
+        fileExists( "build/maven/${groupDirectory}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.conjure.json")
     }
 }

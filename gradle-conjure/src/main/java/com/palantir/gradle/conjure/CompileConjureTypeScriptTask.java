@@ -18,12 +18,14 @@ package com.palantir.gradle.conjure;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
@@ -34,21 +36,6 @@ import org.gradle.api.tasks.PathSensitivity;
 
 @CacheableTask
 public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask {
-    public CompileConjureTypeScriptTask() {
-        Project project = getProject();
-        getPackageName().convention(getProject().provider(project::getName));
-        getPackageVersion()
-                .convention(getProject().provider(() -> project.getVersion().toString()));
-        doFirst(new Action<Task>() {
-            @Override
-            public void execute(Task task) {
-                ConfigurableFileTree fileTree =
-                        task.getProject().fileTree(CompileConjureTypeScriptTask.this.getOutputDirectory());
-                fileTree.exclude("node_modules/**/*");
-                fileTree.forEach(File::delete);
-            }
-        });
-    }
 
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
@@ -59,6 +46,31 @@ public abstract class CompileConjureTypeScriptTask extends ConjureGeneratorTask 
 
     @Input
     public abstract Property<String> getPackageVersion();
+
+    public CompileConjureTypeScriptTask() {
+        doFirst(new Action<Task>() {
+            @Override
+            public void execute(Task _task) {
+                File outputDir = getOutputDirectory().get().getAsFile();
+                File[] files = outputDir.listFiles();
+                if (files != null) {
+                    Arrays.stream(files)
+                            .filter(file -> !file.getName().equals("node_modules"))
+                            .forEach(file -> {
+                                try {
+                                    if (file.isDirectory()) {
+                                        FileUtils.deleteDirectory(file);
+                                    } else {
+                                        FileUtils.delete(file);
+                                    }
+                                } catch (IOException e) {
+                                    throw new UncheckedIOException("Failed to delete: " + file, e);
+                                }
+                            });
+                }
+            }
+        });
+    }
 
     @Override
     protected final Map<String, Supplier<Object>> requiredOptions(File _file) {
