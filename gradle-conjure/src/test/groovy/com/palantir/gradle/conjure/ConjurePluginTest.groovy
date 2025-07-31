@@ -234,28 +234,87 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
 
         // language=gradle
         buildFile << """
-        apply plugin: 'com.palantir.baseline'
-
         allprojects {
+            apply plugin: 'com.palantir.baseline-exact-dependencies'
             apply plugin: 'java-library'
+            
             // Forcefully enable the exact dependencies tasks, since we disable them by default in the plugin
             checkImplicitDependencies.enabled = true
             checkUnusedDependencies.enabled = true
+
+            tasks.check.dependsOn checkImplicitDependencies, checkUnusedDependencies
         }
         """.stripIndent(true)
 
         when:
-        ExecutionResult result = runTasksSuccessfully("checkImplicitDependencies", "checkUnusedDependencies")
+        BuildResult result = runTasks('check')
+
+        then:
+
+        List<String> subProjects = List.of("api-objects", "api-jersey", "api-undertow", "api-dialogue")
+        List<String> tasks = List.of("checkImplicitDependencies",
+                "checkImplicitDependenciesMain",
+                "checkUnusedDependencies",
+                "checkUnusedDependenciesMain")
+        List<String> expectedTasks = subProjects.collect { subProject ->
+            tasks.collect { task -> "${prefixProject(prefix, subProject)}:${task}" }
+        }.flatten()
+        expectedTasks.add(":checkImplicitDependencies")
+        expectedTasks.add(":checkUnusedDependencies")
+
+        for (String task : expectedTasks) {
+            assert result.task(task).outcome == TaskOutcome.SUCCESS
+        }
+
+        where:
+        location   | prefix
+        'sub'      | 'api'
+        'peer'     | ''
+    }
+
+    def 'check explicit dependencies tasks disabled by default: #location'() {
+        setup:
+        updateSettings(prefix)
+
+        // language=gradle
+        buildFile << """
+
+        allprojects {
+            apply plugin: 'com.palantir.baseline-exact-dependencies'
+            
+//            if (pluginManager.hasPlugin('java-library')) {
+//                tasks.check.dependsOn checkImplicitDependencies, checkUnusedDependencies
+//            }
+//            getPlugins().withType(JavaPlugin).configureEach { p ->
+//                p.tasks.check.dependsOn checkImplicitDependencies, checkUnusedDependencies
+//            }
+            try {
+                tasks.named("check").dependsOn checkImplicitDependencies, checkUnusedDependencies
+            } catch (Exception e) {
+                // Do nothing
+            }
+        }
+        """.stripIndent(true)
+
+        when:
+        BuildResult result = runTasks('check')
 
         then:
         List<String> subProjects = List.of("api-objects", "api-jersey", "api-undertow", "api-dialogue")
-        List<String> tasks = List.of("checkImplicitDependenciesMain", "checkUnusedDependenciesMain")
-        subProjects.each { subProject ->
-            tasks.each { task ->
-                assert result.wasExecuted("${prefixProject(prefix, subProject)}:${task}")
-                assert !result.wasSkipped("${prefixProject(prefix, subProject)}:${task}")
-            }
+        List<String> tasks = List.of("checkImplicitDependencies",
+                "checkImplicitDependenciesMain",
+                "checkUnusedDependencies",
+                "checkUnusedDependenciesMain")
+        List<String> expectedTasks = subProjects.collect { subProject ->
+            tasks.collect { task -> "${prefixProject(prefix, subProject)}:${task}" }
+        }.flatten()
+        println(result.tasks(TaskOutcome.SUCCESS)*.path)
+        println(result.tasks(TaskOutcome.SKIPPED)*.path)
+        for (String task : expectedTasks) {
+            assert result.task(task).outcome == TaskOutcome.SKIPPED
         }
+        result.task(":api:checkImplicitDependencies") == TaskOutcome.SUCCESS
+        result.task(":api:checkUnusedDependencies") == TaskOutcome.SUCCESS
 
         where:
         location   | prefix

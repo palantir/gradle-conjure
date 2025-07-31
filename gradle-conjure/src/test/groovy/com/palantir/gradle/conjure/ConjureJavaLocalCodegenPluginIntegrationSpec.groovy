@@ -126,7 +126,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         buildFile << """
         buildscript {
             dependencies {
-                classpath 'com.palantir.baseline:gradle-baseline-java:6.25.0'
+                classpath 'com.palantir.baseline:gradle-baseline-java:6.50.0'
             }
         }
         apply plugin: 'com.palantir.baseline'
@@ -136,14 +136,15 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
                 addFlag 'objects'
             }
         }
-        """
+        """.stripIndent(true)
 
         when:
-        ExecutionResult result = runTasksSuccessfully("checkImplicitDependencies", "checkUnusedDependencies")
+        BuildResult result = runTasks("checkImplicitDependencies", "checkUnusedDependencies")
 
         then:
-        result.wasExecuted(":conjure-api:checkImplicitDependenciesMain")
-        !result.wasSkipped(":conjure-api:checkImplicitDependenciesMain")
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':conjure-api:checkImplicitDependenciesMain',
+                ':conjure-api:checkUnusedDependenciesMain')
     }
 
     def 'embeds product dependencies correctly'() {
