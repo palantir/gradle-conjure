@@ -23,7 +23,7 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.23.0 (1 c
 com.palantir.gradle.better-exec:better-exec:3.1.0 (1 constraints: 0605fd35)
 com.palantir.gradle.failure-reports:gradle-failure-reports-common:1.13.0 (1 constraints: ed1c2cc2)
 com.palantir.gradle.failure-reports:gradle-failure-reports-exceptions:1.13.0 (1 constraints: 4a129919)
-com.palantir.gradle.utils:environment-variables:0.16.0 (1 constraints: 3905353b)
+com.palantir.gradle.utils:environment-variables:0.17.0 (1 constraints: 3a05383b)
 com.palantir.gradle.utils:platform:0.10.0 (1 constraints: 46128a19)
 com.palantir.ri:resource-identifier:2.8.0 (1 constraints: f20f8299)
 com.palantir.safe-logging:logger:3.9.0 (4 constraints: 4049546a)
