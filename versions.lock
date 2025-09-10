@@ -48,7 +48,7 @@ com.palantir.gradle.failure-reports:gradle-failure-reports-common:1.13.0 (1 cons
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-exceptions:1.13.0 (1 constraints: 4a129919)
 
-com.palantir.gradle.utils:environment-variables:0.18.0 (1 constraints: 3b053b3b)
+com.palantir.gradle.utils:environment-variables:0.19.0 (1 constraints: 3c053e3b)
 
 com.palantir.gradle.utils:platform:0.10.0 (1 constraints: 46128a19)
 
