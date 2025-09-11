@@ -27,29 +27,8 @@ import com.palantir.gradle.conjure.api.ConjureExtension;
 import com.palantir.gradle.conjure.api.ConjureProductDependenciesExtension;
 import com.palantir.gradle.conjure.api.GeneratorOptions;
 import com.palantir.gradle.utils.environmentvariables.EnvironmentVariables;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.UnknownTaskException;
+import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.Directory;
@@ -72,6 +51,16 @@ import org.gradle.plugins.ide.eclipse.model.SourceFolder;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 public final class ConjurePlugin implements Plugin<Project> {
     private static final Logger log = Logging.getLogger(ConjurePlugin.class);
 
@@ -93,15 +82,21 @@ public final class ConjurePlugin implements Plugin<Project> {
             .add("python")
             .build();
 
-    /** Configuration where custom generators should be added as dependencies. */
+    /**
+     * Configuration where custom generators should be added as dependencies.
+     */
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
 
-    /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
+    /**
+     * Tells plugin to look for derived projects at same level as the api project rather than as child projects.
+     */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
 
-    /** Tells plugin the names of generic generator derived projects when in flat mode. */
+    /**
+     * Tells plugin the names of generic generator derived projects when in flat mode.
+     */
     static final String GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY = "com.palantir.conjure.generator_language_names";
 
     @Override
@@ -611,11 +606,10 @@ public final class ConjurePlugin implements Plugin<Project> {
      */
     private static Map<String, Project> findTypescriptDerivedProjects(
             Project project, ConjureExtension conjureExtension) {
-        String projectName = project.getName();
         Map<String, Project> typescriptProjects = new HashMap<>();
 
         // Check for backward compatibility: single -typescript project
-        String defaultTypescriptProjectName = projectName + "-typescript";
+        String defaultTypescriptProjectName = getDerivedProjectName(project, "typescript");
         if (derivedProjectExists(project, defaultTypescriptProjectName)) {
             typescriptProjects.put("typescript", findDerivedProject(project, defaultTypescriptProjectName));
         }
