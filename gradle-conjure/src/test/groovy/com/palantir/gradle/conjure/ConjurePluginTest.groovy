@@ -783,6 +783,33 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         version << ['6.1']
     }
 
+    def 'multiple TypeScript projects API is available'() {
+        setup:
+        // Test just the basic API without running any tasks
+        file('api/build.gradle') << '''
+            apply plugin: 'com.palantir.conjure'
+            
+            // Test that the new API methods exist and work
+            conjure {
+                typescript {
+                    packageName = "default-api"
+                }
+                
+                typescriptProject('frontend') {
+                    packageName = "frontend-api"
+                }
+                
+                typescriptProject('mobile') {
+                    packageName = "mobile-api"  
+                }
+            }
+        '''.stripIndent()
+
+        expect:
+        def result = runTasksWithConfigurationCache('tasks')
+        result.task(':tasks').outcome == TaskOutcome.SUCCESS
+    }
+
     /**
      * Modify the location of derived projects if necessary
      */
