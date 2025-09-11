@@ -375,15 +375,14 @@ public final class ConjurePlugin implements Plugin<Project> {
                 ExtractConjurePlugin.applyConjureTypeScript(project);
 
         String taskSuffix = projectKey.equals("typescript") ? "" : getUppercaseSuffix(projectKey);
-        String taskDescriptionSuffix = taskSuffix.isEmpty() ? "." : " for " + projectKey + ".";
+        String projectSuffix = projectKey.equals("typescript") ? "" : (" for " + projectKey);
 
         TaskProvider<CompileConjureTypeScriptTask> compileConjureTypeScript = project.getTasks()
                 .register("compileConjureTypeScript" + taskSuffix, CompileConjureTypeScriptTask.class, task -> {
                     task.getPackageName().convention(project.getName());
                     task.getPackageVersion().convention(project.provider(() -> project.getVersion()
                             .toString()));
-                    task.setDescription("Generates TypeScript files and a package.json from your "
-                            + "Conjure definitions" + taskDescriptionSuffix);
+                    task.setDescription("Generates TypeScript files and a package.json from your Conjure definitions" + projectSuffix + ".");
                     task.setGroup(TASK_GROUP);
                     task.setSource(compileIrTask);
                     task.getExecutablePath()
@@ -403,8 +402,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
                 .register("generateNpmrc" + taskSuffix, GenerateNpmrcTask.class, task -> {
-                    task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts"
-                            + taskDescriptionSuffix);
+                    task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts" + projectSuffix + ".");
                     task.setGroup(TASK_GROUP);
                     task.dependsOn(compileConjureTypeScript);
                     task.getPackageName()
@@ -439,8 +437,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<BetterExec> compileTypeScript = project.getTasks()
                 .register("compileTypeScript" + taskSuffix, BetterExec.class, task -> {
-                    task.setDescription("Runs `npm tsc` to compile generated TypeScript files into JavaScript files"
-                            + taskDescriptionSuffix);
+                    task.setDescription("Runs `npm tsc` to compile generated TypeScript files into JavaScript files" + projectSuffix + ".");
                     task.setGroup(TASK_GROUP);
                     task.getCommand().set(List.of(npmCommand, "run-script", "build"));
                     task.getWorkingDir().set(srcDirectory);
@@ -452,9 +449,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
         TaskProvider<Exec> publishTypeScript = project.getTasks()
                 .register("publishTypeScript" + taskSuffix, Exec.class, task -> {
-                    task.setDescription("Runs `npm publish` to publish a TypeScript package "
-                            + "generated from your Conjure definitions"
-                            + taskDescriptionSuffix);
+                    task.setDescription("Runs `npm publish` to publish a TypeScript package generated from your Conjure definitions" + projectSuffix + ".");
                     task.setGroup(TASK_GROUP);
                     task.commandLine(npmCommand, "publish");
                     task.workingDir(srcDirectory);
@@ -650,7 +645,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                                extractSubprojectLanguage(projectName, childProjectName));
+                        extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
