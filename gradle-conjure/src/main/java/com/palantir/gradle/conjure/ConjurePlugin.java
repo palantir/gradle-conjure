@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -338,102 +339,130 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<?> compileConjure,
             TaskProvider<?> compileIrTask,
             TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask) {
-        String typescriptProjectName = project.getName() + "-typescript";
-        if (derivedProjectExists(project, typescriptProjectName)) {
-            project.project(derivedProjectPath(project, typescriptProjectName), subproj -> {
-                File srcDirectory = subproj.file("src");
-                TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
-                        ExtractConjurePlugin.applyConjureTypeScript(project);
-                TaskProvider<CompileConjureTypeScriptTask> compileConjureTypeScript = project.getTasks()
-                        .register("compileConjureTypeScript", CompileConjureTypeScriptTask.class, task -> {
-                            task.getPackageName().convention(project.getName());
-                            task.getPackageVersion().convention(project.provider(() -> project.getVersion()
-                                    .toString()));
-                            task.setDescription("Generates TypeScript files and a package.json from your "
-                                    + "Conjure definitions.");
-                            task.setGroup(TASK_GROUP);
-                            task.setSource(compileIrTask);
-                            task.getExecutablePath()
-                                    .set(extractConjureTypeScriptTask.flatMap(ExtractExecutableTask::getExecutable));
-                            task.getProductDependencyFile()
-                                    .set(productDependencyTask.flatMap(
-                                            GenerateConjureServiceDependenciesTask::getOutputFile));
-                            task.getOutputDirectory().set(srcDirectory);
-                            task.setOptions(options);
-                            task.dependsOn(createWriteGitignoreTask(
-                                    subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(), "/src/\n"));
-                            task.dependsOn(extractConjureTypeScriptTask, productDependencyTask, compileIrTask);
-                        });
-                compileConjure.configure(t -> t.dependsOn(compileConjureTypeScript));
-                registerClean(project, compileConjureTypeScript);
+        ConjureExtension conjureExtension = project.getExtensions().getByType(ConjureExtension.class);
+        Map<String, Project> typescriptProjects = findTypescriptDerivedProjects(project, conjureExtension);
 
-                String npmCommand = OsUtils.NPM_COMMAND_NAME;
+        if (typescriptProjects.isEmpty()) {
+            return;
+        }
 
-                TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
-                        .register("generateNpmrc", GenerateNpmrcTask.class, task -> {
-                            task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts");
-                            task.setGroup(TASK_GROUP);
-                            task.dependsOn(compileConjureTypeScript);
-                            task.getPackageName()
-                                    .set(project.provider(options::get)
-                                            .map(opts ->
-                                                    opts.has("packageName") ? (String) opts.get("packageName") : null)
-                                            .orElse(compileConjureTypeScript.flatMap(
-                                                    CompileConjureTypeScriptTask::getPackageName)));
-                            task.getOutputFile()
-                                    .fileProvider(compileConjureTypeScript.flatMap(t -> t.getOutputDirectory()
-                                            .map(out -> out.file(".npmrc").getAsFile())));
-                        });
-                compileConjure.configure(t -> t.dependsOn(generateNpmrc));
+        typescriptProjects.forEach((projectKey, subproj) -> {
+            setupSingleTypescriptProject(
+                    project,
+                    subproj,
+                    projectKey,
+                    // Use default options for backward compatibility, or configured options for new projects
+                    projectKey.equals("typescript")
+                            ? options
+                            : () -> conjureExtension.getTypescriptProjects().get(projectKey),
+                    compileConjure,
+                    compileIrTask,
+                    productDependencyTask);
+        });
+    }
 
-                TaskProvider<BetterExec> installTypeScriptDependencies = project.getTasks()
-                        .register("installTypeScriptDependencies", BetterExec.class, task -> {
-                            task.getCommand()
-                                    .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
-                            task.getWorkingDir().set(srcDirectory);
-                            task.dependsOn(compileConjureTypeScript);
-                            task.getInputs().file(new File(srcDirectory, "package.json"));
-                            task.getOutputs().dir(new File(srcDirectory, "node_modules"));
-                        });
-                installTypeScriptDependencies.configure(task -> {
-                    if (Boolean.parseBoolean(options.get()
-                            .getProperties()
-                            .getOrDefault("installGeneratesNpmrc", "true")
-                            .toString())) {
-                        // In most cases we want the installTypeScriptDependencies task to depend on
-                        // the generateNpmrc task, except for some tests that pull dependencies from
-                        // the actual https://registry.npmjs.org repository.
-                        task.dependsOn(generateNpmrc);
-                    }
+    private static void setupSingleTypescriptProject(
+            Project project,
+            Project subproj,
+            String projectKey,
+            Supplier<GeneratorOptions> options,
+            TaskProvider<?> compileConjure,
+            TaskProvider<?> compileIrTask,
+            TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask) {
+
+        File srcDirectory = subproj.file("src");
+        TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
+                ExtractConjurePlugin.applyConjureTypeScript(project);
+
+        String taskSuffix = projectKey.equals("typescript") ? "" : getUppercaseSuffix(projectKey);
+        String taskDescriptionSuffix = taskSuffix.isEmpty() ? "." : " for " + projectKey + ".";
+
+        TaskProvider<CompileConjureTypeScriptTask> compileConjureTypeScript = project.getTasks()
+                .register("compileConjureTypeScript" + taskSuffix, CompileConjureTypeScriptTask.class, task -> {
+                    task.getPackageName().convention(project.getName());
+                    task.getPackageVersion().convention(project.provider(() -> project.getVersion()
+                            .toString()));
+                    task.setDescription("Generates TypeScript files and a package.json from your "
+                            + "Conjure definitions" + taskDescriptionSuffix);
+                    task.setGroup(TASK_GROUP);
+                    task.setSource(compileIrTask);
+                    task.getExecutablePath()
+                            .set(extractConjureTypeScriptTask.flatMap(ExtractExecutableTask::getExecutable));
+                    task.getProductDependencyFile()
+                            .set(productDependencyTask.flatMap(GenerateConjureServiceDependenciesTask::getOutputFile));
+                    task.getOutputDirectory().set(srcDirectory);
+                    task.setOptions(options);
+                    task.dependsOn(createWriteGitignoreTask(
+                            subproj, "gitignoreConjureTypeScript" + taskSuffix, subproj.getProjectDir(), "/src/\n"));
+                    task.dependsOn(extractConjureTypeScriptTask, productDependencyTask, compileIrTask);
+                });
+        compileConjure.configure(t -> t.dependsOn(compileConjureTypeScript));
+        registerClean(project, compileConjureTypeScript);
+
+        String npmCommand = OsUtils.NPM_COMMAND_NAME;
+
+        TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
+                .register("generateNpmrc" + taskSuffix, GenerateNpmrcTask.class, task -> {
+                    task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts"
+                            + taskDescriptionSuffix);
+                    task.setGroup(TASK_GROUP);
+                    task.dependsOn(compileConjureTypeScript);
+                    task.getPackageName()
+                            .set(project.provider(options::get)
+                                    .map(opts -> opts.has("packageName") ? (String) opts.get("packageName") : null)
+                                    .orElse(compileConjureTypeScript.flatMap(
+                                            CompileConjureTypeScriptTask::getPackageName)));
+                    task.getOutputFile().fileProvider(compileConjureTypeScript.flatMap(t -> t.getOutputDirectory()
+                            .map(out -> out.file(".npmrc").getAsFile())));
+                });
+        compileConjure.configure(t -> t.dependsOn(generateNpmrc));
+
+        TaskProvider<BetterExec> installTypeScriptDependencies = project.getTasks()
+                .register("installTypeScriptDependencies" + taskSuffix, BetterExec.class, task -> {
+                    task.getCommand().set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
+                    task.getWorkingDir().set(srcDirectory);
+                    task.dependsOn(compileConjureTypeScript);
+                    task.getInputs().file(new File(srcDirectory, "package.json"));
+                    task.getOutputs().dir(new File(srcDirectory, "node_modules"));
+                });
+        installTypeScriptDependencies.configure(task -> {
+            if (Boolean.parseBoolean(options.get()
+                    .getProperties()
+                    .getOrDefault("installGeneratesNpmrc", "true")
+                    .toString())) {
+                // In most cases we want the installTypeScriptDependencies task to depend on
+                // the generateNpmrc task, except for some tests that pull dependencies from
+                // the actual https://registry.npmjs.org repository.
+                task.dependsOn(generateNpmrc);
+            }
+        });
+
+        TaskProvider<BetterExec> compileTypeScript = project.getTasks()
+                .register("compileTypeScript" + taskSuffix, BetterExec.class, task -> {
+                    task.setDescription("Runs `npm tsc` to compile generated TypeScript files into JavaScript files"
+                            + taskDescriptionSuffix);
+                    task.setGroup(TASK_GROUP);
+                    task.getCommand().set(List.of(npmCommand, "run-script", "build"));
+                    task.getWorkingDir().set(srcDirectory);
+                    task.dependsOn(installTypeScriptDependencies);
+                    task.getOutputs().dir(srcDirectory);
                 });
 
-                TaskProvider<BetterExec> compileTypeScript = project.getTasks()
-                        .register("compileTypeScript", BetterExec.class, task -> {
-                            task.setDescription(
-                                    "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
-                            task.setGroup(TASK_GROUP);
-                            task.getCommand().set(List.of(npmCommand, "run-script", "build"));
-                            task.getWorkingDir().set(srcDirectory);
-                            task.dependsOn(installTypeScriptDependencies);
-                            task.getOutputs().dir(srcDirectory);
-                        });
+        buildDependsOn(project, compileTypeScript);
 
-                buildDependsOn(project, compileTypeScript);
-
-                TaskProvider<Exec> publishTypeScript = project.getTasks()
-                        .register("publishTypeScript", Exec.class, task -> {
-                            task.setDescription("Runs `npm publish` to publish a TypeScript package "
-                                    + "generated from your Conjure definitions.");
-                            task.setGroup(TASK_GROUP);
-                            task.commandLine(npmCommand, "publish");
-                            task.workingDir(srcDirectory);
-                            task.dependsOn(compileConjureTypeScript);
-                            task.dependsOn(compileTypeScript);
-                        });
-                publishTypeScript.configure(t -> t.dependsOn(generateNpmrc));
-                linkPublish(subproj, publishTypeScript);
-            });
-        }
+        TaskProvider<Exec> publishTypeScript = project.getTasks()
+                .register("publishTypeScript" + taskSuffix, Exec.class, task -> {
+                    task.setDescription("Runs `npm publish` to publish a TypeScript package "
+                            + "generated from your Conjure definitions"
+                            + taskDescriptionSuffix);
+                    task.setGroup(TASK_GROUP);
+                    task.commandLine(npmCommand, "publish");
+                    task.workingDir(srcDirectory);
+                    task.dependsOn(compileConjureTypeScript);
+                    task.dependsOn(compileTypeScript);
+                });
+        publishTypeScript.configure(t -> t.dependsOn(generateNpmrc));
+        linkPublish(subproj, publishTypeScript);
     }
 
     private static void linkPublish(Project project, TaskProvider<?> depTask) {
@@ -585,6 +614,34 @@ public final class ConjurePlugin implements Plugin<Project> {
      * Locates projects either as child projects or as peer projects whose names match the patterns given by
      * the GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY property.
      */
+    private static Map<String, Project> findTypescriptDerivedProjects(
+            Project project, ConjureExtension conjureExtension) {
+        String projectName = project.getName();
+        Map<String, Project> typescriptProjects = new HashMap<>();
+
+        // Check for backward compatibility: single -typescript project
+        String defaultTypescriptProjectName = projectName + "-typescript";
+        if (derivedProjectExists(project, defaultTypescriptProjectName)) {
+            typescriptProjects.put("typescript", findDerivedProject(project, defaultTypescriptProjectName));
+        }
+
+        // Check for configured TypeScript projects
+        for (String configuredProjectName :
+                conjureExtension.getTypescriptProjects().keySet()) {
+            String derivedProjectName = getDerivedProjectName(project, configuredProjectName);
+            if (derivedProjectExists(project, derivedProjectName)) {
+                typescriptProjects.put(configuredProjectName, findDerivedProject(project, derivedProjectName));
+            } else {
+                log.warn(
+                        "Configured TypeScript project '{}' was not found. Expected derived project: '{}'",
+                        configuredProjectName,
+                        derivedProjectName);
+            }
+        }
+
+        return typescriptProjects;
+    }
+
     private static Map<String, Project> findGenericDerivedProjects(Project project) {
         String projectName = project.getName();
 
@@ -593,7 +650,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             return Maps.filterKeys(project.getChildProjects(), childProjectName -> {
                 return childProjectName.startsWith(projectName)
                         && !FIRST_CLASS_GENERATOR_PROJECT_NAMES.contains(
-                                extractSubprojectLanguage(projectName, childProjectName));
+                        extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
