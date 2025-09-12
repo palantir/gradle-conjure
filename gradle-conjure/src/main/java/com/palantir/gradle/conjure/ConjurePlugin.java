@@ -33,7 +33,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -340,24 +339,42 @@ public final class ConjurePlugin implements Plugin<Project> {
             TaskProvider<?> compileIrTask,
             TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask) {
         ConjureExtension conjureExtension = project.getExtensions().getByType(ConjureExtension.class);
-        Map<String, Project> typescriptProjects = findTypescriptDerivedProjects(project, conjureExtension);
-
-        if (typescriptProjects.isEmpty()) {
-            return;
-        }
-
-        typescriptProjects.forEach((projectKey, subproj) -> {
+        
+        // Check for backward compatibility: single -typescript project
+        String defaultTypescriptProjectName = getDerivedProjectName(project, "typescript");
+        if (derivedProjectExists(project, defaultTypescriptProjectName)) {
+            Project typescriptProject = findDerivedProject(project, defaultTypescriptProjectName);
             setupSingleTypescriptProject(
                     project,
-                    subproj,
-                    projectKey,
-                    // Use default options for backward compatibility, or configured options for new projects
-                    projectKey.equals("typescript")
-                            ? options
-                            : () -> conjureExtension.getTypescriptProjects().get(projectKey),
+                    typescriptProject,
+                    "typescript",
+                    options,
                     compileConjure,
                     compileIrTask,
                     productDependencyTask);
+        }
+        
+        // Set up configured TypeScript projects using deferred evaluation
+        project.afterEvaluate(_p -> {
+            for (String configuredProjectName : conjureExtension.getTypescriptProjects().keySet()) {
+                String derivedProjectName = getDerivedProjectName(project, configuredProjectName);
+                if (derivedProjectExists(project, derivedProjectName)) {
+                    Project configuredProject = findDerivedProject(project, derivedProjectName);
+                    setupSingleTypescriptProject(
+                            project,
+                            configuredProject,
+                            configuredProjectName,
+                            () -> conjureExtension.getTypescriptProjects().get(configuredProjectName),
+                            compileConjure,
+                            compileIrTask,
+                            productDependencyTask);
+                } else {
+                    log.warn(
+                            "Configured TypeScript project '{}' was not found. Expected derived project: '{}'",
+                            configuredProjectName,
+                            derivedProjectName);
+                }
+            }
         });
     }
 
@@ -605,36 +622,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    /**
-     * Locates projects either as child projects or as peer projects whose names match the patterns given by
-     * the GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY property.
-     */
-    private static Map<String, Project> findTypescriptDerivedProjects(
-            Project project, ConjureExtension conjureExtension) {
-        Map<String, Project> typescriptProjects = new HashMap<>();
-
-        // Check for backward compatibility: single -typescript project
-        String defaultTypescriptProjectName = getDerivedProjectName(project, "typescript");
-        if (derivedProjectExists(project, defaultTypescriptProjectName)) {
-            typescriptProjects.put("typescript", findDerivedProject(project, defaultTypescriptProjectName));
-        }
-
-        // Check for configured TypeScript projects
-        for (String configuredProjectName :
-                conjureExtension.getTypescriptProjects().keySet()) {
-            String derivedProjectName = getDerivedProjectName(project, configuredProjectName);
-            if (derivedProjectExists(project, derivedProjectName)) {
-                typescriptProjects.put(configuredProjectName, findDerivedProject(project, derivedProjectName));
-            } else {
-                log.warn(
-                        "Configured TypeScript project '{}' was not found. Expected derived project: '{}'",
-                        configuredProjectName,
-                        derivedProjectName);
-            }
-        }
-
-        return typescriptProjects;
-    }
 
     private static Map<String, Project> findGenericDerivedProjects(Project project) {
         String projectName = project.getName();
