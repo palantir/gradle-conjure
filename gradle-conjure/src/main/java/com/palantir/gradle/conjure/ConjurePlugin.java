@@ -625,7 +625,10 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-
+    /**
+     * Locates projects either as child projects or as peer projects whose names match the patterns given by
+     * the GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY property.
+     */
     private static Map<String, Project> findGenericDerivedProjects(Project project) {
         String projectName = project.getName();
 
