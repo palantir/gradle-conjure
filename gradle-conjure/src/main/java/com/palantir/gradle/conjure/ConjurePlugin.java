@@ -131,6 +131,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project, immutableOptionsSupplier(conjureExtension::getPython), compileConjure, compileIrTask);
         setupConjureTypescriptProject(
                 project,
+                conjureExtension::getTypescriptProjects,
                 immutableOptionsSupplier(conjureExtension::getTypescript),
                 compileConjure,
                 compileIrTask,
@@ -334,12 +335,12 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
+            Supplier<Map<String, GeneratorOptions>> typescriptProjectsSupplier,
             Supplier<GeneratorOptions> options,
             TaskProvider<?> compileConjure,
             TaskProvider<?> compileIrTask,
             TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask) {
-        ConjureExtension conjureExtension = project.getExtensions().getByType(ConjureExtension.class);
-        
+
         // Check for backward compatibility: single -typescript project
         String defaultTypescriptProjectName = getDerivedProjectName(project, "typescript");
         if (derivedProjectExists(project, defaultTypescriptProjectName)) {
@@ -353,27 +354,29 @@ public final class ConjurePlugin implements Plugin<Project> {
                     compileIrTask,
                     productDependencyTask);
         }
-        
+
         // Set up configured TypeScript projects using deferred evaluation
         project.afterEvaluate(_p -> {
-            for (String configuredProjectName : conjureExtension.getTypescriptProjects().keySet()) {
+            Map<String, GeneratorOptions> typescriptProjects = typescriptProjectsSupplier.get();
+            for (String configuredProjectName : typescriptProjects.keySet()) {
                 String derivedProjectName = getDerivedProjectName(project, configuredProjectName);
-                if (derivedProjectExists(project, derivedProjectName)) {
-                    Project configuredProject = findDerivedProject(project, derivedProjectName);
-                    setupSingleTypescriptProject(
-                            project,
-                            configuredProject,
-                            configuredProjectName,
-                            () -> conjureExtension.getTypescriptProjects().get(configuredProjectName),
-                            compileConjure,
-                            compileIrTask,
-                            productDependencyTask);
-                } else {
+                if (!derivedProjectExists(project, derivedProjectName)) {
                     log.warn(
                             "Configured TypeScript project '{}' was not found. Expected derived project: '{}'",
                             configuredProjectName,
                             derivedProjectName);
+                    continue;
                 }
+
+                Project configuredProject = findDerivedProject(project, derivedProjectName);
+                setupSingleTypescriptProject(
+                        project,
+                        configuredProject,
+                        configuredProjectName,
+                        () -> typescriptProjects.get(configuredProjectName),
+                        compileConjure,
+                        compileIrTask,
+                        productDependencyTask);
             }
         });
     }
