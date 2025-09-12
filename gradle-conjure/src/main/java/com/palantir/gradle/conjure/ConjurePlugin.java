@@ -93,21 +93,15 @@ public final class ConjurePlugin implements Plugin<Project> {
             .add("python")
             .build();
 
-    /**
-     * Configuration where custom generators should be added as dependencies.
-     */
+    /** Configuration where custom generators should be added as dependencies. */
     static final String CONJURE_GENERATORS_CONFIGURATION_NAME = "conjureGenerators";
 
     static final String CONJURE_GENERATOR_DEP_PREFIX = "conjure-";
 
-    /**
-     * Tells plugin to look for derived projects at same level as the api project rather than as child projects.
-     */
+    /** Tells plugin to look for derived projects at same level as the api project rather than as child projects. */
     static final String USE_FLAT_PROJECT_STRUCTURE_PROPERTY = "com.palantir.conjure.use_flat_project_structure";
 
-    /**
-     * Tells plugin the names of generic generator derived projects when in flat mode.
-     */
+    /** Tells plugin the names of generic generator derived projects when in flat mode. */
     static final String GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY = "com.palantir.conjure.generator_language_names";
 
     @Override
