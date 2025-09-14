@@ -132,6 +132,35 @@ For each generator specified referenced by the configuration you must also add a
 +include 'conjure-api:postman'
 ```
 
+#### Multiple TypeScript Projects
+
+You can configure installation, compilation, and publishing for multiple typescript
+packages created by conjure generators using the `typescriptProject` extension:
+
+```groovy
+conjure {
+    // Default TypeScript project
+    typescript {
+        packageName = "@mycompany/my-api"
+        version = "1.0.0"
+    }
+    
+    // Publish additional TypeScript packages
+    // Looks for subfolder my-api-zod
+    typescriptProject('zod') {
+        packageName = "@mycompany/my-api-zod"
+    }
+
+    typescriptProject('browser') {
+        packageName = "@mycompany/my-api-browser"
+    }
+}
+```
+
+Each configured project creates its own set of tasks with appropriate suffixes:
+- `compileConjureTypeScriptZod`, `generateNpmrcZod`, `publishTypeScriptZod`
+- `compileConjureTypeScriptBrowser`, `generateNpmrcBrowser`, `publishTypeScriptBrowser`
+
 ## com.palantir.conjure-java-local
 
 `com.palantir.conjure-java-local` helps to generate Java code from the conjure definition other services publish.
