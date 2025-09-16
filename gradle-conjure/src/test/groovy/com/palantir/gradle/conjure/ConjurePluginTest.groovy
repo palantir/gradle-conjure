@@ -783,22 +783,19 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         version << ['6.1']
     }
 
-    def 'TypeScript publishing flag API is available'() {
+    def 'TypeScript project no-argument API is available'() {
         setup:
         // Test just the basic API without running any tasks
         file('api/build.gradle') << '''
             apply plugin: 'com.palantir.conjure'
             
-            // Test that the new flag API methods exist and work
+            // Test that the simple no-argument API works
             conjure {
                 typescript {
                     packageName = "default-api"
                 }
                 
-                options('zod') {
-                    enableTypescriptPublishing()
-                    packageName = "zod-api"
-                }
+                typescriptProject("zod")
             }
         '''.stripIndent()
 

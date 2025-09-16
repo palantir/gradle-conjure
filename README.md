@@ -144,16 +144,17 @@ conjure {
         packageName = "@mycompany/my-api"
         version = "1.0.0"
     }
+
+    options('zod') {
+        packageName = "@mycompany/my-api-zod"
+        version = "1.0.0"
+    }
     
     // Publish additional TypeScript packages
     // Looks for subfolder my-api-zod
-    typescriptProject('zod') {
-        packageName = "@mycompany/my-api-zod"
-    }
+    typescriptProject('zod')
 
-    typescriptProject('browser') {
-        packageName = "@mycompany/my-api-browser"
-    }
+    typescriptProject('browser')
 }
 ```
 
