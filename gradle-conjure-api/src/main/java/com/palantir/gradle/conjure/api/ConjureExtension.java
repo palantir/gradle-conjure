@@ -19,7 +19,6 @@ package com.palantir.gradle.conjure.api;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ConjureExtension {
@@ -31,7 +30,6 @@ public class ConjureExtension {
     private final GeneratorOptions parserOptions = new GeneratorOptions();
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
-    private final Map<String, GeneratorOptions> typescriptProjects = new LinkedHashMap<>();
 
     public ConjureExtension() {
         // Projects using sufficiently new gradle-conjure have jetbrains-annotations
@@ -76,13 +74,6 @@ public class ConjureExtension {
         closure.call();
     }
 
-    public final void typescriptProject(
-            // rawtypes to support idea integration
-            String projectName, @DelegatesTo(GeneratorOptions.class) @SuppressWarnings("rawtypes") Closure closure) {
-        GeneratorOptions options = typescriptProjects.computeIfAbsent(projectName, _p -> new GeneratorOptions());
-        closure.setDelegate(options);
-        closure.call();
-    }
 
     public final GeneratorOptions getTypescript() {
         return typescriptOptions;
@@ -104,9 +95,6 @@ public class ConjureExtension {
         return genericOptions.computeIfAbsent(generator, _g -> new GeneratorOptions());
     }
 
-    public final Map<String, GeneratorOptions> getTypescriptProjects() {
-        return typescriptProjects;
-    }
 
     @Override
     public final String toString() {
@@ -115,7 +103,6 @@ public class ConjureExtension {
                 + javaOptions + ", parserOptions="
                 + parserOptions + ", pythonOptions="
                 + pythonOptions + ", genericOptions="
-                + genericOptions + ", typescriptProjects="
-                + typescriptProjects + '}';
+                + genericOptions + '}';
     }
 }

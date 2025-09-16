@@ -131,7 +131,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                 project, immutableOptionsSupplier(conjureExtension::getPython), compileConjure, compileIrTask);
         setupConjureTypescriptProject(
                 project,
-                conjureExtension::getTypescriptProjects,
                 immutableOptionsSupplier(conjureExtension::getTypescript),
                 compileConjure,
                 compileIrTask,
@@ -141,6 +140,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 conjureExtension::getGenericOptions,
                 compileConjure,
                 compileIrTask,
+                serviceDependencyTask,
                 conjureGeneratorsConfiguration);
     }
 
@@ -335,7 +335,6 @@ public final class ConjurePlugin implements Plugin<Project> {
 
     private static void setupConjureTypescriptProject(
             Project project,
-            Supplier<Map<String, GeneratorOptions>> typescriptProjectsSupplier,
             Supplier<GeneratorOptions> options,
             TaskProvider<?> compileConjure,
             TaskProvider<?> compileIrTask,
@@ -354,32 +353,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                     compileIrTask,
                     productDependencyTask);
         }
-
-        // Set up configured TypeScript projects using deferred evaluation
-        project.afterEvaluate(_p -> {
-            Map<String, GeneratorOptions> typescriptProjects = typescriptProjectsSupplier.get();
-            for (String configuredProjectName : typescriptProjects.keySet()) {
-                String derivedProjectName = getDerivedProjectName(project, configuredProjectName);
-                if (!derivedProjectExists(project, derivedProjectName)) {
-                    log.warn(
-                            "Configured TypeScript project '{}' was not found. Expected derived project: '{}'",
-                            configuredProjectName,
-                            derivedProjectName);
-                    continue;
-                }
-
-                Project configuredProject = findDerivedProject(project, derivedProjectName);
-                setupSingleTypescriptProject(
-                        project,
-                        configuredProject,
-                        configuredProjectName,
-                        () -> typescriptProjects.get(configuredProjectName),
-                        compileConjure,
-                        compileIrTask,
-                        productDependencyTask);
-            }
-        });
     }
+
 
     private static void setupSingleTypescriptProject(
             Project project,
@@ -565,6 +540,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             Function<String, GeneratorOptions> getGenericOptions,
             TaskProvider<?> compileConjure,
             TaskProvider<?> compileIrTask,
+            TaskProvider<GenerateConjureServiceDependenciesTask> productDependencyTask,
             Configuration conjureGeneratorsConfiguration) {
         Map<String, Project> genericSubProjects = findGenericDerivedProjects(project);
         if (genericSubProjects.isEmpty()) {
@@ -627,6 +603,23 @@ public final class ConjurePlugin implements Plugin<Project> {
                         task.dependsOn(extractConjureGeneratorTask, compileIrTask);
                     });
             compileConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
+
+            // Setup TypeScript publishing with Provider-based lazy evaluation
+            Provider<Boolean> typescriptPublishingEnabled = project.provider(() ->
+                    getGenericOptions.apply(conjureLanguage).isTypescriptPublishingEnabled());
+            
+            project.afterEvaluate(_p -> {
+                if (typescriptPublishingEnabled.get()) {
+                    setupSingleTypescriptProject(
+                            project,
+                            subproject,
+                            conjureLanguage,
+                            () -> getGenericOptions.apply(conjureLanguage),
+                            compileConjure,
+                            compileIrTask,
+                            productDependencyTask);
+                }
+            });
         });
     }
 

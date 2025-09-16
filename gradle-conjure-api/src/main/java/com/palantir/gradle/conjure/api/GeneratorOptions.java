@@ -88,6 +88,21 @@ public final class GeneratorOptions implements Serializable {
         return this;
     }
 
+    /**
+     * Enables TypeScript-style publishing tasks (npmrc generation, package.json handling, etc.)
+     * for generic generators that produce TypeScript-compatible output.
+     */
+    public GeneratorOptions enableTypescriptPublishing() {
+        return addFlag("enableTypescriptPublishing");
+    }
+
+    /**
+     * Checks if TypeScript publishing is enabled for this generator.
+     */
+    public boolean isTypescriptPublishingEnabled() {
+        return has("enableTypescriptPublishing") && Boolean.TRUE.equals(get("enableTypescriptPublishing"));
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
