@@ -81,7 +81,6 @@ public class ConjureExtension {
         typescriptProjects.add(projectName);
     }
 
-
     public final GeneratorOptions getTypescript() {
         return typescriptOptions;
     }
@@ -105,7 +104,6 @@ public class ConjureExtension {
     public final Set<String> getTypescriptProjects() {
         return typescriptProjects;
     }
-
 
     @Override
     public final String toString() {

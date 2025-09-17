@@ -53,7 +53,9 @@ class ConjureTypescriptProjectSpec extends ConfigurationCacheSpec {
         }
         
         conjure {
-            typescriptProject('zod') {
+            typescriptProject('zod')
+            
+            options('zod') {
                 packageName = "test-zod-package"
             }
         }
@@ -88,7 +90,7 @@ class ConjureTypescriptProjectSpec extends ConfigurationCacheSpec {
         println "===================="
     }
 
-    def 'typescriptProject configuration populates typescriptProjects map'() {
+    def 'typescriptProject configuration populates typescriptProjects set'() {
         when:
         // Access extension during configuration phase to avoid configuration cache issues
         buildFile << """
@@ -99,8 +101,8 @@ class ConjureTypescriptProjectSpec extends ConfigurationCacheSpec {
         if (ext != null) {
             println "DEBUG: typescriptProjects = " + ext.getTypescriptProjects()
             println "DEBUG: typescriptProjects.size() = " + ext.getTypescriptProjects().size()
-            ext.getTypescriptProjects().each { key, value ->
-                println "DEBUG: TypeScript project: " + key + " = " + value
+            ext.getTypescriptProjects().each { projectName ->
+                println "DEBUG: TypeScript project: " + projectName
             }
         }
         

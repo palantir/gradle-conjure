@@ -383,7 +383,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-
     private static void setupSingleTypescriptProject(
             Project project,
             Project subproj,
