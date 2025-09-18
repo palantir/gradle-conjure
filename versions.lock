@@ -4,7 +4,7 @@ com.fasterxml.jackson.core:jackson-annotations:2.19.2 (11 constraints: 79c04e21)
 
 com.fasterxml.jackson.core:jackson-core:2.19.2 (10 constraints: f5dfa507)
 
-com.fasterxml.jackson.core:jackson-databind:2.19.2 (13 constraints: 7723aede)
+com.fasterxml.jackson.core:jackson-databind:2.19.2 (13 constraints: 7723b0de)
 
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.19.2 (1 constraints: 841cada4)
 
@@ -68,7 +68,7 @@ com.palantir.safe-logging:preconditions:3.9.0 (9 constraints: 29a4ff47)
 
 com.palantir.safe-logging:safe-logging:3.9.0 (9 constraints: 2e9b0f4c)
 
-com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.77.0 (1 constraints: 47057a3b)
+com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.78.0 (1 constraints: 48057d3b)
 
 com.palantir.sls.versions:sls-versions:1.8.0 (2 constraints: 5d20d6f5)
 
