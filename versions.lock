@@ -84,7 +84,7 @@ io.dropwizard.metrics:metrics-core:4.2.33 (2 constraints: 472d0397)
 
 joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
-net.bytebuddy:byte-buddy:1.17.7 (3 constraints: df1bb2df)
+net.bytebuddy:byte-buddy:1.17.7 (3 constraints: e01bb3df)
 
 org.apache.commons:commons-lang3:3.18.0 (1 constraints: 3e054d3b)
 
@@ -124,7 +124,7 @@ com.squareup.okio:okio-jvm:3.6.0 (1 constraints: 500ad3b9)
 
 junit:junit:4.13.2 (4 constraints: 6d337d84)
 
-net.bytebuddy:byte-buddy-agent:1.17.6 (1 constraints: 490b4dde)
+net.bytebuddy:byte-buddy-agent:1.17.7 (1 constraints: 4a0b4ede)
 
 org.apiguardian:apiguardian-api:1.1.2 (7 constraints: cc761de9)
 
@@ -160,7 +160,7 @@ org.junit.platform:junit-platform-launcher:1.13.4 (1 constraints: 3b05363b)
 
 org.junit.vintage:junit-vintage-engine:5.13.4 (1 constraints: 3f054e3b)
 
-org.mockito:mockito-core:5.19.0 (1 constraints: 41055c3b)
+org.mockito:mockito-core:5.20.0 (1 constraints: 3905453b)
 
 org.objenesis:objenesis:3.4 (3 constraints: 451c50c1)
 
