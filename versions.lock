@@ -1,10 +1,10 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.19.2 (11 constraints: 79c04e21)
+com.fasterxml.jackson.core:jackson-annotations:2.19.2 (11 constraints: 7ec05d21)
 
 com.fasterxml.jackson.core:jackson-core:2.19.2 (10 constraints: f5dfa507)
 
-com.fasterxml.jackson.core:jackson-databind:2.19.2 (13 constraints: 7723b0de)
+com.fasterxml.jackson.core:jackson-databind:2.19.2 (13 constraints: 7c23bfde)
 
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.19.2 (1 constraints: 841cada4)
 
@@ -24,23 +24,23 @@ com.fasterxml.woodstox:woodstox-core:7.1.1 (1 constraints: 3d174926)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
-com.google.errorprone:error_prone_annotations:2.41.0 (10 constraints: 709b6510)
+com.google.errorprone:error_prone_annotations:2.41.0 (10 constraints: 719b6810)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
-com.google.guava:guava:33.5.0-jre (8 constraints: 53b040ec)
+com.google.guava:guava:33.5.0-jre (8 constraints: 4cb04ae3)
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 
 com.google.j2objc:j2objc-annotations:3.1 (1 constraints: b809f1a0)
 
-com.palantir.conjure.java:conjure-lib:8.53.0 (1 constraints: 861ccda4)
+com.palantir.conjure.java:conjure-lib:8.56.0 (1 constraints: 891cd6a4)
 
-com.palantir.conjure.java.api:errors:2.62.0 (1 constraints: 2210a4a9)
+com.palantir.conjure.java.api:errors:2.65.0 (1 constraints: 2510ada9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.24.0 (1 constraints: 841cc4a4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.25.0 (1 constraints: 851cc7a4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.24.0 (1 constraints: 4005633b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.25.0 (1 constraints: 4105663b)
 
 com.palantir.gradle.better-exec:better-exec:3.3.0 (1 constraints: 08050336)
 
@@ -58,13 +58,13 @@ com.palantir.gradle.utils:providers:0.19.0 (1 constraints: 750deb31)
 
 com.palantir.ri:resource-identifier:2.11.0 (1 constraints: 1c108da9)
 
-com.palantir.safe-logging:logger:3.9.0 (4 constraints: 4749a06c)
+com.palantir.safe-logging:logger:3.9.0 (4 constraints: 4c497c6d)
 
 com.palantir.safe-logging:logger-slf4j:3.9.0 (1 constraints: 070e6e42)
 
 com.palantir.safe-logging:logger-spi:3.9.0 (2 constraints: 1d1e0c7c)
 
-com.palantir.safe-logging:preconditions:3.9.0 (9 constraints: 29a4ff47)
+com.palantir.safe-logging:preconditions:3.9.0 (9 constraints: 2ea4c149)
 
 com.palantir.safe-logging:safe-logging:3.9.0 (9 constraints: 2e9b0f4c)
 
@@ -72,15 +72,15 @@ com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.79.0 (1 con
 
 com.palantir.sls.versions:sls-versions:1.8.0 (2 constraints: 5d20d6f5)
 
-com.palantir.tokens:auth-tokens:3.18.0 (1 constraints: 2410a8a9)
+com.palantir.tokens:auth-tokens:3.19.0 (1 constraints: 2510aba9)
 
-com.palantir.tritium:tritium-ids:0.102.0 (1 constraints: f60f80a6)
+com.palantir.tritium:tritium-ids:0.104.0 (1 constraints: f80f86a6)
 
-com.palantir.tritium:tritium-registry:0.104.0 (1 constraints: ab1c39c1)
+com.palantir.tritium:tritium-registry:0.109.0 (1 constraints: b01c48c1)
 
 commons-io:commons-io:2.20.0 (1 constraints: 3605333b)
 
-io.dropwizard.metrics:metrics-core:4.2.33 (2 constraints: 472d0397)
+io.dropwizard.metrics:metrics-core:4.2.37 (2 constraints: 4f2dc797)
 
 joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
@@ -94,13 +94,13 @@ org.eclipse.collections:eclipse-collections:13.0.0 (1 constraints: 1c1091a9)
 
 org.eclipse.collections:eclipse-collections-api:13.0.0 (2 constraints: fa22df26)
 
-org.immutables:value:2.11.3 (2 constraints: 0015e8c1)
+org.immutables:value:2.11.3 (2 constraints: 0215eac1)
 
 org.jetbrains:annotations:26.0.2 (3 constraints: e02f6235)
 
 org.jspecify:jspecify:1.0.0 (3 constraints: f8291c20)
 
-org.slf4j:slf4j-api:2.0.17 (4 constraints: 693e2975)
+org.slf4j:slf4j-api:2.0.17 (4 constraints: 623e9372)
 
 
 
@@ -128,7 +128,7 @@ net.bytebuddy:byte-buddy-agent:1.17.7 (1 constraints: 4a0b4ede)
 
 org.apiguardian:apiguardian-api:1.1.2 (7 constraints: cc761de9)
 
-org.assertj:assertj-core:3.27.5 (1 constraints: 4305533b)
+org.assertj:assertj-core:3.27.6 (1 constraints: 4405543b)
 
 org.codehaus.groovy:groovy:3.0.25 (3 constraints: 14347add)
 
