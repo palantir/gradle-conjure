@@ -86,7 +86,7 @@ joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
 net.bytebuddy:byte-buddy:1.17.7 (3 constraints: e01bb3df)
 
-org.apache.commons:commons-lang3:3.18.0 (1 constraints: 3e054d3b)
+org.apache.commons:commons-lang3:3.19.0 (1 constraints: 3f05503b)
 
 org.codehaus.woodstox:stax2-api:4.2.2 (2 constraints: 6a278bd2)
 
