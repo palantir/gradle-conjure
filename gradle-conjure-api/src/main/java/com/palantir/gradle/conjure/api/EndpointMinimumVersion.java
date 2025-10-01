@@ -67,6 +67,7 @@ public final class EndpointMinimumVersion implements Serializable {
         if (source == null || getClass() != source.getClass()) {
             return false;
         }
+        @SuppressWarnings("for-rollout:deprecation")
         EndpointMinimumVersion that = (EndpointMinimumVersion) source;
         return Objects.equals(httpPath, that.httpPath)
                 && Objects.equals(httpMethod, that.httpMethod)
