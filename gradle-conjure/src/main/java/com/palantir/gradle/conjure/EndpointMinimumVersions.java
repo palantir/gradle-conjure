@@ -24,7 +24,7 @@ import java.util.Set;
 import org.immutables.value.Value;
 
 // Automatically suppressed to unblock enforcement in new code
-@SuppressWarnings({"ImmutablesStyle", "for-rollout:deprecation"})
+@SuppressWarnings("ImmutablesStyle")
 @Value.Immutable
 @Value.Style(jdkOnly = true)
 @JsonSerialize(as = ImmutableEndpointMinimumVersions.class)
@@ -42,6 +42,5 @@ public interface EndpointMinimumVersions {
         return new Builder();
     }
 
-    @SuppressWarnings("for-rollout:deprecation")
     final class Builder extends ImmutableEndpointMinimumVersions.Builder {}
 }
