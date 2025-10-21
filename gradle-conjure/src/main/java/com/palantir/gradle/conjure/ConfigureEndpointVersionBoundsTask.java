@@ -34,8 +34,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.Jar;
 
-@SuppressWarnings("for-rollout:NonAbstractGradleType")
-public class ConfigureEndpointVersionBoundsTask extends DefaultTask {
+public abstract class ConfigureEndpointVersionBoundsTask extends DefaultTask {
     @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final ListProperty<EndpointVersionBound> endpointVersions =
             getProject().getObjects().listProperty(EndpointVersionBound.class);
