@@ -51,8 +51,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Parameter;
 
-@SuppressWarnings("for-rollout:NonAbstractGradleType")
-public class GenerateNpmrcTask extends DefaultTask {
+public abstract class GenerateNpmrcTask extends DefaultTask {
     private static final JsonMapper MAPPER = ObjectMappers.newClientJsonMapper();
 
     @SuppressWarnings("for-rollout:GradleTypesAsFields")

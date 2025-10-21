@@ -26,8 +26,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-@SuppressWarnings("for-rollout:NonAbstractGradleType")
-public class WriteGitignoreTask extends DefaultTask {
+public abstract class WriteGitignoreTask extends DefaultTask {
     private Path outputFile;
     private String contents;
 
