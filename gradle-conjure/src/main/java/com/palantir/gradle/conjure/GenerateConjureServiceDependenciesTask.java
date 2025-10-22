@@ -36,6 +36,8 @@ import org.gradle.api.tasks.TaskAction;
 public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask {
     private static final Pattern GROUP_PATTERN = Pattern.compile("^[^:@?\\s]+");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
+
+    @SuppressWarnings("for-rollout:deprecation")
     public static final ObjectMapper jsonMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
