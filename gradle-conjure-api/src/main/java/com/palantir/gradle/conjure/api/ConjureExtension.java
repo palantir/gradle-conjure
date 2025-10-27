@@ -19,7 +19,9 @@ package com.palantir.gradle.conjure.api;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ConjureExtension {
 
@@ -30,6 +32,7 @@ public class ConjureExtension {
     private final GeneratorOptions parserOptions = new GeneratorOptions();
     private final GeneratorOptions pythonOptions = new GeneratorOptions();
     private final Map<String, GeneratorOptions> genericOptions = new HashMap<>();
+    private final Set<String> typescriptProjects = new LinkedHashSet<>();
 
     public ConjureExtension() {
         // Projects using sufficiently new gradle-conjure have jetbrains-annotations
@@ -74,6 +77,10 @@ public class ConjureExtension {
         closure.call();
     }
 
+    public final void typescriptProject(String projectName) {
+        typescriptProjects.add(projectName);
+    }
+
     public final GeneratorOptions getTypescript() {
         return typescriptOptions;
     }
@@ -94,6 +101,10 @@ public class ConjureExtension {
         return genericOptions.computeIfAbsent(generator, _g -> new GeneratorOptions());
     }
 
+    public final Set<String> getTypescriptProjects() {
+        return typescriptProjects;
+    }
+
     @Override
     public final String toString() {
         return "ConjureExtension{typescriptOptions="
@@ -101,6 +112,7 @@ public class ConjureExtension {
                 + javaOptions + ", parserOptions="
                 + parserOptions + ", pythonOptions="
                 + pythonOptions + ", genericOptions="
-                + genericOptions + '}';
+                + genericOptions + ", typescriptProjects="
+                + typescriptProjects + '}';
     }
 }
