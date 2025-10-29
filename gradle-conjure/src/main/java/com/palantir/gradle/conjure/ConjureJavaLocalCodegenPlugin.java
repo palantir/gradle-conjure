@@ -109,30 +109,17 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
     }
 
     private static void configureDependencies(Project project, ConjureExtension extension) {
-        project.getDependencies().add("api", Dependencies.CONJURE_JAVA_LIB);
-        project.getDependencies().add("api", Dependencies.JETBRAINS_ANNOTATIONS);
-        boolean useJakarta = Dependencies.isJakartaPackages(extension.getJava());
-        project.getDependencies()
-                .add(
-                        "compileOnly",
-                        useJakarta ? Dependencies.ANNOTATION_API_JAKARTA : Dependencies.ANNOTATION_API_JAVAX);
+        if (Dependencies.isObjects(extension.getJava())) {
+            Dependencies.setupObjectsProject(project);
+        }
         if (Dependencies.isJersey(extension.getJava())) {
-            project.getDependencies()
-                    .add("api", useJakarta ? Dependencies.JAXRS_API_JAKARTA : Dependencies.JAXRS_API_JAVAX);
-            if (Dependencies.isNotNullAuthAndBodyParams(extension.getJava())) {
-                project.getDependencies()
-                        .add(
-                                "implementation",
-                                useJakarta
-                                        ? Dependencies.JAXRS_VALIDATION_API_JAKARTA
-                                        : Dependencies.JAXRS_VALIDATION_API_JAVAX);
-            }
+            Dependencies.setupJerseyProject(project, extension.getJava());
         }
         if (Dependencies.isDialogue(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.DIALOGUE_TARGET);
+            Dependencies.setupDialogueProject(project);
         }
         if (Dependencies.isUndertow(extension.getJava())) {
-            project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
+            Dependencies.setupUndertowProject(project);
         }
     }
 
@@ -141,7 +128,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
             ConjureExtension extension,
             TaskProvider<ExtractExecutableTask> extractJavaTask,
             TaskProvider<Copy> extractConjureIr) {
-        ConjurePlugin.ignoreFromCheckUnusedDependencies(project);
+        ConjurePlugin.ignoreFromCheckExactDependencies(project);
 
         Provider<File> conjureIrFile = extractConjureIr.map(
                 irTask -> new File(irTask.getDestinationDir(), project.getName() + ".conjure.json"));

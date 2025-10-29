@@ -32,6 +32,7 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         buildscript {
             repositories {
                 mavenCentral()
+                gradlePluginPortal()
             }
         }
         
@@ -117,6 +118,33 @@ class ConjureJavaLocalCodegenPluginIntegrationSpec extends ConfigurationCacheSpe
         result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':conjure-api:compileJava', ':conjure-api:generateConjure')
 
         fileExists('conjure-api/build/generated/sources/conjure-java-local-java/java/main/test/group/com/palantir/conjure/spec/ConjureDefinition.java')
+    }
+
+    def 'define explicit dependencies'() {
+        addSubproject("conjure-api")
+        // language=gradle
+        buildFile << """
+        buildscript {
+            dependencies {
+                classpath 'com.palantir.baseline:gradle-baseline-java:6.50.0'
+            }
+        }
+        apply plugin: 'com.palantir.baseline'
+
+        conjure {
+            java {
+                addFlag 'objects'
+            }
+        }
+        """.stripIndent(true)
+
+        when:
+        BuildResult result = runTasks("checkImplicitDependencies", "checkUnusedDependencies")
+
+        then:
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(
+                ':conjure-api:checkImplicitDependenciesMain',
+                ':conjure-api:checkUnusedDependenciesMain')
     }
 
     def 'embeds product dependencies correctly'() {
