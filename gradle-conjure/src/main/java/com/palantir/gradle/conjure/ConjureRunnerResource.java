@@ -182,6 +182,7 @@ public abstract class ConjureRunnerResource implements BuildService<Params>, Clo
             this.classLoader = classLoader;
         }
 
+        @SuppressWarnings("for-rollout:ExplicitArrayForVarargs")
         @Override
         public void invoke(
                 ExecOperations _execOperations, String failedTo, List<String> unloggedArgs, List<String> loggedArgs) {
