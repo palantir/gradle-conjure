@@ -70,7 +70,7 @@ com.palantir.safe-logging:preconditions:3.9.0 (9 constraints: 30a4234b)
 
 com.palantir.safe-logging:safe-logging:3.9.0 (9 constraints: 2e9b0f4c)
 
-com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.84.0 (1 constraints: 4505753b)
+com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.85.0 (1 constraints: 4605783b)
 
 com.palantir.sls.versions:sls-versions:1.8.0 (2 constraints: 6020dff5)
 
