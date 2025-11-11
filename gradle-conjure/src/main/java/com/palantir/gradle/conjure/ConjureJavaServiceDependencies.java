@@ -35,6 +35,7 @@ final class ConjureJavaServiceDependencies {
      * We directly configure the Jar task instead of using the generated product-dependencies.json since we use gradle
      * to produce Jars which the Java generator is not aware of.
      */
+    @SuppressWarnings("for-rollout:TaskDependsOn")
     static void configureJavaServiceDependencies(
             Project project, ConjureProductDependenciesExtension productDependencyExt) {
         project.getPluginManager().apply(RecommendedProductDependenciesPlugin.class);

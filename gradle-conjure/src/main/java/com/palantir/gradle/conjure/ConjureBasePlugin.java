@@ -89,6 +89,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
         return conjureSourceSet;
     }
 
+    @SuppressWarnings("for-rollout:TaskDependsOn")
     private static TaskProvider<CompileIrTask> createIrTasks(
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,

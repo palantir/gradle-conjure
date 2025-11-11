@@ -212,6 +212,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         return parentProject.project(derivedProjectPath(parentProject, projectName), subproj -> {
             subproj.getPluginManager().apply(JavaLibraryPlugin.class);
             ignoreFromCheckUnusedDependencies(subproj);
+            @SuppressWarnings("for-rollout:TaskDependsOn")
             TaskProvider<ConjureGeneratorTask> conjureGeneratorTask = parentProject
                     .getTasks()
                     .register("compileConjure" + upperSuffix, ConjureGeneratorTask.class, task -> {
@@ -332,6 +333,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
+    @SuppressWarnings("for-rollout:TaskDependsOn")
     private static void setupConjureTypescriptProject(
             Project project,
             Supplier<GeneratorOptions> options,
@@ -344,6 +346,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File srcDirectory = subproj.file("src");
                 TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                         ExtractConjurePlugin.applyConjureTypeScript(project);
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<CompileConjureTypeScriptTask> compileConjureTypeScript = project.getTasks()
                         .register("compileConjureTypeScript", CompileConjureTypeScriptTask.class, task -> {
                             task.getPackageName().convention(project.getName());
@@ -369,6 +372,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 String npmCommand = OsUtils.NPM_COMMAND_NAME;
 
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<GenerateNpmrcTask> generateNpmrc = project.getTasks()
                         .register("generateNpmrc", GenerateNpmrcTask.class, task -> {
                             task.setDescription("Generates .npmrc file suitable to resolve and publish NPM artifacts");
@@ -386,6 +390,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
                 compileConjure.configure(t -> t.dependsOn(generateNpmrc));
 
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<BetterExec> installTypeScriptDependencies = project.getTasks()
                         .register("installTypeScriptDependencies", BetterExec.class, task -> {
                             task.getCommand()
@@ -407,6 +412,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     }
                 });
 
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<BetterExec> compileTypeScript = project.getTasks()
                         .register("compileTypeScript", BetterExec.class, task -> {
                             task.setDescription(
@@ -420,6 +426,7 @@ public final class ConjurePlugin implements Plugin<Project> {
 
                 buildDependsOn(project, compileTypeScript);
 
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<Exec> publishTypeScript = project.getTasks()
                         .register("publishTypeScript", Exec.class, task -> {
                             task.setDescription("Runs `npm publish` to publish a TypeScript package "
@@ -456,6 +463,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
+    @SuppressWarnings("for-rollout:TaskDependsOn")
     private static void setupConjurePythonProject(
             Project project,
             Supplier<GeneratorOptions> options,
@@ -469,6 +477,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                 File distDir = new File(buildDir, "dist");
                 TaskProvider<ExtractExecutableTask> extractConjurePythonTask =
                         ExtractConjurePlugin.applyConjurePython(project);
+                @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<CompileConjurePythonTask> compileConjurePython = project.getTasks()
                         .register("compileConjurePython", CompileConjurePythonTask.class, task -> {
                             task.setDescription("Generates Python files from your Conjure definitions.");
@@ -568,6 +577,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                     String.format("conjure-%s", conjureLanguage));
 
             String taskName = "compileConjure" + StringUtils.capitalize(conjureLanguage);
+            @SuppressWarnings("for-rollout:TaskDependsOn")
             TaskProvider<ConjureGeneratorTask> conjureLocalGenerateTask = project.getTasks()
                     .register(taskName, ConjureGeneratorTask.class, task -> {
                         task.setDescription(
