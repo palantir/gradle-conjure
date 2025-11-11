@@ -151,6 +151,7 @@ public final class ConjureJavaLocalCodegenPlugin implements Plugin<Project> {
                 .getRecommendedProductDependenciesProvider()
                 .set(conjureIrFile.map(ConjureJavaLocalCodegenPlugin::extractProductDependencies));
 
+        @SuppressWarnings("for-rollout:TaskDependsOn")
         TaskProvider<ConjureJavaLocalGeneratorTask> generateJava = project.getTasks()
                 .register("generateConjure", ConjureJavaLocalGeneratorTask.class, task -> {
                     task.setSource(conjureIrFile);

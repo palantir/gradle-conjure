@@ -89,6 +89,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
         subproj.getPluginManager().apply(JavaLibraryPlugin.class);
 
+        @SuppressWarnings("for-rollout:TaskDependsOn")
         TaskProvider<ConjureLocalGenerateGenericTask> generateJava = project.getTasks()
                 .register("generateJava", ConjureLocalGenerateGenericTask.class, task -> {
                     task.setDescription("Generates Java bindings for remote Conjure definitions.");
@@ -177,6 +178,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     new File(subproject.getBuildDir(), "generator"),
                     String.format("conjure-%s", subprojectName));
 
+            @SuppressWarnings("for-rollout:TaskDependsOn")
             TaskProvider<ConjureLocalGenerateGenericTask> conjureLocalGenerateTask = project.getTasks()
                     .register(
                             "generate" + StringUtils.capitalize(subprojectName),
@@ -208,6 +210,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
         TaskProvider<ExtractExecutableTask> extractConjurePythonTask = ExtractConjurePlugin.applyConjurePython(project);
 
+        @SuppressWarnings("for-rollout:TaskDependsOn")
         TaskProvider<ConjureLocalGenerateTask> conjureLocalGenerateTask = project.getTasks()
                 .register("generatePython", ConjureLocalGenerateTask.class, task -> {
                     task.setDescription("Generates Python files from remote Conjure definitions.");
@@ -236,6 +239,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                 ExtractConjurePlugin.applyConjureTypeScript(project);
 
+        @SuppressWarnings("for-rollout:TaskDependsOn")
         TaskProvider<ConjureLocalGenerateTask> conjureLocalGenerateTask = project.getTasks()
                 .register("generateTypeScript", ConjureLocalGenerateTask.class, task -> {
                     task.setDescription("Generate Typescript bindings from remote Conjure definitions.");
