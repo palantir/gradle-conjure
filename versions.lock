@@ -112,11 +112,13 @@ cglib:cglib-nodep:3.2.2 (1 constraints: 490ded24)
 
 com.netflix.nebula:nebula-test:10.6.2 (2 constraints: d61de72d)
 
-com.palantir.gradle.plugintesting:configuration-cache-spec:0.39.0 (1 constraints: 3e05463b)
+com.palantir.gradle.plugintesting:configuration-cache-spec:0.40.0 (1 constraints: 36052f3b)
 
-com.palantir.gradle.plugintesting:gradle-plugin-testing-junit:0.39.0 (1 constraints: 3e05463b)
+com.palantir.gradle.plugintesting:discover-tests-cli:0.40.0 (1 constraints: 36052f3b)
 
-com.palantir.gradle.plugintesting:plugin-testing-core:0.39.0 (1 constraints: 3e05463b)
+com.palantir.gradle.plugintesting:gradle-plugin-testing-junit:0.40.0 (1 constraints: 36052f3b)
+
+com.palantir.gradle.plugintesting:plugin-testing-core:0.40.0 (1 constraints: 36052f3b)
 
 com.squareup.okhttp3:mockwebserver:4.12.0 (1 constraints: 3905413b)
 
@@ -125,6 +127,8 @@ com.squareup.okhttp3:okhttp:4.12.0 (1 constraints: 660fa27c)
 com.squareup.okio:okio:3.6.0 (1 constraints: 530c38fd)
 
 com.squareup.okio:okio-jvm:3.6.0 (1 constraints: 500ad3b9)
+
+info.picocli:picocli:4.7.7 (1 constraints: 2816dcdd)
 
 junit:junit:4.13.2 (4 constraints: 6d337d84)
 
@@ -160,7 +164,7 @@ org.junit.platform:junit-platform-commons:6.0.1 (2 constraints: d520474a)
 
 org.junit.platform:junit-platform-engine:6.0.1 (4 constraints: 9e40c7e2)
 
-org.junit.platform:junit-platform-launcher:6.0.1 (1 constraints: 09050a36)
+org.junit.platform:junit-platform-launcher:6.0.1 (2 constraints: 571b2362)
 
 org.junit.vintage:junit-vintage-engine:6.0.1 (1 constraints: 09050a36)
 
