@@ -123,7 +123,7 @@ final class ReverseEngineerJavaStartScript {
         List<File> classpath();
 
         @Value.Derived
-        default URL[] classpathUrls() {
+        default List<URL> classpathUrls() {
             return classpath().stream()
                     .map(file -> {
                         try {
@@ -132,7 +132,7 @@ final class ReverseEngineerJavaStartScript {
                             throw new UncheckedIOException(e);
                         }
                     })
-                    .toArray(URL[]::new);
+                    .toList();
         }
 
         String mainClass();

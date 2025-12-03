@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -40,6 +41,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public abstract class ConjureGeneratorTask extends SourceTask {
@@ -47,6 +49,9 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
     @Nested
     protected abstract GradleExec getGradleExec();
+
+    @Inject
+    public abstract WorkerExecutor getWorkerExecutor();
 
     public ConjureGeneratorTask() {
         // @TaskAction uses doFirst I think, because other actions prepended using doFirst end up happening AFTER the
@@ -107,6 +112,7 @@ public abstract class ConjureGeneratorTask extends SourceTask {
 
             getGradleExec()
                     .exec(
+                            getWorkerExecutor(),
                             "run generator",
                             OsUtils.appendDotBatIfWindows(
                                     getExecutablePath().get().getAsFile()),

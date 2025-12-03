@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
@@ -42,6 +43,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public abstract class CompileIrTask extends DefaultTask {
@@ -49,6 +51,9 @@ public abstract class CompileIrTask extends DefaultTask {
 
     @Nested
     protected abstract GradleExec getGradleExec();
+
+    @Inject
+    public abstract WorkerExecutor getWorkerExecutor();
 
     public CompileIrTask() {
         getConjureExtensions().convention(new HashMap<>());
@@ -114,7 +119,7 @@ public abstract class CompileIrTask extends DefaultTask {
                 .addAll(RenderGeneratorOptions.toArgs(getOptions().get(), Collections.emptyMap()))
                 .build();
 
-        getGradleExec().exec("generate conjure IR", executable, Collections.emptyList(), args);
+        getGradleExec().exec(getWorkerExecutor(), "generate conjure IR", executable, Collections.emptyList(), args);
     }
 
     private String getSerializedExtensions() {

@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
@@ -41,6 +42,7 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
 @CacheableTask
 public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
@@ -49,6 +51,9 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
 
     @Nested
     protected abstract GradleExec getGradleExec();
+
+    @Inject
+    public abstract WorkerExecutor getWorkerExecutor();
 
     @OutputDirectory
     protected abstract DirectoryProperty getOutputDirectory();
@@ -100,6 +105,7 @@ public abstract class ConjureJavaLocalGeneratorTask extends SourceTask {
 
             getGradleExec()
                     .exec(
+                            getWorkerExecutor(),
                             "generate " + generatorFlag,
                             getExecutablePath().getAsFile().get(),
                             generateCommand,

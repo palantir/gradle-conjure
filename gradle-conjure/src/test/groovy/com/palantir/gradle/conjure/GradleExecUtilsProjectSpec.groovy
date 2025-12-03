@@ -28,6 +28,7 @@ class GradleExecUtilsProjectSpec extends ProjectSpec {
 
         expect:
         gradleExec.exec(
+                null,
                 "execute",
                 new File('/bin/sh'),
                 ['-c'],
@@ -45,6 +46,7 @@ class GradleExecUtilsProjectSpec extends ProjectSpec {
 
         Assertions.assertThatExceptionOfType(RuntimeException).isThrownBy {
             gradleExec.exec(
+                null,
                     "fail",
                     new File('/bin/sh'),
                     baseArgs,

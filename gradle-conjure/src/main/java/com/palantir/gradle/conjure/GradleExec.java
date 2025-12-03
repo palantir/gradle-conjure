@@ -20,14 +20,19 @@ import java.io.File;
 import java.util.List;
 import javax.inject.Inject;
 import org.gradle.api.services.BuildServiceRegistry;
+import org.gradle.workers.WorkerExecutor;
 
 public abstract class GradleExec {
 
     @Inject
     public abstract BuildServiceRegistry getBuildServiceRegistry();
 
-    public final void exec(String failedTo, File executable, List<String> unloggedArgs, List<String> loggedArgs) {
-
+    public final void exec(
+            WorkerExecutor workerExecutor,
+            String failedTo,
+            File executable,
+            List<String> unloggedArgs,
+            List<String> loggedArgs) {
         getBuildServiceRegistry()
                 .registerIfAbsent(
                         // Executable name must be the cache key, neither the spec parameters
@@ -36,6 +41,6 @@ public abstract class GradleExec {
                             spec.getParameters().getExecutable().set(executable);
                         })
                 .get()
-                .invoke(failedTo, unloggedArgs, loggedArgs);
+                .invoke(workerExecutor, failedTo, unloggedArgs, loggedArgs);
     }
 }
