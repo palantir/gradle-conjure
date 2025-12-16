@@ -34,7 +34,6 @@ import org.immutables.value.Value;
  * @deprecated  As of release 5.13.0, replaced by {@link #EndpointVersionBounds}
  */
 public interface EndpointMinimumVersions {
-    @SuppressWarnings("for-rollout:deprecation")
     @JsonProperty("endpoint-minimum-versions")
     Set<EndpointMinimumVersion> minimumVersions();
 
