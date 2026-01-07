@@ -1,24 +1,24 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.20 (11 constraints: 3ebd5e06)
+com.fasterxml.jackson.core:jackson-annotations:2.20 (11 constraints: d6bc5f97)
 
-com.fasterxml.jackson.core:jackson-core:2.20.1 (10 constraints: 99dff7a1)
+com.fasterxml.jackson.core:jackson-core:2.20.1 (10 constraints: 9bdf47a2)
 
-com.fasterxml.jackson.core:jackson-databind:2.20.1 (13 constraints: 15234b3c)
+com.fasterxml.jackson.core:jackson-databind:2.20.1 (13 constraints: 0e230234)
 
-com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.20.1 (1 constraints: 7b1c95a4)
 
-com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.20.1 (1 constraints: 7b1c95a4)
 
 com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.20.1 (1 constraints: 3a1b2047)
 
-com.fasterxml.jackson.datatype:jackson-datatype-guava:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.datatype:jackson-datatype-guava:2.20.1 (1 constraints: 7b1c95a4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1 (1 constraints: 7b1c95a4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-joda:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.datatype:jackson-datatype-joda:2.20.1 (1 constraints: 7b1c95a4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1 (1 constraints: 7a1c94a4)
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1 (1 constraints: 7b1c95a4)
 
 com.fasterxml.woodstox:woodstox-core:7.1.1 (1 constraints: 3d174926)
 
@@ -28,19 +28,19 @@ com.google.errorprone:error_prone_annotations:2.41.0 (10 constraints: cb9bfbda)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
-com.google.guava:guava:33.5.0-jre (9 constraints: 86cb9438)
+com.google.guava:guava:33.5.0-jre (9 constraints: 7fcb0e37)
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 
 com.google.j2objc:j2objc-annotations:3.1 (1 constraints: b809f1a0)
 
-com.palantir.conjure.java:conjure-lib:8.65.0 (1 constraints: 891cd7a4)
+com.palantir.conjure.java:conjure-lib:8.67.0 (1 constraints: 8b1cdda4)
 
-com.palantir.conjure.java.api:errors:2.65.0 (1 constraints: 2510ada9)
+com.palantir.conjure.java.api:errors:2.67.0 (1 constraints: 2710b3a9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.28.0 (1 constraints: 881cd0a4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.29.0 (1 constraints: 891cd3a4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.28.0 (1 constraints: 44056f3b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.29.0 (1 constraints: 4505723b)
 
 com.palantir.gradle.better-exec:better-exec:3.4.0 (1 constraints: 09050636)
 
@@ -72,13 +72,13 @@ com.palantir.safe-logging:safe-logging:3.9.0 (9 constraints: 2e9b0f4c)
 
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.86.0 (1 constraints: 47057b3b)
 
-com.palantir.sls.versions:sls-versions:1.8.0 (2 constraints: 6020dff5)
+com.palantir.sls.versions:sls-versions:1.9.0 (2 constraints: 61202df6)
 
 com.palantir.tokens:auth-tokens:3.20.0 (1 constraints: 1d1094a9)
 
-com.palantir.tritium:tritium-ids:0.104.0 (1 constraints: f80f86a6)
+com.palantir.tritium:tritium-ids:0.117.0 (1 constraints: fc0f93a6)
 
-com.palantir.tritium:tritium-registry:0.117.0 (1 constraints: af1c46c1)
+com.palantir.tritium:tritium-registry:0.122.0 (1 constraints: ab1c3bc1)
 
 commons-io:commons-io:2.21.0 (2 constraints: 111f5a8c)
 
@@ -96,7 +96,7 @@ org.eclipse.collections:eclipse-collections:13.0.0 (1 constraints: 1c1091a9)
 
 org.eclipse.collections:eclipse-collections-api:13.0.0 (2 constraints: fa22df26)
 
-org.immutables:value:2.12.1 (2 constraints: 0115bdc1)
+org.immutables:value:2.12.1 (2 constraints: 0515c1c1)
 
 org.jetbrains:annotations:26.0.2 (4 constraints: b8499fa6)
 
