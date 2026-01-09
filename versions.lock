@@ -24,7 +24,7 @@ com.fasterxml.woodstox:woodstox-core:7.1.1 (1 constraints: 3d174926)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
-com.google.errorprone:error_prone_annotations:2.41.0 (10 constraints: cb9bfbda)
+com.google.errorprone:error_prone_annotations:2.41.0 (10 constraints: ff9a59b4)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
@@ -38,9 +38,9 @@ com.palantir.conjure.java:conjure-lib:8.67.0 (1 constraints: 8b1cdda4)
 
 com.palantir.conjure.java.api:errors:2.67.0 (1 constraints: 2710b3a9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.29.0 (1 constraints: 891cd3a4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.30.0 (1 constraints: 811cbca4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.29.0 (1 constraints: 4505723b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.30.0 (1 constraints: 3d055b3b)
 
 com.palantir.gradle.better-exec:better-exec:3.4.0 (1 constraints: 09050636)
 
@@ -60,15 +60,15 @@ com.palantir.gradle.utils:providers:0.19.0 (2 constraints: 7020c85d)
 
 com.palantir.ri:resource-identifier:2.11.0 (1 constraints: 1c108da9)
 
-com.palantir.safe-logging:logger:3.9.0 (4 constraints: 4c497c6d)
+com.palantir.safe-logging:logger:3.10.0 (4 constraints: 7449e09d)
 
-com.palantir.safe-logging:logger-slf4j:3.9.0 (1 constraints: 070e6e42)
+com.palantir.safe-logging:logger-slf4j:3.10.0 (1 constraints: 2f0e8750)
 
-com.palantir.safe-logging:logger-spi:3.9.0 (2 constraints: 1d1e0c7c)
+com.palantir.safe-logging:logger-spi:3.10.0 (2 constraints: 6d1ed4af)
 
-com.palantir.safe-logging:preconditions:3.9.0 (9 constraints: 30a4234b)
+com.palantir.safe-logging:preconditions:3.10.0 (9 constraints: 80a45959)
 
-com.palantir.safe-logging:safe-logging:3.9.0 (9 constraints: 2e9b0f4c)
+com.palantir.safe-logging:safe-logging:3.10.0 (9 constraints: f69b12cd)
 
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.86.0 (1 constraints: 47057b3b)
 
@@ -78,7 +78,7 @@ com.palantir.tokens:auth-tokens:3.20.0 (1 constraints: 1d1094a9)
 
 com.palantir.tritium:tritium-ids:0.117.0 (1 constraints: fc0f93a6)
 
-com.palantir.tritium:tritium-registry:0.122.0 (1 constraints: ab1c3bc1)
+com.palantir.tritium:tritium-registry:0.123.0 (1 constraints: ac1c3ec1)
 
 commons-io:commons-io:2.21.0 (2 constraints: 111f5a8c)
 
