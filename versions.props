@@ -22,7 +22,7 @@ com.palantir.gradle.better-exec:* = 3.4.0
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2
-org.objenesis:objenesis = 3.4
+org.objenesis:objenesis = 3.5
 
 # dependency-upgrader:OFF
 # Avoid forcing consumers to bump to okhttp 5.x
