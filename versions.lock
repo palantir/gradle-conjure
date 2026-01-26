@@ -170,7 +170,7 @@ org.junit.vintage:junit-vintage-engine:6.0.2 (1 constraints: 0a050b36)
 
 org.mockito:mockito-core:5.21.0 (1 constraints: 3a05483b)
 
-org.objenesis:objenesis:3.4 (3 constraints: 451c50c1)
+org.objenesis:objenesis:3.5 (3 constraints: 461c95c1)
 
 org.opentest4j:opentest4j:1.3.0 (2 constraints: cf209249)
 
