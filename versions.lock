@@ -4,7 +4,7 @@ com.fasterxml.jackson.core:jackson-annotations:2.20 (11 constraints: d6bc5f97)
 
 com.fasterxml.jackson.core:jackson-core:2.20.1 (10 constraints: 9bdf47a2)
 
-com.fasterxml.jackson.core:jackson-databind:2.20.1 (13 constraints: 0e230234)
+com.fasterxml.jackson.core:jackson-databind:2.20.1 (13 constraints: 05237932)
 
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.20.1 (1 constraints: 7b1c95a4)
 
@@ -66,13 +66,13 @@ com.palantir.safe-logging:logger-slf4j:3.10.0 (1 constraints: 2f0e8750)
 
 com.palantir.safe-logging:logger-spi:3.10.0 (2 constraints: 6d1ed4af)
 
-com.palantir.safe-logging:preconditions:3.10.0 (9 constraints: 80a45959)
+com.palantir.safe-logging:preconditions:3.11.0 (9 constraints: a9a43edc)
 
-com.palantir.safe-logging:safe-logging:3.10.0 (9 constraints: f69b12cd)
+com.palantir.safe-logging:safe-logging:3.11.0 (9 constraints: f79b73cd)
 
-com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.86.0 (1 constraints: 47057b3b)
+com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.87.0 (1 constraints: 48057e3b)
 
-com.palantir.sls.versions:sls-versions:1.9.0 (2 constraints: 61202df6)
+com.palantir.sls.versions:sls-versions:1.9.0 (2 constraints: 622030f6)
 
 com.palantir.tokens:auth-tokens:3.20.0 (1 constraints: 1d1094a9)
 
