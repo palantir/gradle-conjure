@@ -1,6 +1,6 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.21 (11 constraints: dcbc15a0)
+com.fasterxml.jackson.core:jackson-annotations:2.21 (11 constraints: ddbc3da0)
 
 com.fasterxml.jackson.core:jackson-core:2.21.0 (10 constraints: 9bdf57a2)
 
@@ -60,19 +60,19 @@ com.palantir.gradle.utils:providers:0.19.0 (2 constraints: 7020c85d)
 
 com.palantir.ri:resource-identifier:2.11.0 (1 constraints: 1c108da9)
 
-com.palantir.safe-logging:logger:3.10.0 (4 constraints: 7449e09d)
+com.palantir.safe-logging:logger:3.11.0 (4 constraints: 9d492cd8)
 
-com.palantir.safe-logging:logger-slf4j:3.10.0 (1 constraints: 2f0e8750)
+com.palantir.safe-logging:logger-slf4j:3.11.0 (1 constraints: 300e8a50)
 
-com.palantir.safe-logging:logger-spi:3.10.0 (2 constraints: 6d1ed4af)
+com.palantir.safe-logging:logger-spi:3.11.0 (2 constraints: 6f1e0ab0)
 
-com.palantir.safe-logging:preconditions:3.11.0 (9 constraints: a9a43edc)
+com.palantir.safe-logging:preconditions:3.11.0 (9 constraints: d2a49868)
 
-com.palantir.safe-logging:safe-logging:3.11.0 (9 constraints: f79b73cd)
+com.palantir.safe-logging:safe-logging:3.11.0 (9 constraints: 229cac61)
 
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.87.0 (1 constraints: 48057e3b)
 
-com.palantir.sls.versions:sls-versions:1.9.0 (2 constraints: 622030f6)
+com.palantir.sls.versions:sls-versions:1.10.0 (2 constraints: 8a201507)
 
 com.palantir.tokens:auth-tokens:3.20.0 (1 constraints: 1d1094a9)
 
