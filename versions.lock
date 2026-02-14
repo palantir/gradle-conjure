@@ -86,7 +86,7 @@ io.dropwizard.metrics:metrics-core:4.2.38 (2 constraints: 512df897)
 
 joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
-net.bytebuddy:byte-buddy:1.18.4 (3 constraints: db1bc4de)
+net.bytebuddy:byte-buddy:1.18.5 (3 constraints: dc1b09df)
 
 org.apache.commons:commons-lang3:3.20.0 (1 constraints: 3705393b)
 
