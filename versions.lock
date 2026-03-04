@@ -60,19 +60,19 @@ com.palantir.gradle.utils:providers:0.19.0 (2 constraints: 7020c85d)
 
 com.palantir.ri:resource-identifier:2.13.0 (1 constraints: 1e1093a9)
 
-com.palantir.safe-logging:logger:3.12.0 (4 constraints: f1490965)
+com.palantir.safe-logging:logger:3.12.0 (4 constraints: f2495f65)
 
 com.palantir.safe-logging:logger-slf4j:3.12.0 (1 constraints: 310e8d50)
 
 com.palantir.safe-logging:logger-spi:3.12.0 (2 constraints: 711e40b0)
 
-com.palantir.safe-logging:preconditions:3.12.0 (9 constraints: a3a5dcbe)
+com.palantir.safe-logging:preconditions:3.12.0 (9 constraints: a4a561bf)
 
-com.palantir.safe-logging:safe-logging:3.12.0 (9 constraints: a49c197f)
+com.palantir.safe-logging:safe-logging:3.12.0 (9 constraints: a59c4b7f)
 
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.87.0 (1 constraints: 48057e3b)
 
-com.palantir.sls.versions:sls-versions:1.10.0 (2 constraints: 8a201507)
+com.palantir.sls.versions:sls-versions:1.11.0 (2 constraints: 8b206307)
 
 com.palantir.tokens:auth-tokens:3.22.0 (1 constraints: 1f109aa9)
 
