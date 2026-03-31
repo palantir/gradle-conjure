@@ -770,6 +770,22 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         runTasks('checkUnusedDependencies', '--warning-mode=all')
     }
 
+    def 'typescript subproject compileJava is disabled when java-library is applied'() {
+        setup:
+        buildFile << """
+            project(':api:api-typescript') {
+                apply plugin: 'java-library'
+            }
+        """.stripIndent()
+
+        when:
+        BuildResult result = runTasksWithConfigurationCacheAndCheck(
+                ':api:api-typescript:compileJava')
+
+        then:
+        result.task(':api:api-typescript:compileJava').outcome == TaskOutcome.SKIPPED
+    }
+
     @IgnoreIf({ jvm.java11Compatible })
     def 'runs on version of gradle: #version'() {
         when:

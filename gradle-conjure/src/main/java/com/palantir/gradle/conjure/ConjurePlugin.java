@@ -63,6 +63,7 @@ import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.eclipse.model.Classpath;
@@ -426,6 +427,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                         });
 
                 buildDependsOn(project, compileTypeScript);
+
+                // Disable any JavaCompile tasks on the typescript subproject — it has no Java sources
+                subproj.getTasks().withType(JavaCompile.class).configureEach(task -> task.setEnabled(false));
 
                 @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<Exec> publishTypeScript = project.getTasks()
