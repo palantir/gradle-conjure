@@ -63,7 +63,6 @@ import org.gradle.api.tasks.Delete;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.eclipse.model.Classpath;
@@ -344,7 +343,8 @@ public final class ConjurePlugin implements Plugin<Project> {
         String typescriptProjectName = project.getName() + "-typescript";
         if (derivedProjectExists(project, typescriptProjectName)) {
             project.project(derivedProjectPath(project, typescriptProjectName), subproj -> {
-                File srcDirectory = subproj.file("src");
+                Provider<Directory> tsOutputDir =
+                        project.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript");
                 TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                         ExtractConjurePlugin.applyConjureTypeScript(project);
                 @SuppressWarnings("for-rollout:TaskDependsOn")
@@ -363,10 +363,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.getProductDependencyFile()
                                     .set(productDependencyTask.flatMap(
                                             GenerateConjureServiceDependenciesTask::getOutputFile));
-                            task.getOutputDirectory().set(srcDirectory);
+                            task.getOutputDirectory().set(tsOutputDir);
                             task.setOptions(options);
-                            task.dependsOn(createWriteGitignoreTask(
-                                    subproj, "gitignoreConjureTypeScript", subproj.getProjectDir(), "/src/\n"));
                             task.dependsOn(extractConjureTypeScriptTask, productDependencyTask, compileIrTask);
                         });
                 compileConjure.configure(t -> t.dependsOn(compileConjureTypeScript));
@@ -397,10 +395,12 @@ public final class ConjurePlugin implements Plugin<Project> {
                         .register("installTypeScriptDependencies", BetterExec.class, task -> {
                             task.getCommand()
                                     .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
-                            task.getWorkingDir().set(srcDirectory);
+                            task.getWorkingDir().set(tsOutputDir.map(Directory::getAsFile));
                             task.dependsOn(compileConjureTypeScript);
-                            task.getInputs().file(new File(srcDirectory, "package.json"));
-                            task.getOutputs().dir(new File(srcDirectory, "node_modules"));
+                            task.getInputs()
+                                    .file(tsOutputDir.map(dir -> dir.file("package.json")));
+                            task.getOutputs()
+                                    .dir(tsOutputDir.map(dir -> dir.dir("node_modules")));
                         });
                 installTypeScriptDependencies.configure(task -> {
                     if (Boolean.parseBoolean(options.get()
@@ -421,15 +421,12 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
                             task.setGroup(TASK_GROUP);
                             task.getCommand().set(List.of(npmCommand, "run-script", "build"));
-                            task.getWorkingDir().set(srcDirectory);
+                            task.getWorkingDir().set(tsOutputDir.map(Directory::getAsFile));
                             task.dependsOn(installTypeScriptDependencies);
-                            task.getOutputs().dir(srcDirectory);
+                            task.getOutputs().dir(tsOutputDir);
                         });
 
                 buildDependsOn(project, compileTypeScript);
-
-                // Disable any JavaCompile tasks on the typescript subproject — it has no Java sources
-                subproj.getTasks().withType(JavaCompile.class).configureEach(task -> task.setEnabled(false));
 
                 @SuppressWarnings("for-rollout:TaskDependsOn")
                 TaskProvider<Exec> publishTypeScript = project.getTasks()
@@ -438,7 +435,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     + "generated from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.commandLine(npmCommand, "publish");
-                            task.workingDir(srcDirectory);
+                            task.workingDir(tsOutputDir.map(Directory::getAsFile));
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });

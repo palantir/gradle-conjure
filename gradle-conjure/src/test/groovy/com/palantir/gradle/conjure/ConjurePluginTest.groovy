@@ -119,12 +119,10 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         file(prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')).text.contains('ignoreUnknown')
 
         // typescript
-        fileExists( prefixPath(prefix, 'api-typescript/src/api/index.ts'))
-        fileExists( prefixPath(prefix, 'api-typescript/src/index.ts'))
-        fileExists( prefixPath(prefix, 'api-typescript/src/tsconfig.json'))
-        fileExists( prefixPath(prefix, 'api-typescript/src/package.json'))
-        fileExists( prefixPath(prefix, 'api-typescript/.gitignore'))
-        file(prefixPath(prefix, 'api-typescript/.gitignore')).readLines() == ["/src/"]
+        fileExists('api/build/generated/sources/conjure-typescript/api/index.ts')
+        fileExists('api/build/generated/sources/conjure-typescript/index.ts')
+        fileExists('api/build/generated/sources/conjure-typescript/tsconfig.json')
+        fileExists('api/build/generated/sources/conjure-typescript/package.json')
 
         // irFile - these are always in api project
         fileExists('api/build/conjure-ir/api.conjure.json')
@@ -486,7 +484,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         fileExists( prefixPath(prefix, 'api-objects/build/generated/sources/conjure-objects/java/main/test/api/internal/InternalImport.java'))
 
         // typescript
-        file(prefixPath(prefix, 'api-typescript/src/service/testServiceFoo2.ts')).text.contains(
+        file('api/build/generated/sources/conjure-typescript/service/testServiceFoo2.ts').text.contains(
                 'import { IInternalImport }')
 
         // ir
@@ -619,9 +617,9 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         runTasksWithConfigurationCache(':api:compileConjureTypeScript')
 
         then:
-        file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"name": "foo"')
-        file(prefixPath(prefix, 'api-typescript/src/package.json')).text.contains('"version": "0.0.0"')
-        file(prefixPath(prefix, 'api-typescript/src/tsconfig.json')).text.contains('"module": "commonjs"')
+        file('api/build/generated/sources/conjure-typescript/package.json').text.contains('"name": "foo"')
+        file('api/build/generated/sources/conjure-typescript/package.json').text.contains('"version": "0.0.0"')
+        file('api/build/generated/sources/conjure-typescript/tsconfig.json').text.contains('"module": "commonjs"')
 
         where:
         location   | prefix
@@ -768,22 +766,6 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
 
         expect:
         runTasks('checkUnusedDependencies', '--warning-mode=all')
-    }
-
-    def 'typescript subproject compileJava is disabled when java-library is applied'() {
-        setup:
-        buildFile << """
-            project(':api:api-typescript') {
-                apply plugin: 'java-library'
-            }
-        """.stripIndent()
-
-        when:
-        BuildResult result = runTasksWithConfigurationCacheAndCheck(
-                ':api:api-typescript:compileJava')
-
-        then:
-        result.task(':api:api-typescript:compileJava').outcome == TaskOutcome.SKIPPED
     }
 
     @IgnoreIf({ jvm.java11Compatible })

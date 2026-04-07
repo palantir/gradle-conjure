@@ -161,7 +161,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
 
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.contains(':api:generateConjureServiceDependencies')
-        file('api/api-typescript/src/package.json').text.contains('sls')
+        file('api/build/generated/sources/conjure-typescript/package.json').text.contains('sls')
     }
 
     def "does not pass product dependencies to java objects or undertow"() {
