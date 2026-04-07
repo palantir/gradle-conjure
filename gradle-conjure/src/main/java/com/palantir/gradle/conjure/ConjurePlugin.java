@@ -344,7 +344,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         if (derivedProjectExists(project, typescriptProjectName)) {
             project.project(derivedProjectPath(project, typescriptProjectName), subproj -> {
                 Provider<Directory> tsOutputDir =
-                        project.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript");
+                        subproj.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript");
                 TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                         ExtractConjurePlugin.applyConjureTypeScript(project);
                 @SuppressWarnings("for-rollout:TaskDependsOn")
@@ -397,10 +397,8 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
                             task.getWorkingDir().set(tsOutputDir.map(Directory::getAsFile));
                             task.dependsOn(compileConjureTypeScript);
-                            task.getInputs()
-                                    .file(tsOutputDir.map(dir -> dir.file("package.json")));
-                            task.getOutputs()
-                                    .dir(tsOutputDir.map(dir -> dir.dir("node_modules")));
+                            task.getInputs().file(tsOutputDir.map(dir -> dir.file("package.json")));
+                            task.getOutputs().dir(tsOutputDir.map(dir -> dir.dir("node_modules")));
                         });
                 installTypeScriptDependencies.configure(task -> {
                     if (Boolean.parseBoolean(options.get()
