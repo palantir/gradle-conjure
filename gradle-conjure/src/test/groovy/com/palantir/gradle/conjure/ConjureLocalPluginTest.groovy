@@ -104,7 +104,7 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
         then:
         result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(":generateTypeScript", ":generatePython")
 
-        fileExists('typescript/src/conjure-api/index.ts')
+        fileExists('typescript/build/generated/sources/conjure-typescript/conjure-api/index.ts')
         fileExists('python/python/conjure-api/conjure_spec/__init__.py')
     }
 

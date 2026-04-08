@@ -234,8 +234,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
         if (subproj == null) {
             return;
         }
-        File srcDirectory = subproj.file("src");
-
         TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                 ExtractConjurePlugin.applyConjureTypeScript(project);
 
@@ -248,7 +246,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                     task.getExecutablePath()
                             .set(extractConjureTypeScriptTask.flatMap(ExtractExecutableTask::getExecutable));
                     task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
-                    task.getOutputDirectory().set(srcDirectory);
+                    task.getOutputDirectory()
+                            .set(subproj.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript"));
                     task.dependsOn(extractConjureTypeScriptTask);
                 });
         generateConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
