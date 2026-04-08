@@ -247,7 +247,7 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
                             .set(extractConjureTypeScriptTask.flatMap(ExtractExecutableTask::getExecutable));
                     task.setOptions(() -> optionsSupplier.get().addFlag("rawSource"));
                     task.getOutputDirectory()
-                            .set(project.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript"));
+                            .set(subproj.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript"));
                     task.dependsOn(extractConjureTypeScriptTask);
                 });
         generateConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
