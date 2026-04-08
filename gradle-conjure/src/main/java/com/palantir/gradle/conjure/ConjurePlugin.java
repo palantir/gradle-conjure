@@ -343,7 +343,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         String typescriptProjectName = project.getName() + "-typescript";
         if (derivedProjectExists(project, typescriptProjectName)) {
             project.project(derivedProjectPath(project, typescriptProjectName), subproj -> {
-                Provider<Directory> tsOutputDir =
+                Provider<Directory> outputDirectory =
                         subproj.getLayout().getBuildDirectory().dir("generated/sources/conjure-typescript");
                 TaskProvider<ExtractExecutableTask> extractConjureTypeScriptTask =
                         ExtractConjurePlugin.applyConjureTypeScript(project);
@@ -363,7 +363,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                             task.getProductDependencyFile()
                                     .set(productDependencyTask.flatMap(
                                             GenerateConjureServiceDependenciesTask::getOutputFile));
-                            task.getOutputDirectory().set(tsOutputDir);
+                            task.getOutputDirectory().set(outputDirectory);
                             task.setOptions(options);
                             task.dependsOn(extractConjureTypeScriptTask, productDependencyTask, compileIrTask);
                         });
@@ -395,10 +395,10 @@ public final class ConjurePlugin implements Plugin<Project> {
                         .register("installTypeScriptDependencies", BetterExec.class, task -> {
                             task.getCommand()
                                     .set(List.of(npmCommand, "install", "--no-package-lock", "--no-production"));
-                            task.getWorkingDir().set(tsOutputDir.map(Directory::getAsFile));
+                            task.getWorkingDir().set(outputDirectory.map(Directory::getAsFile));
                             task.dependsOn(compileConjureTypeScript);
-                            task.getInputs().file(tsOutputDir.map(dir -> dir.file("package.json")));
-                            task.getOutputs().dir(tsOutputDir.map(dir -> dir.dir("node_modules")));
+                            task.getInputs().file(outputDirectory.map(dir -> dir.file("package.json")));
+                            task.getOutputs().dir(outputDirectory.map(dir -> dir.dir("node_modules")));
                         });
                 installTypeScriptDependencies.configure(task -> {
                     if (Boolean.parseBoolean(options.get()
@@ -419,9 +419,9 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     "Runs `npm tsc` to compile generated TypeScript files into JavaScript files.");
                             task.setGroup(TASK_GROUP);
                             task.getCommand().set(List.of(npmCommand, "run-script", "build"));
-                            task.getWorkingDir().set(tsOutputDir.map(Directory::getAsFile));
+                            task.getWorkingDir().set(outputDirectory.map(Directory::getAsFile));
                             task.dependsOn(installTypeScriptDependencies);
-                            task.getOutputs().dir(tsOutputDir);
+                            task.getOutputs().dir(outputDirectory);
                         });
 
                 buildDependsOn(project, compileTypeScript);
@@ -433,7 +433,7 @@ public final class ConjurePlugin implements Plugin<Project> {
                                     + "generated from your Conjure definitions.");
                             task.setGroup(TASK_GROUP);
                             task.commandLine(npmCommand, "publish");
-                            task.workingDir(tsOutputDir.map(Directory::getAsFile));
+                            task.workingDir(outputDirectory.map(Directory::getAsFile));
                             task.dependsOn(compileConjureTypeScript);
                             task.dependsOn(compileTypeScript);
                         });
