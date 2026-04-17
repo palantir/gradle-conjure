@@ -28,7 +28,7 @@ com.google.errorprone:error_prone_annotations:2.47.0 (11 constraints: 56ad06d3)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
-com.google.guava:guava:33.6.0-jre (9 constraints: 80cb3639)
+com.google.guava:guava:33.6.0-jre (9 constraints: 81cb9e39)
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 
@@ -66,13 +66,13 @@ com.palantir.safe-logging:logger-slf4j:3.13.0 (1 constraints: 320e9050)
 
 com.palantir.safe-logging:logger-spi:3.13.0 (2 constraints: 731e76b0)
 
-com.palantir.safe-logging:preconditions:3.13.0 (9 constraints: afa5e0c8)
+com.palantir.safe-logging:preconditions:3.14.0 (9 constraints: b0a595c9)
 
-com.palantir.safe-logging:safe-logging:3.13.0 (9 constraints: af9cc787)
+com.palantir.safe-logging:safe-logging:3.14.0 (9 constraints: b09c2988)
 
-com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.88.0 (1 constraints: 4905813b)
+com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.89.0 (1 constraints: 4a05843b)
 
-com.palantir.sls.versions:sls-versions:1.12.0 (2 constraints: b5205228)
+com.palantir.sls.versions:sls-versions:1.12.0 (2 constraints: b6205528)
 
 com.palantir.tokens:auth-tokens:4.2.0 (1 constraints: ee0f7a99)
 
