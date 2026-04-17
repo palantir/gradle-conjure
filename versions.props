@@ -18,7 +18,7 @@ org.spockframework:* = 2.0-groovy-3.0
 com.palantir.sls-packaging:* = 7.88.0
 com.palantir.conjure.java.runtime:* = 8.33.0
 net.bytebuddy:byte-buddy = 1.18.8
-com.palantir.gradle.better-exec:* = 3.5.0
+com.palantir.gradle.better-exec:* = 3.7.0
 
 # Resolve conflicts
 com.google.code.findbugs:jsr305 = 3.0.2

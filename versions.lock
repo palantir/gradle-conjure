@@ -24,7 +24,7 @@ com.fasterxml.woodstox:woodstox-core:7.1.1 (1 constraints: 3d174926)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
-com.google.errorprone:error_prone_annotations:2.47.0 (10 constraints: 0b9bb1c2)
+com.google.errorprone:error_prone_annotations:2.47.0 (11 constraints: 56ad06d3)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
@@ -42,7 +42,7 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.33.0 (1 c
 
 com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.33.0 (1 constraints: 4005643b)
 
-com.palantir.gradle.better-exec:better-exec:3.5.0 (1 constraints: 0a050936)
+com.palantir.gradle.better-exec:better-exec:3.7.0 (1 constraints: 0c050f36)
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-common:1.13.0 (1 constraints: ed1c2cc2)
 
