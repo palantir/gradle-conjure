@@ -12,3 +12,5 @@ rootProject.name = 'gradle-conjure-root'
 
 include 'gradle-conjure'
 include 'gradle-conjure-api'
+
+throw new RuntimeException('''The excavator failed to run properly:\n\n''' + file('gradle/exception').text)
