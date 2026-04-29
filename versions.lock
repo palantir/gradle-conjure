@@ -80,7 +80,7 @@ com.palantir.tritium:tritium-ids:0.126.0 (1 constraints: fc0f94a6)
 
 com.palantir.tritium:tritium-registry:0.126.0 (1 constraints: af1c47c1)
 
-commons-io:commons-io:2.21.0 (2 constraints: 0a1f468c)
+commons-io:commons-io:2.22.0 (2 constraints: 0b1f908c)
 
 io.dropwizard.metrics:metrics-core:4.2.38 (2 constraints: 512df897)
 
