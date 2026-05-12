@@ -216,6 +216,7 @@ public abstract class GenerateNpmrcTask extends DefaultTask {
         }
     }
 
+    @SuppressWarnings("for-rollout:DangerousImmutablesToStringDoNotLog")
     @DoNotLog
     @Immutable
     @JsonSerialize(as = ImmutableNpmTokenRequest.class)
@@ -229,6 +230,7 @@ public abstract class GenerateNpmrcTask extends DefaultTask {
         String password();
     }
 
+    @SuppressWarnings("for-rollout:DangerousImmutablesToStringDoNotLog")
     @DoNotLog
     @Immutable
     @JsonSerialize(as = ImmutableNpmTokenResponse.class)
