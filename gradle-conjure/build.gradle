@@ -85,11 +85,6 @@ gradlePlugin {
     }
 }
 
-idea {
-    module {
-        testSourceDirs += file("src/test/groovy")
-    }
-}
 
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
