@@ -38,9 +38,9 @@ com.palantir.conjure.java:conjure-lib:8.78.0 (1 constraints: 8d1ce4a4)
 
 com.palantir.conjure.java.api:errors:2.72.0 (1 constraints: 2310a8a9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.35.0 (1 constraints: 861ccba4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.36.0 (1 constraints: 871ccea4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.35.0 (1 constraints: 42056a3b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.36.0 (1 constraints: 43056d3b)
 
 com.palantir.gradle.better-exec:better-exec:3.7.0 (1 constraints: 0c050f36)
 
@@ -78,11 +78,11 @@ com.palantir.tokens:auth-tokens:4.4.0 (1 constraints: f00f8099)
 
 com.palantir.tritium:tritium-ids:0.127.0 (1 constraints: fd0f97a6)
 
-com.palantir.tritium:tritium-registry:0.130.0 (1 constraints: aa1c39c1)
+com.palantir.tritium:tritium-registry:0.131.0 (1 constraints: ab1c3cc1)
 
 commons-io:commons-io:2.22.0 (2 constraints: 0c1f938c)
 
-io.dropwizard.metrics:metrics-core:4.2.38 (2 constraints: 512df897)
+io.dropwizard.metrics:metrics-core:4.2.39 (2 constraints: 532d2998)
 
 joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
