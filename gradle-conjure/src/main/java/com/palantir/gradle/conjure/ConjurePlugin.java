@@ -51,6 +51,7 @@ import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
@@ -564,9 +565,8 @@ public final class ConjurePlugin implements Plugin<Project> {
             String conjureLanguage = extractSubprojectLanguage(project.getName(), subprojectName);
 
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
-            @SuppressWarnings("for-rollout:deprecation")
-            FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
-                    dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + conjureLanguage));
+            FileCollection matchingGeneratorDeps =
+                    generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
 
             @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
@@ -592,6 +592,27 @@ public final class ConjurePlugin implements Plugin<Project> {
                     });
             compileConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
         });
+    }
+
+    /**
+     * Lazily resolves the single generator distribution for {@code generatorName} out of the (potentially
+     * multi-generator) {@code conjureGenerators} configuration.
+     *
+     * <p>This replaces {@code Configuration#fileCollection(Spec)} (removed in Gradle 9) with an artifact view
+     * filtered to the {@code conjure-<generatorName>} module. The view is lazy and carries the configuration's
+     * task dependencies, so it remains configuration-cache friendly, and — because each generator is published
+     * as a single self-contained distribution under a distinct module — selecting by module name yields exactly
+     * the one artifact the extract task expects.
+     */
+    static FileCollection generatorArtifacts(Configuration conjureGeneratorsConfiguration, String generatorName) {
+        String generatorModuleName = CONJURE_GENERATOR_DEP_PREFIX + generatorName;
+        return conjureGeneratorsConfiguration
+                .getIncoming()
+                .artifactView(viewConfiguration -> viewConfiguration.componentFilter(
+                        componentIdentifier ->
+                                componentIdentifier instanceof ModuleComponentIdentifier moduleComponentIdentifier
+                                        && moduleComponentIdentifier.getModule().equals(generatorModuleName)))
+                .getFiles();
     }
 
     /**

@@ -166,9 +166,8 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
 
         genericSubProjects.forEach((subprojectName, subproject) -> {
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
-            @SuppressWarnings("for-rollout:deprecation")
-            FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
-                    dep -> dep.getName().equals(ConjurePlugin.CONJURE_GENERATOR_DEP_PREFIX + subprojectName));
+            FileCollection matchingGeneratorDeps =
+                    ConjurePlugin.generatorArtifacts(conjureGeneratorsConfiguration, subprojectName);
 
             @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
