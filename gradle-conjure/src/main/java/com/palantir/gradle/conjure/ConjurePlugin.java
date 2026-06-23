@@ -593,7 +593,10 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    // Replaces Configuration#fileCollection(Spec), removed in Gradle 9.
+    /**
+     * Lazily resolves the single generator distribution for {@code generatorName} out of the (potentially
+     * multi-generator) {@code conjureGenerators} configuration.
+     */
     static FileCollection generatorArtifacts(Configuration conjureGeneratorsConfiguration, String generatorName) {
         String generatorModuleName = CONJURE_GENERATOR_DEP_PREFIX + generatorName;
         return conjureGeneratorsConfiguration
