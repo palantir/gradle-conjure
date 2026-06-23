@@ -565,8 +565,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             String conjureLanguage = extractSubprojectLanguage(project.getName(), subprojectName);
 
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
-            FileCollection matchingGeneratorDeps =
-                    generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
+            FileCollection matchingGeneratorDeps = generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
 
             @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
@@ -608,10 +607,9 @@ public final class ConjurePlugin implements Plugin<Project> {
         String generatorModuleName = CONJURE_GENERATOR_DEP_PREFIX + generatorName;
         return conjureGeneratorsConfiguration
                 .getIncoming()
-                .artifactView(viewConfiguration -> viewConfiguration.componentFilter(
-                        componentIdentifier ->
-                                componentIdentifier instanceof ModuleComponentIdentifier moduleComponentIdentifier
-                                        && moduleComponentIdentifier.getModule().equals(generatorModuleName)))
+                .artifactView(viewConfiguration -> viewConfiguration.componentFilter(componentIdentifier ->
+                        componentIdentifier instanceof ModuleComponentIdentifier moduleComponentIdentifier
+                                && moduleComponentIdentifier.getModule().equals(generatorModuleName)))
                 .getFiles();
     }
 
