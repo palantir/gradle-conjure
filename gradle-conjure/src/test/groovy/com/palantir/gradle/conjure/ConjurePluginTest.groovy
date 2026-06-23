@@ -144,9 +144,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         """.stripIndent()
 
         when:
-        // extractConjurePostman is wired off ConjurePlugin.generatorArtifacts: the artifact view must select
-        // exactly the single conjure-postman distribution out of the (multi-generator) conjureGenerators
-        // configuration, otherwise ExtractExecutableTask fails ("Expected exactly one dependency ...").
+        // The artifact view must select exactly the conjure-postman distribution out of conjureGenerators.
         BuildResult result = runTasksWithConfigurationCache(':api:extractConjurePostman')
 
         then:

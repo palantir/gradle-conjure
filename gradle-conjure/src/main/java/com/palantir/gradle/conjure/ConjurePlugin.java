@@ -593,16 +593,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         });
     }
 
-    /**
-     * Lazily resolves the single generator distribution for {@code generatorName} out of the (potentially
-     * multi-generator) {@code conjureGenerators} configuration.
-     *
-     * <p>This replaces {@code Configuration#fileCollection(Spec)} (removed in Gradle 9) with an artifact view
-     * filtered to the {@code conjure-<generatorName>} module. The view is lazy and carries the configuration's
-     * task dependencies, so it remains configuration-cache friendly, and — because each generator is published
-     * as a single self-contained distribution under a distinct module — selecting by module name yields exactly
-     * the one artifact the extract task expects.
-     */
+    // Replaces Configuration#fileCollection(Spec), removed in Gradle 9.
     static FileCollection generatorArtifacts(Configuration conjureGeneratorsConfiguration, String generatorName) {
         String generatorModuleName = CONJURE_GENERATOR_DEP_PREFIX + generatorName;
         return conjureGeneratorsConfiguration
