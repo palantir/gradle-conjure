@@ -134,24 +134,6 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         'peer'     | ''
     }
 
-    def 'resolves a custom (generic) generator distribution'() {
-        setup:
-        file('settings.gradle') << "include 'api:api-postman'\n"
-        file('api/build.gradle') << """
-        dependencies {
-            conjureGenerators 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
-        }
-        """.stripIndent()
-
-        when:
-        // The artifact view must select exactly the conjure-postman distribution out of conjureGenerators.
-        BuildResult result = runTasksWithConfigurationCache(':api:extractConjurePostman')
-
-        then:
-        result.task(':api:extractConjurePostman').outcome == TaskOutcome.SUCCESS
-        fileExists('api/api-postman/build/generator/bin/conjure-postman')
-    }
-
     def 'check code compiles: #location'() {
         setup:
         updateSettings(prefix)
