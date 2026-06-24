@@ -673,7 +673,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         'peer'     | ''
     }
 
-    def 'supports generic generators: #location'() {
+    def 'supports generic generators: #location (gradle #gradleVersion)'() {
         setup:
         addSubproject('api:api-postman')
 
@@ -706,9 +706,9 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         file(prefixPath(prefix, 'api-postman/src/api.postman_collection.json')).text.contains('"version" : "1.0.0"')
 
         where:
-        location   | prefix
-        'sub'      | 'api'
-        'peer'     | ''
+        [gradleVersion, location, prefix] << [TestVersions.VERSIONS, [['sub', 'api'], ['peer', '']]]
+                .combinations()
+                .collect { [it[0]] + it[1] }
     }
 
     def 'generic setup is a no-op if there no generic subprojects: #location'() {
