@@ -51,6 +51,7 @@ import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
@@ -564,9 +565,7 @@ public final class ConjurePlugin implements Plugin<Project> {
             String conjureLanguage = extractSubprojectLanguage(project.getName(), subprojectName);
 
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
-            @SuppressWarnings("for-rollout:deprecation")
-            FileCollection matchingGeneratorDeps = conjureGeneratorsConfiguration.fileCollection(
-                    dep -> dep.getName().equals(CONJURE_GENERATOR_DEP_PREFIX + conjureLanguage));
+            FileCollection matchingGeneratorDeps = generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
 
             @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
@@ -592,6 +591,20 @@ public final class ConjurePlugin implements Plugin<Project> {
                     });
             compileConjure.configure(t -> t.dependsOn(conjureLocalGenerateTask));
         });
+    }
+
+    /**
+     * Lazily resolves the single generator distribution for {@code generatorName} out of the (potentially
+     * multi-generator) {@code conjureGenerators} configuration.
+     */
+    static FileCollection generatorArtifacts(Configuration conjureGeneratorsConfiguration, String generatorName) {
+        String generatorModuleName = CONJURE_GENERATOR_DEP_PREFIX + generatorName;
+        return conjureGeneratorsConfiguration
+                .getIncoming()
+                .artifactView(viewConfiguration -> viewConfiguration.componentFilter(componentIdentifier ->
+                        componentIdentifier instanceof ModuleComponentIdentifier moduleComponentIdentifier
+                                && moduleComponentIdentifier.getModule().equals(generatorModuleName)))
+                .getFiles();
     }
 
     /**

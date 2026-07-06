@@ -108,15 +108,18 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
         fileExists('python/python/conjure-api/conjure_spec/__init__.py')
     }
 
-    def "custom generator throws if generator missing"() {
+    def "custom generator throws if generator missing: #gradleVersion"() {
         addSubproject("postman")
 
         expect:
         def output = runTasksAndFailWithConfigurationCache("generateConjure").output
         output.contains("without corresponding generator dependency")
+
+        where:
+        gradleVersion << TestVersions.VERSIONS
     }
 
-    def 'supports custom postman generator'() {
+    def 'supports custom postman generator: #gradleVersion'() {
         addSubproject("postman")
 
         when:
@@ -132,5 +135,8 @@ class ConjureLocalPluginTest extends ConfigurationCacheSpec implements FileExist
         fileExists('postman/postman/conjure-api/conjure-api.postman_collection.json')
         file('postman/postman/conjure-api/conjure-api.postman_collection.json')
                 .text.contains(""""version" : "${TestVersions.CONJURE}\"""")
+
+        where:
+        gradleVersion << TestVersions.VERSIONS
     }
 }
