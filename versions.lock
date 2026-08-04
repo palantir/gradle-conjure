@@ -1,26 +1,26 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.21 (12 constraints: 2fd8a1ff)
+com.fasterxml.jackson.core:jackson-annotations:2.22 (12 constraints: 35d8160a)
 
-com.fasterxml.jackson.core:jackson-core:2.21.4 (10 constraints: c3df1fcf)
+com.fasterxml.jackson.core:jackson-core:2.22.1 (10 constraints: b3df6db9)
 
-com.fasterxml.jackson.core:jackson-databind:2.21.4 (13 constraints: 3823e87e)
+com.fasterxml.jackson.core:jackson-databind:2.22.1 (13 constraints: 2a238460)
 
-com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.21.4 (1 constraints: 331b1247)
+com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.22.1 (1 constraints: 331b1247)
 
-com.fasterxml.jackson.datatype:jackson-datatype-guava:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.datatype:jackson-datatype-guava:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-joda:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.datatype:jackson-datatype-joda:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.4 (1 constraints: 7f1c9ba4)
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.1 (1 constraints: 7f1c9ba4)
 
-com.fasterxml.woodstox:woodstox-core:7.1.1 (1 constraints: 3d174926)
+com.fasterxml.woodstox:woodstox-core:7.2.0 (1 constraints: 3d174b26)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
@@ -92,7 +92,7 @@ net.bytebuddy:byte-buddy:1.18.11 (3 constraints: 091c67f0)
 
 org.apache.commons:commons-lang3:3.20.0 (1 constraints: 3705393b)
 
-org.codehaus.woodstox:stax2-api:4.2.2 (2 constraints: 6a278bd2)
+org.codehaus.woodstox:stax2-api:4.3.0 (2 constraints: 682760d2)
 
 org.eclipse.collections:eclipse-collections:13.0.0 (1 constraints: 1c1091a9)
 
