@@ -42,23 +42,23 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.39.0 (1 c
 
 com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.39.0 (1 constraints: 4605763b)
 
-com.palantir.gradle.better-exec:better-exec:3.9.0 (1 constraints: 0e051536)
+com.palantir.gradle.better-exec:better-exec:3.10.0 (1 constraints: 3605353b)
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-common:1.18.0 (1 constraints: f21c3bc2)
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-exceptions:1.18.0 (1 constraints: 4f12a819)
 
-com.palantir.gradle.utils:circleci-artifacts:0.24.0 (1 constraints: 4b129a19)
+com.palantir.gradle.utils:circleci-artifacts:0.26.0 (1 constraints: 4d12a019)
 
-com.palantir.gradle.utils:environment-variables:0.26.0 (3 constraints: 7b2a0994)
+com.palantir.gradle.utils:environment-variables:0.26.0 (3 constraints: 7f2a8194)
 
-com.palantir.gradle.utils:exec:0.24.0 (1 constraints: 310f6776)
+com.palantir.gradle.utils:exec:0.26.0 (1 constraints: 330f6d76)
 
-com.palantir.gradle.utils:platform:0.24.0 (1 constraints: 4b129a19)
+com.palantir.gradle.utils:platform:0.26.0 (1 constraints: 4d12a019)
 
-com.palantir.gradle.utils:providers:0.24.0 (2 constraints: 6820125d)
+com.palantir.gradle.utils:providers:0.26.0 (2 constraints: 6c206e5d)
 
-com.palantir.gradle.utils:safe-exec-commandline:0.24.0 (1 constraints: 710de031)
+com.palantir.gradle.utils:safe-exec-commandline:0.26.0 (1 constraints: 730de631)
 
 com.palantir.ri:resource-identifier:2.20.0 (1 constraints: 1c108ea9)
 
