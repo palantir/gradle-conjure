@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Allow empty max versions without default values.
-  links:
-    - https://github.com/palantir/gradle-conjure/pull/883

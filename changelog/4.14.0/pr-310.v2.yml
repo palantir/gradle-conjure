@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Enable Gradle remote build caches for ConjureGeneratorTasks.
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/310

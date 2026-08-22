@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: support for writing endpoint minimum version info to jar
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/762

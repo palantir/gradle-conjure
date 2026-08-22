@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Support setting boolean Conjure CLI flags with true values
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/1678

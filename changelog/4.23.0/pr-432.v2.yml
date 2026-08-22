@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: '`recommendedVersion` is no longer required.'
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/432

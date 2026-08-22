@@ -1,5 +1,0 @@
-type: fix
-fix:
-  description: Revert using BetterExec to avoid publishing failures internally.
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/1600
