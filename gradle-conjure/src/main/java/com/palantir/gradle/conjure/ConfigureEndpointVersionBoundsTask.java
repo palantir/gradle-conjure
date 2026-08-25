@@ -33,7 +33,9 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "Not opting into build caching; explicit opt-out is required by Gradle 9.7")
 public abstract class ConfigureEndpointVersionBoundsTask extends DefaultTask {
     @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private final ListProperty<EndpointVersionBound> endpointVersions =
