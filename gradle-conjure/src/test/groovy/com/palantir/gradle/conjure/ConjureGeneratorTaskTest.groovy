@@ -26,6 +26,7 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExi
         include 'api'
         include 'api:api-objects'
         """.stripIndent()
+        directory('api/api-objects')
 
         createFile('build.gradle') << """
         allprojects {
