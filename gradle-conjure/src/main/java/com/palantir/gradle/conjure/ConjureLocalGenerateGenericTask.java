@@ -21,9 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.gradle.work.DisableCachingByDefault;
 
-@DisableCachingByDefault(because = "Not opting into build caching; explicit opt-out is required by Gradle 9.7")
 public abstract class ConjureLocalGenerateGenericTask extends ConjureLocalGenerateTask {
 
     @Override

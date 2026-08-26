@@ -622,7 +622,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
-            @SuppressWarnings("for-rollout:deprecation")
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
             List<String> genericLanguages = Arrays.asList(names.split(",\\s*"));
             return genericLanguages.stream()

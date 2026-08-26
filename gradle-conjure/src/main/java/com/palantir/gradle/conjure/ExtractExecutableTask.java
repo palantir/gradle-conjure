@@ -46,9 +46,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.work.DisableCachingByDefault;
 
-@DisableCachingByDefault(because = "Not opting into build caching; explicit opt-out is required by Gradle 9.7")
 public abstract class ExtractExecutableTask extends Sync {
     @SuppressWarnings("for-rollout:GradleTypesAsFields")
     private FileCollection archive;

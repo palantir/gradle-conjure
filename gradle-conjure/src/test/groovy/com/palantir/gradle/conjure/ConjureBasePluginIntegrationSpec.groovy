@@ -120,7 +120,7 @@ class ConjureBasePluginIntegrationSpec extends ConfigurationCacheSpec {
             }
         }
         """.stripIndent()
-        file("gradle.properties") << "\norg.gradle.caching = true\n"
+        buildCacheEnabled = true
 
         when:
         file('src/main/conjure/api.yml') << API_YML
