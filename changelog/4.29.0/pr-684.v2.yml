@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Several standard generators are extracted to the project root
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/684

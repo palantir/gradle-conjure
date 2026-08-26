@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Allow a single optional service dependency
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/982

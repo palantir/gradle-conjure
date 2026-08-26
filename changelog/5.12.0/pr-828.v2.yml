@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: use the task-config avoidance APIs and newer Property APIs
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/828

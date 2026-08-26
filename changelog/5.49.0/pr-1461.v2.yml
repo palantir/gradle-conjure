@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Generate .npmrc before installing TypeScript dependencies
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/1461

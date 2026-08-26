@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Configure publishing to gradle plugin portal
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/995

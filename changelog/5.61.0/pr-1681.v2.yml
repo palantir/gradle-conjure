@@ -1,6 +1,0 @@
-type: improvement
-improvement:
-  description: Use `com.palantir.gradle.plugintesting.ConfigurationCacheSpec` instead
-    of our own implementation
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/1681

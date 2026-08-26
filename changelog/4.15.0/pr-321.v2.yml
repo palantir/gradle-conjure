@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Retrofit API projects now include a dependency on Guava.
-  links:
-  - https://github.com/palantir/gradle-conjure/pull/321

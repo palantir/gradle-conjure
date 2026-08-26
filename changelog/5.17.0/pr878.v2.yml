@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Max version in EndpointVersionBound is Optional instead of defaulting to "x.x.x"
-  links:
-    - https://github.com/palantir/gradle-conjure/pull/878
