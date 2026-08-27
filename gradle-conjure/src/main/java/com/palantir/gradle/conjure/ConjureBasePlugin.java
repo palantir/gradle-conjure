@@ -132,7 +132,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
         Configuration conjureIr = project.getConfigurations().create(CONJURE_IR_CONFIGURATION, conf -> {
             conf.setCanBeResolved(false);
             conf.setCanBeConsumed(true);
-            conf.setVisible(true);
+
             conf.getAttributes().attribute(CONJURE_USAGE, project.getObjects().named(Usage.class, "conjure"));
         });
         project.getArtifacts()

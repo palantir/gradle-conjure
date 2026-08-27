@@ -33,6 +33,9 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         addSubproject('api:api-jersey')
         addSubproject('api:api-undertow')
         addSubproject('api:api-typescript')
+        ['api/api-objects', 'api/api-jersey', 'api/api-undertow', 'api/api-typescript'].each {
+            projectDirectory -> directory(projectDirectory)
+        }
 
         buildFile << """
         buildscript {

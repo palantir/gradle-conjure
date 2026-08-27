@@ -31,6 +31,7 @@ class ConjurePublishTypeScriptTest extends ConfigurationCacheSpec {
         include 'api:api-typescript'
         include 'server'
         '''.stripIndent()
+        ['api/api-typescript', 'server'].each { projectDirectory -> directory(projectDirectory) }
 
         createFile('build.gradle') << """
         buildscript {

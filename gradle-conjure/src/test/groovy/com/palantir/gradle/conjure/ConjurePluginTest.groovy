@@ -36,6 +36,14 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         include 'api:api-dialogue'
         include 'server'
         '''.stripIndent()
+        [
+            'api/api-objects',
+            'api/api-jersey',
+            'api/api-typescript',
+            'api/api-undertow',
+            'api/api-dialogue',
+            'server'
+        ].each { projectDirectory -> directory(projectDirectory) }
 
         buildFile << """
         buildscript {
@@ -44,7 +52,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 gradlePluginPortal()
             }
             dependencies {
-                classpath 'com.palantir.baseline:gradle-baseline-java:6.25.0'
+                classpath 'com.palantir.baseline:gradle-baseline-java:7.8.0'
             }
         }
         
@@ -696,6 +704,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
             }
             """.stripIndent()
         updateSettings(prefix)
+        directory(prefixPath(prefix, 'api-postman'))
 
         when:
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
@@ -793,6 +802,10 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
             apiProjectFile.text = '''
             project.ext['com.palantir.conjure.use_flat_project_structure']=true
             ''' + apiProjectFile.text
+
+            ['api-objects', 'api-jersey', 'api-typescript', 'api-undertow', 'api-dialogue'].each {
+                projectDirectory -> directory(projectDirectory)
+            }
         }
     }
 
