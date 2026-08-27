@@ -52,7 +52,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 gradlePluginPortal()
             }
             dependencies {
-                classpath 'com.palantir.baseline:gradle-baseline-java:6.25.0'
+                classpath 'com.palantir.baseline:gradle-baseline-java:7.8.0'
             }
         }
         
