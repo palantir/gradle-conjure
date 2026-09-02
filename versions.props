@@ -16,7 +16,7 @@ org.junit.platform:* = 6.1.3
 org.mockito:* = 5.23.0
 com.palantir.sls-packaging:* = 7.89.0
 com.palantir.conjure.java.runtime:* = 8.41.0
-net.bytebuddy:byte-buddy = 1.18.12
+net.bytebuddy:byte-buddy = 1.18.13
 com.palantir.gradle.better-exec:* = 3.10.0
 
 # Resolve conflicts
