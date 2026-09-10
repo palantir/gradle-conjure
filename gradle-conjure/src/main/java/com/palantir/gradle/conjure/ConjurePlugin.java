@@ -308,7 +308,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         project.getDependencies().add("api", Dependencies.CONJURE_UNDERTOW_LIB);
     }
 
-    @SuppressWarnings({"unchecked", "RawTypes"})
+    @SuppressWarnings({"RawTypes", "unchecked"})
     static void ignoreFromCheckUnusedDependencies(Project proj) {
         proj.getPlugins().withId("com.palantir.baseline-exact-dependencies", plugin -> {
             Class<? extends Task> checkUnusedDependenciesTask;
