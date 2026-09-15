@@ -1,10 +1,10 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.22 (12 constraints: 38d8e00b)
+com.fasterxml.jackson.core:jackson-annotations:2.22 (12 constraints: 3ad8370c)
 
 com.fasterxml.jackson.core:jackson-core:2.22.1 (10 constraints: afdfd1b8)
 
-com.fasterxml.jackson.core:jackson-databind:2.22.1 (13 constraints: 2423965b)
+com.fasterxml.jackson.core:jackson-databind:2.22.1 (13 constraints: 20237459)
 
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.22.1 (1 constraints: 7d1c9ba4)
 
@@ -24,23 +24,23 @@ com.fasterxml.woodstox:woodstox-core:7.2.0 (1 constraints: 3d174b26)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
-com.google.errorprone:error_prone_annotations:2.50.0 (11 constraints: 5aad6ecf)
+com.google.errorprone:error_prone_annotations:2.50.0 (11 constraints: 4aada0c2)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
-com.google.guava:guava:33.7.1-jre (9 constraints: 89cbe343)
+com.google.guava:guava:33.7.1-jre (9 constraints: 8ccb8245)
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 
 com.google.j2objc:j2objc-annotations:3.1 (1 constraints: b809f1a0)
 
-com.palantir.conjure.java:conjure-lib:8.84.0 (1 constraints: 8a1cdca4)
+com.palantir.conjure.java:conjure-lib:8.86.0 (1 constraints: 8c1ce2a4)
 
-com.palantir.conjure.java.api:errors:2.76.0 (1 constraints: 2710b4a9)
+com.palantir.conjure.java.api:errors:2.78.0 (1 constraints: 2910baa9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.41.0 (1 constraints: 831cc3a4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.42.0 (1 constraints: 841cc6a4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.41.0 (1 constraints: 3f05623b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.42.0 (1 constraints: 4005653b)
 
 com.palantir.gradle.better-exec:better-exec:3.10.0 (1 constraints: 3605353b)
 
@@ -60,31 +60,31 @@ com.palantir.gradle.utils:providers:0.26.0 (2 constraints: 6c206e5d)
 
 com.palantir.gradle.utils:safe-exec-commandline:0.26.0 (1 constraints: 730de631)
 
-com.palantir.ri:resource-identifier:2.20.0 (1 constraints: 1c108ea9)
+com.palantir.ri:resource-identifier:2.22.0 (1 constraints: 1e1094a9)
 
-com.palantir.safe-logging:logger:3.18.0 (4 constraints: 064a716b)
+com.palantir.safe-logging:logger:3.19.0 (4 constraints: 094a516c)
 
-com.palantir.safe-logging:logger-slf4j:3.18.0 (1 constraints: 370e9f50)
+com.palantir.safe-logging:logger-slf4j:3.19.0 (1 constraints: 380ea250)
 
-com.palantir.safe-logging:logger-spi:3.18.0 (2 constraints: 7d1e84b1)
+com.palantir.safe-logging:logger-spi:3.19.0 (2 constraints: 7f1ebab1)
 
-com.palantir.safe-logging:preconditions:3.18.0 (9 constraints: d2a50de7)
+com.palantir.safe-logging:preconditions:3.19.0 (9 constraints: daa5c7ee)
 
-com.palantir.safe-logging:safe-logging:3.18.0 (9 constraints: da9cb8a8)
+com.palantir.safe-logging:safe-logging:3.19.0 (9 constraints: e39c02b1)
 
 com.palantir.sls-packaging:gradle-recommended-product-dependencies:7.89.0 (1 constraints: 4a05843b)
 
 com.palantir.sls.versions:sls-versions:1.18.0 (2 constraints: bc202f2a)
 
-com.palantir.tokens:auth-tokens:4.7.0 (1 constraints: f30f8999)
+com.palantir.tokens:auth-tokens:4.9.0 (1 constraints: f50f8f99)
 
 com.palantir.tritium:tritium-ids:0.128.0 (1 constraints: fe0f9aa6)
 
-com.palantir.tritium:tritium-registry:0.136.0 (1 constraints: b01c4bc1)
+com.palantir.tritium:tritium-registry:0.137.0 (1 constraints: b11c4ec1)
 
 commons-io:commons-io:2.22.0 (2 constraints: 0c1f938c)
 
-io.dropwizard.metrics:metrics-core:4.2.39 (2 constraints: 532d2998)
+io.dropwizard.metrics:metrics-core:4.2.40 (2 constraints: 4b2daa96)
 
 joda-time:joda-time:2.12.7 (1 constraints: 2f16b1f1)
 
@@ -102,7 +102,7 @@ org.immutables:value:2.12.2 (2 constraints: 0215eec1)
 
 org.jetbrains:annotations:26.1.0 (4 constraints: b5497ba5)
 
-org.jspecify:jspecify:1.0.1 (12 constraints: c0bb826f)
+org.jspecify:jspecify:1.0.1 (12 constraints: c2bb5072)
 
 org.slf4j:slf4j-api:2.0.17 (4 constraints: 623e9372)
 
