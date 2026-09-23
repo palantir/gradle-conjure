@@ -53,7 +53,6 @@ abstract class ExtractConjurePlugin implements Plugin<Project> {
     @Override
     public final void apply(Project project) {
         Configuration configuration = project.getConfigurations().maybeCreate(configurationName);
-        @SuppressWarnings("for-rollout:deprecation")
         File outputDir = new File(project.getBuildDir(), configurationName);
         project.getDependencies().add(configurationName, dependency);
         ExtractExecutableTask.createExtractTask(project, taskName, configuration, outputDir, executableName);
