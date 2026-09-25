@@ -30,7 +30,7 @@ final class Dependencies {
 
     static final String CONJURE_JAVA_LIB = "com.palantir.conjure.java:conjure-lib:8.22.0";
     static final String CONJURE_UNDERTOW_LIB = "com.palantir.conjure.java:conjure-undertow-lib:8.22.0";
-    static final String DIALOGUE_TARGET = "com.palantir.dialogue:dialogue-target:3.135.0";
+    static final String DIALOGUE_TARGET = "com.palantir.dialogue:dialogue-target:6.42.0";
     /**
      * Includes a version in order to ensure upgrades that opt into annotations
      * have a minimum version rather than failing builds.
