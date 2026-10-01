@@ -1,6 +1,6 @@
 # Run ./gradlew writeVersionsLocks to regenerate this file. Blank lines are to minimize merge conflicts.
 
-com.fasterxml.jackson.core:jackson-annotations:2.22 (12 constraints: 3ad8370c)
+com.fasterxml.jackson.core:jackson-annotations:2.22 (12 constraints: 3bd8b80c)
 
 com.fasterxml.jackson.core:jackson-core:2.22.3 (10 constraints: bfdf93ce)
 
@@ -42,23 +42,23 @@ com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.42.0 (1 c
 
 com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.42.0 (1 constraints: 4005653b)
 
-com.palantir.gradle.better-exec:better-exec:3.10.0 (1 constraints: 3605353b)
+com.palantir.gradle.better-exec:better-exec:3.11.0 (1 constraints: 3705383b)
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-common:1.18.0 (1 constraints: f21c3bc2)
 
 com.palantir.gradle.failure-reports:gradle-failure-reports-exceptions:1.18.0 (1 constraints: 4f12a819)
 
-com.palantir.gradle.utils:circleci-artifacts:0.26.0 (1 constraints: 4d12a019)
+com.palantir.gradle.utils:circleci-artifacts:0.29.0 (1 constraints: 5012a919)
 
-com.palantir.gradle.utils:environment-variables:0.29.0 (3 constraints: 822acb95)
+com.palantir.gradle.utils:environment-variables:0.29.0 (3 constraints: 882a7f96)
 
-com.palantir.gradle.utils:exec:0.26.0 (1 constraints: 330f6d76)
+com.palantir.gradle.utils:exec:0.29.0 (1 constraints: 360f7676)
 
-com.palantir.gradle.utils:platform:0.26.0 (1 constraints: 4d12a019)
+com.palantir.gradle.utils:platform:0.29.0 (1 constraints: 5012a919)
 
-com.palantir.gradle.utils:providers:0.26.0 (2 constraints: 6c206e5d)
+com.palantir.gradle.utils:providers:0.29.0 (2 constraints: 7220f85d)
 
-com.palantir.gradle.utils:safe-exec-commandline:0.26.0 (1 constraints: 730de631)
+com.palantir.gradle.utils:safe-exec-commandline:0.29.0 (1 constraints: 760def31)
 
 com.palantir.ri:resource-identifier:2.22.0 (1 constraints: 1e1094a9)
 
