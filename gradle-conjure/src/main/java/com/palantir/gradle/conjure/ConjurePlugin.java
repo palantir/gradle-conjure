@@ -637,6 +637,8 @@ public final class ConjurePlugin implements Plugin<Project> {
     static void addGeneratedToMainSourceSet(Project subproj, TaskProvider<?> conjureGeneratorTask) {
         JavaPluginExtension javaPlugin = subproj.getExtensions().getByType(JavaPluginExtension.class);
         javaPlugin.getSourceSets().getByName("main").getJava().srcDir(conjureGeneratorTask);
+        // Resource filtering inspects Java sources, so it must wait for generation or cache restoration to finish.
+        subproj.getTasks().named("processResources").configure(task -> task.dependsOn(conjureGeneratorTask));
     }
 
     static void configureIdeGeneratedSources(Project project, Provider<Directory> generated) {
