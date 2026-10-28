@@ -50,7 +50,7 @@ com.palantir.gradle.failure-reports:gradle-failure-reports-exceptions:1.18.0 (1 
 
 com.palantir.gradle.utils:circleci-artifacts:0.30.0 (1 constraints: 48129219)
 
-com.palantir.gradle.utils:environment-variables:0.30.0 (3 constraints: 702a3291)
+com.palantir.gradle.utils:environment-variables:0.31.0 (3 constraints: 712aa091)
 
 com.palantir.gradle.utils:exec:0.30.0 (1 constraints: 2e0f5f76)
 
