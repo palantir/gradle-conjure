@@ -143,7 +143,6 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     }
 
     private static TaskProvider<Copy> createCopyConjureSourceTask(Project project, SourceDirectorySet sourceset) {
-        @SuppressWarnings("for-rollout:deprecation")
         File buildDir = new File(project.getBuildDir(), "conjure");
         TaskProvider<Copy> copyConjureSourcesTask = project.getTasks()
                 .register("copyConjureSourcesIntoBuild", Copy.class, task -> {
