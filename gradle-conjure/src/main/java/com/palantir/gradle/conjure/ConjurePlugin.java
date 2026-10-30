@@ -473,7 +473,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         String pythonProjectName = project.getName() + "-python";
         if (derivedProjectExists(project, pythonProjectName)) {
             project.project(derivedProjectPath(project, pythonProjectName), subproj -> {
-                @SuppressWarnings("for-rollout:deprecation")
                 File buildDir = new File(project.getBuildDir(), "python");
                 File distDir = new File(buildDir, "dist");
                 TaskProvider<ExtractExecutableTask> extractConjurePythonTask =
@@ -567,7 +566,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
             FileCollection matchingGeneratorDeps = generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
 
-            @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
                     "extractConjure" + StringUtils.capitalize(conjureLanguage),
