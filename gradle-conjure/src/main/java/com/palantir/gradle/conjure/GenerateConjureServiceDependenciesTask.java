@@ -32,7 +32,9 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "Not opting into build caching; explicit opt-out is required by Gradle 9.7")
 public abstract class GenerateConjureServiceDependenciesTask extends DefaultTask {
     private static final Pattern GROUP_PATTERN = Pattern.compile("^[^:@?\\s]+");
     private static final Pattern NAME_PATTERN = Pattern.compile("^[^:@?\\s]+");
