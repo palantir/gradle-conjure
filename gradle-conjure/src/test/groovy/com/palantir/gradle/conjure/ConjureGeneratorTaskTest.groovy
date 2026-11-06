@@ -68,7 +68,7 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExi
         BuildResult result = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:rawIr')
 
         // java
         new File(projectDir, 'api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
@@ -89,9 +89,9 @@ class ConjureGeneratorTaskTest extends ConfigurationCacheSpec implements FileExi
         BuildResult result2 = runTasksWithConfigurationCache(':api:compileConjure')
 
         then:
-        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:rawIr')
 
-        result2.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:compileIr')
+        result2.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:compileConjure', ':api:compileConjureObjects', ':api:rawIr')
 
         // java
         !fileExists('api/api-objects/build/generated/sources/conjure-objects/java/main/test/test/api/StringExample.java')
