@@ -49,6 +49,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     static final String TASK_GROUP = "Conjure";
 
     private TaskProvider<CompileIrTask> compileIrProvider = null;
+    private TaskProvider<CompileIrTask> rawIrProvider = null;
     private ConjureExtension conjureExtension = null;
 
     @SuppressWarnings("for-rollout:NonAbstractGradleType")
@@ -64,8 +65,9 @@ public final class ConjureBasePlugin implements Plugin<Project> {
         conjureExtension = project.getExtensions().create(ConjureExtension.EXTENSION_NAME, ConjureExtension.class);
         SourceDirectorySet conjureSourceSet = createConjureSourceSet(project);
         TaskProvider<Copy> copyConjureSourcesTask = createCopyConjureSourceTask(project, conjureSourceSet);
-        compileIrProvider =
-                createIrTasks(project, conjureProductDependenciesExtension, conjureExtension, copyConjureSourcesTask);
+        IrTasks irTasks = createIrTasks(project, conjureProductDependenciesExtension, conjureExtension, copyConjureSourcesTask);
+        compileIrProvider = irTasks.compileIrTask;
+        rawIrProvider = irTasks.rawIrTask;
         createServiceDependenciesTask(project, conjureProductDependenciesExtension);
         createOutgoingConfiguration(project, compileIrProvider);
     }
@@ -80,6 +82,11 @@ public final class ConjureBasePlugin implements Plugin<Project> {
                 compileIrProvider, "compileIr task has not been registered. Has this plugin been applied?");
     }
 
+    TaskProvider<CompileIrTask> rawIrProvider() {
+        return Objects.requireNonNull(
+                rawIrProvider, "rawIr task has not been registered. Has this plugin been applied?");
+    }
+
     private static SourceDirectorySet createConjureSourceSet(Project project) {
         // Conjure code source set
         SourceDirectorySet conjureSourceSet = project.getObjects().sourceDirectorySet("conjure", "conjure");
@@ -90,7 +97,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
     }
 
     @SuppressWarnings("for-rollout:TaskDependsOn")
-    private static TaskProvider<CompileIrTask> createIrTasks(
+    private static IrTasks createIrTasks(
             Project project,
             ConjureProductDependenciesExtension pdepsExtension,
             ConjureExtension conjureExtension,
@@ -99,7 +106,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
 
         Provider<Directory> irDir = project.getLayout().getBuildDirectory().dir("conjure-ir");
 
-        project.getTasks().register("rawIr", CompileIrTask.class, rawIr -> {
+        TaskProvider<CompileIrTask> rawIrTask = project.getTasks().register("rawIr", CompileIrTask.class, rawIr -> {
             rawIr.getInputDirectory().set(project.getLayout().dir(copyConjureSourcesTask.map(Copy::getDestinationDir)));
             rawIr.getExecutableDir().set(extractCompilerTask.flatMap(ExtractExecutableTask::getOutputDirectory));
             rawIr.getOutputIrFile().set(irDir.map(dir -> dir.file("rawIr.conjure.json")));
@@ -109,7 +116,7 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             rawIr.dependsOn(extractCompilerTask);
         });
 
-        return project.getTasks().register(COMPILE_IR_TASK, CompileIrTask.class, compileIr -> {
+        TaskProvider<CompileIrTask> compileIrTask = project.getTasks().register(COMPILE_IR_TASK, CompileIrTask.class, compileIr -> {
             compileIr.setDescription("Converts your Conjure YML files into a single portable JSON file in IR format.");
             compileIr.setGroup(ConjureBasePlugin.TASK_GROUP);
 
@@ -125,6 +132,8 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             compileIr.dependsOn(copyConjureSourcesTask);
             compileIr.dependsOn(extractCompilerTask);
         });
+
+        return new IrTasks(compileIrTask, rawIrTask);
     }
 
     private static void createOutgoingConfiguration(Project project, TaskProvider<CompileIrTask> compileIr) {
@@ -173,4 +182,6 @@ public final class ConjureBasePlugin implements Plugin<Project> {
             task.getConjureServiceDependencies().set(ext.getProductDependencies());
         });
     }
+
+    private record IrTasks(TaskProvider<CompileIrTask> compileIrTask, TaskProvider<CompileIrTask> rawIrTask) {}
 }
