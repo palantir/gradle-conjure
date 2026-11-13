@@ -119,7 +119,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 ':api:compileConjureTypeScript',
                 ':api:compileConjureUndertow',
                 ':api:compileConjureDialogue',
-                ':api:compileIr'
+                ':api:rawIr'
         )
 
         // java
@@ -133,8 +133,8 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
         fileExists( prefixPath(prefix, 'api-typescript/build/generated/sources/conjure-typescript/package.json'))
 
         // irFile - these are always in api project
-        fileExists('api/build/conjure-ir/api.conjure.json')
-        file('api/build/conjure-ir/api.conjure.json').text.contains('TestServiceFoo')
+        fileExists('api/build/conjure-ir/rawIr.conjure.json')
+        file('api/build/conjure-ir/rawIr.conjure.json').text.contains('TestServiceFoo')
 
         where:
         location   | prefix
@@ -364,7 +364,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 ':api:compileConjureUndertow',
                 ':api:compileConjureDialogue',
                 ':api:copyConjureSourcesIntoBuild',
-                ':api:compileIr'
+                ':api:rawIr'
         )
 
         where:
@@ -480,7 +480,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 ':api:compileConjure',
                 ':api:compileConjureJersey',
                 ':api:compileConjureObjects',
-                ':api:compileIr'
+                ':api:rawIr'
         )
 
         fileExists('api/build/conjure/internal-import.yml')
@@ -496,7 +496,7 @@ class ConjurePluginTest extends ConfigurationCacheSpec implements FileExists {
                 'import { IInternalImport }')
 
         // ir
-        fileExists( "api/build/conjure-ir/api.conjure.json")
+        fileExists( "api/build/conjure-ir/rawIr.conjure.json")
 
         where:
         location   | prefix
