@@ -473,7 +473,6 @@ public final class ConjurePlugin implements Plugin<Project> {
         String pythonProjectName = project.getName() + "-python";
         if (derivedProjectExists(project, pythonProjectName)) {
             project.project(derivedProjectPath(project, pythonProjectName), subproj -> {
-                @SuppressWarnings("for-rollout:deprecation")
                 File buildDir = new File(project.getBuildDir(), "python");
                 File distDir = new File(buildDir, "dist");
                 TaskProvider<ExtractExecutableTask> extractConjurePythonTask =
@@ -567,7 +566,6 @@ public final class ConjurePlugin implements Plugin<Project> {
             // We create a lazy filtered FileCollection to avoid using afterEvaluate.
             FileCollection matchingGeneratorDeps = generatorArtifacts(conjureGeneratorsConfiguration, conjureLanguage);
 
-            @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
                     "extractConjure" + StringUtils.capitalize(conjureLanguage),
@@ -622,7 +620,6 @@ public final class ConjurePlugin implements Plugin<Project> {
                                 extractSubprojectLanguage(projectName, childProjectName));
             });
         } else if (project.hasProperty(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY)) {
-            @SuppressWarnings("for-rollout:deprecation")
             String names = (String) project.getProperties().get(GENERIC_GENERATOR_LANGUAGE_NAMES_PROPERTY);
             List<String> genericLanguages = Arrays.asList(names.split(",\\s*"));
             return genericLanguages.stream()
