@@ -110,6 +110,7 @@ public final class ConjurePlugin implements Plugin<Project> {
         ConjureBasePlugin conjureBasePlugin = project.getPlugins().apply(ConjureBasePlugin.class);
 
         TaskProvider<?> compileIrTask = conjureBasePlugin.compileIrProvider();
+        TaskProvider<?> rawIrTask = conjureBasePlugin.rawIrProvider();
         TaskProvider<GenerateConjureServiceDependenciesTask> serviceDependencyTask = project.getTasks()
                 .named(ConjureBasePlugin.SERVICE_DEPENDENCIES_TASK, GenerateConjureServiceDependenciesTask.class);
 
@@ -127,14 +128,14 @@ public final class ConjurePlugin implements Plugin<Project> {
         buildDependsOn(project, compileConjure);
 
         setupConjureJavaProjects(
-                project, immutableOptionsSupplier(conjureExtension::getJava), compileConjure, compileIrTask);
+                project, immutableOptionsSupplier(conjureExtension::getJava), compileConjure, rawIrTask);
         setupConjurePythonProject(
-                project, immutableOptionsSupplier(conjureExtension::getPython), compileConjure, compileIrTask);
+                project, immutableOptionsSupplier(conjureExtension::getPython), compileConjure, rawIrTask);
         setupConjureTypescriptProject(
                 project,
                 immutableOptionsSupplier(conjureExtension::getTypescript),
                 compileConjure,
-                compileIrTask,
+                rawIrTask,
                 serviceDependencyTask);
         setupGenericConjureProjects(
                 project,

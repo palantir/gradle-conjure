@@ -121,7 +121,7 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         file('api/build/service-dependencies.json').text.contains('"recommended-version":"1.2.0"')
     }
 
-    def "correctly passes product dependencies to conjure"() {
+    def "does not pass product dependencies to conjure for first-class generators"() {
         file('api/build.gradle') << '''
         serviceDependencies {
             serviceDependency {
@@ -135,6 +135,68 @@ class ConjureServiceDependencyTest extends ConfigurationCacheSpec implements Fil
         '''.stripIndent()
         when:
         def result = runTasksWithConfigurationCacheAndCheck(':api:compileConjure', '--info')
+
+        then:
+        result.output.find('with args: \\[.*, --extensions, '
+                + '\\{"recommended-product-dependencies":\\[\\]\\}') != null
+    }
+
+    def "does not regenerate java when only product dependencies change"() {
+        file('api/build.gradle') << '''
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        '''.stripIndent()
+
+        when:
+        def result = runTasksWithConfigurationCache(':api:compileConjureObjects')
+
+        then:
+        result.tasks(TaskOutcome.SUCCESS)*.path.containsAll(':api:rawIr', ':api:compileConjureObjects')
+
+        when:
+        file('api/build.gradle').text = file('api/build.gradle').text.replace(
+                'recommendedVersion = "1.2.0"', 'recommendedVersion = "1.3.0"')
+        def result2 = runTasksWithConfigurationCache(':api:compileConjureObjects')
+
+        then:
+        result2.tasks(TaskOutcome.UP_TO_DATE)*.path.containsAll(':api:rawIr', ':api:compileConjureObjects')
+    }
+
+    def "passes product dependencies to conjure for generic generators"() {
+        addSubproject('api:api-postman')
+        directory('api/api-postman')
+        file('api/build.gradle') << """
+        dependencies {
+            conjureGenerators 'com.palantir.conjure.postman:conjure-postman:${TestVersions.CONJURE_POSTMAN}'
+        }
+
+        conjure {
+            options "postman", {
+                productName = project.name
+                productVersion = '1.0.0'
+            }
+        }
+
+        serviceDependencies {
+            serviceDependency {
+                productGroup = "com.palantir.conjure"
+                productName = "conjure"
+                minimumVersion = "1.2.0"
+                recommendedVersion = "1.2.0"
+                maximumVersion = "2.x.x"
+            }
+        }
+        """.stripIndent()
+
+        when:
+        def result = runTasksWithConfigurationCacheAndCheck(':api:compileConjurePostman', '--info')
 
         then:
         result.output.find('with args: \\[.*, --extensions, '
