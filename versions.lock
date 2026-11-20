@@ -24,7 +24,7 @@ com.fasterxml.woodstox:woodstox-core:7.2.0 (1 constraints: 3d174b26)
 
 com.google.code.findbugs:jsr305:3.0.2 (3 constraints: e830a05a)
 
-com.google.errorprone:error_prone_annotations:2.52.0 (11 constraints: 50adc4c8)
+com.google.errorprone:error_prone_annotations:2.52.0 (11 constraints: 52adf2cb)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
@@ -34,13 +34,13 @@ com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 c
 
 com.google.j2objc:j2objc-annotations:3.1 (1 constraints: b809f1a0)
 
-com.palantir.conjure.java:conjure-lib:8.99.0 (1 constraints: 901cefa4)
+com.palantir.conjure.java:conjure-lib:8.100.0 (1 constraints: af1c65c1)
 
-com.palantir.conjure.java.api:errors:2.82.0 (1 constraints: 2410aca9)
+com.palantir.conjure.java.api:errors:2.83.0 (1 constraints: 2510afa9)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.49.0 (1 constraints: 8b1cdba4)
+com.palantir.conjure.java.runtime:conjure-java-jackson-optimizations:8.50.0 (1 constraints: 831cc4a4)
 
-com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.49.0 (1 constraints: 47057a3b)
+com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:8.50.0 (1 constraints: 3f05633b)
 
 com.palantir.gradle.better-exec:better-exec:3.12.0 (1 constraints: 38053b3b)
 
@@ -80,7 +80,7 @@ com.palantir.tokens:auth-tokens:4.13.0 (1 constraints: 20109fa9)
 
 com.palantir.tritium:tritium-ids:0.128.0 (1 constraints: fe0f9aa6)
 
-com.palantir.tritium:tritium-registry:0.141.0 (1 constraints: ac1c40c1)
+com.palantir.tritium:tritium-registry:0.143.0 (1 constraints: ae1c46c1)
 
 commons-io:commons-io:2.22.0 (2 constraints: 0c1f938c)
 
