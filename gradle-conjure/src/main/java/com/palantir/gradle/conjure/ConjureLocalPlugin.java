@@ -169,7 +169,6 @@ public final class ConjureLocalPlugin implements Plugin<Project> {
             FileCollection matchingGeneratorDeps =
                     ConjurePlugin.generatorArtifacts(conjureGeneratorsConfiguration, subprojectName);
 
-            @SuppressWarnings("for-rollout:deprecation")
             TaskProvider<ExtractExecutableTask> extractConjureGeneratorTask = ExtractExecutableTask.createExtractTask(
                     project,
                     "extractConjure" + StringUtils.capitalize(subprojectName),
